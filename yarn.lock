@@ -531,10 +531,10 @@
   dependencies:
     mkdirp "^1.0.4"
 
-"@plix/core@^1.0.0":
-  version "1.0.0"
-  resolved "http://npm.myxomopx.ru:80/@plix%2fcore/-/core-1.0.0.tgz#99876e58a81152687755009bb9c07033c82bc2c2"
-  integrity sha512-qS1RiFZZ3pBSyb5IPgmD0a+uSedHQ9QZ3YoWYfnyGNqCkXuXJyox4DyKIvRNKRqzxGZxYGSKnyDh5uGIhp8n8Q==
+"@plix/core@^1.0.3":
+  version "1.0.9"
+  resolved "http://npm.myxomopx.ru:80/@plix%2fcore/-/core-1.0.9.tgz#e90824b3e8cbb4e4decba9da2b96400d013fa83d"
+  integrity sha512-CSGt8hGqLYalBDnHrdw/yIEW3MHsUu9v29+XVUAkfpW/mMSIOyZyADYVoJMMjxYBf3roVotGRfzqpVPzY2Wtog==
   dependencies:
     "@types/jest" "^25.1.4"
     bezier-easing "^2.1.0"
