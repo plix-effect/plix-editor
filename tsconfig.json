@@ -1,0 +1,28 @@
+{
+  "exclude": [
+    "./node_modules/*"
+  ],
+  "compilerOptions": {
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "module": "commonjs",
+    "target": "es6",
+    "resolveJsonModule": true,
+    "lib": [
+      "es2019",
+      "es2015",
+      "es2017",
+      "dom"
+    ],
+    "removeComments": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react",
+    "allowJs": true,
+    "baseUrl": "./",
+    "paths": {
+      "components/*": [
+        "src/components/*"
+      ]
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "name": "@plix/editor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "webpack.config.js",
+  "dependencies": {
+    "@plix/core": "^1.0.0",
+    "bootstrap": "^4.5.3",
+    "react": "^17.0.1",
+    "react-bootstrap": "^1.4.0",
+    "react-dom": "^17.0.1",
+    "react-modal-promise": "^0.5.3",
+    "react-router-dom": "^5.2.0",
+    "react-transition-group": "^4.4.1"
+  },
+  "devDependencies": {
+    "awesome-typescript-loader": "^5.2.1",
+    "classnames": "^2.2.6",
+    "copy-webpack-plugin": "^6.3.0",
+    "css-loader": "^5.0.0",
+    "html-webpack-plugin": "^5.0.0-alpha.10",
+    "html-webpack-tags-plugin": "^2.0.17",
+    "mini-css-extract-plugin": "^1.2.1",
+    "node-sass": "^5.0.0",
+    "sass-loader": "^10.0.5",
+    "string-replace-loader": "^2.3.0",
+    "ts-loader": "^8.0.7",
+    "typescript": "^4.0.5",
+    "webpack": "^5.4.0",
+    "webpack-cli": "^4.1.0",
+    "webpack-serve": "^3.2.0"
+  },
+  "scripts": {
+    "start": "webpack-serve",
+    "build": "webpack --mode development",
+    "stats": "webpack --profile --json > compilation-stats.json",
+    "publish-private": "npm publish --registry http://npm.myxomopx.ru"
+  },
+  "keywords": [
+    "plix",
+    "editor"
+  ],
+  "authors": [
+    "DPOH-VAR",
+    "MYXOMOPX"
+  ],
+  "license": "ISC",
+  "serve": {
+    "host": "0.0.0.0",
+    "historyFallback": true,
+    "port": 8085,
+    "static": "dist"
+  }
+}
