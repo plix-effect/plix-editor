@@ -18,14 +18,6 @@ module.exports = (env) => {
     return {
         devtool: 'source-map',
         mode: PRODUCTION ? 'production' : 'development',
-        devServer: {
-            host: "0.0.0.0",
-            contentBase: path.join(__dirname),
-            headers: {'Access-Control-Allow-Origin': '*'},
-            port: 80,
-            historyApiFallback: true,
-            proxy: {}
-        },
         entry: {
             index: './src/index.tsx',
         },

@@ -1,10 +1,10 @@
 {
-  "name": "@plix/editor",
+  "name": "@plix-effect/editor",
   "version": "1.0.0",
   "description": "",
   "main": "webpack.config.js",
   "dependencies": {
-    "@plix/core": "^1.0.3",
+    "@plix-effect/core": "^1.0.9",
     "bootstrap": "^4.5.3",
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.0",
