@@ -1,1515 +1,48 @@
 /******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./node_modules/@plix-effect/core/dist/Color.js":
-/*!******************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/Color.js ***!
-  \******************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/*! CommonJS bailout: exports.rgbaToNumber(...) prevents optimization as exports is passed as call context at 23:11-31 */
-/*! CommonJS bailout: exports.numberToRgba(...) prevents optimization as exports is passed as call context at 50:22-42 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.hslaToRgba = exports.rgbaToHsla = exports.shade = exports.gain = exports.addLightness = exports.addSaturation = exports.addHue = exports.numberToColor = exports.numberToRgba = exports.applyOpacityHsla = exports.rgbaToNumber = exports.blendHsla = exports.colorToNumber = void 0;
-var posMod_1 = __webpack_require__(/*! ./util/posMod */ "./node_modules/@plix-effect/core/dist/util/posMod.js");
-var limit_1 = __webpack_require__(/*! ./util/limit */ "./node_modules/@plix-effect/core/dist/util/limit.js");
-exports.colorToNumber = function (color) {
-    return exports.rgbaToNumber(hslaToRgba(color));
-};
-exports.blendHsla = function (x, y, blend) {
-    var xc = hslaToRgba(x);
-    var yc = hslaToRgba(y);
-    var rc = blend(xc, yc);
-    return rgbaToHsla(rc);
-};
-exports.rgbaToNumber = function (_a) {
-    var r = _a.r, g = _a.g, b = _a.b, a = _a.a;
-    return (r << 24) | (g << 16) | (b << 8) | (a * 255);
-};
-exports.applyOpacityHsla = function (_a, gain) {
-    var _b = __read(_a, 4), h = _b[0], s = _b[1], l = _b[2], a = _b[3];
-    return [h, s, l, limit_1.default(0, gain * a, 1)];
-};
-exports.numberToRgba = function (color) {
-    return {
-        r: (color >> 24) & 0xFF,
-        g: (color >> 16) & 0xFF,
-        b: (color >> 8) & 0xFF,
-        a: (color & 0xFF) / 255
-    };
-};
-exports.numberToColor = function (color) {
-    if (color == null)
-        return [0, 0, 0, 1];
-    return rgbaToHsla(exports.numberToRgba(color));
-};
-exports.addHue = function (_a, value) {
-    var _b = __read(_a, 4), h = _b[0], s = _b[1], l = _b[2], a = _b[3];
-    return [posMod_1.default(h + value, 1), s, l, a];
-};
-exports.addSaturation = function (_a, value) {
-    var _b = __read(_a, 4), h = _b[0], s = _b[1], l = _b[2], a = _b[3];
-    return [h, limit_1.default(0, s + value, 1), l, a];
-};
-exports.addLightness = function (_a, value) {
-    var _b = __read(_a, 4), h = _b[0], s = _b[1], l = _b[2], a = _b[3];
-    return [h, s, limit_1.default(0, l + value, 1), a];
-};
-exports.gain = function (_a, value) {
-    var _b = __read(_a, 4), h = _b[0], s = _b[1], l = _b[2], a = _b[3];
-    return [h, s, limit_1.default(0, l * value, 1), a];
-};
-exports.shade = function (_a, _b, stage) {
-    var _c = __read(_a, 4), h1 = _c[0], s1 = _c[1], l1 = _c[2], a1 = _c[3];
-    var _d = __read(_b, 4), h2 = _d[0], s2 = _d[1], l2 = _d[2], a2 = _d[3];
-    var hueDif = h2 - h1;
-    var absHueDif = Math.abs(hueDif);
-    var resultHueDif = hueDif;
-    if (absHueDif > 0.5) {
-        var revHueSign = hueDif > 0 ? -1 : 1;
-        resultHueDif = revHueSign * (1 - absHueDif);
-    }
-    var sDif = s2 - s1;
-    var lDif = l2 - l1;
-    var aDif = a2 - a1;
-    return [h1 + resultHueDif * stage, s1 + sDif * stage, l1 + lDif * stage, a1 + aDif * stage];
-};
-/**
- * Converts an RGB color value to HSL. Conversion formula
- * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
- * Assumes r, g, and b are contained in the set [0, 255] and
- * returns h, s, and l in the set [0, 1].
- */
-function rgbaToHsla(_a) {
-    var r = _a.r, g = _a.g, b = _a.b, a = _a.a;
-    r /= 255;
-    g /= 255;
-    b /= 255;
-    var max = Math.max(r, g, b), min = Math.min(r, g, b);
-    var h, s, l = (max + min) / 2;
-    if (max === min) {
-        h = s = 0; // achromatic
-    }
-    else {
-        var d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        switch (max) {
-            case r:
-                h = (g - b) / d + (g < b ? 6 : 0);
-                break;
-            case g:
-                h = (b - r) / d + 2;
-                break;
-            case b:
-                h = (r - g) / d + 4;
-                break;
-        }
-        h /= 6;
-    }
-    return [h, s, l, a];
-}
-exports.rgbaToHsla = rgbaToHsla;
-function hue2rgb(p, q, t) {
-    if (t < 0)
-        t += 1;
-    if (t > 1)
-        t -= 1;
-    if (t < 1 / 6)
-        return p + (q - p) * 6 * t;
-    if (t < 1 / 2)
-        return q;
-    if (t < 2 / 3)
-        return p + (q - p) * (2 / 3 - t) * 6;
-    return p;
-}
-/**
- * Converts an HSL color value to RGB. Conversion formula
- * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
- * Assumes h, s, and l are contained in the set [0, 1] and
- * returns r, g, and b in the set [0, 255].
- */
-function hslaToRgba(_a) {
-    "use strict";
-    var _b = __read(_a, 4), h = _b[0], s = _b[1], l = _b[2], a = _b[3];
-    var r, g, b;
-    if (s === 0) {
-        r = g = b = l; // achromatic
-    }
-    else {
-        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-        var p = 2 * l - q;
-        r = hue2rgb(p, q, h + 1 / 3);
-        g = hue2rgb(p, q, h);
-        b = hue2rgb(p, q, h - 1 / 3);
-    }
-    return { r: (r * 255) | 0, g: (g * 255) | 0, b: (b * 255) | 0, a: a };
-}
-exports.hslaToRgba = hslaToRgba;
-//# sourceMappingURL=Color.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/effects/Chain.js":
-/*!**************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/effects/Chain.js ***!
-  \**************************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/*! CommonJS bailout: this is used directly at 18:16-20 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spread = (this && this.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var parseTypes_1 = __webpack_require__(/*! ../parser/parseTypes */ "./node_modules/@plix-effect/core/dist/parser/parseTypes.js");
-Chain.meta = {
-    name: "Chain",
-    description: "Apply effects one by one to same pixels",
-    paramNames: ["effects"],
-    paramTypes: ["array:effect"],
-    paramDescriptions: ["list of effects"],
-    defaultValues: [[]],
-    paramParse: [parseTypes_1.ARRAY_OF(parseTypes_1.EFFECT)]
-};
-function Chain(effects) {
-    return function () {
-        var effectArgs = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            effectArgs[_i] = arguments[_i];
-        }
-        var lineModifiers = effects.map(function (effect) { return effect.apply(void 0, __spread(effectArgs)); });
-        return function () {
-            var lineArgs = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                lineArgs[_i] = arguments[_i];
-            }
-            var colorModifiers = lineModifiers.map(function (line) { return line.apply(void 0, __spread(lineArgs)); });
-            return function (color) { return colorModifiers.reduce(function (color, mod) { return mod(color); }, color); };
-        };
-    };
-}
-exports.default = Chain;
-//# sourceMappingURL=Chain.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/effects/utils.js":
-/*!**************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/effects/utils.js ***!
-  \**************************************************************/
-/*! flagged exports */
-/*! export EmptyEffect [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export EmptyFilter [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export EmptyLine [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export EmptyMod [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export FillColor [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export FillGradient [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export FillLine [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export TransparentColor [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__ */
-/*! CommonJS bailout: exports.FillColor(...) prevents optimization as exports is passed as call context at 10:66-83 */
-/*! CommonJS bailout: exports.FillColor(...) prevents optimization as exports is passed as call context at 11:86-103 */
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.FillGradient = exports.FillLine = exports.FillColor = exports.EmptyFilter = exports.EmptyEffect = exports.EmptyLine = exports.EmptyMod = exports.TransparentColor = void 0;
-exports.TransparentColor = [0, 0, 0, 0];
-exports.EmptyMod = function (color) { return color; };
-exports.EmptyLine = function () { return exports.EmptyMod; };
-exports.EmptyEffect = function () { return exports.EmptyLine; };
-exports.EmptyFilter = function (e) { return e; };
-exports.FillColor = function (color) { return function () { return color; }; };
-exports.FillLine = function (color) { return function () { return exports.FillColor(color); }; };
-exports.FillGradient = function (gradient) { return function (index, length) { return exports.FillColor(gradient(index / length)); }; };
-//# sourceMappingURL=utils.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/filters/Blend.js":
-/*!**************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/filters/Blend.js ***!
-  \**************************************************************/
-/*! flagged exports */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__, __webpack_require__ */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var parseTypes_1 = __webpack_require__(/*! ../parser/parseTypes */ "./node_modules/@plix-effect/core/dist/parser/parseTypes.js");
-var Color_1 = __webpack_require__(/*! ../Color */ "./node_modules/@plix-effect/core/dist/Color.js");
-var utils_1 = __webpack_require__(/*! ../effects/utils */ "./node_modules/@plix-effect/core/dist/effects/utils.js");
-Blend.meta = {
-    name: "Blend",
-    description: "Blend effect",
-    paramNames: ["opacity", "mode"],
-    paramTypes: ["number", "blend"],
-    paramParse: [parseTypes_1.NUMBER, parseTypes_1.BLENDER],
-    paramDescriptions: ["apply opacity to effect", "select blending mode"],
-    defaultValues: [1, "normal"]
-};
-function Blend(opacity, blender) {
-    return function (effect) { return function (time, dur) {
-        var lineMod = effect(time, dur);
-        return function (index, length) {
-            var colorMod = lineMod(index, length);
-            return function (color) {
-                var effectColor = colorMod(utils_1.TransparentColor);
-                var opaEffectColor = Color_1.applyOpacityHsla(effectColor, opacity);
-                return Color_1.blendHsla(color, opaEffectColor, blender);
-            };
-        };
-    }; };
-}
-exports.default = Blend;
-//# sourceMappingURL=Blend.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/filters/BlendFilters.js":
-/*!*********************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/filters/BlendFilters.js ***!
-  \*********************************************************************/
-/*! flagged exports */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__, __webpack_require__ */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var parseTypes_1 = __webpack_require__(/*! ../parser/parseTypes */ "./node_modules/@plix-effect/core/dist/parser/parseTypes.js");
-var Blend_1 = __webpack_require__(/*! ./Blend */ "./node_modules/@plix-effect/core/dist/filters/Blend.js");
-var Chain_1 = __webpack_require__(/*! ../effects/Chain */ "./node_modules/@plix-effect/core/dist/effects/Chain.js");
-var color_blend_1 = __webpack_require__(/*! color-blend */ "./node_modules/color-blend/dist/index.modern.js");
-BlendFilters.meta = {
-    name: "BlendFilters",
-    description: "Apply filters in parallel and blend results",
-    paramNames: ["filters"],
-    paramTypes: ["array:filter"],
-    paramParse: [parseTypes_1.ARRAY_OF(parseTypes_1.FILTER)],
-    paramDescriptions: ["list of filters"],
-    defaultValues: [[]]
-};
-function BlendFilters(filters) {
-    return function (effect) {
-        var results = filters.map(function (filter) { return filter(effect); });
-        return Chain_1.default(results.map(function (e) { return Blend_1.default(1, color_blend_1.normal)(e); }));
-    };
-}
-exports.default = BlendFilters;
-//# sourceMappingURL=BlendFilters.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/filters/FChain.js":
-/*!***************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/filters/FChain.js ***!
-  \***************************************************************/
-/*! flagged exports */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__, __webpack_require__ */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var parseTypes_1 = __webpack_require__(/*! ../parser/parseTypes */ "./node_modules/@plix-effect/core/dist/parser/parseTypes.js");
-FChain.meta = {
-    name: "FChain",
-    description: "Apply filters one by one",
-    paramNames: ["filters"],
-    paramTypes: ["array:filter"],
-    paramParse: [parseTypes_1.ARRAY_OF(parseTypes_1.FILTER)],
-    paramDescriptions: ["list of filters"],
-    defaultValues: [[]]
-};
-function FChain(filters) {
-    return function (effect) { return filters.reduce(function (effect, filter) { return filter(effect); }, effect); };
-}
-exports.default = FChain;
-//# sourceMappingURL=FChain.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/filters/OuterBorder.js":
-/*!********************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/filters/OuterBorder.js ***!
-  \********************************************************************/
-/*! flagged exports */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__, __webpack_require__ */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var parseTypes_1 = __webpack_require__(/*! ../parser/parseTypes */ "./node_modules/@plix-effect/core/dist/parser/parseTypes.js");
-var utils_1 = __webpack_require__(/*! ../effects/utils */ "./node_modules/@plix-effect/core/dist/effects/utils.js");
-OuterColor.meta = {
-    name: "OuterBorder",
-    description: "add outer border pixels to effect",
-    paramNames: ["color", "width"],
-    paramTypes: ["color", "number"],
-    paramParse: [parseTypes_1.COLOR, parseTypes_1.NUMBER],
-    paramDescriptions: ["add outer border to effect"],
-    defaultValues: [[0, 1, 1], 1]
-};
-function OuterColor(color, borderWidth) {
-    return function (effect) { return function (time, dur) {
-        var lineMod = effect(time, dur);
-        return function (index, length) {
-            if (index < borderWidth || index >= length - borderWidth) {
-                return utils_1.FillColor(color);
-            }
-            var innerIndex = (index - borderWidth) * length / (length - borderWidth - borderWidth);
-            return lineMod(innerIndex, length);
-        };
-    }; };
-}
-exports.default = OuterColor;
-//# sourceMappingURL=OuterBorder.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/filters/Playback.js":
-/*!*****************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/filters/Playback.js ***!
-  \*****************************************************************/
-/*! flagged exports */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__, __webpack_require__ */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var parseTypes_1 = __webpack_require__(/*! ../parser/parseTypes */ "./node_modules/@plix-effect/core/dist/parser/parseTypes.js");
-var utils_1 = __webpack_require__(/*! ../effects/utils */ "./node_modules/@plix-effect/core/dist/effects/utils.js");
-Playback.meta = {
-    name: "Playback",
-    description: "Play effect with changed speed and at specified time",
-    paramNames: ["speed", "startPos"],
-    paramTypes: ["timing", "timing"],
-    paramDescriptions: ["new effect speed", "start time"],
-    defaultValues: [1, 0, null],
-    paramParse: [parseTypes_1.TIMING_FUNCTION, parseTypes_1.TIMING_FUNCTION]
-};
-function Playback(speedF, startF) {
-    return function (effect) { return function (time, dur) {
-        var div = time / dur;
-        var speed = speedF(div);
-        var start = startF(div);
-        var modTime = (time - start * dur) * speed;
-        if (modTime < 0 || modTime >= dur)
-            return utils_1.EmptyLine;
-        return effect(modTime, dur);
-    }; };
-}
-exports.default = Playback;
-//# sourceMappingURL=Playback.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/filters/Position.js":
-/*!*****************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/filters/Position.js ***!
-  \*****************************************************************/
-/*! flagged exports */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__, __webpack_require__ */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var parseTypes_1 = __webpack_require__(/*! ../parser/parseTypes */ "./node_modules/@plix-effect/core/dist/parser/parseTypes.js");
-var utils_1 = __webpack_require__(/*! ../effects/utils */ "./node_modules/@plix-effect/core/dist/effects/utils.js");
-Position.meta = {
-    name: "Position",
-    description: "Position effect",
-    paramNames: ["position"],
-    paramTypes: ["position"],
-    paramDescriptions: ["map positions"],
-    paramParse: [parseTypes_1.POSITION],
-    defaultValues: [[]]
-};
-function Position(positions) {
-    var innerLength = positions.length;
-    return function (effect) { return function (time, duration) {
-        return function (index) {
-            var floorIndex = Math.round(index);
-            var innerIndex = positions.findIndex(function (pos) {
-                if (typeof pos === "number")
-                    return pos === floorIndex;
-                return pos.includes(floorIndex);
-            });
-            if (innerIndex >= 0)
-                return effect(time, duration)(innerIndex, innerLength);
-            return utils_1.EmptyMod;
-        };
-    }; };
-}
-exports.default = Position;
-//# sourceMappingURL=Position.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/filters/Transpose.js":
-/*!******************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/filters/Transpose.js ***!
-  \******************************************************************/
-/*! flagged exports */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export transpose [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__ */
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.transpose = void 0;
-Transpose.meta = {
-    name: "Transpose",
-    description: "Transpose effect (swap time and x coordinates)",
-    paramNames: [],
-    paramTypes: [],
-    paramDescriptions: [],
-    defaultValues: [],
-    paramParse: [],
-};
-exports.transpose = function (effect) { return function (time, dur) { return function (index, len) {
-    return effect(index / len * dur, dur)(time / dur * len, len);
-}; }; };
-function Transpose() {
-    return exports.transpose;
-}
-exports.default = Transpose;
-;
-//# sourceMappingURL=Transpose.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/filters/Zoom.js":
-/*!*************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/filters/Zoom.js ***!
-  \*************************************************************/
-/*! flagged exports */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__, __webpack_require__ */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var parseTypes_1 = __webpack_require__(/*! ../parser/parseTypes */ "./node_modules/@plix-effect/core/dist/parser/parseTypes.js");
-var utils_1 = __webpack_require__(/*! ../effects/utils */ "./node_modules/@plix-effect/core/dist/effects/utils.js");
-Zoom.meta = {
-    name: "Zoom",
-    description: "Zoom pixels and change position",
-    paramNames: ["zoom", "offset"],
-    paramTypes: ["timing", "timing"],
-    paramDescriptions: ["zoom value or timing function", "offset value or timing function"],
-    defaultValues: [1, 0],
-    paramParse: [parseTypes_1.TIMING_FUNCTION, parseTypes_1.TIMING_FUNCTION]
-};
-function Zoom(zoomF, offsetF) {
-    return function (effect) { return function (time, dur) {
-        var div = time / dur;
-        var zoom = zoomF(div);
-        var offset = offsetF(div);
-        var lineMod = effect(time, dur);
-        return function (index, length) {
-            var modPos = (index - offset * length) / zoom;
-            if (modPos < 0 || modPos >= length)
-                return utils_1.EmptyMod;
-            return lineMod(modPos, length);
-        };
-    }; };
-}
-exports.default = Zoom;
-//# sourceMappingURL=Zoom.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/filters/index.js":
-/*!**************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/filters/index.js ***!
-  \**************************************************************/
-/*! flagged exports */
-/*! export Blend [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export BlendFilters [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export FChain [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export OuterBorder [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export Playback [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export Position [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export Transpose [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export Zoom [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__, __webpack_require__ */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var Blend_1 = __webpack_require__(/*! ./Blend */ "./node_modules/@plix-effect/core/dist/filters/Blend.js");
-Object.defineProperty(exports, "Blend", ({ enumerable: true, get: function () { return Blend_1.default; } }));
-var BlendFilters_1 = __webpack_require__(/*! ./BlendFilters */ "./node_modules/@plix-effect/core/dist/filters/BlendFilters.js");
-Object.defineProperty(exports, "BlendFilters", ({ enumerable: true, get: function () { return BlendFilters_1.default; } }));
-var FChain_1 = __webpack_require__(/*! ./FChain */ "./node_modules/@plix-effect/core/dist/filters/FChain.js");
-Object.defineProperty(exports, "FChain", ({ enumerable: true, get: function () { return FChain_1.default; } }));
-var OuterBorder_1 = __webpack_require__(/*! ./OuterBorder */ "./node_modules/@plix-effect/core/dist/filters/OuterBorder.js");
-Object.defineProperty(exports, "OuterBorder", ({ enumerable: true, get: function () { return OuterBorder_1.default; } }));
-var Playback_1 = __webpack_require__(/*! ./Playback */ "./node_modules/@plix-effect/core/dist/filters/Playback.js");
-Object.defineProperty(exports, "Playback", ({ enumerable: true, get: function () { return Playback_1.default; } }));
-var Position_1 = __webpack_require__(/*! ./Position */ "./node_modules/@plix-effect/core/dist/filters/Position.js");
-Object.defineProperty(exports, "Position", ({ enumerable: true, get: function () { return Position_1.default; } }));
-var Transpose_1 = __webpack_require__(/*! ./Transpose */ "./node_modules/@plix-effect/core/dist/filters/Transpose.js");
-Object.defineProperty(exports, "Transpose", ({ enumerable: true, get: function () { return Transpose_1.default; } }));
-var Zoom_1 = __webpack_require__(/*! ./Zoom */ "./node_modules/@plix-effect/core/dist/filters/Zoom.js");
-Object.defineProperty(exports, "Zoom", ({ enumerable: true, get: function () { return Zoom_1.default; } }));
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/gradient/LinearGradient.js":
-/*!************************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/gradient/LinearGradient.js ***!
-  \************************************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/*! CommonJS bailout: this is used directly at 18:16-20 */
-/*! CommonJS bailout: this is used directly at 22:16-20 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spread = (this && this.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
-};
-var __values = (this && this.__values) || function(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.LinearGradient = void 0;
-var utils_1 = __webpack_require__(/*! ../effects/utils */ "./node_modules/@plix-effect/core/dist/effects/utils.js");
-var Color_1 = __webpack_require__(/*! ../Color */ "./node_modules/@plix-effect/core/dist/Color.js");
-function LinearGradient(colorPositions) {
-    var lineColorPositions = __spread(__spread(colorPositions).sort(function (_a, _b) {
-        var p1 = _a.position;
-        var p2 = _b.position;
-        if (p1 > p2)
-            return 1;
-        if (p1 < p2)
-            return -1;
-        return 0;
-    }), [null]);
-    return function (t) {
-        var e_1, _a, _b;
-        var leftCP = null;
-        var rightCP = null;
-        try {
-            for (var lineColorPositions_1 = __values(lineColorPositions), lineColorPositions_1_1 = lineColorPositions_1.next(); !lineColorPositions_1_1.done; lineColorPositions_1_1 = lineColorPositions_1.next()) {
-                var colorPos = lineColorPositions_1_1.value;
-                _b = __read([rightCP, colorPos], 2), leftCP = _b[0], rightCP = _b[1];
-                if (colorPos && colorPos.position >= t)
-                    break;
-            }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (lineColorPositions_1_1 && !lineColorPositions_1_1.done && (_a = lineColorPositions_1.return)) _a.call(lineColorPositions_1);
-            }
-            finally { if (e_1) throw e_1.error; }
-        }
-        if (leftCP && rightCP) {
-            var stage = (t - leftCP.position) / (rightCP.position - leftCP.position);
-            return Color_1.shade(leftCP.color, rightCP.color, stage);
-        }
-        if (rightCP)
-            return rightCP.color;
-        if (leftCP)
-            return leftCP.color;
-        return utils_1.TransparentColor;
-    };
-}
-exports.LinearGradient = LinearGradient;
-//# sourceMappingURL=LinearGradient.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/parser/parseArray.js":
-/*!******************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/parser/parseArray.js ***!
-  \******************************************************************/
-/*! flagged exports */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__ */
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-function parseArrayOf(parser) {
-    return function (jsonDataArray, parserData) {
-        return jsonDataArray.map(function (jsonData) {
-            return parser(jsonData, parserData);
-        });
-    };
-}
-exports.default = parseArrayOf;
-//# sourceMappingURL=parseArray.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/parser/parseBlender.js":
-/*!********************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/parser/parseBlender.js ***!
-  \********************************************************************/
-/*! flagged exports */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__, __webpack_require__ */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var Blenders = __webpack_require__(/*! color-blend */ "./node_modules/color-blend/dist/index.modern.js");
-var parseBlender = function (name) {
-    var blender = Blenders[name];
-    if (!blender)
-        throw new Error("unknown blender " + name);
-    return blender;
-};
-exports.default = parseBlender;
-//# sourceMappingURL=parseBlender.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/parser/parseColor.js":
-/*!******************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/parser/parseColor.js ***!
-  \******************************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var Color_1 = __webpack_require__(/*! ../Color */ "./node_modules/@plix-effect/core/dist/Color.js");
-var parseColor = function (data) {
-    if (typeof data === "number") {
-        return Color_1.numberToColor(data);
-    }
-    var _a = __read(data, 4), h = _a[0], s = _a[1], l = _a[2], a = _a[3];
-    return [h, s, l, a !== null && a !== void 0 ? a : 1];
-    // todo: add parse-string (name, hash-value)
-};
-exports.default = parseColor;
-//# sourceMappingURL=parseColor.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/parser/parseEffect.js":
-/*!*******************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/parser/parseEffect.js ***!
-  \*******************************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/*! CommonJS bailout: this is used directly at 18:16-20 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spread = (this && this.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var utils_1 = __webpack_require__(/*! ../effects/utils */ "./node_modules/@plix-effect/core/dist/effects/utils.js");
-var parseFilter_1 = __webpack_require__(/*! ./parseFilter */ "./node_modules/@plix-effect/core/dist/parser/parseFilter.js");
-var parseEffect = function (data, parserData) {
-    if (data === null)
-        return utils_1.EmptyEffect;
-    var _a = __read(data, 4), enabled = _a[0], id = _a[1], paramsJsonOrAliasName = _a[2], filtersJson = _a[3];
-    var effect;
-    if (id === null) { // alias
-        effect = parserData.parseEffectAlias(paramsJsonOrAliasName);
-    }
-    else { // effect constructor
-        var effectConstructor = parserData.getEffectConstructor(id);
-        if (!effectConstructor)
-            throw new Error("unknown effect id: " + id);
-        effect = constructEffect(effectConstructor, paramsJsonOrAliasName, parserData);
-    }
-    if (!filtersJson)
-        return enabled ? effect : utils_1.EmptyEffect;
-    var filters = filtersJson.map(function (data) { return parseFilter_1.default(data, parserData); });
-    var filteredEffect = filters.reduce(function (effect, filter) { return filter(effect); }, effect);
-    return enabled ? filteredEffect : utils_1.EmptyEffect;
-};
-exports.default = parseEffect;
-function constructEffect(effectConstructor, jsonParams, parserData) {
-    var parsers = effectConstructor.meta.paramParse;
-    var params = parseEffectParameters(parsers, jsonParams, parserData);
-    return effectConstructor.apply(void 0, __spread(params));
-}
-function parseEffectParameters(parsers, jsonParams, parserData) {
-    return parsers.map(function (parser, i) {
-        var jsonParam = jsonParams[i];
-        return parser(jsonParam, parserData);
-    });
-}
-//# sourceMappingURL=parseEffect.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/parser/parseFilter.js":
-/*!*******************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/parser/parseFilter.js ***!
-  \*******************************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/*! CommonJS bailout: this is used directly at 18:16-20 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spread = (this && this.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var utils_1 = __webpack_require__(/*! ../effects/utils */ "./node_modules/@plix-effect/core/dist/effects/utils.js");
-var parseFilter = function (data, parserData) {
-    if (!data)
-        return utils_1.EmptyFilter;
-    var _a = __read(data, 3), enabled = _a[0], id = _a[1], paramsOrAliasName = _a[2];
-    var filter;
-    if (id === null) {
-        filter = parserData.parseFilterAlias(paramsOrAliasName);
-    }
-    else {
-        var filterConstructor = parserData.getFilterConstructor(id);
-        if (!filterConstructor)
-            throw new Error("unknown filter id: " + id);
-        filter = constructFilter(filterConstructor, paramsOrAliasName, parserData);
-    }
-    return enabled ? filter : utils_1.EmptyFilter;
-};
-exports.default = parseFilter;
-function constructFilter(filterConstructor, jsonParams, parserData) {
-    var parsers = filterConstructor.meta.paramParse;
-    var params = parseFilterParameters(parsers, jsonParams, parserData);
-    return filterConstructor.apply(void 0, __spread(params));
-}
-function parseFilterParameters(parsers, jsonParams, parserData) {
-    return parsers.map(function (parser, i) {
-        var jsonParam = jsonParams[i];
-        return parser(jsonParam, parserData);
-    });
-}
-//# sourceMappingURL=parseFilter.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/parser/parseGradient.js":
-/*!*********************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/parser/parseGradient.js ***!
-  \*********************************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var parseColor_1 = __webpack_require__(/*! ./parseColor */ "./node_modules/@plix-effect/core/dist/parser/parseColor.js");
-var LinearGradient_1 = __webpack_require__(/*! ../gradient/LinearGradient */ "./node_modules/@plix-effect/core/dist/gradient/LinearGradient.js");
-var parsePosition = function (data, parserData) {
-    var colorPositions = data.map(function (_a) {
-        var _b = __read(_a, 2), position = _b[0], colorData = _b[1];
-        return ({
-            position: position,
-            color: parseColor_1.default(colorData, parserData)
-        });
-    });
-    return LinearGradient_1.LinearGradient(colorPositions);
-};
-exports.default = parsePosition;
-//# sourceMappingURL=parseGradient.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/parser/parseNumber.js":
-/*!*******************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/parser/parseNumber.js ***!
-  \*******************************************************************/
-/*! flagged exports */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__ */
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var parseNumber = function (t) { return +t; };
-exports.default = parseNumber;
-//# sourceMappingURL=parseNumber.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/parser/parsePosition.js":
-/*!*********************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/parser/parsePosition.js ***!
-  \*********************************************************************/
-/*! flagged exports */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__ */
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var parsePosition = function (data, parserData) {
-    return data;
-};
-exports.default = parsePosition;
-//# sourceMappingURL=parsePosition.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/parser/parseTimeEffectRecord.js":
-/*!*****************************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/parser/parseTimeEffectRecord.js ***!
-  \*****************************************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var utils_1 = __webpack_require__(/*! ../effects/utils */ "./node_modules/@plix-effect/core/dist/effects/utils.js");
-var parseTimeEffectRecord = function (_a, parserData) {
-    var _b = __read(_a, 4), enabled = _b[0], name = _b[1], start = _b[2], duration = _b[3];
-    var effect = parserData.parseEffectAlias(name); // parse alias before
-    if (!enabled)
-        effect = utils_1.EmptyEffect;
-    return { start: start, duration: duration, effect: effect };
-};
-exports.default = parseTimeEffectRecord;
-//# sourceMappingURL=parseTimeEffectRecord.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/parser/parseTimingFunction.js":
-/*!***************************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/parser/parseTimingFunction.js ***!
-  \***************************************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/*! CommonJS bailout: this is used directly at 18:16-20 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spread = (this && this.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var LinearTimingFunction_1 = __webpack_require__(/*! ../timing/LinearTimingFunction */ "./node_modules/@plix-effect/core/dist/timing/LinearTimingFunction.js");
-var ConstTimingFunction_1 = __webpack_require__(/*! ../timing/ConstTimingFunction */ "./node_modules/@plix-effect/core/dist/timing/ConstTimingFunction.js");
-var StepTimingFunction_1 = __webpack_require__(/*! ../timing/StepTimingFunction */ "./node_modules/@plix-effect/core/dist/timing/StepTimingFunction.js");
-var BezierEasingTimingFunction_1 = __webpack_require__(/*! ../timing/BezierEasingTimingFunction */ "./node_modules/@plix-effect/core/dist/timing/BezierEasingTimingFunction.js");
-var TFConstructors = {
-    "linear": LinearTimingFunction_1.LinearTimingFunction,
-    "step": StepTimingFunction_1.StepTimingFunction,
-    "bezier": BezierEasingTimingFunction_1.BezierEasingTimingFunction
-};
-var linear1 = function (t) { return t; };
-var parseTimingFunction = function (data) {
-    if (data === null)
-        return linear1;
-    if (typeof data === "number")
-        return ConstTimingFunction_1.ConstTimingFunction(data);
-    var _a = __read(data), type = _a[0], args = _a.slice(1);
-    var TFConstructor = TFConstructors[type];
-    return TFConstructor.apply(void 0, __spread(args));
-};
-exports.default = parseTimingFunction;
-//# sourceMappingURL=parseTimingFunction.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/parser/parseTypes.js":
-/*!******************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/parser/parseTypes.js ***!
-  \******************************************************************/
-/*! flagged exports */
-/*! export ARRAY_OF [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export BLENDER [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export COLOR [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export EFFECT [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export FILTER [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export GRADIENT [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export NUMBER [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export POSITION [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export TIME_EFFECT_RECORD [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export TIMING_FUNCTION [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__, __webpack_require__ */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var parseArray_1 = __webpack_require__(/*! ./parseArray */ "./node_modules/@plix-effect/core/dist/parser/parseArray.js");
-Object.defineProperty(exports, "ARRAY_OF", ({ enumerable: true, get: function () { return parseArray_1.default; } }));
-var parseBlender_1 = __webpack_require__(/*! ./parseBlender */ "./node_modules/@plix-effect/core/dist/parser/parseBlender.js");
-Object.defineProperty(exports, "BLENDER", ({ enumerable: true, get: function () { return parseBlender_1.default; } }));
-var parseColor_1 = __webpack_require__(/*! ./parseColor */ "./node_modules/@plix-effect/core/dist/parser/parseColor.js");
-Object.defineProperty(exports, "COLOR", ({ enumerable: true, get: function () { return parseColor_1.default; } }));
-var parseEffect_1 = __webpack_require__(/*! ./parseEffect */ "./node_modules/@plix-effect/core/dist/parser/parseEffect.js");
-Object.defineProperty(exports, "EFFECT", ({ enumerable: true, get: function () { return parseEffect_1.default; } }));
-var parseFilter_1 = __webpack_require__(/*! ./parseFilter */ "./node_modules/@plix-effect/core/dist/parser/parseFilter.js");
-Object.defineProperty(exports, "FILTER", ({ enumerable: true, get: function () { return parseFilter_1.default; } }));
-var parseGradient_1 = __webpack_require__(/*! ./parseGradient */ "./node_modules/@plix-effect/core/dist/parser/parseGradient.js");
-Object.defineProperty(exports, "GRADIENT", ({ enumerable: true, get: function () { return parseGradient_1.default; } }));
-var parseNumber_1 = __webpack_require__(/*! ./parseNumber */ "./node_modules/@plix-effect/core/dist/parser/parseNumber.js");
-Object.defineProperty(exports, "NUMBER", ({ enumerable: true, get: function () { return parseNumber_1.default; } }));
-var parsePosition_1 = __webpack_require__(/*! ./parsePosition */ "./node_modules/@plix-effect/core/dist/parser/parsePosition.js");
-Object.defineProperty(exports, "POSITION", ({ enumerable: true, get: function () { return parsePosition_1.default; } }));
-var parseTimeEffectRecord_1 = __webpack_require__(/*! ./parseTimeEffectRecord */ "./node_modules/@plix-effect/core/dist/parser/parseTimeEffectRecord.js");
-Object.defineProperty(exports, "TIME_EFFECT_RECORD", ({ enumerable: true, get: function () { return parseTimeEffectRecord_1.default; } }));
-var parseTimingFunction_1 = __webpack_require__(/*! ./parseTimingFunction */ "./node_modules/@plix-effect/core/dist/parser/parseTimingFunction.js");
-Object.defineProperty(exports, "TIMING_FUNCTION", ({ enumerable: true, get: function () { return parseTimingFunction_1.default; } }));
-//# sourceMappingURL=parseTypes.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/timing/BezierEasingTimingFunction.js":
-/*!**********************************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/timing/BezierEasingTimingFunction.js ***!
-  \**********************************************************************************/
-/*! flagged exports */
-/*! export BezierEasingTimingFunction [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__, __webpack_require__ */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.BezierEasingTimingFunction = void 0;
-var BezierEasing = __webpack_require__(/*! bezier-easing */ "./node_modules/bezier-easing/src/index.js");
-function BezierEasingTimingFunction(ax, ay, bx, by, from, to) {
-    if (from === void 0) { from = 0; }
-    if (to === void 0) { to = 1; }
-    var easing = BezierEasing(ax, ay, bx, by);
-    var dif = to - from;
-    return function (t) { return from + dif * easing(t); };
-}
-exports.BezierEasingTimingFunction = BezierEasingTimingFunction;
-//# sourceMappingURL=BezierEasingTimingFunction.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/timing/ConstTimingFunction.js":
-/*!***************************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/timing/ConstTimingFunction.js ***!
-  \***************************************************************************/
-/*! flagged exports */
-/*! export ConstTimingFunction [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__ */
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ConstTimingFunction = void 0;
-function ConstTimingFunction(value) {
-    return function () { return value; };
-}
-exports.ConstTimingFunction = ConstTimingFunction;
-//# sourceMappingURL=ConstTimingFunction.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/timing/LinearTimingFunction.js":
-/*!****************************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/timing/LinearTimingFunction.js ***!
-  \****************************************************************************/
-/*! flagged exports */
-/*! export LinearTimingFunction [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__ */
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.LinearTimingFunction = void 0;
-function LinearTimingFunction(from, to) {
-    if (from === void 0) { from = 0; }
-    if (to === void 0) { to = 1; }
-    var dif = to - from;
-    return function (t) { return from + t * dif; };
-}
-exports.LinearTimingFunction = LinearTimingFunction;
-//# sourceMappingURL=LinearTimingFunction.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/timing/StepTimingFunction.js":
-/*!**************************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/timing/StepTimingFunction.js ***!
-  \**************************************************************************/
-/*! flagged exports */
-/*! export StepTimingFunction [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__ */
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.StepTimingFunction = void 0;
-function StepTimingFunction(steps, from, to) {
-    if (from === void 0) { from = 0; }
-    if (to === void 0) { to = 1; }
-    var dif = to - from;
-    return function (n) { return from + Math.floor(n * steps) / steps * dif; };
-}
-exports.StepTimingFunction = StepTimingFunction;
-//# sourceMappingURL=StepTimingFunction.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/util/limit.js":
-/*!***********************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/util/limit.js ***!
-  \***********************************************************/
-/*! flagged exports */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__ */
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-function limit(from, value, to) {
-    if (value < from)
-        return from;
-    if (value > to)
-        return to;
-    return value;
-}
-exports.default = limit;
-//# sourceMappingURL=limit.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@plix-effect/core/dist/util/posMod.js":
-/*!************************************************************!*\
-  !*** ./node_modules/@plix-effect/core/dist/util/posMod.js ***!
-  \************************************************************/
-/*! flagged exports */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__ */
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-function posMod(value, mod) {
-    return ((value % mod) + mod) % mod;
-}
-exports.default = posMod;
-//# sourceMappingURL=posMod.js.map
-
-/***/ }),
-
-/***/ "./node_modules/bezier-easing/src/index.js":
-/*!*************************************************!*\
-  !*** ./node_modules/bezier-easing/src/index.js ***!
-  \*************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: module */
-/*! CommonJS bailout: module.exports is used directly at 58:0-14 */
-/***/ ((module) => {
-
-/**
- * https://github.com/gre/bezier-easing
- * BezierEasing - use bezier curve for transition easing function
- * by Gaëtan Renaudeau 2014 - 2015 – MIT License
- */
-
-// These values are established by empiricism with tests (tradeoff: performance VS precision)
-var NEWTON_ITERATIONS = 4;
-var NEWTON_MIN_SLOPE = 0.001;
-var SUBDIVISION_PRECISION = 0.0000001;
-var SUBDIVISION_MAX_ITERATIONS = 10;
-
-var kSplineTableSize = 11;
-var kSampleStepSize = 1.0 / (kSplineTableSize - 1.0);
-
-var float32ArraySupported = typeof Float32Array === 'function';
-
-function A (aA1, aA2) { return 1.0 - 3.0 * aA2 + 3.0 * aA1; }
-function B (aA1, aA2) { return 3.0 * aA2 - 6.0 * aA1; }
-function C (aA1)      { return 3.0 * aA1; }
-
-// Returns x(t) given t, x1, and x2, or y(t) given t, y1, and y2.
-function calcBezier (aT, aA1, aA2) { return ((A(aA1, aA2) * aT + B(aA1, aA2)) * aT + C(aA1)) * aT; }
-
-// Returns dx/dt given t, x1, and x2, or dy/dt given t, y1, and y2.
-function getSlope (aT, aA1, aA2) { return 3.0 * A(aA1, aA2) * aT * aT + 2.0 * B(aA1, aA2) * aT + C(aA1); }
-
-function binarySubdivide (aX, aA, aB, mX1, mX2) {
-  var currentX, currentT, i = 0;
-  do {
-    currentT = aA + (aB - aA) / 2.0;
-    currentX = calcBezier(currentT, mX1, mX2) - aX;
-    if (currentX > 0.0) {
-      aB = currentT;
-    } else {
-      aA = currentT;
-    }
-  } while (Math.abs(currentX) > SUBDIVISION_PRECISION && ++i < SUBDIVISION_MAX_ITERATIONS);
-  return currentT;
-}
-
-function newtonRaphsonIterate (aX, aGuessT, mX1, mX2) {
- for (var i = 0; i < NEWTON_ITERATIONS; ++i) {
-   var currentSlope = getSlope(aGuessT, mX1, mX2);
-   if (currentSlope === 0.0) {
-     return aGuessT;
-   }
-   var currentX = calcBezier(aGuessT, mX1, mX2) - aX;
-   aGuessT -= currentX / currentSlope;
- }
- return aGuessT;
-}
-
-function LinearEasing (x) {
-  return x;
-}
-
-module.exports = function bezier (mX1, mY1, mX2, mY2) {
-  if (!(0 <= mX1 && mX1 <= 1 && 0 <= mX2 && mX2 <= 1)) {
-    throw new Error('bezier x values must be in [0, 1] range');
-  }
-
-  if (mX1 === mY1 && mX2 === mY2) {
-    return LinearEasing;
-  }
-
-  // Precompute samples table
-  var sampleValues = float32ArraySupported ? new Float32Array(kSplineTableSize) : new Array(kSplineTableSize);
-  for (var i = 0; i < kSplineTableSize; ++i) {
-    sampleValues[i] = calcBezier(i * kSampleStepSize, mX1, mX2);
-  }
-
-  function getTForX (aX) {
-    var intervalStart = 0.0;
-    var currentSample = 1;
-    var lastSample = kSplineTableSize - 1;
-
-    for (; currentSample !== lastSample && sampleValues[currentSample] <= aX; ++currentSample) {
-      intervalStart += kSampleStepSize;
-    }
-    --currentSample;
-
-    // Interpolate to provide an initial guess for t
-    var dist = (aX - sampleValues[currentSample]) / (sampleValues[currentSample + 1] - sampleValues[currentSample]);
-    var guessForT = intervalStart + dist * kSampleStepSize;
-
-    var initialSlope = getSlope(guessForT, mX1, mX2);
-    if (initialSlope >= NEWTON_MIN_SLOPE) {
-      return newtonRaphsonIterate(aX, guessForT, mX1, mX2);
-    } else if (initialSlope === 0.0) {
-      return guessForT;
-    } else {
-      return binarySubdivide(aX, intervalStart, intervalStart + kSampleStepSize, mX1, mX2);
-    }
-  }
-
-  return function BezierEasing (x) {
-    // Because JavaScript number are imprecise, we should guarantee the extremes are right.
-    if (x === 0) {
-      return 0;
-    }
-    if (x === 1) {
-      return 1;
-    }
-    return calcBezier(getTForX(x), mY1, mY2);
-  };
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/color-blend/dist/index.modern.js":
+/***/ "./src/ui/components/divider/SplitLeftRight.scss":
 /*!*******************************************************!*\
-  !*** ./node_modules/color-blend/dist/index.modern.js ***!
+  !*** ./src/ui/components/divider/SplitLeftRight.scss ***!
   \*******************************************************/
 /*! namespace exports */
-/*! export color [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export colorBurn [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export colorDodge [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export darken [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export difference [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export exclusion [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export hardLight [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export hue [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export lighten [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export luminosity [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export multiply [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export normal [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export overlay [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export saturation [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export screen [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export softLight [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
+/*! exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.* */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "color": () => /* binding */ R,
-/* harmony export */   "colorBurn": () => /* binding */ G,
-/* harmony export */   "colorDodge": () => /* binding */ F,
-/* harmony export */   "darken": () => /* binding */ C,
-/* harmony export */   "difference": () => /* binding */ K,
-/* harmony export */   "exclusion": () => /* binding */ N,
-/* harmony export */   "hardLight": () => /* binding */ H,
-/* harmony export */   "hue": () => /* binding */ P,
-/* harmony export */   "lighten": () => /* binding */ E,
-/* harmony export */   "luminosity": () => /* binding */ S,
-/* harmony export */   "multiply": () => /* binding */ j,
-/* harmony export */   "normal": () => /* binding */ D,
-/* harmony export */   "overlay": () => /* binding */ A,
-/* harmony export */   "saturation": () => /* binding */ Q,
-/* harmony export */   "screen": () => /* binding */ z,
-/* harmony export */   "softLight": () => /* binding */ J
-/* harmony export */ });
-function n(n,r,t){return{r:255*t(n.r/255,r.r/255),g:255*t(n.g/255,r.g/255),b:255*t(n.b/255,r.b/255)}}function r(n,r){return r}function t(n,r){return n*r}function u(n,r){return n+r-n*r}function o(n,r){return f(r,n)}function i(n,r){return Math.min(n,r)}function a(n,r){return Math.min(Math.max(n,r),1)}function e(n,r){return 0===n?0:1===r?1:Math.min(1,n/(1-r))}function c(n,r){return 1===n?1:0===r?0:1-Math.min(1,(1-n)/r)}function f(n,r){return r<=.5?t(n,2*r):u(n,2*r-1)}function g(n,r){return r<=.5?n-(1-2*r)*n*(1-n):n+(2*r-1)*((n<=.25?((16*n-12)*n+4)*n:Math.sqrt(n))-n)}function b(n,r){return Math.abs(n-r)}function s(n,r){return n+r-2*n*r}function h(n,r,t){return Math.min(Math.max(n,r),t)}function M(n){return{r:h(n.r,0,255),g:h(n.g,0,255),b:h(n.b,0,255),a:h(n.a,0,1)}}function m(n){return{r:255*n.r,g:255*n.g,b:255*n.b,a:n.a}}function d(n){return{r:n.r/255,g:n.g/255,b:n.b/255,a:n.a}}function l(n,r){void 0===r&&(r=0);var t=Math.pow(10,r);return{r:Math.round(n.r*t)/t,g:Math.round(n.g*t)/t,b:Math.round(n.b*t)/t,a:n.a}}function p(n,r,t,u,o,i){return(1-r/t)*u+r/t*Math.round((1-n)*o+n*i)}function v(n,r,t,u,o){void 0===o&&(o={unitInput:!1,unitOutput:!1,roundOutput:!0}),o.unitInput&&(n=m(n),r=m(r)),n=M(n);var i=(r=M(r)).a+n.a-r.a*n.a,a=t(n,r,u),e=M({r:p(n.a,r.a,i,n.r,r.r,a.r),g:p(n.a,r.a,i,n.g,r.g,a.g),b:p(n.a,r.a,i,n.b,r.b,a.b),a:i});return o.unitOutput?d(e):o.roundOutput?l(e):function(n){return l(n,9)}(e)}function x(n,r,t){return m(t(d(n),d(r)))}function O(n){return.3*n.r+.59*n.g+.11*n.b}function y(n,r){var t=r-O(n);return function(n){var r=O(n),t=n.r,u=n.g,o=n.b,i=Math.min(t,u,o),a=Math.max(t,u,o);function e(n){return r+(n-r)*r/(r-i)}function c(n){return r+(n-r)*(1-r)/(a-r)}return i<0&&(t=e(t),u=e(u),o=e(o)),a>1&&(t=c(t),u=c(u),o=c(o)),{r:t,g:u,b:o}}({r:n.r+t,g:n.g+t,b:n.b+t})}function I(n){return Math.max(n.r,n.g,n.b)-Math.min(n.r,n.g,n.b)}function L(n,r){var t=["r","g","b"].sort(function(r,t){return n[r]-n[t]}),u=t[0],o=t[1],i=t[2],a={r:n.r,g:n.g,b:n.b};return a[i]>a[u]?(a[o]=(a[o]-a[u])*r/(a[i]-a[u]),a[i]=r):a[o]=a[i]=0,a[u]=0,a}function k(n,r){return y(L(r,I(n)),O(n))}function q(n,r){return y(L(n,I(r)),O(n))}function w(n,r){return y(r,O(n))}function B(n,r){return y(n,O(r))}function D(t,u){return v(t,u,n,r)}function j(r,u){return v(r,u,n,t)}function z(r,t){return v(r,t,n,u)}function A(r,t){return v(r,t,n,o)}function C(r,t){return v(r,t,n,i)}function E(r,t){return v(r,t,n,a)}function F(r,t){return v(r,t,n,e)}function G(r,t){return v(r,t,n,c)}function H(r,t){return v(r,t,n,f)}function J(r,t){return v(r,t,n,g)}function K(r,t){return v(r,t,n,b)}function N(r,t){return v(r,t,n,s)}function P(n,r){return v(n,r,x,k)}function Q(n,r){return v(n,r,x,q)}function R(n,r){return v(n,r,x,w)}function S(n,r){return v(n,r,x,B)}
-//# sourceMappingURL=index.modern.js.map
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./src/ui/components/divider/SplitTopBottom.scss":
+/*!*******************************************************!*\
+  !*** ./src/ui/components/divider/SplitTopBottom.scss ***!
+  \*******************************************************/
+/*! namespace exports */
+/*! exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/PlixEditor.scss":
+/*!**************************************************!*\
+  !*** ./src/ui/components/editor/PlixEditor.scss ***!
+  \**************************************************/
+/*! namespace exports */
+/*! exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
 
 
 /***/ }),
@@ -1523,7 +56,6 @@ function n(n,r,t){return{r:255*t(n.r/255,r.r/255),g:255*t(n.g/255,r.g/255),b:255
 /*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.* */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
 // extracted by mini-css-extract-plugin
 
@@ -1539,7 +71,6 @@ __webpack_require__.r(__webpack_exports__);
 /*! CommonJS bailout: module.exports is used directly at 65:0-14 */
 /***/ ((module) => {
 
-"use strict";
 /*
 object-assign
 (c) Sindre Sorhus
@@ -1654,7 +185,6 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 /*! runtime requirements: __webpack_exports__, __webpack_require__ */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
-"use strict";
 /** @license React v17.0.1
  * react-dom.development.js
  *
@@ -27936,7 +26466,6 @@ exports.version = ReactVersion;
 /*! runtime requirements: module, __webpack_require__ */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-"use strict";
 
 
 function checkDCE() {
@@ -28011,7 +26540,6 @@ if (false) {} else {
 /*! runtime requirements: __webpack_exports__, __webpack_require__ */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
-"use strict";
 /** @license React v17.0.1
  * react.development.js
  *
@@ -30386,7 +28914,6 @@ exports.version = ReactVersion;
 /*! runtime requirements: module, __webpack_require__ */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-"use strict";
 
 
 if (false) {} else {
@@ -30414,7 +28941,6 @@ if (false) {} else {
 /*! runtime requirements: __webpack_exports__ */
 /***/ ((__unused_webpack_module, exports) => {
 
-"use strict";
 /** @license React v0.20.1
  * scheduler-tracing.development.js
  *
@@ -30804,7 +29330,6 @@ exports.unstable_wrap = unstable_wrap;
 /*! CommonJS bailout: exports.unstable_now(...) prevents optimization as exports is passed as call context at 804:24-44 */
 /***/ ((__unused_webpack_module, exports) => {
 
-"use strict";
 /** @license React v0.20.1
  * scheduler.development.js
  *
@@ -31681,7 +30206,6 @@ exports.unstable_wrapCallback = unstable_wrapCallback;
 /*! runtime requirements: module, __webpack_require__ */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-"use strict";
 
 
 if (false) {} else {
@@ -31709,7 +30233,6 @@ if (false) {} else {
 /*! runtime requirements: module, __webpack_require__ */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-"use strict";
 
 
 if (false) {} else {
@@ -31723,17 +30246,36 @@ if (false) {} else {
 /*!***********************!*\
   !*** ./src/index.tsx ***!
   \***********************/
-/*! flagged exports */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__, __webpack_require__ */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
+/*! CommonJS bailout: this is used directly at 2:23-27 */
+/*! CommonJS bailout: this is used directly at 9:26-30 */
+/*! CommonJS bailout: this is used directly at 14:20-24 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
-"use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-const ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
+const React = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+const ReactDOM = __importStar(__webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js"));
 __webpack_require__(/*! ./ui/style/index.scss */ "./src/ui/style/index.scss");
 const App_1 = __webpack_require__(/*! ./ui/components/app/App */ "./src/ui/components/app/App.tsx");
 ReactDOM.render(React.createElement(App_1.App, null), document.getElementById("reactApp"));
@@ -31745,21 +30287,432 @@ ReactDOM.render(React.createElement(App_1.App, null), document.getElementById("r
 /*!***************************************!*\
   !*** ./src/ui/components/app/App.tsx ***!
   \***************************************/
-/*! flagged exports */
-/*! export App [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_exports__, __webpack_require__ */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
+/*! CommonJS bailout: this is used directly at 2:23-27 */
+/*! CommonJS bailout: this is used directly at 9:26-30 */
+/*! CommonJS bailout: this is used directly at 14:20-24 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
-"use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.App = void 0;
-const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-const filters = __webpack_require__(/*! @plix-effect/core/filters */ "./node_modules/@plix-effect/core/dist/filters/index.js");
+const React = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+const PlixEditor_1 = __webpack_require__(/*! ../editor/PlixEditor */ "./src/ui/components/editor/PlixEditor.tsx");
 exports.App = () => {
-    return (React.createElement(React.Fragment, null, Object.keys(filters).join(" ")));
+    return (React.createElement(PlixEditor_1.PlixEditor, null));
+};
+
+
+/***/ }),
+
+/***/ "./src/ui/components/divider/SplitLeftRight.tsx":
+/*!******************************************************!*\
+  !*** ./src/ui/components/divider/SplitLeftRight.tsx ***!
+  \******************************************************/
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
+/*! CommonJS bailout: this is used directly at 2:23-27 */
+/*! CommonJS bailout: this is used directly at 9:26-30 */
+/*! CommonJS bailout: this is used directly at 14:20-24 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SplitLeftRight = void 0;
+const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+__webpack_require__(/*! ./SplitLeftRight.scss */ "./src/ui/components/divider/SplitLeftRight.scss");
+const emptyImage = new Image();
+exports.SplitLeftRight = react_1.memo(({ children: [leftElement, rightElement], storageKey, minLeft, minRight }) => {
+    const innerRef = react_1.useRef();
+    const leftRef = react_1.useRef();
+    const rightRef = react_1.useRef();
+    const dragRef = react_1.useRef();
+    const dragOffset = react_1.useRef(0);
+    const saveValueToStorage = react_1.useCallback((value) => {
+        if (!storageKey)
+            return;
+        localStorage.setItem("SplitLeftRight:" + storageKey, String(value));
+    }, [storageKey]);
+    const applyDragValue = react_1.useCallback((dragValue) => {
+        const containerBcr = innerRef.current.getBoundingClientRect();
+        const dividerBcr = dragRef.current.getBoundingClientRect();
+        let leftWidth = dragValue;
+        const rightPartWidth = containerBcr.width - dragValue - dividerBcr.width;
+        if (rightPartWidth < minLeft)
+            leftWidth = containerBcr.width - minRight - dividerBcr.width;
+        if (dragValue < minLeft)
+            leftWidth = minLeft;
+        leftRef.current.style.width = leftWidth + "px";
+        dragRef.current.style.left = leftWidth + "px";
+        saveValueToStorage(leftWidth);
+        return true;
+    }, []);
+    const onDragStart = react_1.useCallback((event) => {
+        dragOffset.current = event.nativeEvent.offsetX;
+        event.dataTransfer.setDragImage(emptyImage, 0, 0);
+    }, []);
+    const onDrag = react_1.useCallback(({ clientX }) => {
+        if (clientX === 0)
+            return;
+        const containerBcr = innerRef.current.getBoundingClientRect();
+        const dragValue = clientX - containerBcr.top - dragOffset.current;
+        applyDragValue(dragValue);
+        localStorage.setItem("RowsDivider:" + storageKey, String(dragValue));
+    }, []);
+    const onTouchMove = react_1.useCallback(({ changedTouches }) => {
+        var _a;
+        const x = (_a = changedTouches.item(0)) === null || _a === void 0 ? void 0 : _a.clientX;
+        applyDragValue(x);
+    }, []);
+    const applyStorageValue = react_1.useCallback(() => {
+        if (!storageKey)
+            return;
+        const storageValue = localStorage.getItem("RowsDivider:" + storageKey);
+        if (storageValue == null)
+            return;
+        const value = Number(storageValue);
+        if (isNaN(value))
+            return;
+        applyDragValue(value);
+    }, [storageKey, applyDragValue]);
+    react_1.useEffect(() => {
+        applyStorageValue();
+    }, []);
+    react_1.useEffect(() => {
+        function onResize() {
+            const value = leftRef.current.getBoundingClientRect().width;
+            applyDragValue(value);
+        }
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
+    }, []);
+    return (react_1.default.createElement("div", { className: "split-lr" },
+        react_1.default.createElement("div", { className: "split-lr-scroll-box", ref: innerRef },
+            react_1.default.createElement("div", { className: "split-lr-left", ref: leftRef },
+                react_1.default.createElement("div", { className: "split-lr-left-content" }, leftElement)),
+            react_1.default.createElement("div", { className: "split-lr-cnt", ref: rightRef },
+                react_1.default.createElement("div", { className: "split-lr-timeline" }, rightElement))),
+        react_1.default.createElement("a", { className: "split-lr-drag", draggable: "true", ref: dragRef, onDragStart: onDragStart, onDrag: onDrag, onTouchMove: onTouchMove })));
+});
+
+
+/***/ }),
+
+/***/ "./src/ui/components/divider/SplitTopBottom.tsx":
+/*!******************************************************!*\
+  !*** ./src/ui/components/divider/SplitTopBottom.tsx ***!
+  \******************************************************/
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
+/*! CommonJS bailout: this is used directly at 2:23-27 */
+/*! CommonJS bailout: this is used directly at 9:26-30 */
+/*! CommonJS bailout: this is used directly at 14:20-24 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SplitTopBottom = void 0;
+const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+__webpack_require__(/*! ./SplitTopBottom.scss */ "./src/ui/components/divider/SplitTopBottom.scss");
+exports.SplitTopBottom = react_1.memo(({ children: [topElement, bottomElement], storageKey, minTop, minBottom }) => {
+    const containerRef = react_1.useRef();
+    const topRef = react_1.useRef();
+    const bottomRef = react_1.useRef();
+    const dividerRef = react_1.useRef();
+    const dragOffset = react_1.useRef(0);
+    const onDragStart = react_1.useCallback((event) => {
+        event.dataTransfer.setDragImage(new Image(), 0, 0);
+        dragOffset.current = event.nativeEvent.offsetY;
+    }, []);
+    const saveValueToStorage = react_1.useCallback((value) => {
+        if (!storageKey)
+            return;
+        localStorage.setItem("RowsDivider:" + storageKey, String(value));
+    }, [storageKey]);
+    const applyTopValue = react_1.useCallback((top) => {
+        const containerBcr = containerRef.current.getBoundingClientRect();
+        const dividerBcr = dividerRef.current.getBoundingClientRect();
+        const fromBottomValue = containerBcr.height - top - dividerBcr.height;
+        let topHeight = top;
+        if (fromBottomValue < minBottom)
+            topHeight = containerBcr.height - minBottom - dividerBcr.height;
+        if (top < minTop)
+            topHeight = minTop;
+        topRef.current.style.height = topHeight + "px";
+        bottomRef.current.style.height = containerBcr.height - dividerBcr.height - topHeight + "px";
+        saveValueToStorage(topHeight);
+        return true;
+    }, []);
+    const applyStorageValue = react_1.useCallback(() => {
+        if (!storageKey)
+            return;
+        const storageValue = localStorage.getItem("RowsDivider:" + storageKey);
+        if (storageValue == null)
+            return;
+        const value = Number(storageValue);
+        if (isNaN(value))
+            return;
+        applyTopValue(value);
+    }, [storageKey, applyTopValue]);
+    react_1.useEffect(() => {
+        applyStorageValue();
+    }, []);
+    const onDrag = react_1.useCallback((event) => {
+        if (event.clientY === 0)
+            return;
+        const containerBcr = containerRef.current.getBoundingClientRect();
+        const top = event.clientY - containerBcr.top - dragOffset.current;
+        applyTopValue(top);
+    }, []);
+    const onTouchMove = react_1.useCallback(({ changedTouches }) => {
+        var _a;
+        const y = (_a = changedTouches.item(0)) === null || _a === void 0 ? void 0 : _a.clientY;
+        applyTopValue(y);
+    }, []);
+    react_1.useEffect(() => {
+        function onResize() {
+            const top = topRef.current.getBoundingClientRect().height;
+            applyTopValue(top);
+        }
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
+    }, []);
+    return (react_1.default.createElement(react_1.default.Fragment, null,
+        react_1.default.createElement("div", { className: "split-top-bottom-container", ref: containerRef },
+            react_1.default.createElement("div", { className: "split-top-bottom-container-top", ref: topRef }, topElement),
+            react_1.default.createElement("a", { className: "split-top-bottom-container-drag", draggable: true, onDrag: onDrag, onDragStart: onDragStart, onTouchMove: onTouchMove, ref: dividerRef }),
+            react_1.default.createElement("div", { className: "split-top-bottom-container-bottom", ref: bottomRef }, bottomElement))));
+});
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/PlixEditor.tsx":
+/*!*************************************************!*\
+  !*** ./src/ui/components/editor/PlixEditor.tsx ***!
+  \*************************************************/
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
+/*! CommonJS bailout: this is used directly at 2:23-27 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.PlixEditor = void 0;
+const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+__webpack_require__(/*! ./PlixEditor.scss */ "./src/ui/components/editor/PlixEditor.scss");
+const SplitTopBottom_1 = __webpack_require__(/*! ../divider/SplitTopBottom */ "./src/ui/components/divider/SplitTopBottom.tsx");
+const SplitLeftRight_1 = __webpack_require__(/*! ../divider/SplitLeftRight */ "./src/ui/components/divider/SplitLeftRight.tsx");
+exports.PlixEditor = () => {
+    return (react_1.default.createElement("div", { className: "plix-editor" },
+        react_1.default.createElement(SplitTopBottom_1.SplitTopBottom, { minTop: 100, minBottom: 100, storageKey: "row1" },
+            react_1.default.createElement(SplitLeftRight_1.SplitLeftRight, { minLeft: 200, minRight: 200, storageKey: "col1" },
+                react_1.default.createElement("div", { style: { backgroundColor: "#fdd", width: "100%" } },
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null),
+                    "TREE_TREE_TREE_TREE_TREE",
+                    react_1.default.createElement("br", null)),
+                react_1.default.createElement("div", { style: { backgroundColor: "#dfd", width: "100%" } },
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null),
+                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
+                    react_1.default.createElement("br", null))),
+            react_1.default.createElement("div", { style: { overflow: "auto" } },
+                "BOTTOM-BOTTOM",
+                react_1.default.createElement("br", null),
+                "BOTTOM-BOTTOM",
+                react_1.default.createElement("br", null),
+                "BOTTOM-BOTTOM",
+                react_1.default.createElement("br", null),
+                "BOTTOM-BOTTOM",
+                react_1.default.createElement("br", null),
+                "BOTTOM-BOTTOM",
+                react_1.default.createElement("br", null),
+                "BOTTOM-BOTTOM",
+                react_1.default.createElement("br", null),
+                "BOTTOM-BOTTOM",
+                react_1.default.createElement("br", null),
+                "BOTTOM-BOTTOM",
+                react_1.default.createElement("br", null),
+                "BOTTOM-BOTTOM",
+                react_1.default.createElement("br", null),
+                "BOTTOM-BOTTOM",
+                react_1.default.createElement("br", null),
+                "BOTTOM-BOTTOM",
+                react_1.default.createElement("br", null)))));
 };
 
 
@@ -31791,23 +30744,6 @@ exports.App = () => {
 /******/ 	}
 /******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
-/******/ 		__webpack_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
-/******/ 			}
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__webpack_require__.o = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop)
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
 /******/ 	(() => {
 /******/ 		// define __esModule on exports
@@ -31822,8 +30758,8 @@ exports.App = () => {
 /************************************************************************/
 /******/ 	// startup
 /******/ 	// Load entry module
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
 /******/ 	__webpack_require__("./src/index.tsx");
-/******/ 	// This entry module used 'exports' so it can't be inlined
 /******/ })()
 ;
 //# sourceMappingURL=index.js.map
