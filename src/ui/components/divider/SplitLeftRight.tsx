@@ -58,13 +58,15 @@ export const SplitLeftRight: FC<LeftPanelDividerProps> = memo((
     const onDrag = useCallback(({clientX}: DragEvent<HTMLAnchorElement>) => {
         if (clientX === 0) return;
         const containerBcr = innerRef.current.getBoundingClientRect();
-        const dragValue = clientX - containerBcr.top - dragOffset.current
+        const dragValue = clientX - containerBcr.left - dragOffset.current
         applyDragValue(dragValue);
         localStorage.setItem("RowsDivider:"+storageKey, String(dragValue));
     }, []);
 
     const onTouchMove = useCallback(({changedTouches}: TouchEvent<HTMLAnchorElement>) => {
-        const x = changedTouches.item(0)?.clientX;
+        const containerBcr = innerRef.current.getBoundingClientRect();
+        const dragBcr = dragRef.current.getBoundingClientRect();
+        const x = changedTouches.item(0)?.clientX - containerBcr.left - dragBcr.width/2;
         applyDragValue(x);
     }, [])
 

@@ -73,7 +73,9 @@ export const SplitTopBottom: FC<RowsDividerProps> = memo((
     }, []);
 
     const onTouchMove = useCallback(({changedTouches}: TouchEvent<HTMLAnchorElement>) => {
-        const y = changedTouches.item(0)?.clientY;
+        const containerBcr = containerRef.current.getBoundingClientRect();
+        const dragBcr = dividerRef.current.getBoundingClientRect();
+        const y = changedTouches.item(0)?.clientY - containerBcr.top - dragBcr.height/2;
         applyTopValue(y);
     }, [])
 

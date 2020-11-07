@@ -6,9 +6,9 @@ import {SplitLeftRight} from "../divider/SplitLeftRight";
 export const PlixEditor: FC = () => {
     return (
         <div className="plix-editor">
-            <SplitTopBottom minTop={100} minBottom={100} storageKey="row1">
-                <SplitLeftRight minLeft={200} minRight={200} storageKey="col1">
-                    <div style={{backgroundColor: "#fdd", width: "100%"}}>
+            <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
+                <SplitLeftRight minLeft={200} minRight={200} storageKey="s2">
+                    <div style={{backgroundColor: "#dff", width: "100%"}}>
                         TREE_TREE_TREE_TREE_TREE<br/>
                         TREE_TREE_TREE_TREE_TREE<br/>
                         TREE_TREE_TREE_TREE_TREE<br/>
@@ -73,19 +73,21 @@ export const PlixEditor: FC = () => {
                         TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_<br/>
                     </div>
                 </SplitLeftRight>
-                <div style={{overflow: "auto"}}>
-                    BOTTOM-BOTTOM<br/>
-                    BOTTOM-BOTTOM<br/>
-                    BOTTOM-BOTTOM<br/>
-                    BOTTOM-BOTTOM<br/>
-                    BOTTOM-BOTTOM<br/>
-                    BOTTOM-BOTTOM<br/>
-                    BOTTOM-BOTTOM<br/>
-                    BOTTOM-BOTTOM<br/>
-                    BOTTOM-BOTTOM<br/>
-                    BOTTOM-BOTTOM<br/>
-                    BOTTOM-BOTTOM<br/>
-                </div>
+                <SplitLeftRight minLeft={200} minRight={200} storageKey="s3">
+                    <div style={{backgroundColor: "#ffd", width: "100%"}}>
+                        SIMPLE PROPS-EDITOR<br/>
+                        SIMPLE PROPS-EDITOR<br/>
+                        SIMPLE PROPS-EDITOR<br/>
+                        SIMPLE PROPS-EDITOR<br/>
+                    </div>
+                    <SplitTopBottom minTop={100} minBottom={100} storageKey="s4">
+                        <div style={{backgroundColor: "#fdf", width: "100%"}}>CANVAS-TOP</div>
+                        <SplitLeftRight minLeft={100} minRight={100} storageKey="s5">
+                            <div style={{backgroundColor: "#ddf", width: "100%"}}>CANVAS-1</div>
+                            <div style={{backgroundColor: "#fdd", width: "100%"}}>CANVAS-2</div>
+                        </SplitLeftRight>
+                    </SplitTopBottom>
+                </SplitLeftRight>
             </SplitTopBottom>
         </div>
     )
