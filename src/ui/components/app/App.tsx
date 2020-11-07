@@ -1,11 +1,8 @@
 import * as React from "react";
-import * as filters from "@plix-effect/core/filters"
-import  parseRender from "@plix-effect/core"
+import {PlixEditor} from "../editor/PlixEditor";
 
 export const App = () => {
     return (
-        <>
-            {Object.keys(filters).join(" ")}
-        </>
+        <PlixEditor/>
     )
 }

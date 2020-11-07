@@ -16,6 +16,7 @@
     ],
     "removeComments": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "jsx": "react",
     "allowJs": true,
     "baseUrl": "./",
