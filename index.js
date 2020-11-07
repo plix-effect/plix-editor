@@ -30568,132 +30568,11 @@ const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules
 __webpack_require__(/*! ./PlixEditor.scss */ "./src/ui/components/editor/PlixEditor.scss");
 const SplitTopBottom_1 = __webpack_require__(/*! ../divider/SplitTopBottom */ "./src/ui/components/divider/SplitTopBottom.tsx");
 const SplitLeftRight_1 = __webpack_require__(/*! ../divider/SplitLeftRight */ "./src/ui/components/divider/SplitLeftRight.tsx");
+const TreeTimeline_1 = __webpack_require__(/*! ./TreeTimeline */ "./src/ui/components/editor/TreeTimeline.tsx");
 exports.PlixEditor = () => {
     return (react_1.default.createElement("div", { className: "plix-editor" },
         react_1.default.createElement(SplitTopBottom_1.SplitTopBottom, { minTop: 100, minBottom: 200, storageKey: "s1" },
-            react_1.default.createElement(SplitLeftRight_1.SplitLeftRight, { minLeft: 200, minRight: 200, storageKey: "s2" },
-                react_1.default.createElement("div", { style: { backgroundColor: "#dff", width: "100%" } },
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null),
-                    "TREE_TREE_TREE_TREE_TREE",
-                    react_1.default.createElement("br", null)),
-                react_1.default.createElement("div", { style: { backgroundColor: "#dfd", width: "100%" } },
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null),
-                    "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
-                    react_1.default.createElement("br", null))),
+            react_1.default.createElement(TreeTimeline_1.TreeTimeline, null),
             react_1.default.createElement(SplitLeftRight_1.SplitLeftRight, { minLeft: 200, minRight: 200, storageKey: "s3" },
                 react_1.default.createElement("div", { style: { backgroundColor: "#ffd", width: "100%" } },
                     "SIMPLE PROPS-EDITOR",
@@ -30709,6 +30588,100 @@ exports.PlixEditor = () => {
                     react_1.default.createElement(SplitLeftRight_1.SplitLeftRight, { minLeft: 100, minRight: 100, storageKey: "s5" },
                         react_1.default.createElement("div", { style: { backgroundColor: "#ddf", width: "100%" } }, "CANVAS-1"),
                         react_1.default.createElement("div", { style: { backgroundColor: "#fdd", width: "100%" } }, "CANVAS-2")))))));
+};
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/TreeTimeline.tsx":
+/*!***************************************************!*\
+  !*** ./src/ui/components/editor/TreeTimeline.tsx ***!
+  \***************************************************/
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
+/*! CommonJS bailout: this is used directly at 2:23-27 */
+/*! CommonJS bailout: this is used directly at 9:26-30 */
+/*! CommonJS bailout: this is used directly at 14:20-24 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TreeTimeline = void 0;
+const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+const react_dom_1 = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
+const SplitLeftRight_1 = __webpack_require__(/*! ../divider/SplitLeftRight */ "./src/ui/components/divider/SplitLeftRight.tsx");
+const effect = { name: "snake", desc: "snake-desc" };
+exports.TreeTimeline = ({ children }) => {
+    const [leftRef, setLeftRef] = react_1.useState();
+    const [rightRef, setRightRef] = react_1.useState();
+    const ctxValue = { leftElement: leftRef, rightElement: rightRef };
+    return (react_1.default.createElement(PortalsContext.Provider, { value: ctxValue },
+        react_1.default.createElement(SplitLeftRight_1.SplitLeftRight, { minLeft: 100, minRight: 200, storageKey: "timeline" },
+            react_1.default.createElement("div", { ref: setLeftRef }),
+            react_1.default.createElement("div", { ref: setRightRef })),
+        react_1.default.createElement(EffectTimeline, { effect: effect })));
+};
+const PortalsContext = react_1.createContext({ leftElement: undefined, rightElement: undefined });
+const Timeline = ({ children: [left, right, deep] }) => {
+    const { leftElement, rightElement } = react_1.useContext(PortalsContext);
+    const [leftRef, setLeftRef] = react_1.useState();
+    const [rightRef, setRightRef] = react_1.useState();
+    const ctxValue = { leftElement: leftRef, rightElement: rightRef };
+    return (react_1.default.createElement(react_1.default.Fragment, null,
+        leftElement && react_dom_1.createPortal((react_1.default.createElement(react_1.default.Fragment, null,
+            left,
+            deep && react_1.default.createElement("div", { style: { marginLeft: "10px" }, ref: setLeftRef }))), leftElement),
+        rightElement && react_dom_1.createPortal((react_1.default.createElement(react_1.default.Fragment, null,
+            right,
+            deep && react_1.default.createElement("div", { style: { marginLeft: "10px" }, ref: setRightRef }))), rightElement),
+        react_1.default.createElement(PortalsContext.Provider, { value: ctxValue }, deep)));
+};
+const TimelineAccord = ({ open, children }) => {
+    if (!open)
+        return null;
+    return react_1.default.createElement(react_1.default.Fragment, null, children);
+};
+const EffectTimeline = ({ effect }) => {
+    const [expanded, setExpanded] = react_1.useState(false);
+    const changeExpanded = react_1.useCallback(() => {
+        setExpanded(v => !v);
+    }, [setExpanded]);
+    return (react_1.default.createElement(Timeline, null,
+        react_1.default.createElement("div", null,
+            react_1.default.createElement("a", { onClick: changeExpanded }, expanded ? '-' : '+'),
+            "Effect: ",
+            effect.name),
+        react_1.default.createElement("div", null,
+            "Desc: ",
+            effect.desc),
+        react_1.default.createElement(TimelineAccord, { open: expanded },
+            react_1.default.createElement(FilterListTimeline, { filters: effect }),
+            react_1.default.createElement(FilterListTimeline, { filters: effect }),
+            react_1.default.createElement(FilterListTimeline, { filters: effect }))));
+};
+const FilterListTimeline = () => {
+    return (react_1.default.createElement(Timeline, null,
+        react_1.default.createElement("div", null, "EffectName"),
+        react_1.default.createElement("div", null, "EffectDesc")));
 };
 
 
