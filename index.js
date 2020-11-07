@@ -30394,13 +30394,15 @@ exports.SplitLeftRight = react_1.memo(({ children: [leftElement, rightElement], 
         if (clientX === 0)
             return;
         const containerBcr = innerRef.current.getBoundingClientRect();
-        const dragValue = clientX - containerBcr.top - dragOffset.current;
+        const dragValue = clientX - containerBcr.left - dragOffset.current;
         applyDragValue(dragValue);
         localStorage.setItem("RowsDivider:" + storageKey, String(dragValue));
     }, []);
     const onTouchMove = react_1.useCallback(({ changedTouches }) => {
         var _a;
-        const x = (_a = changedTouches.item(0)) === null || _a === void 0 ? void 0 : _a.clientX;
+        const containerBcr = innerRef.current.getBoundingClientRect();
+        const dragBcr = dragRef.current.getBoundingClientRect();
+        const x = ((_a = changedTouches.item(0)) === null || _a === void 0 ? void 0 : _a.clientX) - containerBcr.left - dragBcr.width / 2;
         applyDragValue(x);
     }, []);
     const applyStorageValue = react_1.useCallback(() => {
@@ -30524,7 +30526,9 @@ exports.SplitTopBottom = react_1.memo(({ children: [topElement, bottomElement], 
     }, []);
     const onTouchMove = react_1.useCallback(({ changedTouches }) => {
         var _a;
-        const y = (_a = changedTouches.item(0)) === null || _a === void 0 ? void 0 : _a.clientY;
+        const containerBcr = containerRef.current.getBoundingClientRect();
+        const dragBcr = dividerRef.current.getBoundingClientRect();
+        const y = ((_a = changedTouches.item(0)) === null || _a === void 0 ? void 0 : _a.clientY) - containerBcr.top - dragBcr.height / 2;
         applyTopValue(y);
     }, []);
     react_1.useEffect(() => {
@@ -30566,9 +30570,9 @@ const SplitTopBottom_1 = __webpack_require__(/*! ../divider/SplitTopBottom */ ".
 const SplitLeftRight_1 = __webpack_require__(/*! ../divider/SplitLeftRight */ "./src/ui/components/divider/SplitLeftRight.tsx");
 exports.PlixEditor = () => {
     return (react_1.default.createElement("div", { className: "plix-editor" },
-        react_1.default.createElement(SplitTopBottom_1.SplitTopBottom, { minTop: 100, minBottom: 100, storageKey: "row1" },
-            react_1.default.createElement(SplitLeftRight_1.SplitLeftRight, { minLeft: 200, minRight: 200, storageKey: "col1" },
-                react_1.default.createElement("div", { style: { backgroundColor: "#fdd", width: "100%" } },
+        react_1.default.createElement(SplitTopBottom_1.SplitTopBottom, { minTop: 100, minBottom: 200, storageKey: "s1" },
+            react_1.default.createElement(SplitLeftRight_1.SplitLeftRight, { minLeft: 200, minRight: 200, storageKey: "s2" },
+                react_1.default.createElement("div", { style: { backgroundColor: "#dff", width: "100%" } },
                     "TREE_TREE_TREE_TREE_TREE",
                     react_1.default.createElement("br", null),
                     "TREE_TREE_TREE_TREE_TREE",
@@ -30690,29 +30694,21 @@ exports.PlixEditor = () => {
                     react_1.default.createElement("br", null),
                     "TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_",
                     react_1.default.createElement("br", null))),
-            react_1.default.createElement("div", { style: { overflow: "auto" } },
-                "BOTTOM-BOTTOM",
-                react_1.default.createElement("br", null),
-                "BOTTOM-BOTTOM",
-                react_1.default.createElement("br", null),
-                "BOTTOM-BOTTOM",
-                react_1.default.createElement("br", null),
-                "BOTTOM-BOTTOM",
-                react_1.default.createElement("br", null),
-                "BOTTOM-BOTTOM",
-                react_1.default.createElement("br", null),
-                "BOTTOM-BOTTOM",
-                react_1.default.createElement("br", null),
-                "BOTTOM-BOTTOM",
-                react_1.default.createElement("br", null),
-                "BOTTOM-BOTTOM",
-                react_1.default.createElement("br", null),
-                "BOTTOM-BOTTOM",
-                react_1.default.createElement("br", null),
-                "BOTTOM-BOTTOM",
-                react_1.default.createElement("br", null),
-                "BOTTOM-BOTTOM",
-                react_1.default.createElement("br", null)))));
+            react_1.default.createElement(SplitLeftRight_1.SplitLeftRight, { minLeft: 200, minRight: 200, storageKey: "s3" },
+                react_1.default.createElement("div", { style: { backgroundColor: "#ffd", width: "100%" } },
+                    "SIMPLE PROPS-EDITOR",
+                    react_1.default.createElement("br", null),
+                    "SIMPLE PROPS-EDITOR",
+                    react_1.default.createElement("br", null),
+                    "SIMPLE PROPS-EDITOR",
+                    react_1.default.createElement("br", null),
+                    "SIMPLE PROPS-EDITOR",
+                    react_1.default.createElement("br", null)),
+                react_1.default.createElement(SplitTopBottom_1.SplitTopBottom, { minTop: 100, minBottom: 100, storageKey: "s4" },
+                    react_1.default.createElement("div", { style: { backgroundColor: "#fdf", width: "100%" } }, "CANVAS-TOP"),
+                    react_1.default.createElement(SplitLeftRight_1.SplitLeftRight, { minLeft: 100, minRight: 100, storageKey: "s5" },
+                        react_1.default.createElement("div", { style: { backgroundColor: "#ddf", width: "100%" } }, "CANVAS-1"),
+                        react_1.default.createElement("div", { style: { backgroundColor: "#fdd", width: "100%" } }, "CANVAS-2")))))));
 };
 
 
