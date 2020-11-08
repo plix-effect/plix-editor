@@ -1,0 +1,14 @@
+.track-timeline-block {
+  display: block;
+  width: 100%;
+  height: 25px;
+  margin: 2px;
+  border: 1px solid gray;
+  background-color: darkgray;
+  &.--fixed {
+    position: sticky;
+    display: inline-block;
+    width: max-content;
+    left: 0;
+  }
+}

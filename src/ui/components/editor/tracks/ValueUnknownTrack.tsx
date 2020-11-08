@@ -3,6 +3,8 @@ import {Track} from "../../timeline/Track";
 import {TrackAccord} from "../../timeline/TrackAccord";
 import {PlixEffectJsonData} from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
+import {TreeBlock} from "../track-elements/TreeBlock";
+import {TimelineBlock} from "../track-elements/TimelineBlock";
 
 export interface EffectTrackProps {
     value: any,
@@ -12,10 +14,12 @@ export interface EffectTrackProps {
 export const ValueUnknownTrack: FC<EffectTrackProps> = ({value, children, path}) => {
     return (
         <Track>
-            <div title={path.join(" > ")}>
+            <TreeBlock>
                 {children}
-            </div>
-            <div>{JSON.stringify(value)}</div>
+            </TreeBlock>
+            <TimelineBlock fixed>
+                {JSON.stringify(value)}
+            </TimelineBlock>
         </Track>
     );
 }

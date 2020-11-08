@@ -5,6 +5,8 @@ import {PlixEffectJsonData} from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
 import {ValueUnknownTrack} from "./ValueUnknownTrack";
 import {ValueTrack} from "./ValueTrack";
+import {TreeBlock} from "../track-elements/TreeBlock";
+import {TimelineBlock} from "../track-elements/TimelineBlock";
 
 export interface ArrayTrackProps {
     value: any[],
@@ -19,11 +21,13 @@ export const ArrayTrack: FC<ArrayTrackProps> = ({value, type, children: [name, d
     }, [setExpanded])
     return (
         <Track>
-            <div title={path.join(" > ")}>
+            <TreeBlock>
                 <a href="javascript:void.0" onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>
                 {name} ({value.length})
-            </div>
-            {desc}
+            </TreeBlock>
+            <TimelineBlock fixed>
+                {desc}
+            </TimelineBlock>
             <TrackAccord expanded={expanded}>
                 {value.map((val, index) => (
                     <ValueTrack type={type} value={val} path={[...path, index]}>

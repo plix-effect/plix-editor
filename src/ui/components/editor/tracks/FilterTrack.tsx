@@ -4,6 +4,8 @@ import {TrackAccord} from "../../timeline/TrackAccord";
 import {PlixEffectJsonData, PlixFilterJsonData} from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
 import {ArrayTrack} from "./ArrayTrack";
+import {TreeBlock} from "../track-elements/TreeBlock";
+import {TimelineBlock} from "../track-elements/TimelineBlock";
 
 export interface FilterTrackProps {
     filter: PlixFilterJsonData,
@@ -17,13 +19,13 @@ export const FilterTrack: FC<FilterTrackProps> = ({filter, path, children}) => {
     }, [setExpanded]);
     return (
         <Track>
-            <div title={path.join(" > ")}>
+            <TreeBlock>
                 <a href="javascript:void.0" onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>
                 {children}
-            </div>
-            <div>
+            </TreeBlock>
+            <TimelineBlock fixed>
                 <FilterName filter={filter} /> some description of filter
-            </div>
+            </TimelineBlock>
             <TrackAccord expanded={expanded}>
             </TrackAccord>
         </Track>
