@@ -16,16 +16,14 @@ export const Track: FC<TrackProps> = ({children: [left, right, deep]}) => {
         <PortalsContext.Provider value={ctxValue}>
             {deep}
             {leftElement && createPortal((
-                <>
+                <div className="tl-portal-left" ref={setLeftRef} >
                     {left}
-                    {deep && <div className="tl-portal-left" ref={setLeftRef} />}
-                </>
+                </div>
             ), leftElement)}
             {rightElement && createPortal((
-                <>
+                <div className="tl-portal-right" ref={setRightRef}>
                     {right}
-                    {deep && <div className="tl-portal-right" ref={setRightRef} />}
-                </>
+                </div>
             ), rightElement)}
         </PortalsContext.Provider>
     )

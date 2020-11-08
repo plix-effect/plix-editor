@@ -12,13 +12,13 @@ import "./SplitLeftRight.scss";
 
 const emptyImage = new Image();
 
-interface LeftPanelDividerProps {
+interface SplitLeftRightProps {
     minLeft: number;
     minRight: number;
     children: readonly [ReactNode, ReactNode],
     storageKey?: string;
 }
-export const SplitLeftRight: FC<LeftPanelDividerProps> = memo((
+export const SplitLeftRight: FC<SplitLeftRightProps> = memo((
     {
         children: [leftElement, rightElement],
         storageKey,

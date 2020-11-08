@@ -1,0 +1,60 @@
+@import "../../style/variables";
+
+.split-tl {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "menu sep scale"
+    "tree sep timeline"
+}
+.split-tl-menu {
+  grid-area: menu;
+  width: 200px;
+  overflow: hidden;
+  display: flex;
+}
+.split-tl-scale {
+  grid-area: scale;
+  overflow: auto;
+  display: flex;
+}
+.split-tl-tree {
+  grid-area: tree;
+  width: 200px;
+  overflow: auto;
+  display: flex;
+}
+.split-tl-timeline {
+  grid-area: timeline;
+  overflow: auto;
+  display: flex;
+}
+.split-tl-content {
+  flex-grow: 1;
+  min-height: 100%;
+  height: max-content;
+  display: flex;
+}
+.split-tl-sep {
+  grid-area: sep;
+  width: 5px;
+  background-color: $splitter-color;
+  cursor: ew-resize;
+  height: 100%;
+  background-image: radial-gradient(circle, $splitter-dot-color 2.5px, rgba(255,255,255,0) 2.5px), radial-gradient(circle, $splitter-dot-color 2.5px, rgba(255,255,255,0) 2.5px), radial-gradient(circle, $splitter-dot-color 2.5px, rgba(255,255,255,0) 2.5px);
+  background-position: 0 #{-$splitter-size*2}, 0, 0 #{$splitter-size*2};
+  @media (hover: none) and (pointer: coarse) {
+    width: $splitter-size-mobile;
+    box-sizing: border-box;
+    background-image: radial-gradient(circle, $splitter-dot-color 5px, rgba(255,255,255,0) 5px), radial-gradient(circle, $splitter-dot-color 5px, rgba(255,255,255,0) 5px), radial-gradient(circle, $splitter-dot-color 5px, rgba(255,255,255,0) 5px);
+    background-position: 0 #{-$splitter-size-mobile}, 0, 0 $splitter-size-mobile;
+    border-left: 3px solid $splitter-dot-color;
+    border-right: 3px solid $splitter-dot-color;
+  }
+}
+.hide-scroll::-webkit-scrollbar {
+  display: none;
+}
