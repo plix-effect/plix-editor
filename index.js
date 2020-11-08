@@ -1747,6 +1747,71 @@ module.exports = function bezier (mX1, mY1, mX2, mY2) {
 
 /***/ }),
 
+/***/ "./node_modules/classnames/index.js":
+/*!******************************************!*\
+  !*** ./node_modules/classnames/index.js ***!
+  \******************************************/
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements: module, __webpack_exports__ */
+/*! CommonJS bailout: module.exports is used directly at 41:38-52 */
+/*! CommonJS bailout: module.exports is used directly at 43:2-16 */
+/***/ ((module, exports) => {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+  Copyright (c) 2017 Jed Watson.
+  Licensed under the MIT License (MIT), see
+  http://jedwatson.github.io/classnames
+*/
+/* global define */
+
+(function () {
+	'use strict';
+
+	var hasOwn = {}.hasOwnProperty;
+
+	function classNames () {
+		var classes = [];
+
+		for (var i = 0; i < arguments.length; i++) {
+			var arg = arguments[i];
+			if (!arg) continue;
+
+			var argType = typeof arg;
+
+			if (argType === 'string' || argType === 'number') {
+				classes.push(arg);
+			} else if (Array.isArray(arg) && arg.length) {
+				var inner = classNames.apply(null, arg);
+				if (inner) {
+					classes.push(inner);
+				}
+			} else if (argType === 'object') {
+				for (var key in arg) {
+					if (hasOwn.call(arg, key) && arg[key]) {
+						classes.push(key);
+					}
+				}
+			}
+		}
+
+		return classes.join(' ');
+	}
+
+	if ( true && module.exports) {
+		classNames.default = classNames;
+		module.exports = classNames;
+	} else if (true) {
+		// register as 'classnames', consistent with npm package name
+		!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = (function () {
+			return classNames;
+		}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	} else {}
+}());
+
+
+/***/ }),
+
 /***/ "./node_modules/color-blend/dist/index.modern.js":
 /*!*******************************************************!*\
   !*** ./node_modules/color-blend/dist/index.modern.js ***!
@@ -1834,6 +1899,38 @@ __webpack_require__.r(__webpack_exports__);
 /*!**************************************************!*\
   !*** ./src/ui/components/editor/PlixEditor.scss ***!
   \**************************************************/
+/*! namespace exports */
+/*! exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/track-elements/TimelineBlock.scss":
+/*!********************************************************************!*\
+  !*** ./src/ui/components/editor/track-elements/TimelineBlock.scss ***!
+  \********************************************************************/
+/*! namespace exports */
+/*! exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/track-elements/TreeBlock.scss":
+/*!****************************************************************!*\
+  !*** ./src/ui/components/editor/track-elements/TreeBlock.scss ***!
+  \****************************************************************/
 /*! namespace exports */
 /*! exports [not provided] [no usage info] */
 /*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.* */
@@ -32445,7 +32542,26 @@ exports.PlixEditor = () => {
                     "HEADER"),
                 react_1.default.createElement("div", { style: { backgroundColor: "#fdf", flexGrow: 1 } }, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
                 react_1.default.createElement("div", { style: { backgroundColor: "#ffd", flexGrow: 1 } }, "(TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE)"),
-                react_1.default.createElement("div", { style: { backgroundColor: "#dff", flexGrow: 1 } }, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)")))));
+                react_1.default.createElement("div", { style: { backgroundColor: "#dff", flexGrow: 1 } },
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", { style: { position: "sticky", left: 0, display: "inline-block" } }, "(PROPERTY_PROPERTY)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                    react_1.default.createElement("div", null, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"))))));
 };
 
 
@@ -32533,6 +32649,57 @@ exports.TrackEditor = () => {
 
 /***/ }),
 
+/***/ "./src/ui/components/editor/track-elements/TimelineBlock.tsx":
+/*!*******************************************************************!*\
+  !*** ./src/ui/components/editor/track-elements/TimelineBlock.tsx ***!
+  \*******************************************************************/
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
+/*! CommonJS bailout: this is used directly at 2:23-27 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TimelineBlock = void 0;
+const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+const classnames_1 = __importDefault(__webpack_require__(/*! classnames */ "./node_modules/classnames/index.js"));
+__webpack_require__(/*! ./TimelineBlock.scss */ "./src/ui/components/editor/track-elements/TimelineBlock.scss");
+exports.TimelineBlock = ({ children, fixed }) => {
+    return (react_1.default.createElement("div", { className: classnames_1.default("track-timeline-block", { '--fixed': fixed }) }, children));
+};
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/track-elements/TreeBlock.tsx":
+/*!***************************************************************!*\
+  !*** ./src/ui/components/editor/track-elements/TreeBlock.tsx ***!
+  \***************************************************************/
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
+/*! CommonJS bailout: this is used directly at 2:23-27 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TreeBlock = void 0;
+const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+__webpack_require__(/*! ./TreeBlock.scss */ "./src/ui/components/editor/track-elements/TreeBlock.scss");
+exports.TreeBlock = ({ children }) => {
+    return (react_1.default.createElement("div", { className: "track-tree-block" }, children));
+};
+
+
+/***/ }),
+
 /***/ "./src/ui/components/editor/tracks/ArrayTrack.tsx":
 /*!********************************************************!*\
   !*** ./src/ui/components/editor/tracks/ArrayTrack.tsx ***!
@@ -32571,13 +32738,15 @@ const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/re
 const Track_1 = __webpack_require__(/*! ../../timeline/Track */ "./src/ui/components/timeline/Track.tsx");
 const TrackAccord_1 = __webpack_require__(/*! ../../timeline/TrackAccord */ "./src/ui/components/timeline/TrackAccord.tsx");
 const ValueTrack_1 = __webpack_require__(/*! ./ValueTrack */ "./src/ui/components/editor/tracks/ValueTrack.tsx");
+const TreeBlock_1 = __webpack_require__(/*! ../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
+const TimelineBlock_1 = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
 exports.ArrayTrack = ({ value, type, children: [name, desc], path }) => {
     const [expanded, setExpanded] = react_1.useState(false);
     const changeExpanded = react_1.useCallback(() => {
         setExpanded(v => !v);
     }, [setExpanded]);
     return (react_1.default.createElement(Track_1.Track, null,
-        react_1.default.createElement("div", { title: path.join(" > ") },
+        react_1.default.createElement(TreeBlock_1.TreeBlock, null,
             react_1.default.createElement("a", { href: "javascript:void.0", onClick: changeExpanded },
                 "[",
                 expanded ? "-" : "+",
@@ -32586,7 +32755,7 @@ exports.ArrayTrack = ({ value, type, children: [name, desc], path }) => {
             " (",
             value.length,
             ")"),
-        desc,
+        react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true }, desc),
         react_1.default.createElement(TrackAccord_1.TrackAccord, { expanded: expanded }, value.map((val, index) => (react_1.default.createElement(ValueTrack_1.ValueTrack, { type: type, value: val, path: [...path, index] },
             "[",
             index,
@@ -32634,19 +32803,21 @@ const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/re
 const Track_1 = __webpack_require__(/*! ../../timeline/Track */ "./src/ui/components/timeline/Track.tsx");
 const TrackAccord_1 = __webpack_require__(/*! ../../timeline/TrackAccord */ "./src/ui/components/timeline/TrackAccord.tsx");
 const ArrayTrack_1 = __webpack_require__(/*! ./ArrayTrack */ "./src/ui/components/editor/tracks/ArrayTrack.tsx");
+const TreeBlock_1 = __webpack_require__(/*! ../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
+const TimelineBlock_1 = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
 exports.EffectTrack = ({ effect, path, baseExpanded, children }) => {
     const [expanded, setExpanded] = react_1.useState(baseExpanded || false);
     const changeExpanded = react_1.useCallback(() => {
         setExpanded(v => !v);
     }, [setExpanded]);
     return (react_1.default.createElement(Track_1.Track, null,
-        react_1.default.createElement("div", { title: path.join(" > ") },
+        react_1.default.createElement(TreeBlock_1.TreeBlock, null,
             react_1.default.createElement("a", { href: "javascript:void.0", onClick: changeExpanded },
                 "[",
                 expanded ? "-" : "+",
                 "]"),
             children),
-        react_1.default.createElement("div", null,
+        react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
             react_1.default.createElement(EffectName, { effect: effect }),
             ": some description of effect"),
         react_1.default.createElement(TrackAccord_1.TrackAccord, { expanded: expanded },
@@ -32715,19 +32886,21 @@ exports.FilterTrack = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 const Track_1 = __webpack_require__(/*! ../../timeline/Track */ "./src/ui/components/timeline/Track.tsx");
 const TrackAccord_1 = __webpack_require__(/*! ../../timeline/TrackAccord */ "./src/ui/components/timeline/TrackAccord.tsx");
+const TreeBlock_1 = __webpack_require__(/*! ../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
+const TimelineBlock_1 = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
 exports.FilterTrack = ({ filter, path, children }) => {
     const [expanded, setExpanded] = react_1.useState(false);
     const changeExpanded = react_1.useCallback(() => {
         setExpanded(v => !v);
     }, [setExpanded]);
     return (react_1.default.createElement(Track_1.Track, null,
-        react_1.default.createElement("div", { title: path.join(" > ") },
+        react_1.default.createElement(TreeBlock_1.TreeBlock, null,
             react_1.default.createElement("a", { href: "javascript:void.0", onClick: changeExpanded },
                 "[",
                 expanded ? "-" : "+",
                 "]"),
             children),
-        react_1.default.createElement("div", null,
+        react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
             react_1.default.createElement(FilterName, { filter: filter }),
             " some description of filter"),
         react_1.default.createElement(TrackAccord_1.TrackAccord, { expanded: expanded })));
@@ -32986,10 +33159,12 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ValueUnknownTrack = void 0;
 const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 const Track_1 = __webpack_require__(/*! ../../timeline/Track */ "./src/ui/components/timeline/Track.tsx");
+const TreeBlock_1 = __webpack_require__(/*! ../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
+const TimelineBlock_1 = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
 exports.ValueUnknownTrack = ({ value, children, path }) => {
     return (react_1.default.createElement(Track_1.Track, null,
-        react_1.default.createElement("div", { title: path.join(" > ") }, children),
-        react_1.default.createElement("div", null, JSON.stringify(value))));
+        react_1.default.createElement(TreeBlock_1.TreeBlock, null, children),
+        react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true }, JSON.stringify(value))));
 };
 
 
