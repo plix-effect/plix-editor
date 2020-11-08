@@ -114,7 +114,7 @@ const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = ({filter: [ena
         <Track>
             <TreeBlock>
                 {filterData.paramDescriptions.length > 0 && (<>
-                    <a href="javascript:void.0" onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>{' '}
+                    <a onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>{' '}
                 </>)}
                 {children} <span className="track-description _type">{filterData.name}</span>
             </TreeBlock>

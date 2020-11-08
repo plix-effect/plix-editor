@@ -1,8 +1,21 @@
 .accord-portal-left {
     padding-left: 10px;
     display: none;
+    position: relative;
     &._expanded {
         display: block;
+        &::before {
+            position: absolute;
+            top: -4px;
+            width: 14px;
+            left: 0;
+            bottom: 0;
+            border-bottom-left-radius: 4px;
+            border-left: 1px solid #444;
+            border-bottom: 1px solid #444;
+            content: "";
+        }
+
     }
 }
 

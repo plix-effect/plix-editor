@@ -27,7 +27,7 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = ({filtersMap, pathN
     return (
         <Track>
             <div>
-                <a href="javascript:void.0" onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>
+                <a onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>
                 ===Filters===
             </div>
             <div>yay! you can create filters!</div>

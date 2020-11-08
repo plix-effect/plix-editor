@@ -3,4 +3,13 @@ html, body {
   margin: 0;
   background-color: black;
   color: white;
+  font-family: "Roboto","Open Sans",helvetica,arial,sans-serif;
+}
+a {
+  color: #88f;
+  text-decoration: none;
+  cursor: pointer;
+}
+a:hover {
+  color: #aaf;
 }

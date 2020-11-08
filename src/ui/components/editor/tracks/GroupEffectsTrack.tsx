@@ -27,7 +27,7 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = ({effectsMap, pathN
     return (
         <Track>
             <div>
-                <a href="javascript:void.0" onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>
+                <a onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>
                 ===Effects===
             </div>
             <div>pow! you can create effects!</div>

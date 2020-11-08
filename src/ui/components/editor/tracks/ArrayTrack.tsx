@@ -22,7 +22,7 @@ export const ArrayTrack: FC<ArrayTrackProps> = ({value, type, children: [name, d
     return (
         <Track>
             <TreeBlock>
-                <a href="javascript:void.0" onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>
+                <a onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>{' '}
                 {name} ({value.length})
             </TreeBlock>
             <TimelineBlock fixed>
@@ -35,6 +35,10 @@ export const ArrayTrack: FC<ArrayTrackProps> = ({value, type, children: [name, d
                         [{index}]
                     </ValueTrack>
                 ))}
+                <Track>
+                    <a>[add {type}]</a>
+                    <span>&nbsp;</span>
+                </Track>
             </TrackAccord>
         </Track>
     );
