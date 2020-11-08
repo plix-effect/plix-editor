@@ -1798,10 +1798,10 @@ function n(n,r,t){return{r:255*t(n.r/255,r.r/255),g:255*t(n.g/255,r.g/255),b:255
 
 /***/ }),
 
-/***/ "./src/ui/components/divider/SplitLeftRight.scss":
-/*!*******************************************************!*\
-  !*** ./src/ui/components/divider/SplitLeftRight.scss ***!
-  \*******************************************************/
+/***/ "./src/ui/components/divider/SplitTimeline.scss":
+/*!******************************************************!*\
+  !*** ./src/ui/components/divider/SplitTimeline.scss ***!
+  \******************************************************/
 /*! namespace exports */
 /*! exports [not provided] [no usage info] */
 /*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.* */
@@ -32136,10 +32136,10 @@ exports.App = () => {
 
 /***/ }),
 
-/***/ "./src/ui/components/divider/SplitLeftRight.tsx":
-/*!******************************************************!*\
-  !*** ./src/ui/components/divider/SplitLeftRight.tsx ***!
-  \******************************************************/
+/***/ "./src/ui/components/divider/SplitTimeline.tsx":
+/*!*****************************************************!*\
+  !*** ./src/ui/components/divider/SplitTimeline.tsx ***!
+  \*****************************************************/
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
 /*! CommonJS bailout: this is used directly at 2:23-27 */
@@ -32169,20 +32169,36 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.SplitLeftRight = void 0;
+exports.SplitTimeline = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
-__webpack_require__(/*! ./SplitLeftRight.scss */ "./src/ui/components/divider/SplitLeftRight.scss");
+__webpack_require__(/*! ./SplitTimeline.scss */ "./src/ui/components/divider/SplitTimeline.scss");
 const emptyImage = new Image();
-exports.SplitLeftRight = react_1.memo(({ children: [leftElement, rightElement], storageKey, minLeft, minRight }) => {
+exports.SplitTimeline = react_1.memo(({ children: [leftHeader, rightHeader, leftPanel, rightPanel], storageKey, minLeft, minRight }) => {
     const innerRef = react_1.useRef();
-    const leftRef = react_1.useRef();
-    const rightRef = react_1.useRef();
+    const menuRef = react_1.useRef();
+    const scaleRef = react_1.useRef();
+    const treeRef = react_1.useRef();
+    const timelineRef = react_1.useRef();
     const dragRef = react_1.useRef();
     const dragOffset = react_1.useRef(0);
+    const onScrollTimeline = react_1.useCallback(() => {
+        scaleRef.current.scrollLeft = timelineRef.current.scrollLeft;
+        treeRef.current.scrollTop = timelineRef.current.scrollTop;
+    }, []);
+    const onScrollTree = react_1.useCallback(() => {
+        timelineRef.current.scrollTop = treeRef.current.scrollTop;
+    }, []);
+    const onScrollScale = react_1.useCallback(() => {
+        timelineRef.current.scrollLeft = scaleRef.current.scrollLeft;
+    }, []);
+    const onDragStart = react_1.useCallback((event) => {
+        dragOffset.current = event.nativeEvent.offsetX;
+        event.dataTransfer.setDragImage(emptyImage, 0, 0);
+    }, []);
     const saveValueToStorage = react_1.useCallback((value) => {
         if (!storageKey)
             return;
-        localStorage.setItem("SplitLeftRight:" + storageKey, String(value));
+        localStorage.setItem("SplitTimeline:" + storageKey, String(value));
     }, [storageKey]);
     const applyDragValue = react_1.useCallback((dragValue) => {
         const containerBcr = innerRef.current.getBoundingClientRect();
@@ -32193,14 +32209,10 @@ exports.SplitLeftRight = react_1.memo(({ children: [leftElement, rightElement], 
             leftWidth = containerBcr.width - minRight - dividerBcr.width;
         if (dragValue < minLeft)
             leftWidth = minLeft;
-        leftRef.current.style.width = leftWidth + "px";
-        dragRef.current.style.left = leftWidth + "px";
+        menuRef.current.style.width = leftWidth + "px";
+        treeRef.current.style.width = leftWidth + "px";
         saveValueToStorage(leftWidth);
         return true;
-    }, []);
-    const onDragStart = react_1.useCallback((event) => {
-        dragOffset.current = event.nativeEvent.offsetX;
-        event.dataTransfer.setDragImage(emptyImage, 0, 0);
     }, []);
     const onDrag = react_1.useCallback(({ clientX }) => {
         if (clientX === 0)
@@ -32208,7 +32220,6 @@ exports.SplitLeftRight = react_1.memo(({ children: [leftElement, rightElement], 
         const containerBcr = innerRef.current.getBoundingClientRect();
         const dragValue = clientX - containerBcr.left - dragOffset.current;
         applyDragValue(dragValue);
-        localStorage.setItem("RowsDivider:" + storageKey, String(dragValue));
     }, []);
     const onTouchMove = react_1.useCallback(({ changedTouches }) => {
         var _a;
@@ -32220,7 +32231,7 @@ exports.SplitLeftRight = react_1.memo(({ children: [leftElement, rightElement], 
     const applyStorageValue = react_1.useCallback(() => {
         if (!storageKey)
             return;
-        const storageValue = localStorage.getItem("RowsDivider:" + storageKey);
+        const storageValue = localStorage.getItem("SplitTimeline:" + storageKey);
         if (storageValue == null)
             return;
         const value = Number(storageValue);
@@ -32231,21 +32242,16 @@ exports.SplitLeftRight = react_1.memo(({ children: [leftElement, rightElement], 
     react_1.useEffect(() => {
         applyStorageValue();
     }, []);
-    react_1.useEffect(() => {
-        function onResize() {
-            const value = leftRef.current.getBoundingClientRect().width;
-            applyDragValue(value);
-        }
-        window.addEventListener("resize", onResize);
-        return () => window.removeEventListener("resize", onResize);
-    }, []);
-    return (react_1.default.createElement("div", { className: "split-lr" },
-        react_1.default.createElement("div", { className: "split-lr-scroll-box", ref: innerRef },
-            react_1.default.createElement("div", { className: "split-lr-left", ref: leftRef },
-                react_1.default.createElement("div", { className: "split-lr-left-content" }, leftElement)),
-            react_1.default.createElement("div", { className: "split-lr-cnt", ref: rightRef },
-                react_1.default.createElement("div", { className: "split-lr-timeline" }, rightElement))),
-        react_1.default.createElement("a", { className: "split-lr-drag", draggable: "true", ref: dragRef, onDragStart: onDragStart, onDrag: onDrag, onTouchMove: onTouchMove })));
+    return (react_1.default.createElement("div", { className: "split-tl", ref: innerRef },
+        react_1.default.createElement("div", { className: "split-tl-menu hide-scroll", ref: menuRef },
+            react_1.default.createElement("div", { className: "split-tl-content" }, leftHeader)),
+        react_1.default.createElement("div", { className: "split-tl-scale hide-scroll", ref: scaleRef, onScroll: onScrollScale },
+            react_1.default.createElement("div", { className: "split-tl-content" }, rightHeader)),
+        react_1.default.createElement("div", { className: "split-tl-tree hide-scroll", ref: treeRef, onScroll: onScrollTree },
+            react_1.default.createElement("div", { className: "split-tl-content" }, leftPanel)),
+        react_1.default.createElement("div", { className: "split-tl-timeline hide-scroll", ref: timelineRef, onScroll: onScrollTimeline },
+            react_1.default.createElement("div", { className: "split-tl-content" }, rightPanel)),
+        react_1.default.createElement("a", { className: "split-tl-sep", ref: dragRef, draggable: true, onDragStart: onDragStart, onDrag: onDrag, onTouchMove: onTouchMove })));
 });
 
 
@@ -32399,11 +32405,11 @@ exports.PlixEditor = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 __webpack_require__(/*! ./PlixEditor.scss */ "./src/ui/components/editor/PlixEditor.scss");
 const SplitTopBottom_1 = __webpack_require__(/*! ../divider/SplitTopBottom */ "./src/ui/components/divider/SplitTopBottom.tsx");
-const SplitLeftRight_1 = __webpack_require__(/*! ../divider/SplitLeftRight */ "./src/ui/components/divider/SplitLeftRight.tsx");
 const TrackEditor_1 = __webpack_require__(/*! ./TrackEditor */ "./src/ui/components/editor/TrackEditor.tsx");
 const TrackContext_1 = __webpack_require__(/*! ./TrackContext */ "./src/ui/components/editor/TrackContext.ts");
 const effectConstructorMap = __importStar(__webpack_require__(/*! @plix-effect/core/effects */ "./node_modules/@plix-effect/core/dist/effects/index.js"));
 const filterConstructorMap = __importStar(__webpack_require__(/*! @plix-effect/core/filters */ "./node_modules/@plix-effect/core/dist/filters/index.js"));
+const SplitTimeline_1 = __webpack_require__(/*! ../divider/SplitTimeline */ "./src/ui/components/divider/SplitTimeline.tsx");
 const track = {
     effects: {
         paintSome: [true, "Paint", [[[0, 1, 0.5], [0.33, 1, 0.5], [0, 1, 0.5], [0.33, 1, 0.5], [0, 1, 0.5], [0.33, 1, 0.5]]]],
@@ -32430,58 +32436,16 @@ exports.PlixEditor = () => {
         react_1.default.createElement(SplitTopBottom_1.SplitTopBottom, { minTop: 100, minBottom: 200, storageKey: "s1" },
             react_1.default.createElement(TrackContext_1.TrackContext.Provider, { value: trackContextValue },
                 react_1.default.createElement(TrackEditor_1.TrackEditor, null)),
-            react_1.default.createElement(SplitLeftRight_1.SplitLeftRight, { minLeft: 200, minRight: 200, storageKey: "s3" },
-                react_1.default.createElement("div", { style: { backgroundColor: "#fdf", width: "100%" } },
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)"),
-                    react_1.default.createElement("div", { style: { width: "max-content" } }, "(PROPS-EDITOR-EDITOR-EDITOR-EDITOR-EDITOR)")),
-                react_1.default.createElement("div", { style: { backgroundColor: "#ffd", width: "100%" } },
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", { style: { position: "sticky", display: "inline-block", left: 0 } },
-                        react_1.default.createElement("div", null, "(PROPERTY_DESCRIPTION_DESCRIPTION_DESCRIPTION)")),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"),
-                    react_1.default.createElement("div", null, "(VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW_VIEW)"))))));
+            react_1.default.createElement(SplitTimeline_1.SplitTimeline, { minLeft: 100, minRight: 100, storageKey: "tl" },
+                react_1.default.createElement("div", { style: { backgroundColor: "#fdd", flexGrow: 1 } },
+                    "HEADER",
+                    react_1.default.createElement("br", null),
+                    "HEADER",
+                    react_1.default.createElement("br", null),
+                    "HEADER"),
+                react_1.default.createElement("div", { style: { backgroundColor: "#fdf", flexGrow: 1 } }, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)"),
+                react_1.default.createElement("div", { style: { backgroundColor: "#ffd", flexGrow: 1 } }, "(TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE) (TREE_TREE_TREE_TREE_TREE_TREE)"),
+                react_1.default.createElement("div", { style: { backgroundColor: "#dff", flexGrow: 1 } }, "(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE) (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)")))));
 };
 
 
@@ -32543,30 +32507,27 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TrackEditor = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
-const SplitLeftRight_1 = __webpack_require__(/*! ../divider/SplitLeftRight */ "./src/ui/components/divider/SplitLeftRight.tsx");
 const PortalsContext_1 = __webpack_require__(/*! ../timeline/PortalsContext */ "./src/ui/components/timeline/PortalsContext.ts");
 const TrackContext_1 = __webpack_require__(/*! ./TrackContext */ "./src/ui/components/editor/TrackContext.ts");
-const Track_1 = __webpack_require__(/*! ../timeline/Track */ "./src/ui/components/timeline/Track.tsx");
 const GroupRenderTrack_1 = __webpack_require__(/*! ./tracks/GroupRenderTrack */ "./src/ui/components/editor/tracks/GroupRenderTrack.tsx");
 const GroupEffectsTrack_1 = __webpack_require__(/*! ./tracks/GroupEffectsTrack */ "./src/ui/components/editor/tracks/GroupEffectsTrack.tsx");
 const GroupFiltersTrack_1 = __webpack_require__(/*! ./tracks/GroupFiltersTrack */ "./src/ui/components/editor/tracks/GroupFiltersTrack.tsx");
+const SplitTimeline_1 = __webpack_require__(/*! ../divider/SplitTimeline */ "./src/ui/components/divider/SplitTimeline.tsx");
 exports.TrackEditor = () => {
     const [leftRenderEl, setLeftRenderEl] = react_1.useState();
     const [rightRenderEl, setRightRenderEl] = react_1.useState();
     const { track } = react_1.useContext(TrackContext_1.TrackContext);
     const renderCtxValue = { leftElement: leftRenderEl, rightElement: rightRenderEl };
     return (react_1.default.createElement(react_1.default.Fragment, null,
-        react_1.default.createElement(SplitLeftRight_1.SplitLeftRight, { minLeft: 100, minRight: 200, storageKey: "timeline" },
+        react_1.default.createElement(SplitTimeline_1.SplitTimeline, { minLeft: 100, minRight: 200, storageKey: "timeline" },
+            react_1.default.createElement("div", { className: "track-header track-header-tree" }, "LEFT-HEADER"),
+            react_1.default.createElement("div", { className: "track-header track-header-timeline" }, "(RIGHT_HEADER_RIGHT_HEADER_RIGHT_HEADER)"),
             react_1.default.createElement("div", { className: "track-tree", ref: setLeftRenderEl }),
             react_1.default.createElement("div", { className: "track-timeline", ref: setRightRenderEl })),
         react_1.default.createElement(PortalsContext_1.PortalsContext.Provider, { value: renderCtxValue },
-            react_1.default.createElement(Track_1.Track, null,
-                react_1.default.createElement("div", null, "LEFT-HEADER"),
-                react_1.default.createElement("div", null, "RIGHT-HEADER"),
-                react_1.default.createElement(react_1.default.Fragment, null,
-                    react_1.default.createElement(GroupRenderTrack_1.GroupRenderTrack, { render: track.render, pathName: "render" }),
-                    react_1.default.createElement(GroupEffectsTrack_1.GroupEffectsTrack, { effectsMap: track.effects, pathName: "effects" }),
-                    react_1.default.createElement(GroupFiltersTrack_1.GroupFiltersTrack, { filtersMap: track.filters, pathName: "filters" }))))));
+            react_1.default.createElement(GroupRenderTrack_1.GroupRenderTrack, { render: track.render, pathName: "render" }),
+            react_1.default.createElement(GroupEffectsTrack_1.GroupEffectsTrack, { effectsMap: track.effects, pathName: "effects" }),
+            react_1.default.createElement(GroupFiltersTrack_1.GroupFiltersTrack, { filtersMap: track.filters, pathName: "filters" }))));
 };
 
 
@@ -33102,12 +33063,8 @@ exports.Track = ({ children: [left, right, deep] }) => {
     const ctxValue = { leftElement: leftRef, rightElement: rightRef };
     return (react_1.default.createElement(PortalsContext_1.PortalsContext.Provider, { value: ctxValue },
         deep,
-        leftElement && react_dom_1.createPortal((react_1.default.createElement(react_1.default.Fragment, null,
-            left,
-            deep && react_1.default.createElement("div", { className: "tl-portal-left", ref: setLeftRef }))), leftElement),
-        rightElement && react_dom_1.createPortal((react_1.default.createElement(react_1.default.Fragment, null,
-            right,
-            deep && react_1.default.createElement("div", { className: "tl-portal-right", ref: setRightRef }))), rightElement)));
+        leftElement && react_dom_1.createPortal((react_1.default.createElement("div", { className: "tl-portal-left", ref: setLeftRef }, left)), leftElement),
+        rightElement && react_dom_1.createPortal((react_1.default.createElement("div", { className: "tl-portal-right", ref: setRightRef }, right)), rightElement)));
 };
 
 
