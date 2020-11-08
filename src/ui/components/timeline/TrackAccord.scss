@@ -14,8 +14,12 @@
             border-left: 1px solid #444;
             border-bottom: 1px solid #444;
             content: "";
-        }
 
+        }
+        &:hover::before {
+            border-left: 1px solid #884;
+            border-bottom: 1px solid #884;
+        }
     }
 }
 
