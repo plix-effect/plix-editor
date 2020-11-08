@@ -1943,6 +1943,22 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/ui/components/timeline/TrackAccord.scss":
+/*!*****************************************************!*\
+  !*** ./src/ui/components/timeline/TrackAccord.scss ***!
+  \*****************************************************/
+/*! namespace exports */
+/*! exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./src/ui/style/index.scss":
 /*!*********************************!*\
   !*** ./src/ui/style/index.scss ***!
@@ -33254,6 +33270,7 @@ exports.Track = ({ children: [left, right, deep] }) => {
 /*! CommonJS bailout: this is used directly at 2:23-27 */
 /*! CommonJS bailout: this is used directly at 9:26-30 */
 /*! CommonJS bailout: this is used directly at 14:20-24 */
+/*! CommonJS bailout: this is used directly at 21:23-27 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -33277,11 +33294,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TrackAccord = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 const react_dom_1 = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
 const PortalsContext_1 = __webpack_require__(/*! ./PortalsContext */ "./src/ui/components/timeline/PortalsContext.ts");
+const classnames_1 = __importDefault(__webpack_require__(/*! classnames */ "./node_modules/classnames/index.js"));
+__webpack_require__(/*! ./TrackAccord.scss */ "./src/ui/components/timeline/TrackAccord.scss");
 exports.TrackAccord = ({ expanded, children }) => {
     const { leftElement, rightElement } = react_1.useContext(PortalsContext_1.PortalsContext);
     const [leftRef, setLeftRef] = react_1.useState();
@@ -33290,15 +33312,15 @@ exports.TrackAccord = ({ expanded, children }) => {
     const leftStyle = react_1.useMemo(() => ({
         height: expanded ? "" : "0px",
         marginLeft: "10px",
-        overflow: "hidden"
+        overflow: expanded ? "" : "hidden"
     }), [expanded]);
     const rightStyle = react_1.useMemo(() => ({
         height: expanded ? "" : "0px",
-        overflow: "hidden"
+        overflow: expanded ? "" : "hidden"
     }), [expanded]);
     return (react_1.default.createElement(react_1.default.Fragment, null,
-        leftElement && react_dom_1.createPortal(react_1.default.createElement("div", { className: "accord-portal-left", ref: setLeftRef, style: leftStyle }), leftElement),
-        rightElement && react_dom_1.createPortal(react_1.default.createElement("div", { className: "accord-portal-right", ref: setRightRef, style: rightStyle }), rightElement),
+        leftElement && react_dom_1.createPortal(react_1.default.createElement("div", { className: classnames_1.default("accord-portal-left", { _expanded: expanded }), ref: setLeftRef }), leftElement),
+        rightElement && react_dom_1.createPortal(react_1.default.createElement("div", { className: classnames_1.default("accord-portal-right", { _expanded: expanded }), ref: setRightRef }), rightElement),
         react_1.default.createElement(PortalsContext_1.PortalsContext.Provider, { value: ctxValue }, children)));
 };
 

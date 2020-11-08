@@ -46,6 +46,17 @@ html, body {
       border-top: 3px solid rgba(0, 0, 0, 0.3);
       border-bottom: 3px solid rgba(0, 0, 0, 0.3); } }
 
+.accord-portal-left {
+  padding-left: 10px;
+  display: none; }
+  .accord-portal-left._expanded {
+    display: block; }
+
+.accord-portal-right {
+  display: none; }
+  .accord-portal-right._expanded {
+    display: block; }
+
 .track-tree-block {
   display: block;
   width: max-content;
