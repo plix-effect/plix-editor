@@ -1,0 +1,14 @@
+.accord-portal-left {
+    padding-left: 10px;
+    display: none;
+    &._expanded {
+        display: block;
+    }
+}
+
+.accord-portal-right {
+    display: none;
+    &._expanded {
+        display: block;
+    }
+}
