@@ -4,8 +4,10 @@ import "./TimelineBlock.scss"
 
 export const TimelineBlock: FC<{fixed?: boolean}> = ({children, fixed}) => {
     return (
-        <div className={cn("track-timeline-block", {'--fixed': fixed})}>
-            {children}
+        <div className="track-timeline-block">
+            <div className={cn("track-timeline-block-content", {'--fixed': fixed})}>
+                {children}
+            </div>
         </div>
     )
 }

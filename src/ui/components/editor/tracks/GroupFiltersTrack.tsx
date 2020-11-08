@@ -32,9 +32,9 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = ({filtersMap, pathN
             </div>
             <div>yay! you can create filters!</div>
             <TrackAccord expanded={expanded}>
-                {aliasesList.map(effectAlias => (
-                    <FilterTrack filter={effectAlias.value} path={effectAlias.path}>
-                        {effectAlias.name}
+                {aliasesList.map(alias => (
+                    <FilterTrack filter={alias.value} path={alias.path} key={alias.name}>
+                        {alias.name}
                     </FilterTrack>
                 ))}
 

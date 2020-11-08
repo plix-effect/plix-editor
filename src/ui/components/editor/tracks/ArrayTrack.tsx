@@ -30,7 +30,8 @@ export const ArrayTrack: FC<ArrayTrackProps> = ({value, type, children: [name, d
             </TimelineBlock>
             <TrackAccord expanded={expanded}>
                 {value.map((val, index) => (
-                    <ValueTrack type={type} value={val} path={[...path, index]}>
+                    // todo: add hash to metadata of value. Do not use key={index}
+                    <ValueTrack key={index} type={type} value={val} path={[...path, index]}>
                         [{index}]
                     </ValueTrack>
                 ))}

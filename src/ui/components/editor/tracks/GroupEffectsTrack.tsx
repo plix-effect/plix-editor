@@ -3,6 +3,7 @@ import {Track} from "../../timeline/Track";
 import { PlixEffectsMapJsonData} from "@plix-effect/core/types/parser";
 import {EffectTrack} from "./EffectTrack";
 import {TrackAccord} from "../../timeline/TrackAccord";
+import {FilterTrack} from "./FilterTrack";
 
 export interface GroupEffectsTrackProps {
     effectsMap: PlixEffectsMapJsonData,
@@ -27,13 +28,13 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = ({effectsMap, pathN
         <Track>
             <div>
                 <a href="javascript:void.0" onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>
-                ===Aliases===
+                ===Effects===
             </div>
-            <div>pow! you can create aliases!</div>
+            <div>pow! you can create effects!</div>
             <TrackAccord expanded={expanded}>
-                {aliasesList.map(effectAlias => (
-                    <EffectTrack effect={effectAlias.value} path={effectAlias.path}>
-                        {effectAlias.name}
+                {aliasesList.map(alias => (
+                    <EffectTrack effect={alias.value} path={alias.path} key={alias.name}>
+                        {alias.name}
                     </EffectTrack>
                 ))}
 

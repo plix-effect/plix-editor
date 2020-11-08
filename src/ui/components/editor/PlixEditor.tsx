@@ -19,10 +19,10 @@ const track: PlixJsonData = {
         posLeft: [true, "Position", [[0,1,2]]],
         posRight: [true, "Position", [[9,8,7]]]
     },
-    render: [true, "Chain", [
+    render: [true, "Chain", [[
         [true, null, "paintSomeLeft"],
         [true, null, "paintSomeRight"],
-    ], [[true, "OuterBorder", [[0,1,1], 1]]]]
+    ]], [[true, "OuterBorder", [[0,1,1], 1]]]]
 };
 
 export const PlixEditor: FC = () => {
@@ -39,56 +39,7 @@ export const PlixEditor: FC = () => {
                 <TrackContext.Provider value={trackContextValue}>
                     <TrackEditor />
                 </TrackContext.Provider>
-                <SplitTimeline minLeft={100} minRight={100} storageKey="tl">
-                    <div style={{backgroundColor: "#fdd", flexGrow: 1}}>
-                        HEADER<br/>HEADER<br/>HEADER
-                    </div>
-                    <div style={{backgroundColor: "#fdf", flexGrow: 1}}>
-                            (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)
-                    </div>
-                    <div style={{backgroundColor: "#ffd", flexGrow: 1}}>
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                    </div>
-                    <div style={{backgroundColor: "#dff", flexGrow: 1}}>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div style={{position: "sticky", left: 0, display: "inline-block"}}>(PROPERTY_PROPERTY)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                    </div>
-                </SplitTimeline>
+                <div>LIBS AND CANVAS</div>
             </SplitTopBottom>
         </div>
     )
