@@ -3,6 +3,8 @@ import {Track} from "../../timeline/Track";
 import { PlixEffectsMapJsonData} from "@plix-effect/core/types/parser";
 import {EffectTrack} from "./EffectTrack";
 import {TrackAccord} from "../../timeline/TrackAccord";
+import {ExpandButton} from "../track-elements/ExpandButton";
+import {TreeBlock} from "../track-elements/TreeBlock";
 
 export interface GroupEffectsTrackProps {
     effectsMap: PlixEffectsMapJsonData,
@@ -26,7 +28,7 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = ({effectsMap, pathN
     return (
         <Track>
             <div>
-                <a href="javascript:void.0" onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>
+                <ExpandButton onClick={changeExpanded} expanded={expanded}/>
                 ===Aliases===
             </div>
             <div>pow! you can create aliases!</div>

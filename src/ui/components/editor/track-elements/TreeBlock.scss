@@ -1,8 +1,12 @@
 .track-tree-block {
-  display: block;
+  //display: block;
   width: max-content;
   height: 25px;
   margin: 2px;
   border: 1px solid gray;
   background-color: darkgray;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }

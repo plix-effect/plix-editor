@@ -4,6 +4,8 @@ import {PlixEffectsMapJsonData, PlixFiltersMapJsonData} from "@plix-effect/core/
 import {EffectTrack} from "./EffectTrack";
 import {TrackAccord} from "../../timeline/TrackAccord";
 import {FilterTrack} from "./FilterTrack";
+import {ExpandButton} from "../track-elements/ExpandButton";
+import {TreeBlock} from "../track-elements/TreeBlock";
 
 export interface GroupFiltersTrackProps {
     filtersMap: PlixFiltersMapJsonData,
@@ -27,7 +29,7 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = ({filtersMap, pathN
     return (
         <Track>
             <div>
-                <a href="javascript:void.0" onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>
+                <ExpandButton onClick={changeExpanded} expanded={expanded}/>
                 ===Filters===
             </div>
             <div>yay! you can create filters!</div>

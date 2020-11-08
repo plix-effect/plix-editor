@@ -6,6 +6,7 @@ import {EditorPath} from "../../../types/Editor";
 import {ArrayTrack} from "./ArrayTrack";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
+import {ExpandButton} from "../track-elements/ExpandButton";
 
 export interface FilterTrackProps {
     filter: PlixFilterJsonData,
@@ -20,7 +21,7 @@ export const FilterTrack: FC<FilterTrackProps> = ({filter, path, children}) => {
     return (
         <Track>
             <TreeBlock>
-                <a href="javascript:void.0" onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>
+                <ExpandButton onClick={changeExpanded} expanded={expanded}/>
                 {children}
             </TreeBlock>
             <TimelineBlock fixed>

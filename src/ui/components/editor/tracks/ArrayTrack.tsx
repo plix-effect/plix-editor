@@ -7,6 +7,7 @@ import {ValueUnknownTrack} from "./ValueUnknownTrack";
 import {ValueTrack} from "./ValueTrack";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
+import {ExpandButton} from "../track-elements/ExpandButton";
 
 export interface ArrayTrackProps {
     value: any[],
@@ -22,7 +23,7 @@ export const ArrayTrack: FC<ArrayTrackProps> = ({value, type, children: [name, d
     return (
         <Track>
             <TreeBlock>
-                <a href="javascript:void.0" onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>
+                <ExpandButton onClick={changeExpanded} expanded={expanded}/>
                 {name} ({value.length})
             </TreeBlock>
             <TimelineBlock fixed>
