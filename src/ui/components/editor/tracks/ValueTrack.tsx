@@ -7,6 +7,7 @@ import {FilterTrack} from "./FilterTrack";
 import {ValueUnknownTrack} from "./ValueUnknownTrack";
 import {ArrayTrack} from "./ArrayTrack";
 import {EffectTrack} from "./EffectTrack";
+import {ColorTrack} from "./ColorTrack";
 
 export interface ValueTrackProps {
     value: any,
@@ -36,6 +37,13 @@ export const ValueTrack: FC<ValueTrackProps> = ({type, value, description, child
             <EffectTrack effect={value} path={path}>
                 {children}
             </EffectTrack>
+        );
+    }
+    if (type === "color") {
+        return (
+            <ColorTrack value={value} path={path}>
+                {children}
+            </ColorTrack>
         );
     }
     return <ValueUnknownTrack value={value} path={path} >

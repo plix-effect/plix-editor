@@ -1,15 +1,12 @@
-import React, {FC, ReactNode, useCallback, useContext, useMemo, useState} from "react";
+import React, {FC, ReactNode, useContext, useMemo} from "react";
 import {Track} from "../../timeline/Track";
 import {TrackAccord} from "../../timeline/TrackAccord";
 import {
     PlixEffectAliasJsonData,
     PlixEffectConfigurableJsonData,
-    PlixEffectJsonData,
-    PlixFilterAliasJsonData,
-    PlixFilterConfigurableJsonData
+    PlixEffectJsonData
 } from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
-import {ArrayTrack} from "./ArrayTrack";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {TrackContext} from "../TrackContext";
@@ -17,6 +14,8 @@ import {ParseMeta} from "../../../types/ParseMeta";
 import {ValueTrack} from "./ValueTrack";
 
 import "./tracks.scss"
+import {useExpander} from "../track-elements/Expander";
+import {getArrayKey} from "../../../utils/KeyManager";
 
 export interface EffectTrackProps {
     effect: PlixEffectJsonData,
@@ -25,15 +24,14 @@ export interface EffectTrackProps {
     children: ReactNode,
 }
 export const EffectTrack: FC<EffectTrackProps> = ({effect, path, baseExpanded, children}) => {
-    const [expanded, setExpanded] = useState(false);
-    const changeExpanded = useCallback(() => setExpanded(v => !v), [setExpanded]);
+    const [expanded, expander] = useExpander(baseExpanded);
 
     if (!effect) return <NoEffectTrack path={path}>{children}</NoEffectTrack>
     if (effect[1] === null) return (
         <AliasEffectTrack
             path={path}
             expanded={expanded}
-            changeExpanded={changeExpanded}
+            expander={expander}
             effect={effect as PlixEffectAliasJsonData}
             children={children}
         />
@@ -41,7 +39,7 @@ export const EffectTrack: FC<EffectTrackProps> = ({effect, path, baseExpanded, c
     return <ConfigurableEffectTrack
         path={path}
         expanded={expanded}
-        changeExpanded={changeExpanded}
+        expander={expander}
         effect={effect as PlixEffectConfigurableJsonData}
         children={children}
     />
@@ -71,15 +69,15 @@ interface AliasEffectTrackProps {
     path: EditorPath,
     children: ReactNode,
     expanded: boolean,
-    changeExpanded: () => void;
+    expander: ReactNode;
 }
-const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect: [enabled ,, link, filters], path, children, expanded, changeExpanded}) => {
+const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect: [enabled ,, link, filters], path, children, expanded, expander}) => {
     const filtersPath = useMemo(() => [...path, 3], [path]);
     const valueFilters = useMemo(() => filters ?? [], [filters]);
     return (
         <Track>
             <TreeBlock>
-                <a onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>{' '}
+                {expander}
                 {children} <span className="track-description _link">{link}</span>
             </TreeBlock>
             <TimelineBlock fixed>
@@ -102,9 +100,9 @@ interface ConfigurableEffectTrackProps {
     path: EditorPath,
     children: ReactNode,
     expanded: boolean,
-    changeExpanded: () => void;
+    expander: ReactNode;
 }
-const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({effect: [enabled, effectId, params, filters], children, path, expanded, changeExpanded}) => {
+const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({effect: [enabled, effectId, params, filters], children, path, expanded, expander}) => {
     const {effectConstructorMap} = useContext(TrackContext);
     const filtersPath = useMemo(() => [...path, 3], [path]);
     const effectData = useMemo(() => {
@@ -115,7 +113,7 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({effect: [ena
             type: meta.paramTypes[i],
             description: meta.paramDescriptions[i],
             value: params[i],
-            path: [...path, 2, i]
+            path: [...path, 2, {key: getArrayKey(params, i), array: params}]
         }))
         return {
             name: meta.name,
@@ -127,16 +125,20 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({effect: [ena
     return (
         <Track>
             <TreeBlock>
-                <a onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>{' '}
+                {expander}
                 {children} <span className="track-description _type">{effectData.name}</span>
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description ">
-                    <span className="track-description">{effectData.description}</span>
+                    --- edit effect
                 </span>
             </TimelineBlock>
             {params.length > 0 && (
                 <TrackAccord expanded={expanded}>
+                    <Track>
+                        <TreeBlock type="description">description</TreeBlock>
+                        <TimelineBlock fixed type="description">{effectData.description}</TimelineBlock>
+                    </Track>
                     {effectData.paramDescriptions.map((paramDesc) => (
                         <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description}>
                             {paramDesc.name}

@@ -1,17 +1,16 @@
-import {FC, default as React, useMemo} from "react";
+import {FC, default as React, useMemo, useReducer} from "react";
 import "./PlixEditor.scss";
 import {SplitTopBottom} from "../divider/SplitTopBottom";
-import {SplitLeftRight} from "../divider/SplitLeftRight";
 import {TrackEditor} from "./TrackEditor";
 import {TrackContextProps, TrackContext} from "./TrackContext";
 import * as effectConstructorMap from "@plix-effect/core/effects";
 import * as filterConstructorMap from "@plix-effect/core/filters";
 import {PlixJsonData} from "@plix-effect/core/types/parser";
-import {SplitTimeline} from "../divider/SplitTimeline";
+import {PlixEditorReducer} from "./PlixEditorReducer";
 
-const track: PlixJsonData = {
+const defaultTrack: PlixJsonData = {
     effects: {
-        paintSome: [true, "Paint", [[[0,1,0.5], [0.33,1,0.5], [0,1,0.5], [0.33,1,0.5], [0,1,0.5], [0.33,1,0.5]]]],
+        paintSome: [true, "Paint", [[[0,1,0.5, 0.5], [0.33,1,0.5, 0.5], [0,1,0.5], [0.33,1,0.5], [0,1,0.5], [0.33,1,0.5]]]],
         paintSomeLeft: [true, null, "paintSome", [[true, null, "posLeft"]]],
         paintSomeRight: [true, null, "paintSome", [[true, null, "posRight"]]]
     },
@@ -26,12 +25,24 @@ const track: PlixJsonData = {
 };
 
 export const PlixEditor: FC = () => {
+
+
+
+    const [{track, history, historyPosition}, dispatch] = useReducer(PlixEditorReducer, defaultTrack, (track) => ({
+        track: track,
+        history: [],
+        historyPosition: 0
+    }));
+
     const trackContextValue: TrackContextProps = useMemo(() => ({
         track: track,
-        modify: () => {},
+        undoCounts: historyPosition,
+        redoCounts: history.length - historyPosition,
+
+        dispatch: dispatch,
         effectConstructorMap: effectConstructorMap as TrackContextProps["effectConstructorMap"],
         filterConstructorMap: filterConstructorMap as TrackContextProps["filterConstructorMap"],
-    }), []);
+    }), [track, dispatch]);
 
     return (
         <div className="plix-editor">

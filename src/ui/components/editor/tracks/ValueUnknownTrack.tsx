@@ -6,12 +6,12 @@ import {EditorPath} from "../../../types/Editor";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 
-export interface EffectTrackProps {
+export interface ValueUnknownTrackProps {
     value: any,
     children: ReactNode
     path: EditorPath
 }
-export const ValueUnknownTrack: FC<EffectTrackProps> = ({value, children, path}) => {
+export const ValueUnknownTrack: FC<ValueUnknownTrackProps> = ({value, children, path}) => {
     return (
         <Track>
             <TreeBlock>

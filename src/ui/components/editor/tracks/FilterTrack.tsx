@@ -16,6 +16,8 @@ import "./tracks.scss";
 import {TrackContext} from "../TrackContext";
 import {ParseMeta} from "../../../types/ParseMeta";
 import {ValueTrack} from "./ValueTrack";
+import {useExpander} from "../track-elements/Expander";
+import {getArrayKey} from "../../../utils/KeyManager";
 
 export interface FilterTrackProps {
     filter: PlixFilterJsonData,
@@ -23,15 +25,14 @@ export interface FilterTrackProps {
     children: ReactNode
 }
 export const FilterTrack: FC<FilterTrackProps> = ({filter, path, children}) => {
-    const [expanded, setExpanded] = useState(false);
-    const changeExpanded = useCallback(() => setExpanded(v => !v), [setExpanded]);
+    const [expanded, expander] = useExpander(false);
 
     if (!filter) return <NoFilterTrack path={path}>{children}</NoFilterTrack>
     if (filter[1] === null) return (
         <AliasFilterTrack
             path={path}
             expanded={expanded}
-            changeExpanded={changeExpanded}
+            expander={expander}
             filter={filter as PlixFilterAliasJsonData}
             children={children}
         />
@@ -39,7 +40,7 @@ export const FilterTrack: FC<FilterTrackProps> = ({filter, path, children}) => {
     return <ConfigurableFilterTrack
         path={path}
         expanded={expanded}
-        changeExpanded={changeExpanded}
+        expander={expander}
         filter={filter as PlixFilterConfigurableJsonData}
         children={children}
     />
@@ -67,9 +68,9 @@ interface AliasFilterTrackProps {
     path: EditorPath,
     children: ReactNode,
     expanded: boolean,
-    changeExpanded: () => void;
+    expander: ReactNode;
 }
-const AliasFilterTrack: FC<AliasFilterTrackProps> = ({filter: [enabled ,, link], children, expanded, changeExpanded}) => {
+const AliasFilterTrack: FC<AliasFilterTrackProps> = ({filter: [enabled ,, link], children, expanded, expander}) => {
     return (
         <Track>
             <TreeBlock>
@@ -90,9 +91,9 @@ interface ConfigurableFilterTrackProps {
     path: EditorPath,
     children: ReactNode,
     expanded: boolean,
-    changeExpanded: () => void;
+    expander: ReactNode;
 }
-const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = ({filter: [enabled, filterId, params], children, path, expanded, changeExpanded}) => {
+const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = ({filter: [enabled, filterId, params], children, path, expanded, expander}) => {
     const {filterConstructorMap} = useContext(TrackContext);
     const filterData = useMemo(() => {
         const filterConstructor = filterConstructorMap[filterId];
@@ -102,7 +103,7 @@ const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = ({filter: [ena
             type: meta.paramTypes[i],
             description: meta.paramDescriptions[i],
             value: params[i],
-            path: [...path, 2, i]
+            path: [...path, 2, {key: getArrayKey(params, i), array: params}] as EditorPath
         }))
         return {
             name: meta.name,
@@ -113,25 +114,25 @@ const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = ({filter: [ena
     return (
         <Track>
             <TreeBlock>
-                {filterData.paramDescriptions.length > 0 && (<>
-                    <a onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>{' '}
-                </>)}
+                {expander}
                 {children} <span className="track-description _type">{filterData.name}</span>
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description ">
-                    <span className="track-description">{filterData.description}</span>
+                    <span className="track-description">--- edit filter</span>
                 </span>
             </TimelineBlock>
-            {params.length > 0 && (
-                <TrackAccord expanded={expanded}>
-                    {filterData.paramDescriptions.map((paramDesc) => (
-                        <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name}>
-                            {paramDesc.name}
-                        </ValueTrack>
-                    ))}
-                </TrackAccord>
-            )}
+            <TrackAccord expanded={expanded}>
+                <Track>
+                    <TreeBlock type="description">description</TreeBlock>
+                    <TimelineBlock fixed type="description">{filterData.description}</TimelineBlock>
+                </Track>
+                {filterData.paramDescriptions.map((paramDesc) => (
+                    <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name}>
+                        {paramDesc.name}
+                    </ValueTrack>
+                ))}
+            </TrackAccord>
         </Track>
     )
 }

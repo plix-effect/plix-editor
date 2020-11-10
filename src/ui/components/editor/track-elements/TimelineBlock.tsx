@@ -2,10 +2,16 @@ import React, {FC} from "react";
 import cn from "classnames"
 import "./TimelineBlock.scss"
 
-export const TimelineBlock: FC<{fixed?: boolean}> = ({children, fixed}) => {
+type TimelineBlockType = "default" | "description";
+
+interface TimelineBlockProps {
+    fixed?: boolean,
+    type?: TimelineBlockType
+}
+export const TimelineBlock: FC<TimelineBlockProps> = ({children, fixed = false, type = "default"}) => {
     return (
-        <div className="track-timeline-block">
-            <div className={cn("track-timeline-block-content", {'--fixed': fixed})}>
+        <div className={cn("track-timeline-block", `_${type}`)}>
+            <div className={cn("track-timeline-block-content", {'_fixed': fixed})}>
                 {children}
             </div>
         </div>

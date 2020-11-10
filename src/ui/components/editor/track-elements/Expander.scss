@@ -1,0 +1,21 @@
+.track-expander {
+    width: 20px;
+    height: 100%;
+    display: inline-flex;
+    justify-content: center;
+    &::before {
+        content: "";
+        pointer-events: none;
+    }
+
+    &._expanded {
+        &::before {
+            content: "-";
+        }
+    }
+    &._collapsed {
+        &::before {
+            content: "+";
+        }
+    }
+}

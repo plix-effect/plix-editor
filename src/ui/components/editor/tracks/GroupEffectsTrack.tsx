@@ -4,33 +4,36 @@ import { PlixEffectsMapJsonData} from "@plix-effect/core/types/parser";
 import {EffectTrack} from "./EffectTrack";
 import {TrackAccord} from "../../timeline/TrackAccord";
 import {FilterTrack} from "./FilterTrack";
+import {EditorPath} from "../../../types/Editor";
+import {useExpander} from "../track-elements/Expander";
+import {TreeBlock} from "../track-elements/TreeBlock";
+import {TimelineBlock} from "../track-elements/TimelineBlock";
 
 export interface GroupEffectsTrackProps {
     effectsMap: PlixEffectsMapJsonData,
-    pathName: string,
+    path: EditorPath,
     baseExpanded?: boolean
 }
-export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = ({effectsMap, pathName}) => {
-    const [expanded, setExpanded] = useState(false);
-    const changeExpanded = useCallback(() => {
-        setExpanded(v => !v);
-    }, [setExpanded]);
+export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = ({effectsMap, path}) => {
+    const [expanded, expander] = useExpander(true);
     const aliasesList = useMemo(() => {
         return Object.keys(effectsMap).sort(/*a-z*/).map((name, index) => {
             return {
                 name: name,
-                path: [pathName, name],
+                path: [...path, name] as EditorPath,
                 value: effectsMap[name]
             }
         })
     }, [effectsMap])
     return (
         <Track>
-            <div>
-                <a onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>
+            <TreeBlock type="description">
+                {expander}
                 ===Effects===
-            </div>
-            <div>pow! you can create effects!</div>
+            </TreeBlock>
+            <TimelineBlock type="description" fixed>
+                pow! you can create effects!
+            </TimelineBlock>
             <TrackAccord expanded={expanded}>
                 {aliasesList.map(alias => (
                     <EffectTrack effect={alias.value} path={alias.path} key={alias.name}>

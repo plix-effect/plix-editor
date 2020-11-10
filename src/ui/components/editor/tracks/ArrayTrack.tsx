@@ -1,4 +1,4 @@
-import React, {FC, ReactNode, useCallback, useState} from "react";
+import React, {FC, ReactNode, useCallback, useMemo, useState} from "react";
 import {Track} from "../../timeline/Track";
 import {TrackAccord} from "../../timeline/TrackAccord";
 import {PlixEffectJsonData} from "@plix-effect/core/types/parser";
@@ -7,6 +7,8 @@ import {ValueUnknownTrack} from "./ValueUnknownTrack";
 import {ValueTrack} from "./ValueTrack";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
+import {getArrayKey} from "../../../utils/KeyManager";
+import {useExpander} from "../track-elements/Expander";
 
 export interface ArrayTrackProps {
     value: any[],
@@ -15,31 +17,48 @@ export interface ArrayTrackProps {
     path: EditorPath
 }
 export const ArrayTrack: FC<ArrayTrackProps> = ({value, type, children: [name, desc], path}) => {
-    const [expanded, setExpanded] = useState(false);
-    const changeExpanded = useCallback(() => {
-        setExpanded(v => !v);
-    }, [setExpanded])
+    const [expanded, expander] = useExpander(false);
+    const valuesData = useMemo(() => {
+        return value.map((val, i) => {
+            const key = getArrayKey(value, i);
+            const valPath: EditorPath = [...path, {key: String(key), array: value}]
+            return {
+                path: valPath,
+                key: key,
+                value: val,
+                index: i,
+            }
+        })
+    }, [value]);
     return (
         <Track>
             <TreeBlock>
-                <a onClick={changeExpanded}>[{expanded ? "-" : "+"}]</a>{' '}
-                {name} ({value.length})
+                {expander}
+                {name} <span className="track-description _desc">({value.length})</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                {desc}
+                {desc} { expanded && <a>[add {type}]</a> }
             </TimelineBlock>
             <TrackAccord expanded={expanded}>
-                {value.map((val, index) => (
-                    // todo: add hash to metadata of value. Do not use key={index}
-                    <ValueTrack key={index} type={type} value={val} path={[...path, index]}>
-                        [{index}]
-                    </ValueTrack>
-                ))}
-                <Track>
-                    <a>[add {type}]</a>
-                    <span>&nbsp;</span>
-                </Track>
+                {valuesData.map(({key, value, path, index}) => {
+                    return (
+                        <ValueTrack key={key} type={type} value={value} path={path}>
+                            [{index}]
+                        </ValueTrack>
+                    )
+                })}
             </TrackAccord>
         </Track>
     );
+}
+
+const defaultValuesMap = {
+    color: [0,0,0,0],
+    blender: "normal",
+    effect: null,
+    filter: null,
+    gradient: [[0, [0,0,0,1]], [1, [0,0,1,0]]],
+    number: 0,
+    position: [[0,1], [2,3]],
+    timing: ["linear", 1, 0],
 }
