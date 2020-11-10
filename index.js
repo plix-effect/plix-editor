@@ -32721,11 +32721,13 @@ exports.PlixEditor = () => {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PlixEditorReducer = void 0;
 const KeyManager_1 = __webpack_require__(/*! ../../utils/KeyManager */ "./src/ui/utils/KeyManager.ts");
+const MERGE_HISTORY_TIMEOUT = 10000;
 exports.PlixEditorReducer = (state, action) => {
     switch (action.type) {
         case "undo": return undoState(state);
         case "redo": return redoState(state);
-        case "edit": return changeState(state, new EditHistoryItem(state.track, action.path, action.value));
+        case "edit": return changeState(state, new EditHistoryItem(getWIthPath(state.track, toHistoryPath(state.track, action.path)), toHistoryPath(state.track, action.path), action.value));
+        case "push": return changeState(state, new PushHistoryItem(toHistoryPath(state.track, action.path), action.value));
     }
     return state;
 };
@@ -32742,82 +32744,156 @@ function redoState(state) {
     return Object.assign(Object.assign({}, state), { track: historyItem.apply(state.track), historyPosition: state.historyPosition + 1 });
 }
 function changeState(state, historyItem) {
-    const pos = state.historyPosition;
-    const items = state.history.slice(0, pos).concat(historyItem);
-    return Object.assign(Object.assign({}, state), { history: items, track: historyItem.apply(state.track), historyPosition: pos + 1 });
+    const prevHistoryItem = state.history[state.historyPosition - 1];
+    const now = performance.now();
+    if (prevHistoryItem && prevHistoryItem.timestamp + MERGE_HISTORY_TIMEOUT > now) {
+        const mergedHistoryItem = prevHistoryItem.merge(historyItem);
+        if (mergedHistoryItem) {
+            return Object.assign(Object.assign({}, state), { history: state.history.slice(0, state.historyPosition - 1).concat(mergedHistoryItem), track: historyItem.apply(state.track) });
+        }
+    }
+    return Object.assign(Object.assign({}, state), { history: state.history.slice(0, state.historyPosition).concat(historyItem), track: historyItem.apply(state.track), historyPosition: state.historyPosition + 1 });
 }
 class EditHistoryItem {
-    constructor(track, path, value) {
+    constructor(oldValue, path, value, timestamp) {
+        this.oldValue = oldValue;
         this.path = path;
         this.value = value;
-        this.oldValue = getWIthPath(track, path);
+        this.timestamp = timestamp !== null && timestamp !== void 0 ? timestamp : performance.now();
     }
     apply(track) {
-        console.log("CHANGE TRACK", track, this.path, this.value);
-        const result = editWIthPath(track, this.path, this.value);
-        console.log("RESULT", result);
-        return result;
+        return editWIthPath(track, this.path, this.value);
     }
     revert(track) {
         return editWIthPath(track, this.path, this.oldValue);
     }
+    merge(item) {
+        if (item instanceof EditHistoryItem && pathIsEqual(this.path, item.path)) {
+            return new EditHistoryItem(this.oldValue, item.path, item.value, this.timestamp);
+        }
+        return null;
+    }
+}
+class PushHistoryItem {
+    constructor(path, value) {
+        this.path = path;
+        this.value = value;
+        this.timestamp = performance.now();
+    }
+    apply(track) {
+        return pushWIthPath(track, this.path, this.value);
+    }
+    revert(track) {
+        return popWIthPath(track, this.path);
+    }
+    merge() {
+        return null;
+    }
 }
 function getWIthPath(state, [pathKey, ...path]) {
-    if (!pathKey)
+    if (pathKey === undefined)
         return state;
     if (Array.isArray(state)) {
-        let index;
-        if (typeof pathKey === "number" || typeof pathKey === "string") {
-            index = Number(pathKey);
-        }
-        else {
-            const keyIndex = KeyManager_1.getArrayKeyIndex(state, pathKey.key);
-            if (keyIndex === null)
-                throw new Error("can not edit history: get array state");
-            index = keyIndex;
-        }
-        return getWIthPath(state[index], path);
+        return getWIthPath(state[Number(pathKey)], path);
     }
     if (typeof state === "object") {
         return getWIthPath(state[String(pathKey)], path);
     }
     throw new Error("can not edit history: get value");
 }
-function editWIthPath(state, [pathKey, ...path], value) {
-    if (pathKey === undefined) {
+function editWIthPath(state, path, value) {
+    if (path[0] === undefined) {
         if (JSON.stringify(state) === JSON.stringify(value))
             return state;
         return value;
     }
+    return reducePath(editWIthPath, state, path, value);
+}
+function pushWIthPath(state, path, value) {
+    if (state === undefined) {
+        if (typeof path[0] === "string")
+            state = {};
+        if (typeof path[0] === "number")
+            state = [];
+    }
+    if (path[0] === undefined) {
+        if (state === undefined)
+            state = [];
+        if (Array.isArray(state)) {
+            const arrayKeys = KeyManager_1.settleKeys(state);
+            const newArray = state.concat([value]);
+            const newArrayKeys = arrayKeys.concat([KeyManager_1.generateKeyId()]);
+            KeyManager_1.keyMap.set(newArray, newArrayKeys);
+            return newArray;
+        }
+        return state;
+    }
+    return reducePath(pushWIthPath, state, path, value);
+}
+function popWIthPath(state, path) {
+    if (path[0] === undefined) {
+        if (Array.isArray(state)) {
+            const arrayKeys = KeyManager_1.settleKeys(state);
+            const newArray = state.slice(0, -1);
+            const newArrayKeys = arrayKeys.slice(0, -1);
+            KeyManager_1.keyMap.set(newArray, newArrayKeys);
+            return newArray;
+        }
+        return state;
+    }
+    return reducePath(popWIthPath, state, path, null);
+}
+function reducePath(handler, state, [pathKey, ...path], value) {
     if (Array.isArray(state)) {
-        let index;
-        if (typeof pathKey === "number" || typeof pathKey === "string") {
-            index = Number(pathKey);
-        }
-        else {
-            const keyIndex = KeyManager_1.getArrayKeyIndex(state, pathKey.key);
-            if (keyIndex === null)
-                throw new Error("can not edit history");
-            index = keyIndex;
-        }
+        const index = Number(pathKey);
         const nextState = state[index];
-        const editedNextState = editWIthPath(nextState, path, value);
+        const editedNextState = handler(nextState, path, value);
         if (nextState === editedNextState)
             return state;
         const arrayKeys = KeyManager_1.keyMap.get(state);
-        const result = state.map((value, i) => i === index ? editedNextState : value);
+        const dummy = Array.from({ length: Math.max(state.length, index + 1) });
+        const result = dummy.map((_, i) => { var _a; return i === index ? editedNextState : (_a = state[i]) !== null && _a !== void 0 ? _a : null; });
         KeyManager_1.keyMap.set(result, arrayKeys);
         return result;
     }
     if (typeof state === "object") {
         const key = String(pathKey);
         const nextState = state[key];
-        const editedNextState = editWIthPath(nextState, path, value);
+        const editedNextState = handler(nextState, path, value);
         if (nextState === editedNextState)
             return state;
         return Object.assign(Object.assign({}, state), { [key]: editedNextState });
     }
-    return state;
+    return handler(null, path, value);
+}
+function pathIsEqual(path1, path2) {
+    if (!path1 || !path2)
+        return false;
+    if (path1.length !== path2.length)
+        return false;
+    for (let i = 0; i < path1.length; i++) {
+        if (path1[i] !== path2[i])
+            return false;
+    }
+    return true;
+}
+function toHistoryPath(track, editorPath) {
+    const historyPath = [];
+    let data = track;
+    for (const editorPathElement of editorPath) {
+        if (typeof editorPathElement === "object") {
+            const keyIndex = KeyManager_1.getArrayKeyIndex(data, editorPathElement.key);
+            if (keyIndex === null)
+                throw new Error("can not change history path");
+            historyPath.push(keyIndex);
+            data = data[keyIndex];
+        }
+        else {
+            historyPath.push(editorPathElement);
+            data = data[editorPathElement];
+        }
+    }
+    return historyPath;
 }
 
 
@@ -32829,6 +32905,7 @@ function editWIthPath(state, [pathKey, ...path], value) {
   \**************************************************************/
 /*! flagged exports */
 /*! export EditValueAction [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export PushValueAction [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export RedoAction [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export UndoAction [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
@@ -32839,10 +32916,17 @@ function editWIthPath(state, [pathKey, ...path], value) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RedoAction = exports.UndoAction = exports.EditValueAction = void 0;
+exports.RedoAction = exports.UndoAction = exports.PushValueAction = exports.EditValueAction = void 0;
 exports.EditValueAction = (path, value) => {
     return {
         type: "edit",
+        path,
+        value
+    };
+};
+exports.PushValueAction = (path, value) => {
+    return {
+        type: "push",
         path,
         value
     };
@@ -32939,6 +33023,9 @@ exports.TrackEditor = () => {
     const redo = react_1.useCallback(() => {
         dispatch(PlixEditorReducerActions_1.RedoAction());
     }, [dispatch]);
+    const save = react_1.useCallback(() => {
+        download('plix-track.json', JSON.stringify(track));
+    }, [track]);
     const renderCtxValue = { leftElement: leftRenderEl, rightElement: rightRenderEl };
     return (react_1.default.createElement(react_1.default.Fragment, null,
         react_1.default.createElement(SplitTimeline_1.SplitTimeline, { minLeft: 100, minRight: 200, storageKey: "timeline" },
@@ -32950,7 +33037,8 @@ exports.TrackEditor = () => {
                 react_1.default.createElement("button", { onClick: redo, disabled: redoCounts <= 0 },
                     "redo (",
                     redoCounts,
-                    ")")),
+                    ")"),
+                react_1.default.createElement("button", { onClick: save }, "save")),
             react_1.default.createElement("div", { className: "track-header track-header-timeline" }, "(RIGHT_HEADER_RIGHT_HEADER_RIGHT_HEADER)"),
             react_1.default.createElement("div", { className: "track-tree", ref: setLeftRenderEl }),
             react_1.default.createElement("div", { className: "track-timeline", ref: setRightRenderEl })),
@@ -32959,6 +33047,19 @@ exports.TrackEditor = () => {
             react_1.default.createElement(GroupEffectsTrack_1.GroupEffectsTrack, { effectsMap: track.effects, path: paths.effects }),
             react_1.default.createElement(GroupFiltersTrack_1.GroupFiltersTrack, { filtersMap: track.filters, path: paths.filters }))));
 };
+function download(filename, text) {
+    const pom = document.createElement('a');
+    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    pom.setAttribute('download', filename);
+    if (document.createEvent) {
+        const event = document.createEvent('MouseEvents');
+        event.initEvent('click', true, true);
+        pom.dispatchEvent(event);
+    }
+    else {
+        pom.click();
+    }
+}
 
 
 /***/ }),
@@ -33042,7 +33143,8 @@ exports.useExpander = (baseExpanded = false, show = true) => {
     }, [setExpanded]);
     return [
         expanded,
-        react_1.default.createElement(exports.Expander, { show: show, expanded: expanded, changeExpanded: changeExpanded })
+        react_1.default.createElement(exports.Expander, { show: show, expanded: expanded, changeExpanded: changeExpanded }),
+        changeExpanded
     ];
 };
 
@@ -33144,8 +33246,10 @@ const TreeBlock_1 = __webpack_require__(/*! ../track-elements/TreeBlock */ "./sr
 const TimelineBlock_1 = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
 const KeyManager_1 = __webpack_require__(/*! ../../../utils/KeyManager */ "./src/ui/utils/KeyManager.ts");
 const Expander_1 = __webpack_require__(/*! ../track-elements/Expander */ "./src/ui/components/editor/track-elements/Expander.tsx");
+const TrackContext_1 = __webpack_require__(/*! ../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+const PlixEditorReducerActions_1 = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
 exports.ArrayTrack = ({ value, type, children: [name, desc], path }) => {
-    const [expanded, expander] = Expander_1.useExpander(false);
+    const [expanded, expander, changeExpanded] = Expander_1.useExpander(false);
     const valuesData = react_1.useMemo(() => {
         return value.map((val, i) => {
             const key = KeyManager_1.getArrayKey(value, i);
@@ -33158,10 +33262,19 @@ exports.ArrayTrack = ({ value, type, children: [name, desc], path }) => {
             };
         });
     }, [value]);
+    const valueToPush = react_1.useMemo(() => {
+        if (type.startsWith("array:"))
+            return [];
+        return defaultValuesMap[type];
+    }, [type]);
+    const { dispatch } = react_1.useContext(TrackContext_1.TrackContext);
+    const push = react_1.useCallback(() => {
+        dispatch(PlixEditorReducerActions_1.PushValueAction(path, valueToPush));
+    }, [valueToPush]);
     return (react_1.default.createElement(Track_1.Track, null,
         react_1.default.createElement(TreeBlock_1.TreeBlock, null,
             expander,
-            name,
+            react_1.default.createElement("span", { className: "track-description", onClick: changeExpanded }, name),
             " ",
             react_1.default.createElement("span", { className: "track-description _desc" },
                 "(",
@@ -33170,7 +33283,7 @@ exports.ArrayTrack = ({ value, type, children: [name, desc], path }) => {
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
             desc,
             " ",
-            expanded && react_1.default.createElement("a", null,
+            valueToPush !== undefined && react_1.default.createElement("a", { onClick: push },
                 "[add ",
                 type,
                 "]")),
@@ -33301,12 +33414,12 @@ __webpack_require__(/*! ./tracks.scss */ "./src/ui/components/editor/tracks/trac
 const Expander_1 = __webpack_require__(/*! ../track-elements/Expander */ "./src/ui/components/editor/track-elements/Expander.tsx");
 const KeyManager_1 = __webpack_require__(/*! ../../../utils/KeyManager */ "./src/ui/utils/KeyManager.ts");
 exports.EffectTrack = ({ effect, path, baseExpanded, children }) => {
-    const [expanded, expander] = Expander_1.useExpander(baseExpanded);
+    const [expanded, expander, changeExpanded] = Expander_1.useExpander(baseExpanded);
     if (!effect)
         return react_1.default.createElement(NoEffectTrack, { path: path }, children);
     if (effect[1] === null)
-        return (react_1.default.createElement(AliasEffectTrack, { path: path, expanded: expanded, expander: expander, effect: effect, children: children }));
-    return react_1.default.createElement(ConfigurableEffectTrack, { path: path, expanded: expanded, expander: expander, effect: effect, children: children });
+        return (react_1.default.createElement(AliasEffectTrack, { path: path, expanded: expanded, expander: expander, changeExpanded: changeExpanded, effect: effect, children: children }));
+    return react_1.default.createElement(ConfigurableEffectTrack, { path: path, expanded: expanded, expander: expander, changeExpanded: changeExpanded, effect: effect, children: children });
 };
 const NoEffectTrack = ({ children }) => {
     return (react_1.default.createElement(Track_1.Track, null,
@@ -33317,13 +33430,13 @@ const NoEffectTrack = ({ children }) => {
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
             react_1.default.createElement("span", { className: "track-description _empty" }, "empty"))));
 };
-const AliasEffectTrack = ({ effect: [enabled, , link, filters], path, children, expanded, expander }) => {
+const AliasEffectTrack = ({ effect: [enabled, , link, filters], path, children, changeExpanded, expanded, expander }) => {
     const filtersPath = react_1.useMemo(() => [...path, 3], [path]);
     const valueFilters = react_1.useMemo(() => filters !== null && filters !== void 0 ? filters : [], [filters]);
     return (react_1.default.createElement(Track_1.Track, null,
         react_1.default.createElement(TreeBlock_1.TreeBlock, null,
             expander,
-            children,
+            react_1.default.createElement("span", { className: "track-description", onClick: changeExpanded }, children),
             " ",
             react_1.default.createElement("span", { className: "track-description _link" }, link)),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
@@ -33333,7 +33446,7 @@ const AliasEffectTrack = ({ effect: [enabled, , link, filters], path, children, 
         react_1.default.createElement(TrackAccord_1.TrackAccord, { expanded: expanded },
             react_1.default.createElement(ValueTrack_1.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect" }, "Filters"))));
 };
-const ConfigurableEffectTrack = ({ effect: [enabled, effectId, params, filters], children, path, expanded, expander }) => {
+const ConfigurableEffectTrack = ({ effect: [enabled, effectId, params, filters], children, changeExpanded, path, expanded, expander }) => {
     const { effectConstructorMap } = react_1.useContext(TrackContext_1.TrackContext);
     const filtersPath = react_1.useMemo(() => [...path, 3], [path]);
     const effectData = react_1.useMemo(() => {
@@ -33356,7 +33469,7 @@ const ConfigurableEffectTrack = ({ effect: [enabled, effectId, params, filters],
     return (react_1.default.createElement(Track_1.Track, null,
         react_1.default.createElement(TreeBlock_1.TreeBlock, null,
             expander,
-            children,
+            react_1.default.createElement("span", { className: "track-description", onClick: changeExpanded }, children),
             " ",
             react_1.default.createElement("span", { className: "track-description _type" }, effectData.name)),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
@@ -33417,12 +33530,12 @@ const ValueTrack_1 = __webpack_require__(/*! ./ValueTrack */ "./src/ui/component
 const Expander_1 = __webpack_require__(/*! ../track-elements/Expander */ "./src/ui/components/editor/track-elements/Expander.tsx");
 const KeyManager_1 = __webpack_require__(/*! ../../../utils/KeyManager */ "./src/ui/utils/KeyManager.ts");
 exports.FilterTrack = ({ filter, path, children }) => {
-    const [expanded, expander] = Expander_1.useExpander(false);
+    const [expanded, expander, changeExpanded] = Expander_1.useExpander(false);
     if (!filter)
         return react_1.default.createElement(NoFilterTrack, { path: path }, children);
     if (filter[1] === null)
-        return (react_1.default.createElement(AliasFilterTrack, { path: path, expanded: expanded, expander: expander, filter: filter, children: children }));
-    return react_1.default.createElement(ConfigurableFilterTrack, { path: path, expanded: expanded, expander: expander, filter: filter, children: children });
+        return (react_1.default.createElement(AliasFilterTrack, { path: path, expanded: expanded, expander: expander, changeExpanded: changeExpanded, filter: filter, children: children }));
+    return react_1.default.createElement(ConfigurableFilterTrack, { path: path, expanded: expanded, changeExpanded: changeExpanded, expander: expander, filter: filter, children: children });
 };
 const NoFilterTrack = ({ children }) => {
     return (react_1.default.createElement(Track_1.Track, null,
@@ -33433,10 +33546,10 @@ const NoFilterTrack = ({ children }) => {
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
             react_1.default.createElement("span", { className: "track-description _empty" }, "empty"))));
 };
-const AliasFilterTrack = ({ filter: [enabled, , link], children, expanded, expander }) => {
+const AliasFilterTrack = ({ filter: [enabled, , link], children, changeExpanded, expanded, expander }) => {
     return (react_1.default.createElement(Track_1.Track, null,
         react_1.default.createElement(TreeBlock_1.TreeBlock, null,
-            children,
+            react_1.default.createElement("span", { className: "track-description", onClick: changeExpanded }, children),
             " ",
             react_1.default.createElement("span", { className: "track-description _link" }, link)),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
@@ -33444,7 +33557,7 @@ const AliasFilterTrack = ({ filter: [enabled, , link], children, expanded, expan
                 "use alias effect: ",
                 react_1.default.createElement("span", { className: "track-description _link" }, link)))));
 };
-const ConfigurableFilterTrack = ({ filter: [enabled, filterId, params], children, path, expanded, expander }) => {
+const ConfigurableFilterTrack = ({ filter: [enabled, filterId, params], changeExpanded, children, path, expanded, expander }) => {
     const { filterConstructorMap } = react_1.useContext(TrackContext_1.TrackContext);
     const filterData = react_1.useMemo(() => {
         const filterConstructor = filterConstructorMap[filterId];
@@ -33465,7 +33578,7 @@ const ConfigurableFilterTrack = ({ filter: [enabled, filterId, params], children
     return (react_1.default.createElement(Track_1.Track, null,
         react_1.default.createElement(TreeBlock_1.TreeBlock, null,
             expander,
-            children,
+            react_1.default.createElement("span", { className: "track-description", onClick: changeExpanded }, children),
             " ",
             react_1.default.createElement("span", { className: "track-description _type" }, filterData.name)),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
@@ -33523,7 +33636,7 @@ const Expander_1 = __webpack_require__(/*! ../track-elements/Expander */ "./src/
 const TreeBlock_1 = __webpack_require__(/*! ../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
 const TimelineBlock_1 = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
 exports.GroupEffectsTrack = ({ effectsMap, path }) => {
-    const [expanded, expander] = Expander_1.useExpander(true);
+    const [expanded, expander, changeExpanded] = Expander_1.useExpander(true);
     const aliasesList = react_1.useMemo(() => {
         return Object.keys(effectsMap).sort().map((name, index) => {
             return {
@@ -33536,7 +33649,7 @@ exports.GroupEffectsTrack = ({ effectsMap, path }) => {
     return (react_1.default.createElement(Track_1.Track, null,
         react_1.default.createElement(TreeBlock_1.TreeBlock, { type: "description" },
             expander,
-            "===Effects==="),
+            react_1.default.createElement("span", { className: "track-description", onClick: changeExpanded }, "===Effects===")),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { type: "description", fixed: true }, "pow! you can create effects!"),
         react_1.default.createElement(TrackAccord_1.TrackAccord, { expanded: expanded }, aliasesList.map(alias => (react_1.default.createElement(EffectTrack_1.EffectTrack, { effect: alias.value, path: alias.path, key: alias.name }, alias.name))))));
 };
@@ -33586,7 +33699,7 @@ const Expander_1 = __webpack_require__(/*! ../track-elements/Expander */ "./src/
 const TreeBlock_1 = __webpack_require__(/*! ../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
 const TimelineBlock_1 = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
 exports.GroupFiltersTrack = ({ filtersMap, path }) => {
-    const [expanded, expander] = Expander_1.useExpander(true);
+    const [expanded, expander, changeExpanded] = Expander_1.useExpander(true);
     const aliasesList = react_1.useMemo(() => {
         return Object.keys(filtersMap).sort().map((name, index) => {
             return {
@@ -33599,7 +33712,7 @@ exports.GroupFiltersTrack = ({ filtersMap, path }) => {
     return (react_1.default.createElement(Track_1.Track, null,
         react_1.default.createElement(TreeBlock_1.TreeBlock, { type: "description" },
             expander,
-            "===Filters==="),
+            react_1.default.createElement("span", { className: "track-description", onClick: changeExpanded }, "===Filters===")),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { type: "description", fixed: true }, "you can create filters"),
         react_1.default.createElement(TrackAccord_1.TrackAccord, { expanded: expanded }, aliasesList.map(alias => (react_1.default.createElement(FilterTrack_1.FilterTrack, { filter: alias.value, path: alias.path, key: alias.name }, alias.name))))));
 };
@@ -33720,42 +33833,27 @@ const color_1 = __webpack_require__(/*! @plix-effect/core/color */ "./node_modul
 __webpack_require__(/*! ../../track-elements/ColorView.scss */ "./src/ui/components/editor/track-elements/ColorView.scss");
 exports.ColorEditor = ({ color, onChange }) => {
     const hslaColor = react_1.useMemo(() => core_1.parseColor(color, null), [color]);
-    const [htmlColor, setHtmlColor] = react_1.useState(() => {
-        return toHtmlColor(hslaColor);
-    });
-    const [htmlOpacity, setHtmlOpacity] = react_1.useState(() => {
-        return hslaColor[3];
-    });
+    const htmlColor = react_1.useMemo(() => toHtmlColor(hslaColor), [hslaColor]);
     const onChangeColor = react_1.useCallback((event) => {
-        setHtmlColor(event.target.value);
-    }, []);
-    const onChangeOpacity = react_1.useCallback((event) => {
-        setHtmlOpacity(Number(event.target.value));
-    }, []);
-    react_1.useEffect(() => {
-        setHtmlColor(toHtmlColor(hslaColor));
-        setHtmlOpacity(hslaColor[3]);
+        onChange(toSaveColor(event.target.value, hslaColor[3]));
     }, [hslaColor]);
-    const onSubmit = react_1.useCallback((event) => {
-        event.preventDefault();
-        onChange(toHSLAColor(htmlColor, htmlOpacity));
-    }, [htmlColor, htmlOpacity]);
-    return (react_1.default.createElement("form", { key: JSON.stringify(color), onSubmit: onSubmit },
-        "color:",
+    const onChangeOpacity = react_1.useCallback((event) => {
+        onChange(toSaveColor(htmlColor, Number(event.target.value)));
+    }, [htmlColor]);
+    return (react_1.default.createElement(react_1.default.Fragment, null,
         react_1.default.createElement("span", { className: "checkers_background" },
-            react_1.default.createElement("input", { className: "full-size-color-picker", type: "color", value: htmlColor, onChange: onChangeColor, style: { opacity: htmlOpacity } })),
-        "opacity:",
-        react_1.default.createElement("input", { type: "range", value: htmlOpacity, min: 0, max: 1, step: 0.001, onChange: onChangeOpacity }),
-        react_1.default.createElement("button", { type: "submit" }, " ok "),
-        react_1.default.createElement("button", { type: "reset" }, " reset ")));
+            react_1.default.createElement("input", { className: "full-size-color-picker", type: "color", value: htmlColor, onChange: onChangeColor, style: { opacity: hslaColor[3] } })),
+        react_1.default.createElement("input", { type: "range", value: hslaColor[3], min: 0, max: 1, step: 1 / 255, onChange: onChangeOpacity, style: { width: "255px" } }),
+        Math.round(hslaColor[3] * 255),
+        " / 255"));
 };
 function toHtmlColor(color) {
     return "#" + String((color_1.colorToNumber(color) >>> 8).toString(16)).padStart(6, "0");
 }
-function toHSLAColor(htmlColor, opacity) {
-    const colorNum = parseInt(htmlColor.substring(1) + "00", 16);
-    const [h, s, l] = color_1.numberToColor(colorNum);
-    return [h, s, l, opacity];
+function toSaveColor(htmlColor, opacity) {
+    const opacityVal = Math.round(opacity * 255);
+    const colorVal = parseInt(htmlColor.substring(1), 16);
+    return colorVal << 8 | opacityVal & 0xFF;
 }
 
 
@@ -33908,19 +34006,23 @@ exports.TrackAccord = ({ expanded, children }) => {
   \************************************/
 /*! flagged exports */
 /*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export generateKeyId [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export getArrayKey [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export getArrayKeyIndex [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export keyMap [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export settleKeys [provided] [no usage info] [missing usage info prevents renaming] */
 /*! other exports [not provided] [no usage info] */
 /*! runtime requirements: __webpack_exports__ */
+/*! CommonJS bailout: exports.generateKeyId(...) prevents optimization as exports is passed as call context at 22:35-56 */
+/*! CommonJS bailout: exports.generateKeyId(...) prevents optimization as exports is passed as call context at 30:41-62 */
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getArrayKeyIndex = exports.getArrayKey = exports.keyMap = void 0;
+exports.settleKeys = exports.getArrayKeyIndex = exports.getArrayKey = exports.generateKeyId = exports.keyMap = void 0;
 exports.keyMap = new WeakMap();
-const generateKeyId = (i => () => String(`u_${i++}`))(0);
+exports.generateKeyId = (i => () => String(`u_${i++}`))(0);
 function getArrayKey(array, index) {
     const keyArray = settleKeys(array);
     return keyArray[index];
@@ -33937,7 +34039,7 @@ exports.getArrayKeyIndex = getArrayKeyIndex;
 function settleKeys(array) {
     let keyArray = exports.keyMap.get(array);
     if (!keyArray) {
-        keyArray = array.map(() => generateKeyId());
+        keyArray = array.map(() => exports.generateKeyId());
         array["_settled"] = keyArray;
         exports.keyMap.set(array, keyArray);
     }
@@ -33945,12 +34047,13 @@ function settleKeys(array) {
         if (keyArray.length === array.length)
             return keyArray;
         for (let i = 0; i < array.length; i++) {
-            keyArray[i] = keyArray[i] || generateKeyId();
+            keyArray[i] = keyArray[i] || exports.generateKeyId();
         }
         keyArray.length = array.length;
     }
     return keyArray;
 }
+exports.settleKeys = settleKeys;
 
 
 /***/ })

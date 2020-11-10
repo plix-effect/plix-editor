@@ -129,23 +129,28 @@ a:hover {
   .track-timeline-block._description {
     height: 23px; }
 
-.track-description._empty {
-  color: #888; }
-
-.track-description._link {
-  color: #88f; }
-
-.track-description._type {
-  color: #bbb; }
-
-.track-description._desc {
-  color: #888; }
+.track-description {
+  cursor: pointer;
+  user-select: none; }
+  .track-description._empty {
+    color: #888;
+    cursor: auto; }
+  .track-description._link {
+    color: #88f;
+    cursor: pointer; }
+  .track-description._type {
+    color: #bbb;
+    cursor: auto; }
+  .track-description._desc {
+    color: #888;
+    cursor: auto; }
 
 .track-expander {
   width: 20px;
   height: 100%;
   display: inline-flex;
-  justify-content: center; }
+  justify-content: center;
+  user-select: none; }
   .track-expander::before {
     content: "";
     pointer-events: none; }
