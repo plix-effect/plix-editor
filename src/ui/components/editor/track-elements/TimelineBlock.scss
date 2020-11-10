@@ -1,16 +1,19 @@
 .track-timeline-block {
   box-sizing: border-box;
   padding-left: 5px;
-  display: block;
+  display: flex;
   width: 100%;
 
   margin: 1px 0 1px 0;
 
-  .track-timeline-block-content._fixed {
-    position: sticky;
-    display: inline-block;
+  .track-timeline-block-content {
     width: max-content;
-    left: 0;
+    &._fixed {
+      position: sticky;
+      display: inline-block;
+      width: max-content;
+      left: 0;
+    }
   }
 
   &._default {

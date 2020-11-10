@@ -1,0 +1,15 @@
+.track-scale {
+    display: flex;
+}
+
+.track-scale-controls {
+    width: 100px;
+    display: inline-block;
+    position: sticky;
+    left: 0;
+}
+
+.track-scale-line {
+    display: inline-block;
+    background-color: #222;
+}

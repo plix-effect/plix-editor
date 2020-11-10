@@ -16,6 +16,8 @@ import {ValueTrack} from "./ValueTrack";
 import "./tracks.scss"
 import {useExpander} from "../track-elements/Expander";
 import {getArrayKey} from "../../../utils/KeyManager";
+import {TimelineEffectTrack} from "./TimelineEffectTrack";
+import {ChainEffectTrack} from "./ChainEffectTrack";
 
 export interface EffectTrackProps {
     effect: PlixEffectJsonData,
@@ -37,6 +39,12 @@ export const EffectTrack: FC<EffectTrackProps> = ({effect, path, baseExpanded, c
             children={children}
         />
     );
+    if (effect[1] === "Timeline") return (
+        <TimelineEffectTrack effect={effect as PlixEffectConfigurableJsonData} path={path} children={children} baseExpanded={baseExpanded}/>
+    )
+    if (effect[1] === "Chain") return (
+        <ChainEffectTrack effect={effect as PlixEffectConfigurableJsonData} path={path} children={children} baseExpanded={baseExpanded}/>
+    )
     return <ConfigurableEffectTrack
         path={path}
         expanded={expanded}
@@ -110,7 +118,6 @@ interface ConfigurableEffectTrackProps {
 }
 const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({effect: [enabled, effectId, params, filters], children, changeExpanded, path, expanded, expander}) => {
     const {effectConstructorMap} = useContext(TrackContext);
-    const filtersPath = useMemo(() => [...path, 3], [path]);
     const effectData = useMemo(() => {
         const effectConstructor = effectConstructorMap[effectId];
         const meta: ParseMeta = effectConstructor['meta'];
@@ -126,7 +133,8 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({effect: [ena
             description: meta.description,
             paramDescriptions: paramDescriptions
         }
-    }, [effectId, params])
+    }, [effectId, params]);
+    const filtersPath = useMemo(() => [...path, 3], [path]);
     const valueFilters = useMemo(() => filters ?? [], [filters]);
     return (
         <Track>

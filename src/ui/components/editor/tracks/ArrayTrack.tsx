@@ -68,7 +68,7 @@ export const ArrayTrack: FC<ArrayTrackProps> = ({value, type, children: [name, d
 }
 
 const defaultValuesMap = {
-    color: [0,0,0,0],
+    color: 0xFF00FF80,
     blender: "normal",
     effect: null,
     filter: null,
@@ -76,4 +76,5 @@ const defaultValuesMap = {
     number: 0,
     position: [[0,1], [2,3]],
     timing: ["linear", 1, 0],
+    record: [true, "paintSome", 0, 1000], // todo: remove
 }

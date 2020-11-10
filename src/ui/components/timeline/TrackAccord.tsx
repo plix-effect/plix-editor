@@ -1,4 +1,4 @@
-import React, {CSSProperties, FC, ReactNode, useContext, useMemo, useState} from "react";
+import React, {CSSProperties, FC, ReactNode, useContext, useMemo, useState, Fragment} from "react";
 import {createPortal} from "react-dom";
 import {PortalsContext, PortalsContextProps} from "./PortalsContext";
 import cn from "classnames";
@@ -36,7 +36,17 @@ export const TrackAccord: FC<TrackAccordProps> = ({expanded, children}) => {
                 rightElement
             )}
             <PortalsContext.Provider value={ctxValue}>
-                {children}
+                <Fragment key="prt">
+                    {Array.isArray(children) ? (
+                    children.map((el, i) => (
+                        <Fragment key={el?.key ?? i}>
+                            {el}
+                        </Fragment>
+                    ))
+                ) : (
+                    children
+                )}
+                </Fragment>
             </PortalsContext.Provider>
         </>
     );

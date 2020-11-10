@@ -6,6 +6,7 @@ import {GroupEffectsTrack} from "./tracks/GroupEffectsTrack";
 import {GroupFiltersTrack} from "./tracks/GroupFiltersTrack";
 import {SplitTimeline} from "../divider/SplitTimeline";
 import {RedoAction, UndoAction} from "./PlixEditorReducerActions";
+import {TrackScale} from "./TrackScale";
 
 
 
@@ -40,9 +41,11 @@ export const TrackEditor: FC = () => {
                 <button onClick={redo} disabled={redoCounts<=0}>redo ({redoCounts})</button>
                 <button onClick={save}>save</button>
             </div>
-            <div className="track-header track-header-timeline">(RIGHT_HEADER_RIGHT_HEADER_RIGHT_HEADER)</div>
-            <div className="track-tree"  ref={setLeftRenderEl} />
-            <div className="track-timeline"  ref={setRightRenderEl} />
+            <div className="track-header track-header-timeline">
+                <TrackScale />
+            </div>
+            <div className="track-tree" ref={setLeftRenderEl} />
+            <div className="track-timeline" ref={setRightRenderEl} />
         </SplitTimeline>
         <PortalsContext.Provider value={renderCtxValue}>
             <EffectTrack effect={track.render} baseExpanded={true} path={paths.render}>render</EffectTrack>

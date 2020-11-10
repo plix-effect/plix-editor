@@ -19,7 +19,7 @@ export const ColorTrack: FC<ColorTrackProps> = ({value, children, path}) => {
     const {dispatch} = useContext(TrackContext);
     const onChange = useCallback((value) => {
         dispatch(EditValueAction(path, value));
-    }, []);
+    }, [dispatch, path]);
 
     return (
         <Track>
