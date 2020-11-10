@@ -15,7 +15,7 @@ export interface GroupEffectsTrackProps {
     baseExpanded?: boolean
 }
 export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = ({effectsMap, path}) => {
-    const [expanded, expander] = useExpander(true);
+    const [expanded, expander, changeExpanded] = useExpander(true);
     const aliasesList = useMemo(() => {
         return Object.keys(effectsMap).sort(/*a-z*/).map((name, index) => {
             return {
@@ -29,7 +29,7 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = ({effectsMap, path}
         <Track>
             <TreeBlock type="description">
                 {expander}
-                ===Effects===
+                <span className="track-description" onClick={changeExpanded}>===Effects===</span>
             </TreeBlock>
             <TimelineBlock type="description" fixed>
                 pow! you can create effects!

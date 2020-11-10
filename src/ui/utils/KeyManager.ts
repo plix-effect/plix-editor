@@ -1,5 +1,5 @@
 export const keyMap = new WeakMap<any[], string[]>();
-const generateKeyId = (i => () => String(`u_${i++}`))(0)
+export const generateKeyId = (i => () => String(`u_${i++}`))(0)
 export function getArrayKey(array: any[], index: number): string {
     const keyArray = settleKeys(array);
     return keyArray[index];
@@ -11,7 +11,7 @@ export function getArrayKeyIndex(array: any[], key: string): number|null {
     return null;
 }
 
-function settleKeys(array: any[]): string[]{
+export function settleKeys(array: any[]): string[]{
     let keyArray = keyMap.get(array);
     if (!keyArray) {
         keyArray = array.map(() => generateKeyId());

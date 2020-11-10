@@ -15,7 +15,7 @@ export interface GroupFiltersTrackProps {
     baseExpanded?: boolean
 }
 export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = ({filtersMap, path}) => {
-    const [expanded, expander] = useExpander(true);
+    const [expanded, expander, changeExpanded] = useExpander(true);
     const aliasesList = useMemo(() => {
         return Object.keys(filtersMap).sort(/*a-z*/).map((name, index) => {
             return {
@@ -29,7 +29,7 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = ({filtersMap, path}
         <Track>
             <TreeBlock type="description">
                 {expander}
-                ===Filters===
+                <span className="track-description" onClick={changeExpanded}>===Filters===</span>
             </TreeBlock>
             <TimelineBlock type="description" fixed>
                 you can create filters

@@ -1,4 +1,4 @@
-import React, {FC, ReactNode, useCallback, useMemo, useState} from "react";
+import React, {FC, ReactNode, useCallback, useContext, useMemo, useState} from "react";
 import {Track} from "../../timeline/Track";
 import {TrackAccord} from "../../timeline/TrackAccord";
 import {PlixEffectJsonData} from "@plix-effect/core/types/parser";
@@ -9,6 +9,8 @@ import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {getArrayKey} from "../../../utils/KeyManager";
 import {useExpander} from "../track-elements/Expander";
+import {TrackContext} from "../TrackContext";
+import {PushValueAction} from "../PlixEditorReducerActions";
 
 export interface ArrayTrackProps {
     value: any[],
@@ -17,7 +19,7 @@ export interface ArrayTrackProps {
     path: EditorPath
 }
 export const ArrayTrack: FC<ArrayTrackProps> = ({value, type, children: [name, desc], path}) => {
-    const [expanded, expander] = useExpander(false);
+    const [expanded, expander, changeExpanded] = useExpander(false);
     const valuesData = useMemo(() => {
         return value.map((val, i) => {
             const key = getArrayKey(value, i);
@@ -30,14 +32,27 @@ export const ArrayTrack: FC<ArrayTrackProps> = ({value, type, children: [name, d
             }
         })
     }, [value]);
+
+    const valueToPush = useMemo(() => {
+        if (type.startsWith("array:")) return [];
+        return defaultValuesMap[type];
+    }, [type]);
+
+    const {dispatch} = useContext(TrackContext);
+    const push = useCallback(() => {
+        dispatch(PushValueAction(path, valueToPush));
+    }, [valueToPush])
+
     return (
         <Track>
             <TreeBlock>
                 {expander}
-                {name} <span className="track-description _desc">({value.length})</span>
+                <span className="track-description" onClick={changeExpanded}>{name}</span>
+                {" "}
+                <span className="track-description _desc">({value.length})</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                {desc} { expanded && <a>[add {type}]</a> }
+                {desc} { valueToPush !== undefined && <a onClick={push}>[add {type}]</a> }
             </TimelineBlock>
             <TrackAccord expanded={expanded}>
                 {valuesData.map(({key, value, path, index}) => {

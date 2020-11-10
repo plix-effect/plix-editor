@@ -3,6 +3,8 @@
     height: 100%;
     display: inline-flex;
     justify-content: center;
+    user-select: none;
+
     &::before {
         content: "";
         pointer-events: none;

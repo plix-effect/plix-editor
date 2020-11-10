@@ -8,6 +8,14 @@ export const EditValueAction = (path: EditorPath, value: any) => {
     } as const;
 }
 
+export const PushValueAction = (path: EditorPath, value: any) => {
+    return {
+        type: "push",
+        path,
+        value
+    } as const;
+}
+
 export const UndoAction = () => {
     return {
         type: "undo"

@@ -13,13 +13,14 @@ export const Expander: FC<ExpanderProps> = ({show = true, expanded, changeExpand
     )
 }
 
-export const useExpander = (baseExpanded = false, show: boolean = true): [boolean, ReactNode] => {
+export const useExpander = (baseExpanded = false, show: boolean = true): [boolean, ReactNode, () => void] => {
     const [expanded, setExpanded] = useState(baseExpanded);
     const changeExpanded = useCallback(() => {
         setExpanded(v => !v);
     }, [setExpanded]);
     return [
         expanded,
-        <Expander show={show} expanded={expanded} changeExpanded={changeExpanded}/>
+        <Expander show={show} expanded={expanded} changeExpanded={changeExpanded}/>,
+        changeExpanded
     ]
 }

@@ -25,7 +25,7 @@ export interface FilterTrackProps {
     children: ReactNode
 }
 export const FilterTrack: FC<FilterTrackProps> = ({filter, path, children}) => {
-    const [expanded, expander] = useExpander(false);
+    const [expanded, expander, changeExpanded] = useExpander(false);
 
     if (!filter) return <NoFilterTrack path={path}>{children}</NoFilterTrack>
     if (filter[1] === null) return (
@@ -33,6 +33,7 @@ export const FilterTrack: FC<FilterTrackProps> = ({filter, path, children}) => {
             path={path}
             expanded={expanded}
             expander={expander}
+            changeExpanded={changeExpanded}
             filter={filter as PlixFilterAliasJsonData}
             children={children}
         />
@@ -40,6 +41,7 @@ export const FilterTrack: FC<FilterTrackProps> = ({filter, path, children}) => {
     return <ConfigurableFilterTrack
         path={path}
         expanded={expanded}
+        changeExpanded={changeExpanded}
         expander={expander}
         filter={filter as PlixFilterConfigurableJsonData}
         children={children}
@@ -68,13 +70,16 @@ interface AliasFilterTrackProps {
     path: EditorPath,
     children: ReactNode,
     expanded: boolean,
+    changeExpanded: () => void,
     expander: ReactNode;
 }
-const AliasFilterTrack: FC<AliasFilterTrackProps> = ({filter: [enabled ,, link], children, expanded, expander}) => {
+const AliasFilterTrack: FC<AliasFilterTrackProps> = ({filter: [enabled ,, link], children, changeExpanded, expanded, expander}) => {
     return (
         <Track>
             <TreeBlock>
-                {children} <span className="track-description _link">{link}</span>
+                <span className="track-description" onClick={changeExpanded}>{children}</span>
+                {" "}
+                <span className="track-description _link">{link}</span>
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description ">
@@ -91,9 +96,10 @@ interface ConfigurableFilterTrackProps {
     path: EditorPath,
     children: ReactNode,
     expanded: boolean,
+    changeExpanded: () => void
     expander: ReactNode;
 }
-const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = ({filter: [enabled, filterId, params], children, path, expanded, expander}) => {
+const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = ({filter: [enabled, filterId, params], changeExpanded, children, path, expanded, expander}) => {
     const {filterConstructorMap} = useContext(TrackContext);
     const filterData = useMemo(() => {
         const filterConstructor = filterConstructorMap[filterId];
@@ -115,7 +121,9 @@ const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = ({filter: [ena
         <Track>
             <TreeBlock>
                 {expander}
-                {children} <span className="track-description _type">{filterData.name}</span>
+                <span className="track-description" onClick={changeExpanded}>{children}</span>
+                {" "}
+                <span className="track-description _type">{filterData.name}</span>
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description ">
