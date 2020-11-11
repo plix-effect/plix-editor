@@ -1,6 +1,8 @@
-import React, {CSSProperties, FC, ReactNode, useContext, useMemo, useState} from "react";
+import React, {CSSProperties, FC, ReactNode, useContext, useMemo, useState, Fragment} from "react";
 import {createPortal} from "react-dom";
 import {PortalsContext, PortalsContextProps} from "./PortalsContext";
+import cn from "classnames";
+import "./TrackAccord.scss";
 
 export interface TrackAccordProps {
     children: ReactNode
@@ -17,18 +19,34 @@ export const TrackAccord: FC<TrackAccordProps> = ({expanded, children}) => {
     const leftStyle = useMemo<CSSProperties>(() => ({
         height: expanded ? "" : "0px",
         marginLeft: "10px",
-        overflow: "hidden"
+        overflow: expanded ? "" : "hidden"
     }), [expanded]);
     const rightStyle = useMemo<CSSProperties>(() => ({
         height: expanded ? "" : "0px",
-        overflow: "hidden"
+        overflow: expanded ? "" : "hidden"
     }), [expanded]);
     return (
         <>
-            {leftElement && createPortal(<div className="accord-portal-left" ref={setLeftRef} style={leftStyle}/>, leftElement)}
-            {rightElement && createPortal(<div className="accord-portal-right" ref={setRightRef} style={rightStyle} />, rightElement)}
+            {leftElement && createPortal(
+                <div className={cn("accord-portal-left", {_expanded: expanded})} ref={setLeftRef}/>,
+                leftElement
+            )}
+            {rightElement && createPortal(
+                <div className={cn("accord-portal-right", {_expanded: expanded})} ref={setRightRef}/>,
+                rightElement
+            )}
             <PortalsContext.Provider value={ctxValue}>
-                {children}
+                <Fragment key="prt">
+                    {Array.isArray(children) ? (
+                    children.map((el, i) => (
+                        <Fragment key={el?.key ?? i}>
+                            {el}
+                        </Fragment>
+                    ))
+                ) : (
+                    children
+                )}
+                </Fragment>
             </PortalsContext.Provider>
         </>
     );

@@ -1,33 +1,33 @@
-import React, {FC, ReactNode, useCallback, useContext, useState} from "react";
+import React, {FC, ReactNode, useCallback, useContext} from "react";
 import {Track} from "../../timeline/Track";
-import {TrackAccord} from "../../timeline/TrackAccord";
-import {PlixEffectJsonData} from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
-import {JSONEditor} from "./editor/JSONEditor";
-import {EditValueAction} from "../PlixEditorReducerActions";
+import {parseColor} from "@plix-effect/core";
+import {ColorView} from "../track-elements/ColorView";
+import {ColorEditor} from "./editor/ColorEditor";
 import {TrackContext} from "../TrackContext";
+import {EditValueAction} from "../PlixEditorReducerActions";
 
-export interface ValueUnknownTrackProps {
+export interface ColorTrackProps {
     value: any,
     children: ReactNode
     path: EditorPath
 }
-export const ValueUnknownTrack: FC<ValueUnknownTrackProps> = ({value, children, path}) => {
+export const ColorTrack: FC<ColorTrackProps> = ({value, children, path}) => {
+    const color = parseColor(value, null);
     const {dispatch} = useContext(TrackContext);
     const onChange = useCallback((value) => {
-        console.log("DISPATCH-EDIT", EditValueAction(path, value));
         dispatch(EditValueAction(path, value));
     }, [dispatch, path]);
 
     return (
         <Track>
             <TreeBlock>
-                {children}
+                {children} <ColorView background={true} color={color}/>
             </TreeBlock>
             <TimelineBlock fixed>
-                <JSONEditor value={value} onChange={onChange} />
+                <ColorEditor color={value} onChange={onChange}/>
             </TimelineBlock>
         </Track>
     );

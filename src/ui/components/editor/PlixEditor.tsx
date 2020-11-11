@@ -1,94 +1,70 @@
-import {FC, default as React, useMemo} from "react";
+import {FC, default as React, useMemo, useReducer, useState} from "react";
 import "./PlixEditor.scss";
 import {SplitTopBottom} from "../divider/SplitTopBottom";
-import {SplitLeftRight} from "../divider/SplitLeftRight";
 import {TrackEditor} from "./TrackEditor";
 import {TrackContextProps, TrackContext} from "./TrackContext";
 import * as effectConstructorMap from "@plix-effect/core/effects";
 import * as filterConstructorMap from "@plix-effect/core/filters";
 import {PlixJsonData} from "@plix-effect/core/types/parser";
-import {SplitTimeline} from "../divider/SplitTimeline";
+import {PlixEditorReducer} from "./PlixEditorReducer";
+import {ScaleDisplayContext, ScaleDisplayContextProps} from "./ScaleDisplayContext";
 
-const track: PlixJsonData = {
+const defaultTrack: PlixJsonData = {
     effects: {
-        paintSome: [true, "Paint", [[[0,1,0.5], [0.33,1,0.5], [0,1,0.5], [0.33,1,0.5], [0,1,0.5], [0.33,1,0.5]]]],
+        paintSome: [true, "Paint", [[[0,1,0.5, 0.5], [0.33,1,0.5, 0.5], [0,1,0.5], [0.33,1,0.5], [0,1,0.5], [0.33,1,0.5]]]],
         paintSomeLeft: [true, null, "paintSome", [[true, null, "posLeft"]]],
         paintSomeRight: [true, null, "paintSome", [[true, null, "posRight"]]]
     },
     filters: {
         posLeft: [true, "Position", [[0,1,2]]],
-        posRight: [true, "Position", [[9,8,7]]]
+        posRight: [true, "Position", [[9,8,7]]],
+        posCenter: [true, "Position", [[3,4,5,6]]]
     },
-    render: [true, "Chain", [
+    render: [true, "Chain", [[
         [true, null, "paintSomeLeft"],
         [true, null, "paintSomeRight"],
-    ], [[true, "OuterBorder", [[0,1,1], 1]]]]
+        [true, "Timeline", [[], null, null, 0], [[true, null, "posCenter"]]],
+    ]], [[true, "OuterBorder", [[0,1,1], 1]]]]
 };
 
 export const PlixEditor: FC = () => {
-    const trackContextValue: TrackContextProps = useMemo(() => ({
+
+    const [zoom, setZoom] = useState(1);
+    const [duration, setDuration] = useState(1000*60*5);
+    const [position, setPosition] = useState(0.01);
+
+    const [{track, history, historyPosition}, dispatch] = useReducer(PlixEditorReducer, defaultTrack, (track) => ({
         track: track,
-        modify: () => {},
+        history: [],
+        historyPosition: 0
+    }));
+
+    const trackContextValue: TrackContextProps = useMemo(() => ({
+        undoCounts: historyPosition,
+        redoCounts: history.length - historyPosition,
+        track,
+        dispatch,
         effectConstructorMap: effectConstructorMap as TrackContextProps["effectConstructorMap"],
         filterConstructorMap: filterConstructorMap as TrackContextProps["filterConstructorMap"],
-    }), []);
+    }), [track, dispatch, historyPosition, history]);
+
+    const scaleDisplayContextValue: ScaleDisplayContextProps = useMemo(() => ({
+        track,
+        duration, setDuration,
+        zoom, setZoom,
+        position, setPosition,
+        dispatch,
+    }), [track, duration, setDuration, zoom, setZoom, position, setPosition, dispatch]);
 
     return (
         <div className="plix-editor">
             <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
                 <TrackContext.Provider value={trackContextValue}>
-                    <TrackEditor />
+                    <ScaleDisplayContext.Provider value={scaleDisplayContextValue}>
+                        <TrackEditor />
+                    </ScaleDisplayContext.Provider>
                 </TrackContext.Provider>
-                <SplitTimeline minLeft={100} minRight={100} storageKey="tl">
-                    <div style={{backgroundColor: "#fdd", flexGrow: 1}}>
-                        HEADER<br/>HEADER<br/>HEADER
-                    </div>
-                    <div style={{backgroundColor: "#fdf", flexGrow: 1}}>
-                            (TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)
-                    </div>
-                    <div style={{backgroundColor: "#ffd", flexGrow: 1}}>
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                        (TREE_TREE_TREE_TREE_TREE_TREE)
-                    </div>
-                    <div style={{backgroundColor: "#dff", flexGrow: 1}}>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div style={{position: "sticky", left: 0, display: "inline-block"}}>(PROPERTY_PROPERTY)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                        <div>(TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE_TIMELINE)</div>
-                    </div>
-                </SplitTimeline>
+                <div>LIBS AND CANVAS</div>
             </SplitTopBottom>
         </div>
     )

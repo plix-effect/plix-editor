@@ -1,4 +1,4 @@
-import React, {FC, ReactElement, ReactNode, useContext, useState} from "react";
+import React, {FC, Fragment, ReactElement, ReactNode, useContext, useState} from "react";
 import {createPortal} from "react-dom";
 import {PortalsContext, PortalsContextProps} from "./PortalsContext";
 
@@ -14,7 +14,17 @@ export const Track: FC<TrackProps> = ({children: [left, right, deep]}) => {
 
     return (
         <PortalsContext.Provider value={ctxValue}>
-            {deep}
+            <Fragment key="trk">
+            {Array.isArray(deep) ? (
+                deep.map((el, i) => (
+                    <Fragment key={el?.key ?? i}>
+                        {el}
+                    </Fragment>
+                ))
+            ) : (
+                deep
+            )}
+            </Fragment>
             {leftElement && createPortal((
                 <div className="tl-portal-left" ref={setLeftRef} >
                     {left}

@@ -3,39 +3,41 @@ import {Track} from "../../timeline/Track";
 import { PlixEffectsMapJsonData} from "@plix-effect/core/types/parser";
 import {EffectTrack} from "./EffectTrack";
 import {TrackAccord} from "../../timeline/TrackAccord";
-import {ExpandButton} from "../track-elements/ExpandButton";
+import {FilterTrack} from "./FilterTrack";
+import {EditorPath} from "../../../types/Editor";
+import {useExpander} from "../track-elements/Expander";
 import {TreeBlock} from "../track-elements/TreeBlock";
+import {TimelineBlock} from "../track-elements/TimelineBlock";
 
 export interface GroupEffectsTrackProps {
     effectsMap: PlixEffectsMapJsonData,
-    pathName: string,
+    path: EditorPath,
     baseExpanded?: boolean
 }
-export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = ({effectsMap, pathName}) => {
-    const [expanded, setExpanded] = useState(false);
-    const changeExpanded = useCallback(() => {
-        setExpanded(v => !v);
-    }, [setExpanded]);
+export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = ({effectsMap, path}) => {
+    const [expanded, expander, changeExpanded] = useExpander(true);
     const aliasesList = useMemo(() => {
         return Object.keys(effectsMap).sort(/*a-z*/).map((name, index) => {
             return {
                 name: name,
-                path: [pathName, name],
+                path: [...path, name] as EditorPath,
                 value: effectsMap[name]
             }
         })
     }, [effectsMap])
     return (
         <Track>
-            <div>
-                <ExpandButton onClick={changeExpanded} expanded={expanded}/>
-                ===Aliases===
-            </div>
-            <div>pow! you can create aliases!</div>
+            <TreeBlock type="description">
+                {expander}
+                <span className="track-description" onClick={changeExpanded}>===Effects===</span>
+            </TreeBlock>
+            <TimelineBlock type="description" fixed>
+                pow! you can create effects!
+            </TimelineBlock>
             <TrackAccord expanded={expanded}>
-                {aliasesList.map(effectAlias => (
-                    <EffectTrack effect={effectAlias.value} path={effectAlias.path}>
-                        {effectAlias.name}
+                {aliasesList.map(alias => (
+                    <EffectTrack effect={alias.value} path={alias.path} key={alias.name}>
+                        {alias.name}
                     </EffectTrack>
                 ))}
 

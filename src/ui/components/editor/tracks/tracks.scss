@@ -1,0 +1,26 @@
+.track-description {
+
+  cursor: pointer;
+  user-select: none;
+
+  &._empty {
+    color: #888;
+    cursor: auto;
+  }
+
+  &._link {
+    color: #88f;
+    cursor: pointer;
+  }
+
+  &._type {
+    color: #bbb;
+    cursor: auto;
+  }
+
+  &._desc {
+    color: #888;
+    cursor: auto;
+  }
+
+}
