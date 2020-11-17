@@ -1,7 +1,5 @@
-import React, {FC, ReactNode, useCallback, useContext, useState} from "react";
+import React, {FC, memo, ReactNode, useCallback, useContext} from "react";
 import {Track} from "../../timeline/Track";
-import {TrackAccord} from "../../timeline/TrackAccord";
-import {PlixEffectJsonData} from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
@@ -14,7 +12,7 @@ export interface ValueUnknownTrackProps {
     children: ReactNode
     path: EditorPath
 }
-export const ValueUnknownTrack: FC<ValueUnknownTrackProps> = ({value, children, path}) => {
+export const ValueUnknownTrack: FC<ValueUnknownTrackProps> = memo(({value, children, path}) => {
     const {dispatch} = useContext(TrackContext);
     const onChange = useCallback((value) => {
         console.log("DISPATCH-EDIT", EditValueAction(path, value));
@@ -31,4 +29,4 @@ export const ValueUnknownTrack: FC<ValueUnknownTrackProps> = ({value, children, 
             </TimelineBlock>
         </Track>
     );
-}
+});

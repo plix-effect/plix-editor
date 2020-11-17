@@ -1,16 +1,14 @@
-import React, {FC, ReactNode, useCallback, useContext, useMemo, useState} from "react";
+import React, {FC, memo, ReactNode, useCallback, useContext, useMemo} from "react";
 import {Track} from "../../timeline/Track";
-import {TrackAccord} from "../../timeline/TrackAccord";
-import {PlixEffectJsonData} from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
-import {ValueUnknownTrack} from "./ValueUnknownTrack";
 import {ValueTrack} from "./ValueTrack";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {getArrayKey} from "../../../utils/KeyManager";
 import {useExpander} from "../track-elements/Expander";
 import {TrackContext} from "../TrackContext";
-import {PushValueAction} from "../PlixEditorReducerActions";
+import {DeleteIndexAction, EditValueAction, PushValueAction} from "../PlixEditorReducerActions";
+import {ArrayElementsTrack} from "./ArrayElementsTrack";
 
 export interface ArrayTrackProps {
     value: any[],
@@ -18,33 +16,21 @@ export interface ArrayTrackProps {
     children: [name: ReactNode,desc: ReactNode]
     path: EditorPath
 }
-export const ArrayTrack: FC<ArrayTrackProps> = ({value, type, children: [name, desc], path}) => {
+export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [name, desc], path}) => {
     const [expanded, expander, changeExpanded] = useExpander(false);
-    const valuesData = useMemo(() => {
-        return value.map((val, i) => {
-            const key = getArrayKey(value, i);
-            const valPath: EditorPath = [...path, {key: String(key), array: value}]
-            return {
-                path: valPath,
-                key: key,
-                value: val,
-                index: i,
-            }
-        })
-    }, [value]);
+    const {dispatch} = useContext(TrackContext);
 
     const valueToPush = useMemo(() => {
         if (type.startsWith("array:")) return [];
         return defaultValuesMap[type];
     }, [type]);
 
-    const {dispatch} = useContext(TrackContext);
     const push = useCallback(() => {
         dispatch(PushValueAction(path, valueToPush));
     }, [valueToPush])
 
     return (
-        <Track>
+        <Track nested expanded={expanded}>
             <TreeBlock>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{name}</span>
@@ -54,18 +40,10 @@ export const ArrayTrack: FC<ArrayTrackProps> = ({value, type, children: [name, d
             <TimelineBlock fixed>
                 {desc} { valueToPush !== undefined && <a onClick={push}>[add {type}]</a> }
             </TimelineBlock>
-            <TrackAccord expanded={expanded}>
-                {valuesData.map(({key, value, path, index}) => {
-                    return (
-                        <ValueTrack key={key} type={type} value={value} path={path}>
-                            [{index}]
-                        </ValueTrack>
-                    )
-                })}
-            </TrackAccord>
+            <ArrayElementsTrack value={value} type={type} path={path}/>
         </Track>
     );
-}
+})
 
 const defaultValuesMap = {
     color: 0xFF00FF80,
@@ -76,5 +54,4 @@ const defaultValuesMap = {
     number: 0,
     position: [[0,1], [2,3]],
     timing: ["linear", 1, 0],
-    record: [true, "paintSome", 0, 1000], // todo: remove
 }

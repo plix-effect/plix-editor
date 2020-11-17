@@ -1,4 +1,5 @@
 import type {EditorPath} from "../../types/Editor";
+import type {PlixEditorAction} from "./PlixEditorReducer";
 
 export const EditValueAction = (path: EditorPath, value: any) => {
     return {
@@ -13,6 +14,14 @@ export const PushValueAction = (path: EditorPath, value: any) => {
         type: "push",
         path,
         value
+    } as const;
+}
+
+export const DeleteIndexAction = (path: EditorPath, index: number) => {
+    return {
+        type: "deleteIndex",
+        path,
+        index
     } as const;
 }
 
