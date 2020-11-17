@@ -58,29 +58,32 @@ a:hover {
       border-top: 3px solid rgba(0, 0, 0, 0.3);
       border-bottom: 3px solid rgba(0, 0, 0, 0.3); } }
 
-.accord-portal-left {
-  padding-left: 10px;
-  display: none;
+.track-left-block {
+  display: block;
   position: relative; }
-  .accord-portal-left._expanded {
-    display: block; }
-    .accord-portal-left._expanded::before {
+  .track-left-block._collapsed {
+    display: none; }
+  .track-left-block._nested {
+    padding-left: 14px;
+    margin-left: 14px; }
+    .track-left-block._nested::before {
       position: absolute;
-      top: -4px;
-      width: 14px;
+      top: -1px;
+      width: 32px;
       left: 0;
       bottom: 0;
       border-bottom-left-radius: 4px;
       border-left: 1px solid #444;
       border-bottom: 1px solid #444;
       content: ""; }
-    .accord-portal-left._expanded:hover::before {
-      border-left: 1px solid #884; }
+    .track-left-block._nested:hover::before {
+      border-left: 1px solid #884;
+      border-bottom: 1px solid #884; }
 
-.accord-portal-right {
-  display: none; }
-  .accord-portal-right._expanded {
-    display: block; }
+.track-right-block {
+  display: block; }
+  .track-right-block._collapsed {
+    display: none; }
 
 .track-tree-block {
   box-sizing: border-box;
@@ -102,8 +105,8 @@ a:hover {
       content: "";
       position: absolute;
       height: calc( 50% - 1px);
-      left: -10px;
-      width: 10px;
+      left: -15px;
+      width: 14px;
       border-bottom: 1px solid #444; }
     .track-tree-block._default:hover::before {
       border-bottom: 1px solid #884; }
@@ -113,14 +116,16 @@ a:hover {
 .track-timeline-block {
   box-sizing: border-box;
   padding-left: 5px;
-  display: block;
+  display: flex;
   width: 100%;
   margin: 1px 0 1px 0; }
-  .track-timeline-block .track-timeline-block-content._fixed {
-    position: sticky;
-    display: inline-block;
-    width: max-content;
-    left: 0; }
+  .track-timeline-block .track-timeline-block-content {
+    width: max-content; }
+    .track-timeline-block .track-timeline-block-content._fixed {
+      position: sticky;
+      display: inline-block;
+      width: max-content;
+      left: 0; }
   .track-timeline-block._default {
     height: 25px;
     border-top: 1px solid #444;
@@ -243,6 +248,19 @@ input[type="color"].full-size-color-picker {
 
 .hide-scroll::-webkit-scrollbar {
   display: none; }
+
+.track-scale {
+  display: flex; }
+
+.track-scale-controls {
+  width: 100px;
+  display: inline-block;
+  position: sticky;
+  left: 0; }
+
+.track-scale-line {
+  display: inline-block;
+  background-color: #222; }
 
 
 /*# sourceMappingURL=style-index.css.map*/
