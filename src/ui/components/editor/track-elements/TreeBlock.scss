@@ -1,3 +1,5 @@
+@import "../../../style/variables";
+
 .track-tree-block {
   box-sizing: border-box;
   display: block;
@@ -19,8 +21,8 @@
       content: "";
       position: absolute;
       height: calc( 50% - 1px);
-      left: -10px;
-      width: 10px;
+      left: -$tree-padding/2 - 1px;
+      width: $tree-padding/2;
       border-bottom: 1px solid #444;
     }
     &:hover::before {

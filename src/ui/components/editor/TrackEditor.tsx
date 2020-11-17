@@ -1,5 +1,5 @@
 import React, {FC, useCallback, useContext, useMemo, useState} from "react";
-import {PortalsContext, PortalsContextProps} from "../timeline/PortalsContext";
+import {PortalContext} from "../timeline/PortalContext";
 import {TrackContext} from "./TrackContext";
 import {EffectTrack} from "./tracks/EffectTrack";
 import {GroupEffectsTrack} from "./tracks/GroupEffectsTrack";
@@ -7,11 +7,10 @@ import {GroupFiltersTrack} from "./tracks/GroupFiltersTrack";
 import {SplitTimeline} from "../divider/SplitTimeline";
 import {RedoAction, UndoAction} from "./PlixEditorReducerActions";
 import {TrackScale} from "./TrackScale";
-
+import {Track} from "../timeline/Track";
 
 
 export const TrackEditor: FC = () => {
-    const [leftRenderEl, setLeftRenderEl] = useState<HTMLDivElement>();
     const [rightRenderEl, setRightRenderEl] = useState<HTMLDivElement>();
     const {track, dispatch, undoCounts, redoCounts} = useContext(TrackContext);
     const paths = useMemo(() => ({
@@ -32,9 +31,7 @@ export const TrackEditor: FC = () => {
         download('plix-track.json', JSON.stringify(track));
     }, [track])
 
-    const renderCtxValue: PortalsContextProps = {leftElement: leftRenderEl, rightElement: rightRenderEl}
-
-    return (<>
+    return (
         <SplitTimeline minLeft={100} minRight={200} storageKey="timeline">
             <div className="track-header track-header-tree">
                 <button onClick={undo} disabled={undoCounts<=0}>undo ({undoCounts})</button>
@@ -44,15 +41,20 @@ export const TrackEditor: FC = () => {
             <div className="track-header track-header-timeline">
                 <TrackScale />
             </div>
-            <div className="track-tree" ref={setLeftRenderEl} />
+            <div className="track-tree">
+                <PortalContext.Provider value={rightRenderEl}>
+                    <Track>
+                        {null /*left*/}
+                        {null /*right*/}
+                        <EffectTrack effect={track.render} baseExpanded={true} path={paths.render}>render</EffectTrack>
+                        <GroupEffectsTrack effectsMap={track.effects} path={paths.effects}/>
+                        <GroupFiltersTrack filtersMap={track.filters} path={paths.filters}/>
+                    </Track>
+                </PortalContext.Provider>
+            </div>
             <div className="track-timeline" ref={setRightRenderEl} />
         </SplitTimeline>
-        <PortalsContext.Provider value={renderCtxValue}>
-            <EffectTrack effect={track.render} baseExpanded={true} path={paths.render}>render</EffectTrack>
-            <GroupEffectsTrack effectsMap={track.effects} path={paths.effects}/>
-            <GroupFiltersTrack filtersMap={track.filters} path={paths.filters}/>
-        </PortalsContext.Provider>
-    </>)
+    );
 }
 
 function download(filename, text) {

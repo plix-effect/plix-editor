@@ -1,9 +1,9 @@
-import React, {FC, ReactNode, useCallback, useContext, useMemo, useState} from "react";
+import React, {FC, memo, ReactNode, useCallback, useContext, useMemo, useState} from "react";
 import {Track} from "../../timeline/Track";
-import {TrackAccord} from "../../timeline/TrackAccord";
 import {
     PlixEffectJsonData,
-    PlixFilterAliasJsonData, PlixFilterConfigurableJsonData,
+    PlixFilterAliasJsonData,
+    PlixFilterConfigurableJsonData,
     PlixFilterEmptyJsonData,
     PlixFilterJsonData
 } from "@plix-effect/core/types/parser";
@@ -24,7 +24,7 @@ export interface FilterTrackProps {
     path: EditorPath,
     children: ReactNode
 }
-export const FilterTrack: FC<FilterTrackProps> = ({filter, path, children}) => {
+export const FilterTrack: FC<FilterTrackProps> = memo(({filter, path, children}) => {
     const [expanded, expander, changeExpanded] = useExpander(false);
 
     if (!filter) return <NoFilterTrack path={path}>{children}</NoFilterTrack>
@@ -46,7 +46,7 @@ export const FilterTrack: FC<FilterTrackProps> = ({filter, path, children}) => {
         filter={filter as PlixFilterConfigurableJsonData}
         children={children}
     />
-}
+})
 
 export interface NoFilterTrackProps {
     path: EditorPath,
@@ -118,7 +118,7 @@ const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = ({filter: [ena
         }
     }, [filterId, params])
     return (
-        <Track>
+        <Track nested expanded={expanded}>
             <TreeBlock>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
@@ -130,17 +130,15 @@ const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = ({filter: [ena
                     <span className="track-description">--- edit filter</span>
                 </span>
             </TimelineBlock>
-            <TrackAccord expanded={expanded}>
-                <Track>
-                    <TreeBlock type="description">description</TreeBlock>
-                    <TimelineBlock fixed type="description">{filterData.description}</TimelineBlock>
-                </Track>
-                {filterData.paramDescriptions.map((paramDesc) => (
-                    <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name}>
-                        {paramDesc.name}
-                    </ValueTrack>
-                ))}
-            </TrackAccord>
+            <Track>
+                <TreeBlock type="description">description</TreeBlock>
+                <TimelineBlock fixed type="description">{filterData.description}</TimelineBlock>
+            </Track>
+            {filterData.paramDescriptions.map((paramDesc) => (
+                <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name}>
+                    {paramDesc.name}
+                </ValueTrack>
+            ))}
         </Track>
     )
 }

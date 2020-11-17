@@ -1,6 +1,5 @@
-import React, {FC, ReactNode, useContext, useMemo} from "react";
+import React, {FC, memo, ReactNode, useCallback, useContext, useMemo} from "react";
 import {Track} from "../../timeline/Track";
-import {TrackAccord} from "../../timeline/TrackAccord";
 import {
     PlixEffectAliasJsonData,
     PlixEffectConfigurableJsonData,
@@ -18,6 +17,8 @@ import {useExpander} from "../track-elements/Expander";
 import {getArrayKey} from "../../../utils/KeyManager";
 import {TimelineEffectTrack} from "./TimelineEffectTrack";
 import {ChainEffectTrack} from "./ChainEffectTrack";
+import {EffectEditor} from "./editor/EffectEditor";
+import {EditValueAction} from "../PlixEditorReducerActions";
 
 export interface EffectTrackProps {
     effect: PlixEffectJsonData,
@@ -25,13 +26,36 @@ export interface EffectTrackProps {
     baseExpanded?: boolean,
     children: ReactNode,
 }
-export const EffectTrack: FC<EffectTrackProps> = ({effect, path, baseExpanded, children}) => {
+export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpanded, children}) => {
     const [expanded, expander, changeExpanded] = useExpander(baseExpanded);
 
-    if (!effect) return <NoEffectTrack path={path}>{children}</NoEffectTrack>
+    const {effectConstructorMap} = useContext(TrackContext);
+    const {dispatch} = useContext(TrackContext);
+    const onChangeEffect = useCallback((type: null|"alias"|"constructor", value?: string) => {
+        if (!type) {
+            return dispatch(EditValueAction(path, null));
+        }
+        const templateEffect = effect ? effect.slice(0) : [true, null, [], []];
+        if (type === "alias") {
+            templateEffect[1] = null;
+            templateEffect[2] = value;
+        }
+        if (type === "constructor") {
+            templateEffect[1] = value;
+            console.log("effectConstructorMap", effectConstructorMap, value);
+            const effectConstructor = effectConstructorMap[value];
+            console.log("effectConstructor", effectConstructor);
+            const meta: ParseMeta = effectConstructor['meta'];
+            templateEffect[2] = meta.defaultValues;
+        }
+        return dispatch(EditValueAction(path, templateEffect));
+    }, [effect, dispatch]);
+
+    if (!effect) return <NoEffectTrack onChange={onChangeEffect} path={path}>{children}</NoEffectTrack>
     if (effect[1] === null) return (
         <AliasEffectTrack
             path={path}
+            onChange={onChangeEffect}
             expanded={expanded}
             expander={expander}
             changeExpanded={changeExpanded}
@@ -47,28 +71,32 @@ export const EffectTrack: FC<EffectTrackProps> = ({effect, path, baseExpanded, c
     )
     return <ConfigurableEffectTrack
         path={path}
+        onChange={onChangeEffect}
         expanded={expanded}
         expander={expander}
         changeExpanded={changeExpanded}
         effect={effect as PlixEffectConfigurableJsonData}
         children={children}
     />
-}
+})
 
 ////////////////////////////////////////////////////////////
 
 export interface NoEffectTrackProps {
     path: EditorPath,
-    children: ReactNode
+    children: ReactNode,
+    onChange: (type: null|"alias"|"constructor", value?: string) => void,
 }
-const NoEffectTrack: FC<NoEffectTrackProps> = ({children}) => {
+const NoEffectTrack: FC<NoEffectTrackProps> = ({children, onChange}) => {
     return (
         <Track>
             <TreeBlock>
                 {children} <span className="track-description _empty">empty</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                <span className="track-description _empty">empty</span>
+                <span className="track-description">
+                    <EffectEditor onChange={onChange} effect={null} />
+                </span>
             </TimelineBlock>
         </Track>
     )
@@ -81,12 +109,13 @@ interface AliasEffectTrackProps {
     changeExpanded: () => void,
     expanded: boolean,
     expander: ReactNode;
+    onChange: (type: null|"alias"|"constructor", value?: string) => void,
 }
-const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect: [enabled ,, link, filters], path, children, changeExpanded, expanded, expander}) => {
+const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, effect: [enabled ,, link, filters], path, children, changeExpanded, expanded, expander, onChange}) => {
     const filtersPath = useMemo(() => [...path, 3], [path]);
     const valueFilters = useMemo(() => filters ?? [], [filters]);
     return (
-        <Track>
+        <Track nested expanded={expanded}>
             <TreeBlock>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
@@ -95,14 +124,12 @@ const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect: [enabled ,, link, 
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description ">
-                    use alias effect: <span className="track-description _link">{link}</span>
+                    <EffectEditor onChange={onChange} effect={effect} />
                 </span>
             </TimelineBlock>
-            <TrackAccord expanded={expanded}>
-                <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect">
-                    Filters
-                </ValueTrack>
-            </TrackAccord>
+            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect">
+                Filters
+            </ValueTrack>
         </Track>
     )
 }
@@ -115,8 +142,9 @@ interface ConfigurableEffectTrackProps {
     expanded: boolean,
     changeExpanded: () => void,
     expander: ReactNode;
+    onChange: (type: null|"alias"|"constructor", value?: string) => void,
 }
-const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({effect: [enabled, effectId, params, filters], children, changeExpanded, path, expanded, expander}) => {
+const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, effect, effect: [enabled, effectId, params, filters], children, changeExpanded, path, expanded, expander}) => {
     const {effectConstructorMap} = useContext(TrackContext);
     const effectData = useMemo(() => {
         const effectConstructor = effectConstructorMap[effectId];
@@ -137,7 +165,7 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({effect: [ena
     const filtersPath = useMemo(() => [...path, 3], [path]);
     const valueFilters = useMemo(() => filters ?? [], [filters]);
     return (
-        <Track>
+        <Track nested expanded={expanded}>
             <TreeBlock>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
@@ -146,11 +174,11 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({effect: [ena
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description ">
-                    --- edit effect
+                    <EffectEditor onChange={onChange} effect={effect} />
                 </span>
             </TimelineBlock>
             {params.length > 0 && (
-                <TrackAccord expanded={expanded}>
+                <>
                     <Track>
                         <TreeBlock type="description">description</TreeBlock>
                         <TimelineBlock fixed type="description">{effectData.description}</TimelineBlock>
@@ -163,7 +191,7 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({effect: [ena
                     <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect">
                         Filters
                     </ValueTrack>
-                </TrackAccord>
+                </>
             )}
         </Track>
     )

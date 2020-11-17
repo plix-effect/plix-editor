@@ -1,4 +1,4 @@
-import React, {FC, ReactNode, useCallback, useContext} from "react";
+import React, {FC, memo, ReactNode, useCallback, useContext} from "react";
 import {Track} from "../../timeline/Track";
 import {EditorPath} from "../../../types/Editor";
 import {TreeBlock} from "../track-elements/TreeBlock";
@@ -14,7 +14,7 @@ export interface ColorTrackProps {
     children: ReactNode
     path: EditorPath
 }
-export const ColorTrack: FC<ColorTrackProps> = ({value, children, path}) => {
+export const ColorTrack: FC<ColorTrackProps> = memo(({value, children, path}) => {
     const color = parseColor(value, null);
     const {dispatch} = useContext(TrackContext);
     const onChange = useCallback((value) => {
@@ -31,4 +31,4 @@ export const ColorTrack: FC<ColorTrackProps> = ({value, children, path}) => {
             </TimelineBlock>
         </Track>
     );
-}
+})

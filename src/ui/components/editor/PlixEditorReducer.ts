@@ -33,8 +33,15 @@ export const PlixEditorReducer: Reducer<PlixEditorState, PlixEditorAction> = (st
             new EditHistoryItem(getWIthPath(state.track, toHistoryPath(state.track, action.path)), toHistoryPath(state.track, action.path), action.value)
         );
         case "push": return changeState(state, new PushHistoryItem(toHistoryPath(state.track, action.path), action.value));
+        case "deleteIndex": return changeState(
+            state,
+            new DeleteIndexHistoryItem(
+                getWIthPath(state.track, toHistoryPath(state.track, action.path))[action.index],
+                toHistoryPath(state.track, action.path),
+                action.index
+            )
+        );
     }
-    return state;
 }
 
 function undoState(state: PlixEditorState): PlixEditorState {
@@ -102,6 +109,7 @@ class EditHistoryItem<T> implements PlixEditorHistoryItem {
         return null;
     }
 }
+
 class PushHistoryItem<T> implements PlixEditorHistoryItem {
     public readonly timestamp: number;
 
@@ -116,6 +124,27 @@ class PushHistoryItem<T> implements PlixEditorHistoryItem {
     }
     revert(track: PlixJsonData){
         return popWIthPath(track, this.path);
+    }
+    merge() {
+        return null;
+    }
+}
+
+class DeleteIndexHistoryItem<T> implements PlixEditorHistoryItem {
+    public readonly timestamp: number;
+
+    constructor(
+        private readonly oldValue: T,
+        public readonly path: HistoryPath,
+        public readonly index: number,
+    ){
+        this.timestamp = performance.now();
+    }
+    apply(track: PlixJsonData){
+        return deleteIndexWIthPath(track, this.path, this.index);
+    }
+    revert(track: PlixJsonData){
+        return insertIndexValueWIthPath(track, this.path, this.index, this.oldValue);
     }
     merge() {
         return null;
@@ -161,6 +190,41 @@ function pushWIthPath<T>(state: T, path: HistoryPath, value: any){
     return reducePath(pushWIthPath, state, path, value);
 }
 
+function insertIndexValueWIthPath<T>(state: T, path: HistoryPath, index: number, value: any){
+    if (state === undefined) {
+        if (typeof path[0] === "string") state = {} as unknown as T;
+        if (typeof path[0] === "number") state = [] as unknown as T;
+    }
+    if (path.length === 0) {
+        if (Array.isArray(state)) {
+            const stateCopy = state.slice(0);
+            const arrayKeys = settleKeys(state).slice(0);
+            stateCopy.splice(index, 0, value);
+            arrayKeys.splice(index, 0, generateKeyId());
+            return stateCopy;
+        }
+        return state;
+    }
+    return reducePath(insertIndexValueWIthPath, state, path, index, value);
+}
+
+function deleteIndexWIthPath<T>(state: T, path: HistoryPath, index: number){
+    if (state === undefined) return;
+    if (path.length === 0) {
+        if (Array.isArray(state)) {
+            if (state.length <= index) return state;
+            const stateCopy = state.slice(0);
+            const arrayKeys = settleKeys(state).slice(0);
+            stateCopy.splice(index, 1);
+            arrayKeys.splice(index, 1);
+            keyMap.set(stateCopy, arrayKeys);
+            return stateCopy;
+        }
+        return state;
+    }
+    return reducePath(deleteIndexWIthPath, state, path, index);
+}
+
 function popWIthPath<T>(state: T, path: HistoryPath){
     if (path[0] === undefined) {
         if (Array.isArray(state)) {
@@ -172,14 +236,14 @@ function popWIthPath<T>(state: T, path: HistoryPath){
         }
         return state;
     }
-    return reducePath(popWIthPath, state, path, null);
+    return reducePath(popWIthPath, state, path);
 }
 
-function reducePath<T>(handler: <C>(state: C, path: HistoryPath, value: any) => C, state: T, [pathKey, ...path]: HistoryPath, value: any){
+function reducePath<T, A extends any[]>(handler: <C>(state: C, path: HistoryPath, ...args: A) => C, state: T, [pathKey, ...path]: HistoryPath, ...args: A){
     if (Array.isArray(state)) {
         const index = Number(pathKey);
         const nextState = state[index];
-        const editedNextState = handler(nextState, path, value);
+        const editedNextState = handler(nextState, path, ...args);
         if (nextState === editedNextState) return state;
         const arrayKeys = keyMap.get(state);
         const dummy = Array.from({length: Math.max(state.length, index+1)})
@@ -190,11 +254,15 @@ function reducePath<T>(handler: <C>(state: C, path: HistoryPath, value: any) => 
     if (typeof state === "object") {
         const key = String(pathKey);
         const nextState = state[key];
-        const editedNextState = handler(nextState, path, value);
+        const editedNextState = handler(nextState, path, ...args);
         if (nextState === editedNextState) return state;
+        if (editedNextState === undefined) {
+            const {[key]: ignored, ...stateWithNoKey} = state as any;
+            return stateWithNoKey;
+        }
         return {...state, [key]: editedNextState};
     }
-    return handler(null, path, value);
+    return handler(null, path, ...args);
 }
 
 function pathIsEqual(path1: HistoryPath, path2: HistoryPath): boolean{

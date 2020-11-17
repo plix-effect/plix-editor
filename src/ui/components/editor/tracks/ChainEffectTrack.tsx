@@ -1,23 +1,19 @@
-import React, {FC, ReactNode, useCallback, useContext, Fragment, useMemo} from "react";
+import React, {FC, ReactNode, useCallback, useContext, Fragment, useMemo, memo} from "react";
 import {Track} from "../../timeline/Track";
-import {TrackAccord} from "../../timeline/TrackAccord";
-import {
-    PlixEffectAliasJsonData,
-    PlixEffectConfigurableJsonData,
-    PlixEffectJsonData
-} from "@plix-effect/core/types/parser";
+import {PlixEffectConfigurableJsonData} from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {TrackContext} from "../TrackContext";
 import {ParseMeta} from "../../../types/ParseMeta";
 import {ValueTrack} from "./ValueTrack";
-
-import "./tracks.scss"
 import {useExpander} from "../track-elements/Expander";
 import {getArrayKey} from "../../../utils/KeyManager";
-import {TimelineEditor} from "./editor/timeline/TimelineEditor";
 import {PushValueAction} from "../PlixEditorReducerActions";
+
+import "./tracks.scss"
+import {ArrayTrack} from "./ArrayTrack";
+import {ArrayElementsTrack} from "./ArrayElementsTrack";
 
 export interface ChainEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
@@ -25,10 +21,11 @@ export interface ChainEffectTrackProps {
     baseExpanded?: boolean,
     children: ReactNode,
 }
-export const ChainEffectTrack: FC<ChainEffectTrackProps> = ({effect: [enabled, effectId, params, filters], path, baseExpanded, children}) => {
+export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo(({effect: [enabled, effectId, params, filters], path, baseExpanded, children}) => {
     const [expanded, expander, changeExpanded] = useExpander(baseExpanded);
 
     const paramEffects = useMemo(() => params[0] || [], [params]);
+    const paramEffectsPath = useMemo(() => [...path, 2, 0], [path]);
 
     const {effectConstructorMap} = useContext(TrackContext);
     const effectData = useMemo(() => {
@@ -70,7 +67,7 @@ export const ChainEffectTrack: FC<ChainEffectTrackProps> = ({effect: [enabled, e
     }, [path])
 
     return (
-        <Track>
+        <Track nested expanded={expanded}>
             <TreeBlock>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
@@ -82,27 +79,17 @@ export const ChainEffectTrack: FC<ChainEffectTrackProps> = ({effect: [enabled, e
             <TimelineBlock fixed>
                <a onClick={push}>[add effect]</a>
             </TimelineBlock>
-            <TrackAccord expanded={expanded}>
-                <Fragment key="effects">
-                    {effectsListData.map(({key, value, path, index}) => {
-                        return (
-                            <ValueTrack key={"ee_"+key} type="effect" value={value} path={path}>
-                                [{index}]
-                            </ValueTrack>
-                        )
-                    })}
-                </Fragment>
-                <Fragment key="params">
-                    {effectData.paramDescriptions.map((paramDesc) => (
-                        <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={"ep_"+paramDesc.name} description={paramDesc.description}>
-                            {paramDesc.name}
-                        </ValueTrack>
-                    ))}
-                </Fragment>
-                <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" key="filters">
-                    Filters
+            <ArrayElementsTrack value={paramEffects} type="effect" path={paramEffectsPath}/>
+
+            {effectData.paramDescriptions.map((paramDesc) => (
+                <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description}>
+                    {paramDesc.name}
                 </ValueTrack>
-            </TrackAccord>
+            ))}
+
+            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" key="filters">
+                Filters
+            </ValueTrack>
         </Track>
     )
-}
+})

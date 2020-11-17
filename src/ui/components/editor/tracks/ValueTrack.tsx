@@ -1,7 +1,4 @@
-import React, {FC, ReactNode, useCallback, useState} from "react";
-import {Track} from "../../timeline/Track";
-import {TrackAccord} from "../../timeline/TrackAccord";
-import {PlixEffectJsonData} from "@plix-effect/core/types/parser";
+import React, {FC, memo, ReactNode} from "react";
 import {EditorPath} from "../../../types/Editor";
 import {FilterTrack} from "./FilterTrack";
 import {ValueUnknownTrack} from "./ValueUnknownTrack";
@@ -16,7 +13,7 @@ export interface ValueTrackProps {
     description?: ReactNode
     path: EditorPath
 }
-export const ValueTrack: FC<ValueTrackProps> = ({type, value, description, children, path}) => {
+export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, children, path}) => {
     if (type.startsWith("array:")) {
         return (
             <ArrayTrack path={path} value={value} type={type.substring(6)}>
@@ -49,4 +46,4 @@ export const ValueTrack: FC<ValueTrackProps> = ({type, value, description, child
     return <ValueUnknownTrack value={value} path={path} >
         <span>{children}</span>
     </ValueUnknownTrack>
-}
+});
