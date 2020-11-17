@@ -154,7 +154,7 @@ const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, effect: [enabled ,
                 <span className="track-description _link">{link}</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                <span className="track-description ">
+                <span className="track-description _desc">
                     use alias <span className="track-description _link">{link}</span>
                 </span>
             </TimelineBlock>
@@ -207,7 +207,7 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, ef
                 <span className="track-description _type">{effectData.name}</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                <span className="track-description ">
+                <span className="track-description _desc">
                     {effectData.description}
                 </span>
             </TimelineBlock>

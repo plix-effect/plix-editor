@@ -1,5 +1,7 @@
 @import "../../style/variables";
 
+$nested-margin-bottom: 8px;
+
 .track-left-block {
     display: block;
     position: relative;
@@ -9,6 +11,7 @@
     &._nested {
         padding-left: $tree-padding/2;
         margin-left: $tree-padding/2;
+        margin-bottom: $nested-margin-bottom;
         &::before {
             position: absolute;
             top: -1px;
@@ -19,7 +22,6 @@
             border-left: 1px solid #444;
             border-bottom: 1px solid #444;
             content: "";
-
         }
         &:hover::before {
             border-left: 1px solid #884;
@@ -30,10 +32,20 @@
 
 .track-right-block {
     display: block;
+    position: relative;
     &._collapsed {
         display: none;
     }
     &._nested {
-
+        margin-bottom: $nested-margin-bottom;
+        &::before {
+            position: absolute;
+            width: 100%;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            border-bottom: 1px solid #444;
+            content: "";
+        }
     }
 }

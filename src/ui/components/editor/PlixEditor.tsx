@@ -58,14 +58,15 @@ export const PlixEditor: FC = () => {
 
     return (
         <div className="plix-editor">
+            <TrackContext.Provider value={trackContextValue}>
             <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
-                <TrackContext.Provider value={trackContextValue}>
+
                     <ScaleDisplayContext.Provider value={scaleDisplayContextValue}>
                         <TrackEditor />
                     </ScaleDisplayContext.Provider>
-                </TrackContext.Provider>
                 <div>LIBS AND CANVAS</div>
             </SplitTopBottom>
+            </TrackContext.Provider>
         </div>
     )
 }
