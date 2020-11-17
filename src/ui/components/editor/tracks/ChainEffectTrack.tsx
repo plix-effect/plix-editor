@@ -14,16 +14,30 @@ import {PushValueAction} from "../PlixEditorReducerActions";
 import "./tracks.scss"
 import {ArrayTrack} from "./ArrayTrack";
 import {ArrayElementsTrack} from "./ArrayElementsTrack";
+import {EffectEditor} from "./editor/EffectEditor";
+import {EffectTypeTrack} from "./EffectTypeTrack";
 
 export interface ChainEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
     path: EditorPath,
-    baseExpanded?: boolean,
+    changeExpanded: () => void,
+    expanded: boolean,
+    expander: ReactNode,
     children: ReactNode,
+    onChange: (type: null|"alias"|"constructor", value?: string) => void,
 }
-export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo(({effect: [enabled, effectId, params, filters], path, baseExpanded, children}) => {
-    const [expanded, expander, changeExpanded] = useExpander(baseExpanded);
-
+export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo((
+    {
+        effect,
+        effect: [enabled, effectId, params, filters],
+        path,
+        expanded,
+        expander,
+        changeExpanded,
+        children,
+        onChange,
+    }
+) => {
     const paramEffects = useMemo(() => params[0] || [], [params]);
     const paramEffectsPath = useMemo(() => [...path, 2, 0], [path]);
 
@@ -77,9 +91,21 @@ export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo(({effect: [enabl
                 <span className="track-description _desc">({paramEffects.length})</span>
             </TreeBlock>
             <TimelineBlock fixed>
-               <a onClick={push}>[add effect]</a>
+                {effectData.description}
             </TimelineBlock>
+
+            <EffectTypeTrack onChange={onChange} effect={effect} />
+
             <ArrayElementsTrack value={paramEffects} type="effect" path={paramEffectsPath}/>
+
+            <Track>
+                <TreeBlock type="description">
+                    <a onClick={push}>[add effect]</a>
+                </TreeBlock>
+                <TimelineBlock fixed type="description">
+
+                </TimelineBlock>
+            </Track>
 
             {effectData.paramDescriptions.map((paramDesc) => (
                 <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description}>

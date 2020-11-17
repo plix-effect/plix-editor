@@ -19,6 +19,7 @@ import {TimelineEffectTrack} from "./TimelineEffectTrack";
 import {ChainEffectTrack} from "./ChainEffectTrack";
 import {EffectEditor} from "./editor/EffectEditor";
 import {EditValueAction} from "../PlixEditorReducerActions";
+import {EffectTypeTrack} from "./EffectTypeTrack";
 
 export interface EffectTrackProps {
     effect: PlixEffectJsonData,
@@ -51,7 +52,15 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
         return dispatch(EditValueAction(path, templateEffect));
     }, [effect, dispatch]);
 
-    if (!effect) return <NoEffectTrack onChange={onChangeEffect} path={path}>{children}</NoEffectTrack>
+    if (!effect) return (
+        <NoEffectTrack
+            onChange={onChangeEffect}
+            path={path}
+            expanded={expanded}
+            expander={expander}
+            changeExpanded={changeExpanded}
+        >{children}</NoEffectTrack>
+    )
     if (effect[1] === null) return (
         <AliasEffectTrack
             path={path}
@@ -67,7 +76,15 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
         <TimelineEffectTrack effect={effect as PlixEffectConfigurableJsonData} path={path} children={children} baseExpanded={baseExpanded}/>
     )
     if (effect[1] === "Chain") return (
-        <ChainEffectTrack effect={effect as PlixEffectConfigurableJsonData} path={path} children={children} baseExpanded={baseExpanded}/>
+        <ChainEffectTrack
+            effect={effect as PlixEffectConfigurableJsonData}
+            path={path}
+            children={children}
+            expanded={expanded}
+            expander={expander}
+            onChange={onChangeEffect}
+            changeExpanded={changeExpanded}
+        />
     )
     return <ConfigurableEffectTrack
         path={path}
@@ -86,21 +103,27 @@ export interface NoEffectTrackProps {
     path: EditorPath,
     children: ReactNode,
     onChange: (type: null|"alias"|"constructor", value?: string) => void,
+    changeExpanded: () => void,
+    expanded: boolean,
+    expander: ReactNode;
 }
-const NoEffectTrack: FC<NoEffectTrackProps> = ({children, onChange}) => {
+const NoEffectTrack: FC<NoEffectTrackProps> = memo(({children, onChange, expanded, expander, changeExpanded}) => {
     return (
-        <Track>
+        <Track nested expanded={expanded}>
             <TreeBlock>
-                {children} <span className="track-description _empty">empty</span>
+                {expander}
+                <span className="track-description" onClick={changeExpanded}>{children}</span>
+                {" "}
+                <span className="track-description _empty">empty</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                <span className="track-description">
-                    <EffectEditor onChange={onChange} effect={null} />
-                </span>
             </TimelineBlock>
+
+            <EffectTypeTrack onChange={onChange} effect={null} />
+
         </Track>
-    )
-}
+    );
+});
 
 interface AliasEffectTrackProps {
     effect: PlixEffectAliasJsonData
@@ -124,9 +147,12 @@ const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, effect: [enabled ,
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description ">
-                    <EffectEditor onChange={onChange} effect={effect} />
+                    use alias <span className="track-description _link">{link}</span>
                 </span>
             </TimelineBlock>
+
+            <EffectTypeTrack onChange={onChange} effect={effect} />
+
             <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect">
                 Filters
             </ValueTrack>
@@ -174,25 +200,20 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, ef
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description ">
-                    <EffectEditor onChange={onChange} effect={effect} />
+                    {effectData.description}
                 </span>
             </TimelineBlock>
-            {params.length > 0 && (
-                <>
-                    <Track>
-                        <TreeBlock type="description">description</TreeBlock>
-                        <TimelineBlock fixed type="description">{effectData.description}</TimelineBlock>
-                    </Track>
-                    {effectData.paramDescriptions.map((paramDesc) => (
-                        <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description}>
-                            {paramDesc.name}
-                        </ValueTrack>
-                    ))}
-                    <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect">
-                        Filters
-                    </ValueTrack>
-                </>
-            )}
+
+            <EffectTypeTrack onChange={onChange} effect={effect} />
+
+            {effectData.paramDescriptions.map((paramDesc) => (
+                <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description}>
+                    {paramDesc.name}
+                </ValueTrack>
+            ))}
+            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect">
+                Filters
+            </ValueTrack>
         </Track>
     )
 }

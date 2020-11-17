@@ -49,15 +49,22 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
                 <span className="track-description" onClick={changeExpanded}>===Effects===</span>
             </TreeBlock>
             <TimelineBlock type="description" fixed>
-                Add new effect alias:
-                <input type="text" placeholder="new effect alias" value={name} onChange={onEditName} />
-                <button onClick={add} disabled={!name || name in effectsMap}>add</button>
+                effect prefabs
             </TimelineBlock>
             {aliasesList.map(alias => (
                 <EffectTrack effect={alias.value} path={alias.path} key={alias.name}>
                     <button className="btn _remove" onClick={alias.remove}>X</button> {alias.name}
                 </EffectTrack>
             ))}
+            <Track>
+                <TreeBlock type="description">
+                </TreeBlock>
+                <TimelineBlock fixed type="description">
+                    Add new effect prefab:
+                    <input type="text" placeholder="prefab name" value={name} onChange={onEditName} />
+                    <button onClick={add} disabled={!name || name in effectsMap}>add</button>
+                </TimelineBlock>
+            </Track>
         </Track>
     )
 });

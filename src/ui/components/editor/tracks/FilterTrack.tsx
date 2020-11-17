@@ -1,33 +1,60 @@
 import React, {FC, memo, ReactNode, useCallback, useContext, useMemo, useState} from "react";
 import {Track} from "../../timeline/Track";
 import {
-    PlixEffectJsonData,
+    PlixFilterJsonData,
     PlixFilterAliasJsonData,
-    PlixFilterConfigurableJsonData,
-    PlixFilterEmptyJsonData,
-    PlixFilterJsonData
+    PlixFilterConfigurableJsonData
 } from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
-import {ArrayTrack} from "./ArrayTrack";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 
-import "./tracks.scss";
 import {TrackContext} from "../TrackContext";
 import {ParseMeta} from "../../../types/ParseMeta";
 import {ValueTrack} from "./ValueTrack";
 import {useExpander} from "../track-elements/Expander";
 import {getArrayKey} from "../../../utils/KeyManager";
+import {EditValueAction} from "../PlixEditorReducerActions";
+import {FilterTypeTrack} from "./FilterTypeTrack";
+import "./tracks.scss";
 
 export interface FilterTrackProps {
     filter: PlixFilterJsonData,
     path: EditorPath,
-    children: ReactNode
+    children: ReactNode,
 }
 export const FilterTrack: FC<FilterTrackProps> = memo(({filter, path, children}) => {
     const [expanded, expander, changeExpanded] = useExpander(false);
 
-    if (!filter) return <NoFilterTrack path={path}>{children}</NoFilterTrack>
+    const {filterConstructorMap} = useContext(TrackContext);
+    const {dispatch} = useContext(TrackContext);
+    const onChangeFilter = useCallback((type: null|"alias"|"constructor", value?: string) => {
+        if (!type) {
+            return dispatch(EditValueAction(path, null));
+        }
+        const templateFilter = filter ? filter.slice(0) : [true, null, []];
+        if (type === "alias") {
+            templateFilter[1] = null;
+            templateFilter[2] = value;
+        }
+        if (type === "constructor") {
+            templateFilter[1] = value;
+            console.log("filterConstructorMap", filterConstructorMap, value);
+            const filterConstructor = filterConstructorMap[value];
+            console.log("filterConstructor", filterConstructor);
+            const meta: ParseMeta = filterConstructor['meta'];
+            templateFilter[2] = meta.defaultValues;
+        }
+        return dispatch(EditValueAction(path, templateFilter));
+    }, [filter, dispatch]);
+
+    if (!filter) return <NoFilterTrack
+        onChange={onChangeFilter}
+        path={path}
+        expanded={expanded}
+        expander={expander}
+        changeExpanded={changeExpanded}
+    >{children}</NoFilterTrack>
     if (filter[1] === null) return (
         <AliasFilterTrack
             path={path}
@@ -36,6 +63,7 @@ export const FilterTrack: FC<FilterTrackProps> = memo(({filter, path, children})
             changeExpanded={changeExpanded}
             filter={filter as PlixFilterAliasJsonData}
             children={children}
+            onChange={onChangeFilter}
         />
     );
     return <ConfigurableFilterTrack
@@ -45,25 +73,34 @@ export const FilterTrack: FC<FilterTrackProps> = memo(({filter, path, children})
         expander={expander}
         filter={filter as PlixFilterConfigurableJsonData}
         children={children}
+        onChange={onChangeFilter}
     />
 })
 
 export interface NoFilterTrackProps {
     path: EditorPath,
-    children: ReactNode
+    children: ReactNode,
+    onChange: (type: null|"alias"|"constructor", value?: string) => void,
+    changeExpanded: () => void,
+    expanded: boolean,
+    expander: ReactNode;
 }
-const NoFilterTrack: FC<NoFilterTrackProps> = ({children}) => {
+const NoFilterTrack: FC<NoFilterTrackProps> = memo(({children, expanded, expander, changeExpanded, onChange}) => {
     return (
-        <Track>
+        <Track nested expanded={expanded}>
             <TreeBlock>
-                {children} <span className="track-description _empty">empty</span>
+                {expander}
+                <span className="track-description" onClick={changeExpanded}>{children}</span>
+                {" "}
+                <span className="track-description _empty">empty</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                <span className="track-description _empty">empty</span>
             </TimelineBlock>
+
+            <FilterTypeTrack filter={null} onChange={onChange}/>
         </Track>
     )
-}
+});
 
 interface AliasFilterTrackProps {
     filter: PlixFilterAliasJsonData
@@ -72,23 +109,28 @@ interface AliasFilterTrackProps {
     expanded: boolean,
     changeExpanded: () => void,
     expander: ReactNode;
+    onChange: (type: null|"alias"|"constructor", value?: string) => void,
 }
-const AliasFilterTrack: FC<AliasFilterTrackProps> = ({filter: [enabled ,, link], children, changeExpanded, expanded, expander}) => {
+const AliasFilterTrack: FC<AliasFilterTrackProps> = memo(({filter, filter: [enabled ,, link], children, changeExpanded, expanded, expander, onChange}) => {
     return (
-        <Track>
+        <Track nested expanded={expanded}>
             <TreeBlock>
+                {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
                 {" "}
                 <span className="track-description _link">{link}</span>
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description ">
-                    use alias effect: <span className="track-description _link">{link}</span>
+                    use alias filter: <span className="track-description _link">{link}</span>
                 </span>
             </TimelineBlock>
+
+            <FilterTypeTrack filter={filter} onChange={onChange}/>
+
         </Track>
     )
-}
+});
 
 interface ConfigurableFilterTrackProps {
 
@@ -98,8 +140,9 @@ interface ConfigurableFilterTrackProps {
     expanded: boolean,
     changeExpanded: () => void
     expander: ReactNode;
+    onChange: (type: null|"alias"|"constructor", value?: string) => void,
 }
-const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = ({filter: [enabled, filterId, params], changeExpanded, children, path, expanded, expander}) => {
+const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = memo(({filter, filter: [enabled, filterId, params], changeExpanded, children, path, expanded, expander, onChange}) => {
     const {filterConstructorMap} = useContext(TrackContext);
     const filterData = useMemo(() => {
         const filterConstructor = filterConstructorMap[filterId];
@@ -127,13 +170,14 @@ const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = ({filter: [ena
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description ">
-                    <span className="track-description">--- edit filter</span>
+                    <span className="track-description _desc">
+                        {filterData.description}
+                    </span>
                 </span>
             </TimelineBlock>
-            <Track>
-                <TreeBlock type="description">description</TreeBlock>
-                <TimelineBlock fixed type="description">{filterData.description}</TimelineBlock>
-            </Track>
+
+            <FilterTypeTrack filter={filter} onChange={onChange}/>
+
             {filterData.paramDescriptions.map((paramDesc) => (
                 <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name}>
                     {paramDesc.name}
@@ -141,4 +185,4 @@ const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = ({filter: [ena
             ))}
         </Track>
     )
-}
+})

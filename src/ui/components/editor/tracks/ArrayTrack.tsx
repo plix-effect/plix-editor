@@ -9,6 +9,7 @@ import {useExpander} from "../track-elements/Expander";
 import {TrackContext} from "../TrackContext";
 import {DeleteIndexAction, EditValueAction, PushValueAction} from "../PlixEditorReducerActions";
 import {ArrayElementsTrack} from "./ArrayElementsTrack";
+import {EffectEditor} from "./editor/EffectEditor";
 
 export interface ArrayTrackProps {
     value: any[],
@@ -38,9 +39,19 @@ export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [na
                 <span className="track-description _desc">({value.length})</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                {desc} { valueToPush !== undefined && <a onClick={push}>[add {type}]</a> }
+                {desc}
             </TimelineBlock>
             <ArrayElementsTrack value={value} type={type} path={path}/>
+            { valueToPush !== undefined && (
+                <Track>
+                    <TreeBlock type="description">
+                        <a onClick={push}>[add {type}]</a>
+                    </TreeBlock>
+                    <TimelineBlock fixed type="description">
+
+                    </TimelineBlock>
+                </Track>
+            )}
         </Track>
     );
 })

@@ -48,15 +48,22 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
                 <span className="track-description" onClick={changeExpanded}>===Filters===</span>
             </TreeBlock>
             <TimelineBlock type="description" fixed>
-                Add new filter alias:
-                <input type="text" placeholder="new filter alias" value={name} onChange={onEditName} />
-                <button onClick={add} disabled={!name || name in filtersMap}>add</button>
+                filter prefabs
             </TimelineBlock>
             {aliasesList.map(alias => (
                 <FilterTrack filter={alias.value} path={alias.path} key={alias.name}>
                     <button className="btn _remove" onClick={alias.remove}>X</button> {alias.name}
                 </FilterTrack>
             ))}
+            <Track>
+                <TreeBlock type="description">
+                </TreeBlock>
+                <TimelineBlock fixed type="description">
+                    Add new filter prefab:
+                    <input type="text" placeholder="prefab name" value={name} onChange={onEditName} />
+                    <button onClick={add} disabled={!name || name in filtersMap}>add</button>
+                </TimelineBlock>
+            </Track>
         </Track>
     )
 });
