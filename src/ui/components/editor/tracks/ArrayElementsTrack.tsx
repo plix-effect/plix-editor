@@ -1,13 +1,10 @@
-import React, {FC, memo, ReactNode, useCallback, useContext, useMemo} from "react";
-import {Track} from "../../timeline/Track";
+import React, {FC, memo, Fragment, useContext, useMemo} from "react";
 import {EditorPath} from "../../../types/Editor";
 import {ValueTrack} from "./ValueTrack";
-import {TreeBlock} from "../track-elements/TreeBlock";
-import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {getArrayKey} from "../../../utils/KeyManager";
-import {useExpander} from "../track-elements/Expander";
 import {TrackContext} from "../TrackContext";
-import {DeleteIndexAction, EditValueAction, PushValueAction} from "../PlixEditorReducerActions";
+import {DeleteIndexAction} from "../PlixEditorReducerActions";
+import {Track} from "../../timeline/Track";
 
 export interface ArrayElementsTrackProps {
     value: any[],
@@ -31,12 +28,16 @@ export const ArrayElementsTrack: FC<ArrayElementsTrackProps> = memo(({value, typ
     }, [value, dispatch]);
 
     return (
-        valuesData.map(({key, value, path, index, remove}) => {
-            return (
-                <ValueTrack key={key} type={type} value={value} path={path}>
-                    <button className="btn _remove" onClick={remove}>X</button> [{index}]
-                </ValueTrack>
-            )
-        })
+        <Track>
+            {null}
+            {null}
+            {valuesData.map(({key, value, path, index, remove}) => {
+                return (
+                    <ValueTrack key={key} type={type} value={value} path={path}>
+                        <button className="btn _remove" onClick={remove}>X</button> [{index}]
+                    </ValueTrack>
+                )
+            })}
+        </Track>
     );
 })
