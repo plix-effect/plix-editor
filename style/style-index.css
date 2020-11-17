@@ -65,7 +65,8 @@ a:hover {
     display: none; }
   .track-left-block._nested {
     padding-left: 14px;
-    margin-left: 14px; }
+    margin-left: 14px;
+    margin-bottom: 8px; }
     .track-left-block._nested::before {
       position: absolute;
       top: -1px;
@@ -81,9 +82,20 @@ a:hover {
       border-bottom: 1px solid #884; }
 
 .track-right-block {
-  display: block; }
+  display: block;
+  position: relative; }
   .track-right-block._collapsed {
     display: none; }
+  .track-right-block._nested {
+    margin-bottom: 8px; }
+    .track-right-block._nested::before {
+      position: absolute;
+      width: 100%;
+      right: 0;
+      left: 0;
+      bottom: 0;
+      border-bottom: 1px solid #444;
+      content: ""; }
 
 .track-tree-block {
   box-sizing: border-box;

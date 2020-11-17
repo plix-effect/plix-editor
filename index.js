@@ -32725,11 +32725,11 @@ exports.PlixEditor = () => {
         dispatch,
     }), [track, duration, setDuration, zoom, setZoom, position, setPosition, dispatch]);
     return (react_1.default.createElement("div", { className: "plix-editor" },
-        react_1.default.createElement(SplitTopBottom_1.SplitTopBottom, { minTop: 100, minBottom: 200, storageKey: "s1" },
-            react_1.default.createElement(TrackContext_1.TrackContext.Provider, { value: trackContextValue },
+        react_1.default.createElement(TrackContext_1.TrackContext.Provider, { value: trackContextValue },
+            react_1.default.createElement(SplitTopBottom_1.SplitTopBottom, { minTop: 100, minBottom: 200, storageKey: "s1" },
                 react_1.default.createElement(ScaleDisplayContext_1.ScaleDisplayContext.Provider, { value: scaleDisplayContextValue },
-                    react_1.default.createElement(TrackEditor_1.TrackEditor, null))),
-            react_1.default.createElement("div", null, "LIBS AND CANVAS"))));
+                    react_1.default.createElement(TrackEditor_1.TrackEditor, null)),
+                react_1.default.createElement("div", null, "LIBS AND CANVAS")))));
 };
 
 
@@ -33811,7 +33811,7 @@ const AliasEffectTrack = ({ effect, effect: [enabled, , link, filters], path, ch
             " ",
             react_1.default.createElement("span", { className: "track-description _link" }, link)),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
-            react_1.default.createElement("span", { className: "track-description " },
+            react_1.default.createElement("span", { className: "track-description _desc" },
                 "use alias ",
                 react_1.default.createElement("span", { className: "track-description _link" }, link))),
         react_1.default.createElement(EffectTypeTrack_1.EffectTypeTrack, { onChange: onChange, effect: effect }),
@@ -33844,7 +33844,7 @@ const ConfigurableEffectTrack = ({ onChange, effect, effect: [enabled, effectId,
             " ",
             react_1.default.createElement("span", { className: "track-description _type" }, effectData.name)),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
-            react_1.default.createElement("span", { className: "track-description " }, effectData.description)),
+            react_1.default.createElement("span", { className: "track-description _desc" }, effectData.description)),
         react_1.default.createElement(EffectTypeTrack_1.EffectTypeTrack, { onChange: onChange, effect: effect }),
         effectData.paramDescriptions.map((paramDesc) => (react_1.default.createElement(ValueTrack_1.ValueTrack, { value: paramDesc.value, type: paramDesc.type, path: paramDesc.path, key: paramDesc.name, description: paramDesc.description }, paramDesc.name))),
         react_1.default.createElement(ValueTrack_1.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect" }, "Filters")));
