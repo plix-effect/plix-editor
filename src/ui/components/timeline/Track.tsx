@@ -20,7 +20,7 @@ export const Track: FC<TrackProps> = memo((
     const lastChild = useRef<ReactNode[]>([]);
 
     const child = useMemo<ReactNode[]>(() => {
-        const flatChildren = settleKeys(childList);
+        const flatChildren = settleKeys(childList, "k-");
         if (childrenIsEqual(lastChild.current, flatChildren)) return lastChild.current;
         lastChild.current = flatChildren;
         return lastChild.current;
@@ -107,7 +107,7 @@ const RefUpdate:FC<RefUpdateProps> = memo(({index, updateRef}) => {
         updateRef(ref, index);
     }, [updateRef, index]);
     return (
-        <div className="track_portal" ref={updateRefCb} title={"R"+index} />
+        <div className="track_portal" ref={updateRefCb} />
     );
 })
 
@@ -116,13 +116,15 @@ function canShowNode(node: ReactNode){
     return typeof node !== "boolean";
 }
 
-function settleKeys(nodes: ReactNode[], startKey = ""): ReactNode[] {
+function settleKeys(nodes: ReactNode[], startKey = "xx"): ReactNode[] {
     return nodes.filter(canShowNode).flatMap((node, index) => {
-        const key = startKey + ":" + (node?.["key"] ?? index);
+
         if (Array.isArray(node)) {
-            return settleKeys(node, key);
+            return settleKeys(node, startKey+":A_"+index);
         }
-        return <Fragment key={key}>{node}</Fragment>
+        const currentKey = node?.["key"] ? "K_"+node?.["key"] : "I_"+index;
+        const key = startKey + ":" + currentKey;
+        return [<Fragment key={key}>{node}</Fragment>]
     });
 }
 
@@ -138,7 +140,7 @@ function childrenIsEqual(a?: ReactNode[], b?:ReactNode[]) {
 }
 
 function nodeIsEqual(a: ReactNode, b: ReactNode){
-    if (a === b) return true;
+    // if (a === b) return true;
     // if (typeof a === "object" && typeof b === "object") {
     //     return true;
     // }
