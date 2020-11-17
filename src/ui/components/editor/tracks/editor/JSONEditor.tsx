@@ -39,7 +39,7 @@ export const JSONEditor: FC<JSONEditorProps> = ({value, onChange}) => {
     if (editMode) return (
         <form onSubmit={onSubmit}>
             <input type="submit" value="OK"/>
-            <input ref={inputRef} value={inputValue}  onChange={onChangeInput}/>
+            <input ref={inputRef} value={inputValue} autoFocus={true} onChange={onChangeInput}/>
         </form>
     );
 

@@ -73,7 +73,15 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
         />
     );
     if (effect[1] === "Timeline") return (
-        <TimelineEffectTrack effect={effect as PlixEffectConfigurableJsonData} path={path} children={children} baseExpanded={baseExpanded}/>
+        <TimelineEffectTrack
+            effect={effect as PlixEffectConfigurableJsonData}
+            onChange={onChangeEffect}
+            path={path}
+            children={children}
+            expanded={expanded}
+            expander={expander}
+            changeExpanded={changeExpanded}
+        />
     )
     if (effect[1] === "Chain") return (
         <ChainEffectTrack

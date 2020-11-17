@@ -1,4 +1,4 @@
-import React, {FC, memo, ReactNode} from "react";
+import React, {FC, memo, ReactNode, useContext, useMemo} from "react";
 import {Track} from "../../timeline/Track";
 import {PlixEffectConfigurableJsonData} from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
@@ -8,27 +8,44 @@ import {TimelineBlock} from "../track-elements/TimelineBlock";
 import "./tracks.scss"
 import {useExpander} from "../track-elements/Expander";
 import {TimelineEditor} from "./editor/timeline/TimelineEditor";
+import {EffectTypeTrack} from "./EffectTypeTrack";
+import {ValueTrack} from "./ValueTrack";
+import {TrackContext} from "../TrackContext";
+import {ParseMeta} from "../../../types/ParseMeta";
 
 export interface TimelineEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
     path: EditorPath,
-    baseExpanded?: boolean,
     children: ReactNode,
+    onChange: (type: null|"alias"|"constructor", value?: string) => void,
+    changeExpanded: () => void,
+    expanded: boolean,
+    expander: ReactNode;
 }
-export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, path, baseExpanded, children}) => {
-    const [expanded, expander, changeExpanded] = useExpander(baseExpanded);
+export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, effect: [enabled, effectId, params, filters], path, children, onChange, changeExpanded, expanded, expander}) => {
+
+    const filtersPath = useMemo(() => [...path, 3], [path]);
+    const valueFilters = useMemo(() => filters ?? [], [filters]);
+    const {effectConstructorMap} = useContext(TrackContext);
+    const timelineConstructorMeta = useMemo<ParseMeta>(() => effectConstructorMap['Timeline']['meta'], [effectConstructorMap]);
 
     return (
-        <Track>
+        <Track nested expanded={expanded}>
             <TreeBlock>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
                 {" "}
-                <span className="track-description _type">TIMELINE</span>
+                <span className="track-description _type">{timelineConstructorMeta.name}</span>
             </TreeBlock>
             <TimelineBlock>
                 <TimelineEditor effect={effect} onChange={() => {}} />
             </TimelineBlock>
+
+            <EffectTypeTrack onChange={onChange} effect={effect} />
+
+            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect">
+                Filters
+            </ValueTrack>
         </Track>
     )
 })
