@@ -69,7 +69,7 @@ a:hover {
     .track-left-block._nested::before {
       position: absolute;
       top: -1px;
-      width: 32px;
+      width: 100%;
       left: 0;
       bottom: 0;
       border-bottom-left-radius: 4px;
@@ -134,22 +134,6 @@ a:hover {
   .track-timeline-block._description {
     height: 23px; }
 
-.track-description {
-  cursor: pointer;
-  user-select: none; }
-  .track-description._empty {
-    color: #888;
-    cursor: auto; }
-  .track-description._link {
-    color: #88f;
-    cursor: pointer; }
-  .track-description._type {
-    color: #bbb;
-    cursor: auto; }
-  .track-description._desc {
-    color: #888;
-    cursor: auto; }
-
 .track-expander {
   width: 20px;
   height: 100%;
@@ -192,6 +176,22 @@ input[type="color"].full-size-color-picker {
     padding: 0; }
   input[type="color"].full-size-color-picker::-webkit-color-swatch {
     border: none; }
+
+.track-description {
+  cursor: pointer;
+  user-select: none; }
+  .track-description._empty {
+    color: #888;
+    cursor: auto; }
+  .track-description._link {
+    color: #88f;
+    cursor: pointer; }
+  .track-description._type {
+    color: #bbb;
+    cursor: auto; }
+  .track-description._desc {
+    color: #888;
+    cursor: auto; }
 
 .split-tl {
   width: 100%;
