@@ -33786,7 +33786,7 @@ exports.EffectTrack = react_1.memo(({ effect, path, baseExpanded, children }) =>
     if (effect[1] === null)
         return (react_1.default.createElement(AliasEffectTrack, { path: path, onChange: onChangeEffect, expanded: expanded, expander: expander, changeExpanded: changeExpanded, effect: effect, children: children }));
     if (effect[1] === "Timeline")
-        return (react_1.default.createElement(TimelineEffectTrack_1.TimelineEffectTrack, { effect: effect, path: path, children: children, baseExpanded: baseExpanded }));
+        return (react_1.default.createElement(TimelineEffectTrack_1.TimelineEffectTrack, { effect: effect, onChange: onChangeEffect, path: path, children: children, expanded: expanded, expander: expander, changeExpanded: changeExpanded }));
     if (effect[1] === "Chain")
         return (react_1.default.createElement(ChainEffectTrack_1.ChainEffectTrack, { effect: effect, path: path, children: children, expanded: expanded, expander: expander, onChange: onChangeEffect, changeExpanded: changeExpanded }));
     return react_1.default.createElement(ConfigurableEffectTrack, { path: path, onChange: onChangeEffect, expanded: expanded, expander: expander, changeExpanded: changeExpanded, effect: effect, children: children });
@@ -34299,18 +34299,25 @@ const Track_1 = __webpack_require__(/*! ../../timeline/Track */ "./src/ui/compon
 const TreeBlock_1 = __webpack_require__(/*! ../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
 const TimelineBlock_1 = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
 __webpack_require__(/*! ./tracks.scss */ "./src/ui/components/editor/tracks/tracks.scss");
-const Expander_1 = __webpack_require__(/*! ../track-elements/Expander */ "./src/ui/components/editor/track-elements/Expander.tsx");
 const TimelineEditor_1 = __webpack_require__(/*! ./editor/timeline/TimelineEditor */ "./src/ui/components/editor/tracks/editor/timeline/TimelineEditor.tsx");
-exports.TimelineEffectTrack = react_1.memo(({ effect, path, baseExpanded, children }) => {
-    const [expanded, expander, changeExpanded] = Expander_1.useExpander(baseExpanded);
-    return (react_1.default.createElement(Track_1.Track, null,
+const EffectTypeTrack_1 = __webpack_require__(/*! ./EffectTypeTrack */ "./src/ui/components/editor/tracks/EffectTypeTrack.tsx");
+const ValueTrack_1 = __webpack_require__(/*! ./ValueTrack */ "./src/ui/components/editor/tracks/ValueTrack.tsx");
+const TrackContext_1 = __webpack_require__(/*! ../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+exports.TimelineEffectTrack = react_1.memo(({ effect, effect: [enabled, effectId, params, filters], path, children, onChange, changeExpanded, expanded, expander }) => {
+    const filtersPath = react_1.useMemo(() => [...path, 3], [path]);
+    const valueFilters = react_1.useMemo(() => filters !== null && filters !== void 0 ? filters : [], [filters]);
+    const { effectConstructorMap } = react_1.useContext(TrackContext_1.TrackContext);
+    const timelineConstructorMeta = react_1.useMemo(() => effectConstructorMap['Timeline']['meta'], [effectConstructorMap]);
+    return (react_1.default.createElement(Track_1.Track, { nested: true, expanded: expanded },
         react_1.default.createElement(TreeBlock_1.TreeBlock, null,
             expander,
             react_1.default.createElement("span", { className: "track-description", onClick: changeExpanded }, children),
             " ",
-            react_1.default.createElement("span", { className: "track-description _type" }, "TIMELINE")),
+            react_1.default.createElement("span", { className: "track-description _type" }, timelineConstructorMeta.name)),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, null,
-            react_1.default.createElement(TimelineEditor_1.TimelineEditor, { effect: effect, onChange: () => { } }))));
+            react_1.default.createElement(TimelineEditor_1.TimelineEditor, { effect: effect, onChange: () => { } })),
+        react_1.default.createElement(EffectTypeTrack_1.EffectTypeTrack, { onChange: onChange, effect: effect }),
+        react_1.default.createElement(ValueTrack_1.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect" }, "Filters")));
 });
 
 
@@ -34732,7 +34739,7 @@ exports.JSONEditor = ({ value, onChange }) => {
     if (editMode)
         return (react_1.default.createElement("form", { onSubmit: onSubmit },
             react_1.default.createElement("input", { type: "submit", value: "OK" }),
-            react_1.default.createElement("input", { ref: inputRef, value: inputValue, onChange: onChangeInput })));
+            react_1.default.createElement("input", { ref: inputRef, value: inputValue, autoFocus: true, onChange: onChangeInput })));
     return (react_1.default.createElement(react_1.default.Fragment, null,
         react_1.default.createElement("input", { type: "button", value: "EDIT", onClick: changeEdit }),
         JSON.stringify(value)));
@@ -34802,7 +34809,7 @@ exports.TimelineEditor = ({ effect, onChange }) => {
     if (editMode)
         return (react_1.default.createElement("form", { onSubmit: onSubmit },
             react_1.default.createElement("input", { type: "submit", value: "OK" }),
-            react_1.default.createElement("input", { ref: inputRef, value: inputValue, onChange: onChangeInput })));
+            react_1.default.createElement("input", { ref: inputRef, value: inputValue, autoFocus: true, onChange: onChangeInput })));
     return (react_1.default.createElement(react_1.default.Fragment, null,
         react_1.default.createElement("input", { type: "button", value: "EDIT", onClick: changeEdit }),
         JSON.stringify(effect)));
