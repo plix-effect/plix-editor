@@ -10,37 +10,44 @@ export interface TimelineEditorGridProps {
     offset: number
 }
 export const TimelineEditorGrid: FC<TimelineEditorGridProps> = memo(({cycle, grid, offset}) => {
-    const {trackWidth, zoom} = useContext(ScaleDisplayContext);
+    const {trackWidth, zoom, duration} = useContext(ScaleDisplayContext);
     const offsetPx = zoom*offset;
     const cycleWidth = cycle * zoom;
     const cycleCount = Math.ceil((trackWidth - offsetPx) / cycleWidth);
     if (cycleCount <= 0) return null;
-    const gridWidth = cycleWidth/grid;
+    const showOffset = offsetPx >= 1;
+    const showCycle = cycleWidth >= MIN_GRID_SIZE;
+    const showGrid = cycleWidth/grid >= MIN_GRID_SIZE;
 
-    return useMemo(() => (
-        <Fragment>
-            {offsetPx >= 1 && (
-                <div
-                    className="timeline-editor-grid-offset"
-                    style={{width: offsetPx}}
-                >
-                    {offset}ms
-                </div>
-            )}
-            {cycleWidth >= MIN_GRID_SIZE && Array.from({length: cycleCount}).map((_, i) => {
-                return (
+    return useMemo(() => {
+        const offsetD = offset / duration;
+        const cycleD = cycle / duration;
+        return (
+            <Fragment>
+                {showOffset && (
                     <div
-                        key={i}
-                        className="timeline-editor-grid-cycle"
-                        style={{
-                            left: offsetPx + cycleWidth * i,
-                            width: cycleWidth,
-                            backgroundSize: `${gridWidth}px 80%`,
-                            backgroundImage: gridWidth >= MIN_GRID_SIZE ? "" : "none",
-                        }}
-                    />
-                );
-            })}
-        </Fragment>
-    ), [cycleCount, offsetPx, cycleWidth, gridWidth]);
+                        className="timeline-editor-grid-offset"
+                        style={{width: `${offsetD*100}%`}}
+                    >
+                        {offset}ms
+                    </div>
+                )}
+                {showCycle && Array.from({length: cycleCount}).map((_, i) => {
+                    return (
+                        <div
+                            key={i}
+                            className="timeline-editor-grid-cycle"
+                            style={{
+                                left: `${(offsetD + cycleD*i) * 100}%`,
+                                width: `${cycleD*100}%`,
+                                backgroundSize: `${100/grid}% 80%`,
+                                backgroundImage: showGrid ? "" : "none",
+                            }}
+                        />
+                    );
+                })}
+            </Fragment>
+        );
+
+    }, [cycleCount, offset, duration, showCycle, showGrid, showOffset]);
 })
