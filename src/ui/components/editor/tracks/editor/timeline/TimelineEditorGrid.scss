@@ -13,6 +13,12 @@ $col-color-grid: #444;
     background-image: linear-gradient(90deg, $col-color-grid 1px, transparent 1px);
     background-repeat: round no-repeat;
     background-position-y: 50%;
+    overflow: hidden;
+    .timeline-editor-grid-cycle-content {
+        color: #888;
+        padding-left: 2px;
+        font-size: 70%;
+    }
 }
 
 .timeline-editor-grid-offset {

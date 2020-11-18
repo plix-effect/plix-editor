@@ -43,7 +43,9 @@ export const TimelineEditorGrid: FC<TimelineEditorGridProps> = memo(({cycle, gri
                                 backgroundSize: `${100/grid}% 80%`,
                                 backgroundImage: showGrid ? "" : "none",
                             }}
-                        />
+                        >
+                            <div className="timeline-editor-grid-cycle-content">{i+1}</div>
+                        </div>
                     );
                 })}
             </Fragment>
