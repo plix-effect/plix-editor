@@ -34949,7 +34949,8 @@ exports.TimelineEditorGrid = react_1.memo(({ cycle, grid, offset }) => {
                         width: `${cycleD * 100}%`,
                         backgroundSize: `${100 / grid}% 80%`,
                         backgroundImage: showGrid ? "" : "none",
-                    } }));
+                    } },
+                    react_1.default.createElement("div", { className: "timeline-editor-grid-cycle-content" }, i + 1)));
             })));
     }, [cycleCount, offset, duration, showCycle, showGrid, showOffset]);
 });

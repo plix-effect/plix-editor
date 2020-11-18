@@ -244,12 +244,17 @@ input[type="color"].full-size-color-picker {
   height: 100%;
   background-image: linear-gradient(90deg, #444 1px, transparent 1px);
   background-repeat: round no-repeat;
-  background-position-y: 50%; }
+  background-position-y: 50%;
+  overflow: hidden; }
   .timeline-editor-grid-cycle::before {
     content: "";
     position: absolute;
     height: 100%;
     border-left: 1px solid #888; }
+  .timeline-editor-grid-cycle .timeline-editor-grid-cycle-content {
+    color: #888;
+    padding-left: 2px;
+    font-size: 70%; }
 
 .timeline-editor-grid-offset {
   box-sizing: border-box;
