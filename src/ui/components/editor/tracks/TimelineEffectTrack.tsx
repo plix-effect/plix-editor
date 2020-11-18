@@ -38,7 +38,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, 
                 <span className="track-description _type">{timelineConstructorMeta.name}</span>
             </TreeBlock>
             <TimelineBlock type="timeline">
-                <TimelineEditor cycle={1000} grid={8} offset={100} records={[]} onChange={() => {}} />
+                <TimelineEditor cycle={params[1]} grid={params[2]} offset={params[3]} records={params[0]} onChange={() => {}} />
             </TimelineBlock>
 
             <EffectTypeTrack onChange={onChange} effect={effect} />

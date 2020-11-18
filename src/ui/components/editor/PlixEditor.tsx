@@ -36,13 +36,26 @@ const defaultTrack: PlixJsonData = {
             ],
             [[true, null, "posCenter"]]
         ],
+        [
+            true,
+            "Timeline",
+            [
+                [
+                    [true, "paintSome", 0, 500],
+                    [true, "paintSomeRight", 1250, 250],
+                    [true, "paintSome", 1750, 250],
+                ],
+                1347, 3, 5000
+            ],
+            [[true, null, "posCenter"]]
+        ],
     ]], [[true, "OuterBorder", [[0,1,1], 1]]]]
 };
 
 export const PlixEditor: FC = () => {
 
     const [zoom, setZoom] = useState(0.1);
-    const [duration, setDuration] = useState(1000*60*5);
+    const [duration, setDuration] = useState(1000*60*5 + 2257);
     const [position, setPosition] = useState(0.01);
 
     const [{track, history, historyPosition}, dispatch] = useReducer(PlixEditorReducer, defaultTrack, (track) => ({
