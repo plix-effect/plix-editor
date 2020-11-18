@@ -2102,10 +2102,10 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./src/ui/components/editor/tracks/editor/timeline/Records.scss":
-/*!**********************************************************************!*\
-  !*** ./src/ui/components/editor/tracks/editor/timeline/Records.scss ***!
-  \**********************************************************************/
+/***/ "./src/ui/components/editor/tracks/editor/timeline/Record.scss":
+/*!*********************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/editor/timeline/Record.scss ***!
+  \*********************************************************************/
 /*! namespace exports */
 /*! exports [not provided] [no usage info] */
 /*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.* */
@@ -32493,7 +32493,7 @@ exports.SplitTimeline = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 __webpack_require__(/*! ./SplitTimeline.scss */ "./src/ui/components/divider/SplitTimeline.scss");
 const emptyImage = new Image();
-exports.SplitTimeline = react_1.memo(({ children: [leftHeader, rightHeader, leftPanel, rightPanel], storageKey, minLeft, minRight }) => {
+exports.SplitTimeline = react_1.memo(react_1.forwardRef(({ children: [leftHeader, rightHeader, leftPanel, rightPanel], storageKey, minLeft, minRight }, fRef) => {
     const innerRef = react_1.useRef();
     const menuRef = react_1.useRef();
     const scaleRef = react_1.useRef();
@@ -32569,10 +32569,27 @@ exports.SplitTimeline = react_1.memo(({ children: [leftHeader, rightHeader, left
             react_1.default.createElement("div", { className: "split-tl-content" }, rightHeader)),
         react_1.default.createElement("div", { className: "split-tl-tree hide-scroll", ref: treeRef, onScroll: onScrollTree },
             react_1.default.createElement("div", { className: "split-tl-content" }, leftPanel)),
-        react_1.default.createElement("div", { className: "split-tl-timeline hide-scroll", ref: timelineRef, onScroll: onScrollTimeline },
+        react_1.default.createElement("div", { className: "split-tl-timeline hide-scroll", ref: mergeRefs(fRef, timelineRef), onScroll: onScrollTimeline },
             react_1.default.createElement("div", { className: "split-tl-content" }, rightPanel)),
         react_1.default.createElement("a", { className: "split-tl-sep", ref: dragRef, draggable: true, onDragStart: onDragStart, onDrag: onDrag, onTouchMove: onTouchMove })));
-});
+}));
+const mergeRefs = (...refs) => {
+    const filteredRefs = refs.filter(Boolean);
+    if (!filteredRefs.length)
+        return null;
+    if (filteredRefs.length === 0)
+        return filteredRefs[0];
+    return inst => {
+        for (const ref of filteredRefs) {
+            if (typeof ref === 'function') {
+                ref(inst);
+            }
+            else if (ref) {
+                ref.current = inst;
+            }
+        }
+    };
+};
 
 
 /***/ }),
@@ -33220,6 +33237,7 @@ exports.TrackEditor = () => {
         effects: ["effects"],
         filters: ["filters"],
     }), []);
+    const timelineRef = react_1.useRef();
     const undo = react_1.useCallback(() => {
         dispatch(PlixEditorReducerActions_1.UndoAction());
     }, [dispatch]);
@@ -33229,14 +33247,22 @@ exports.TrackEditor = () => {
     const save = react_1.useCallback(() => {
         download('plix-track.json', JSON.stringify(track));
     }, [track]);
-    const { setZoom, zoom, duration } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
+    const { setZoom, duration } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
     const multiplyZoom = react_1.useCallback((value) => {
         setZoom(v => {
-            const z = v * value;
-            if (z > 1)
-                return 1;
-            if (duration * z < 500)
-                return 500 / duration;
+            let z = v * value;
+            if (z > 1) {
+                z = 1;
+            }
+            else if (duration * z < 500) {
+                z = 500 / duration;
+            }
+            if (z === v)
+                return v;
+            const timeline = timelineRef.current;
+            if (timeline) {
+                timeline.scrollLeft = timeline.scrollLeft * z / v;
+            }
             return z;
         });
     }, [setZoom, duration]);
@@ -33250,7 +33276,7 @@ exports.TrackEditor = () => {
         const zoomIndex = Math.pow(ZOOM_FACTOR_WHEEL, event.deltaY);
         multiplyZoom(zoomIndex);
     }, [multiplyZoom]);
-    return (react_1.default.createElement(SplitTimeline_1.SplitTimeline, { minLeft: 100, minRight: 200, storageKey: "timeline" },
+    return (react_1.default.createElement(SplitTimeline_1.SplitTimeline, { minLeft: 100, minRight: 200, storageKey: "timeline", ref: timelineRef },
         react_1.default.createElement("div", { className: "track-header track-header-tree" },
             react_1.default.createElement("button", { onClick: undo, disabled: undoCounts <= 0 },
                 "undo (",
@@ -34907,6 +34933,68 @@ exports.TimelineEditor = ({ records, onChange, cycle, grid, offset }) => {
 
 /***/ }),
 
+/***/ "./src/ui/components/editor/tracks/editor/timeline/Record.tsx":
+/*!********************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/editor/timeline/Record.tsx ***!
+  \********************************************************************/
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
+/*! CommonJS bailout: this is used directly at 2:23-27 */
+/*! CommonJS bailout: this is used directly at 9:26-30 */
+/*! CommonJS bailout: this is used directly at 14:20-24 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Record = void 0;
+const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+const ScaleDisplayContext_1 = __webpack_require__(/*! ../../../ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
+__webpack_require__(/*! ./Record.scss */ "./src/ui/components/editor/tracks/editor/timeline/Record.scss");
+exports.Record = react_1.memo(({ record: [enabled, link, start, recordDuration] }) => {
+    const { duration } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
+    return react_1.useMemo(() => {
+        const startD = start / duration;
+        const durD = recordDuration / duration;
+        return (react_1.default.createElement("div", { className: "timeline-record", style: {
+                left: `${startD * 100}%`,
+                width: `${durD * 100}%`,
+            } },
+            react_1.default.createElement("div", { className: "timeline-record-scaling _left", draggable: true }),
+            react_1.default.createElement("div", { className: "timeline-record-scaling _right", draggable: true }),
+            react_1.default.createElement("div", { className: "timeline-record-name", draggable: true, style: { backgroundColor: generateColorByText(link) } }, link)));
+    }, [duration, start, link, recordDuration, enabled]);
+});
+function generateColorByText(value) {
+    let v = 0;
+    for (let i = 0; i < value.length; i++) {
+        v = v += value.charCodeAt(i);
+    }
+    return `hsl(${v % 360},100%,40%)`;
+}
+
+
+/***/ }),
+
 /***/ "./src/ui/components/editor/tracks/editor/timeline/Records.tsx":
 /*!*********************************************************************!*\
   !*** ./src/ui/components/editor/tracks/editor/timeline/Records.tsx ***!
@@ -34942,21 +35030,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Records = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
-const ScaleDisplayContext_1 = __webpack_require__(/*! ../../../ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
-__webpack_require__(/*! ./Records.scss */ "./src/ui/components/editor/tracks/editor/timeline/Records.scss");
+__webpack_require__(/*! ./Record.scss */ "./src/ui/components/editor/tracks/editor/timeline/Record.scss");
+const Record_1 = __webpack_require__(/*! ./Record */ "./src/ui/components/editor/tracks/editor/timeline/Record.tsx");
 exports.Records = react_1.memo(({ records }) => {
-    const { duration } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
     return react_1.useMemo(() => {
-        return (react_1.default.createElement(react_1.Fragment, null, records.map(([enabled, link, start, recordDuration], i) => {
-            const startD = start / duration;
-            const durD = recordDuration / duration;
-            return (react_1.default.createElement("div", { key: i, className: "timeline-record", style: {
-                    left: `${startD * 100}%`,
-                    width: `${durD * 100}%`,
-                } },
-                react_1.default.createElement("div", { className: "timeline-record-name" }, link)));
+        return (react_1.default.createElement(react_1.Fragment, null, records.map((record, i) => {
+            return (react_1.default.createElement(Record_1.Record, { record: record, key: i }));
         })));
-    }, [records, duration]);
+    }, [records]);
 });
 
 
