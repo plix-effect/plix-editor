@@ -2102,6 +2102,22 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/ui/components/editor/tracks/editor/timeline/Records.scss":
+/*!**********************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/editor/timeline/Records.scss ***!
+  \**********************************************************************/
+/*! namespace exports */
+/*! exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./src/ui/components/editor/tracks/editor/timeline/TimelineEditorGrid.scss":
 /*!*********************************************************************************!*\
   !*** ./src/ui/components/editor/tracks/editor/timeline/TimelineEditorGrid.scss ***!
@@ -32749,7 +32765,7 @@ const defaultTrack = {
                         [
                             [true, "paintSome", 0, 500],
                             [true, "paintSomeRight", 1250, 250],
-                            [true, "paintSome", 1750, 250],
+                            [true, "paintSome", 1500, 250],
                         ],
                         1347, 3, 5000
                     ],
@@ -34879,11 +34895,69 @@ const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/re
 const ScaleDisplayContext_1 = __webpack_require__(/*! ../../ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
 __webpack_require__(/*! ./TimelineEditor.scss */ "./src/ui/components/editor/tracks/editor/TimelineEditor.scss");
 const TimelineEditorGrid_1 = __webpack_require__(/*! ./timeline/TimelineEditorGrid */ "./src/ui/components/editor/tracks/editor/timeline/TimelineEditorGrid.tsx");
+const Records_1 = __webpack_require__(/*! ./timeline/Records */ "./src/ui/components/editor/tracks/editor/timeline/Records.tsx");
 exports.TimelineEditor = ({ records, onChange, cycle, grid, offset }) => {
     const { trackWidth } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
     return (react_1.default.createElement("div", { className: "timeline-editor", style: { width: trackWidth } },
-        react_1.default.createElement("div", { className: "timeline-editor-grid" }, cycle !== null && react_1.default.createElement(TimelineEditorGrid_1.TimelineEditorGrid, { offset: offset, grid: grid !== null && grid !== void 0 ? grid : 1, cycle: cycle }))));
+        react_1.default.createElement("div", { className: "timeline-editor-grid" }, cycle !== null && react_1.default.createElement(TimelineEditorGrid_1.TimelineEditorGrid, { offset: offset, grid: grid !== null && grid !== void 0 ? grid : 1, cycle: cycle })),
+        react_1.default.createElement("div", { className: "timeline-editor-records" },
+            react_1.default.createElement(Records_1.Records, { records: records }))));
 };
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/tracks/editor/timeline/Records.tsx":
+/*!*********************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/editor/timeline/Records.tsx ***!
+  \*********************************************************************/
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
+/*! CommonJS bailout: this is used directly at 2:23-27 */
+/*! CommonJS bailout: this is used directly at 9:26-30 */
+/*! CommonJS bailout: this is used directly at 14:20-24 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Records = void 0;
+const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+const ScaleDisplayContext_1 = __webpack_require__(/*! ../../../ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
+__webpack_require__(/*! ./Records.scss */ "./src/ui/components/editor/tracks/editor/timeline/Records.scss");
+exports.Records = react_1.memo(({ records }) => {
+    const { duration } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
+    return react_1.useMemo(() => {
+        return (react_1.default.createElement(react_1.Fragment, null, records.map(([enabled, link, start, recordDuration], i) => {
+            const startD = start / duration;
+            const durD = recordDuration / duration;
+            return (react_1.default.createElement("div", { key: i, className: "timeline-record", style: {
+                    left: `${startD * 100}%`,
+                    width: `${durD * 100}%`,
+                } },
+                react_1.default.createElement("div", { className: "timeline-record-name" }, link)));
+        })));
+    }, [records, duration]);
+});
 
 
 /***/ }),

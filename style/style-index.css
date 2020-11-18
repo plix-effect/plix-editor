@@ -234,9 +234,10 @@ input[type="color"].full-size-color-picker {
 
 .timeline-editor-records {
   position: absolute;
-  background-color: rgba(255, 170, 4, 0.47);
   width: 100%;
-  height: 100%; }
+  top: 4px;
+  bottom: 7px;
+  font-size: 75%; }
 
 .timeline-editor-grid-cycle {
   box-sizing: border-box;
@@ -265,6 +266,17 @@ input[type="color"].full-size-color-picker {
   text-align: right;
   padding: 0 5px 0 5px;
   color: #888; }
+
+.timeline-record {
+  box-sizing: border-box;
+  position: absolute;
+  height: 100%;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  background-color: #f40;
+  border-radius: 4px;
+  border: 2px solid rgba(0, 0, 0, 0.5);
+  overflow: hidden; }
 
 .split-tl {
   width: 100%;
