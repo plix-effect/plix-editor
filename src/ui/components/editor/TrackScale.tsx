@@ -2,9 +2,6 @@ import React, {FC, useCallback, useContext, useMemo, useState} from "react";
 import "./TrackScale.scss";
 import {ScaleDisplayContext} from "./ScaleDisplayContext";
 
-
-const ZOOM_FACTOR = Math.sqrt(2);
-
 export const TrackScale: FC = () => {
 
     const {trackWidth} = useContext(ScaleDisplayContext);

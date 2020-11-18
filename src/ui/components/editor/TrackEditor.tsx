@@ -1,4 +1,4 @@
-import React, {FC, useCallback, useContext, useMemo, useState} from "react";
+import React, {FC, useCallback, useContext, useMemo, useState, WheelEvent} from "react";
 import {PortalContext} from "../timeline/PortalContext";
 import {TrackContext} from "./TrackContext";
 import {EffectTrack} from "./tracks/EffectTrack";
@@ -12,6 +12,7 @@ import {ScaleDisplayContext} from "./ScaleDisplayContext";
 
 
 const ZOOM_FACTOR = Math.sqrt(2);
+const ZOOM_FACTOR_WHEEL = Math.pow(2, 0.01);
 
 export const TrackEditor: FC = () => {
     const [rightRenderEl, setRightRenderEl] = useState<HTMLDivElement>();
@@ -34,10 +35,25 @@ export const TrackEditor: FC = () => {
         download('plix-track.json', JSON.stringify(track));
     }, [track])
 
-    const {setZoom} = useContext(ScaleDisplayContext);
+    const {setZoom, zoom, duration} = useContext(ScaleDisplayContext);
+    const multiplyZoom = useCallback((value: number) => {
+        setZoom(v => {
+            const z = v*value;
+            if (z > 1) return 1;
+            if (duration * z < 500) return 500/duration;
+            return z;
+        });
+    }, [setZoom, duration]);
 
-    const zoomIn = useCallback(() => setZoom(v => v*ZOOM_FACTOR), [setZoom])
-    const zoomOut = useCallback(() => setZoom(v => v/ZOOM_FACTOR), [setZoom])
+    const zoomIn = useCallback(() => multiplyZoom(ZOOM_FACTOR), [multiplyZoom])
+    const zoomOut = useCallback(() => multiplyZoom(1/ZOOM_FACTOR), [multiplyZoom])
+
+    const onWheel = useCallback((event: WheelEvent<any>) => {
+        if (!event.ctrlKey && !event.metaKey) return;
+        if (!event.deltaY) return;
+        const zoomIndex = Math.pow(ZOOM_FACTOR_WHEEL, event.deltaY);
+        multiplyZoom(zoomIndex);
+    }, [multiplyZoom])
 
     return (
         <SplitTimeline minLeft={100} minRight={200} storageKey="timeline">
@@ -48,10 +64,10 @@ export const TrackEditor: FC = () => {
                 <button onClick={zoomOut}>(-)</button>
                 <button onClick={zoomIn}>(+)</button>
             </div>
-            <div className="track-header track-header-timeline">
+            <div className="track-header track-header-timeline" onWheelCapture={onWheel}>
                 <TrackScale />
             </div>
-            <div className="track-tree">
+            <div className="track-tree" onWheelCapture={onWheel}>
                 <PortalContext.Provider value={rightRenderEl}>
                     <Track>
                         {null /*left*/}

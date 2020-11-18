@@ -4,6 +4,7 @@ html, body {
   background-color: black;
   color: white;
   font-family: "Roboto","Open Sans",helvetica,arial,sans-serif;
+  overscroll-behavior-x: none; // disable two fingers back/forward swipe
 }
 a {
   color: #88f;

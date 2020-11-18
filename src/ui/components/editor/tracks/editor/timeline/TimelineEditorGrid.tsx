@@ -1,4 +1,4 @@
-import React, {FC, memo, useContext, useMemo} from "react";
+import React, {FC, Fragment, memo, useContext, useMemo} from "react";
 import {ScaleDisplayContext} from "../../../ScaleDisplayContext";
 import "./TimelineEditorGrid.scss";
 
@@ -13,23 +13,34 @@ export const TimelineEditorGrid: FC<TimelineEditorGridProps> = memo(({cycle, gri
     const {trackWidth, zoom} = useContext(ScaleDisplayContext);
     const offsetPx = zoom*offset;
     const cycleWidth = cycle * zoom;
-    if (cycleWidth < MIN_GRID_SIZE) return null;
     const cycleCount = Math.ceil((trackWidth - offsetPx) / cycleWidth);
     if (cycleCount <= 0) return null;
+    const gridWidth = cycleWidth/grid;
 
-    const elements = useMemo(() => (
-        Array.from({length:cycleCount}).map((_, i) => {
-            return (
+    return useMemo(() => (
+        <Fragment>
+            {offsetPx >= 1 && (
                 <div
-                    key={i}
-                    className="timeline-editor-grid-cycle"
-                    style={{left: offsetPx + cycleWidth*i, width: cycleWidth}}
-                />
-            );
-        })
-    ), [cycleCount, offsetPx, cycleWidth]);
-
-    return (
-        <>{elements}</>
-    );
+                    className="timeline-editor-grid-offset"
+                    style={{width: offsetPx}}
+                >
+                    {offset}ms
+                </div>
+            )}
+            {cycleWidth >= MIN_GRID_SIZE && Array.from({length: cycleCount}).map((_, i) => {
+                return (
+                    <div
+                        key={i}
+                        className="timeline-editor-grid-cycle"
+                        style={{
+                            left: offsetPx + cycleWidth * i,
+                            width: cycleWidth,
+                            backgroundSize: `${gridWidth}px 80%`,
+                            backgroundImage: gridWidth >= MIN_GRID_SIZE ? "" : "none",
+                        }}
+                    />
+                );
+            })}
+        </Fragment>
+    ), [cycleCount, offsetPx, cycleWidth, gridWidth]);
 })
