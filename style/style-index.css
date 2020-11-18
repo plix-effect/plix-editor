@@ -3,7 +3,8 @@ html, body {
   margin: 0;
   background-color: black;
   color: white;
-  font-family: "Roboto","Open Sans",helvetica,arial,sans-serif; }
+  font-family: "Roboto","Open Sans",helvetica,arial,sans-serif;
+  overscroll-behavior-x: none; }
 
 a {
   color: #88f;
@@ -238,13 +239,27 @@ input[type="color"].full-size-color-picker {
   height: 100%; }
 
 .timeline-editor-grid-cycle {
+  box-sizing: border-box;
   position: absolute;
-  height: 100%; }
+  height: 100%;
+  background-image: linear-gradient(90deg, #444 1px, transparent 1px);
+  background-repeat: round no-repeat;
+  background-position-y: 50%; }
   .timeline-editor-grid-cycle::before {
     content: "";
     position: absolute;
     height: 100%;
     border-left: 1px solid #888; }
+
+.timeline-editor-grid-offset {
+  box-sizing: border-box;
+  position: absolute;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  text-align: right;
+  padding: 0 5px 0 5px;
+  color: #888; }
 
 .split-tl {
   width: 100%;

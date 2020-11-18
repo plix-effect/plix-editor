@@ -33195,6 +33195,7 @@ const TrackScale_1 = __webpack_require__(/*! ./TrackScale */ "./src/ui/component
 const Track_1 = __webpack_require__(/*! ../timeline/Track */ "./src/ui/components/timeline/Track.tsx");
 const ScaleDisplayContext_1 = __webpack_require__(/*! ./ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
 const ZOOM_FACTOR = Math.sqrt(2);
+const ZOOM_FACTOR_WHEEL = Math.pow(2, 0.01);
 exports.TrackEditor = () => {
     const [rightRenderEl, setRightRenderEl] = react_1.useState();
     const { track, dispatch, undoCounts, redoCounts } = react_1.useContext(TrackContext_1.TrackContext);
@@ -33212,9 +33213,27 @@ exports.TrackEditor = () => {
     const save = react_1.useCallback(() => {
         download('plix-track.json', JSON.stringify(track));
     }, [track]);
-    const { setZoom } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
-    const zoomIn = react_1.useCallback(() => setZoom(v => v * ZOOM_FACTOR), [setZoom]);
-    const zoomOut = react_1.useCallback(() => setZoom(v => v / ZOOM_FACTOR), [setZoom]);
+    const { setZoom, zoom, duration } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
+    const multiplyZoom = react_1.useCallback((value) => {
+        setZoom(v => {
+            const z = v * value;
+            if (z > 1)
+                return 1;
+            if (duration * z < 500)
+                return 500 / duration;
+            return z;
+        });
+    }, [setZoom, duration]);
+    const zoomIn = react_1.useCallback(() => multiplyZoom(ZOOM_FACTOR), [multiplyZoom]);
+    const zoomOut = react_1.useCallback(() => multiplyZoom(1 / ZOOM_FACTOR), [multiplyZoom]);
+    const onWheel = react_1.useCallback((event) => {
+        if (!event.ctrlKey && !event.metaKey)
+            return;
+        if (!event.deltaY)
+            return;
+        const zoomIndex = Math.pow(ZOOM_FACTOR_WHEEL, event.deltaY);
+        multiplyZoom(zoomIndex);
+    }, [multiplyZoom]);
     return (react_1.default.createElement(SplitTimeline_1.SplitTimeline, { minLeft: 100, minRight: 200, storageKey: "timeline" },
         react_1.default.createElement("div", { className: "track-header track-header-tree" },
             react_1.default.createElement("button", { onClick: undo, disabled: undoCounts <= 0 },
@@ -33228,9 +33247,9 @@ exports.TrackEditor = () => {
             react_1.default.createElement("button", { onClick: save }, "save"),
             react_1.default.createElement("button", { onClick: zoomOut }, "(-)"),
             react_1.default.createElement("button", { onClick: zoomIn }, "(+)")),
-        react_1.default.createElement("div", { className: "track-header track-header-timeline" },
+        react_1.default.createElement("div", { className: "track-header track-header-timeline", onWheelCapture: onWheel },
             react_1.default.createElement(TrackScale_1.TrackScale, null)),
-        react_1.default.createElement("div", { className: "track-tree" },
+        react_1.default.createElement("div", { className: "track-tree", onWheelCapture: onWheel },
             react_1.default.createElement(PortalContext_1.PortalContext.Provider, { value: rightRenderEl },
                 react_1.default.createElement(Track_1.Track, null,
                     null,
@@ -33294,7 +33313,6 @@ exports.TrackScale = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 __webpack_require__(/*! ./TrackScale.scss */ "./src/ui/components/editor/TrackScale.scss");
 const ScaleDisplayContext_1 = __webpack_require__(/*! ./ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
-const ZOOM_FACTOR = Math.sqrt(2);
 exports.TrackScale = () => {
     const { trackWidth } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
     return (react_1.default.createElement("div", { className: "track-scale" },
@@ -34912,15 +34930,22 @@ exports.TimelineEditorGrid = react_1.memo(({ cycle, grid, offset }) => {
     const { trackWidth, zoom } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
     const offsetPx = zoom * offset;
     const cycleWidth = cycle * zoom;
-    if (cycleWidth < MIN_GRID_SIZE)
-        return null;
     const cycleCount = Math.ceil((trackWidth - offsetPx) / cycleWidth);
     if (cycleCount <= 0)
         return null;
-    const elements = react_1.useMemo(() => (Array.from({ length: cycleCount }).map((_, i) => {
-        return (react_1.default.createElement("div", { key: i, className: "timeline-editor-grid-cycle", style: { left: offsetPx + cycleWidth * i, width: cycleWidth } }));
-    })), [cycleCount, offsetPx, cycleWidth]);
-    return (react_1.default.createElement(react_1.default.Fragment, null, elements));
+    const gridWidth = cycleWidth / grid;
+    return react_1.useMemo(() => (react_1.default.createElement(react_1.Fragment, null,
+        offsetPx >= 1 && (react_1.default.createElement("div", { className: "timeline-editor-grid-offset", style: { width: offsetPx } },
+            offset,
+            "ms")),
+        cycleWidth >= MIN_GRID_SIZE && Array.from({ length: cycleCount }).map((_, i) => {
+            return (react_1.default.createElement("div", { key: i, className: "timeline-editor-grid-cycle", style: {
+                    left: offsetPx + cycleWidth * i,
+                    width: cycleWidth,
+                    backgroundSize: `${gridWidth}px 80%`,
+                    backgroundImage: gridWidth >= MIN_GRID_SIZE ? "" : "none",
+                } }));
+        }))), [cycleCount, offsetPx, cycleWidth, gridWidth]);
 });
 
 
