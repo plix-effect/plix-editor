@@ -1,4 +1,4 @@
-import React, {FC, useCallback, useContext, useMemo, useState, WheelEvent} from "react";
+import React, {FC, UIEventHandler, useCallback, useContext, useMemo, useRef, useState, WheelEvent} from "react";
 import {PortalContext} from "../timeline/PortalContext";
 import {TrackContext} from "./TrackContext";
 import {EffectTrack} from "./tracks/EffectTrack";
@@ -23,6 +23,8 @@ export const TrackEditor: FC = () => {
         filters: ["filters"],
     }), []);
 
+    const timelineRef = useRef<HTMLDivElement>();
+
     const undo = useCallback(() => {
         dispatch(UndoAction())
     }, [dispatch])
@@ -35,13 +37,22 @@ export const TrackEditor: FC = () => {
         download('plix-track.json', JSON.stringify(track));
     }, [track])
 
-    const {setZoom, zoom, duration} = useContext(ScaleDisplayContext);
+    const {setZoom, duration} = useContext(ScaleDisplayContext);
     const multiplyZoom = useCallback((value: number) => {
         setZoom(v => {
-            const z = v*value;
-            if (z > 1) return 1;
-            if (duration * z < 500) return 500/duration;
+            let z = v*value;
+            if (z > 1) {
+                z = 1;
+            } else if (duration * z < 500) {
+                z = 500/duration;
+            }
+            if (z === v) return v;
+            const timeline = timelineRef.current;
+            if (timeline) {
+                timeline.scrollLeft = timeline.scrollLeft * z / v;
+            }
             return z;
+
         });
     }, [setZoom, duration]);
 
@@ -53,10 +64,10 @@ export const TrackEditor: FC = () => {
         if (!event.deltaY) return;
         const zoomIndex = Math.pow(ZOOM_FACTOR_WHEEL, event.deltaY);
         multiplyZoom(zoomIndex);
-    }, [multiplyZoom])
+    }, [multiplyZoom]);
 
     return (
-        <SplitTimeline minLeft={100} minRight={200} storageKey="timeline">
+        <SplitTimeline minLeft={100} minRight={200} storageKey="timeline" ref={timelineRef}>
             <div className="track-header track-header-tree">
                 <button onClick={undo} disabled={undoCounts<=0}>undo ({undoCounts})</button>
                 <button onClick={redo} disabled={redoCounts<=0}>redo ({redoCounts})</button>
