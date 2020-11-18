@@ -34927,25 +34927,31 @@ const ScaleDisplayContext_1 = __webpack_require__(/*! ../../../ScaleDisplayConte
 __webpack_require__(/*! ./TimelineEditorGrid.scss */ "./src/ui/components/editor/tracks/editor/timeline/TimelineEditorGrid.scss");
 const MIN_GRID_SIZE = 5;
 exports.TimelineEditorGrid = react_1.memo(({ cycle, grid, offset }) => {
-    const { trackWidth, zoom } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
+    const { trackWidth, zoom, duration } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
     const offsetPx = zoom * offset;
     const cycleWidth = cycle * zoom;
     const cycleCount = Math.ceil((trackWidth - offsetPx) / cycleWidth);
     if (cycleCount <= 0)
         return null;
-    const gridWidth = cycleWidth / grid;
-    return react_1.useMemo(() => (react_1.default.createElement(react_1.Fragment, null,
-        offsetPx >= 1 && (react_1.default.createElement("div", { className: "timeline-editor-grid-offset", style: { width: offsetPx } },
-            offset,
-            "ms")),
-        cycleWidth >= MIN_GRID_SIZE && Array.from({ length: cycleCount }).map((_, i) => {
-            return (react_1.default.createElement("div", { key: i, className: "timeline-editor-grid-cycle", style: {
-                    left: offsetPx + cycleWidth * i,
-                    width: cycleWidth,
-                    backgroundSize: `${gridWidth}px 80%`,
-                    backgroundImage: gridWidth >= MIN_GRID_SIZE ? "" : "none",
-                } }));
-        }))), [cycleCount, offsetPx, cycleWidth, gridWidth]);
+    const showOffset = offsetPx >= 1;
+    const showCycle = cycleWidth >= MIN_GRID_SIZE;
+    const showGrid = cycleWidth / grid >= MIN_GRID_SIZE;
+    return react_1.useMemo(() => {
+        const offsetD = offset / duration;
+        const cycleD = cycle / duration;
+        return (react_1.default.createElement(react_1.Fragment, null,
+            showOffset && (react_1.default.createElement("div", { className: "timeline-editor-grid-offset", style: { width: `${offsetD * 100}%` } },
+                offset,
+                "ms")),
+            showCycle && Array.from({ length: cycleCount }).map((_, i) => {
+                return (react_1.default.createElement("div", { key: i, className: "timeline-editor-grid-cycle", style: {
+                        left: `${(offsetD + cycleD * i) * 100}%`,
+                        width: `${cycleD * 100}%`,
+                        backgroundSize: `${100 / grid}% 80%`,
+                        backgroundImage: showGrid ? "" : "none",
+                    } }));
+            })));
+    }, [cycleCount, offset, duration, showCycle, showGrid, showOffset]);
 });
 
 
