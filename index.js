@@ -34914,12 +34914,13 @@ exports.TimelineEditorGrid = react_1.memo(({ cycle, grid, offset }) => {
     const cycleWidth = cycle * zoom;
     if (cycleWidth < MIN_GRID_SIZE)
         return null;
-    const cycleCounts = Math.ceil((trackWidth - offsetPx) / cycleWidth);
-    if (cycleCounts <= 0)
+    const cycleCount = Math.ceil((trackWidth - offsetPx) / cycleWidth);
+    if (cycleCount <= 0)
         return null;
-    return (react_1.default.createElement(react_1.default.Fragment, null, Array.from({ length: cycleCounts }).map((_, i) => {
+    const elements = react_1.useMemo(() => (Array.from({ length: cycleCount }).map((_, i) => {
         return (react_1.default.createElement("div", { key: i, className: "timeline-editor-grid-cycle", style: { left: offsetPx + cycleWidth * i, width: cycleWidth } }));
-    })));
+    })), [cycleCount, offsetPx, cycleWidth]);
+    return (react_1.default.createElement(react_1.default.Fragment, null, elements));
 });
 
 
