@@ -43,7 +43,7 @@ const defaultTrack: PlixJsonData = {
                 [
                     [true, "paintSome", 0, 500],
                     [true, "paintSomeRight", 1250, 250],
-                    [true, "paintSome", 1750, 250],
+                    [true, "paintSome", 1500, 250],
                 ],
                 1347, 3, 5000
             ],
