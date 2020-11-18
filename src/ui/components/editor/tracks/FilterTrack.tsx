@@ -39,9 +39,7 @@ export const FilterTrack: FC<FilterTrackProps> = memo(({filter, path, children})
         }
         if (type === "constructor") {
             templateFilter[1] = value;
-            console.log("filterConstructorMap", filterConstructorMap, value);
             const filterConstructor = filterConstructorMap[value];
-            console.log("filterConstructor", filterConstructor);
             const meta: ParseMeta = filterConstructor['meta'];
             templateFilter[2] = meta.defaultValues;
         }

@@ -7,7 +7,7 @@ import {TimelineBlock} from "../track-elements/TimelineBlock";
 
 import "./tracks.scss"
 import {useExpander} from "../track-elements/Expander";
-import {TimelineEditor} from "./editor/timeline/TimelineEditor";
+import {TimelineEditor} from "./editor/TimelineEditor";
 import {EffectTypeTrack} from "./EffectTypeTrack";
 import {ValueTrack} from "./ValueTrack";
 import {TrackContext} from "../TrackContext";
@@ -31,17 +31,57 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, 
 
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock>
+            <TreeBlock type="timeline">
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
                 {" "}
                 <span className="track-description _type">{timelineConstructorMeta.name}</span>
             </TreeBlock>
-            <TimelineBlock>
-                <TimelineEditor effect={effect} onChange={() => {}} />
+            <TimelineBlock type="timeline">
+                <TimelineEditor cycle={1000} grid={8} offset={100} records={[]} onChange={() => {}} />
             </TimelineBlock>
 
             <EffectTypeTrack onChange={onChange} effect={effect} />
+
+            <Track>
+                <TreeBlock>
+                    <span className="track-description">
+                        Cycle
+                    </span>
+                </TreeBlock>
+                <TimelineBlock fixed>
+                    <span className="track-description">
+                        {params[1] || "no cycle"} todo: change cycle
+                    </span>
+                </TimelineBlock>
+            </Track>
+
+            <Track>
+                <TreeBlock>
+                    <span className="track-description">
+                        Grid
+                    </span>
+                </TreeBlock>
+                <TimelineBlock fixed>
+                    <span className="track-description">
+                        {params[2] || "no grid"} todo: change grid
+                    </span>
+                </TimelineBlock>
+            </Track>
+
+            <Track>
+                <TreeBlock>
+                    <span className="track-description">
+                        Offset
+                    </span>
+                </TreeBlock>
+                <TimelineBlock fixed>
+                    <span className="track-description">
+                        {params[3] || 0} todo: change offset
+                    </span>
+                </TimelineBlock>
+            </Track>
+
 
             <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect">
                 Filters

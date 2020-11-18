@@ -1,0 +1,17 @@
+.timeline-editor {
+  position: relative;
+  height: 100%;
+}
+
+.timeline-editor-grid {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.timeline-editor-records {
+  position: absolute;
+  background-color: rgba(255,170,4,0.47);
+  width: 100%;
+  height: 100%;
+}

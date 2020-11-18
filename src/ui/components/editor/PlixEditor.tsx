@@ -23,13 +23,25 @@ const defaultTrack: PlixJsonData = {
     render: [true, "Chain", [[
         [true, null, "paintSomeLeft"],
         [true, null, "paintSomeRight"],
-        [true, "Timeline", [[], null, null, 0], [[true, null, "posCenter"]]],
+        [
+            true,
+            "Timeline",
+            [
+                [
+                    [true, "paintSome", 0, 500],
+                    [true, "paintSomeRight", 1250, 250],
+                    [true, "paintSome", 1750, 250],
+                ],
+                1000, 8, 0
+            ],
+            [[true, null, "posCenter"]]
+        ],
     ]], [[true, "OuterBorder", [[0,1,1], 1]]]]
 };
 
 export const PlixEditor: FC = () => {
 
-    const [zoom, setZoom] = useState(1);
+    const [zoom, setZoom] = useState(0.1);
     const [duration, setDuration] = useState(1000*60*5);
     const [position, setPosition] = useState(0.01);
 
@@ -53,7 +65,7 @@ export const PlixEditor: FC = () => {
         duration, setDuration,
         zoom, setZoom,
         position, setPosition,
-        dispatch,
+        trackWidth: zoom * duration
     }), [track, duration, setDuration, zoom, setZoom, position, setPosition, dispatch]);
 
     return (

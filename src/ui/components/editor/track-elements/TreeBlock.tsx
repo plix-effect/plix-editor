@@ -2,7 +2,7 @@ import React, {FC} from "react";
 import cn from "classnames"
 import "./TreeBlock.scss"
 
-type TimelineBlockType = "default" | "description"
+type TimelineBlockType = "default" | "description" | "timeline"
 interface TreeBlockProps {
     type?: TimelineBlockType
 }

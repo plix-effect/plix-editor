@@ -8,7 +8,10 @@ import {SplitTimeline} from "../divider/SplitTimeline";
 import {RedoAction, UndoAction} from "./PlixEditorReducerActions";
 import {TrackScale} from "./TrackScale";
 import {Track} from "../timeline/Track";
+import {ScaleDisplayContext} from "./ScaleDisplayContext";
 
+
+const ZOOM_FACTOR = Math.sqrt(2);
 
 export const TrackEditor: FC = () => {
     const [rightRenderEl, setRightRenderEl] = useState<HTMLDivElement>();
@@ -31,12 +34,19 @@ export const TrackEditor: FC = () => {
         download('plix-track.json', JSON.stringify(track));
     }, [track])
 
+    const {setZoom} = useContext(ScaleDisplayContext);
+
+    const zoomIn = useCallback(() => setZoom(v => v*ZOOM_FACTOR), [setZoom])
+    const zoomOut = useCallback(() => setZoom(v => v/ZOOM_FACTOR), [setZoom])
+
     return (
         <SplitTimeline minLeft={100} minRight={200} storageKey="timeline">
             <div className="track-header track-header-tree">
                 <button onClick={undo} disabled={undoCounts<=0}>undo ({undoCounts})</button>
                 <button onClick={redo} disabled={redoCounts<=0}>redo ({redoCounts})</button>
                 <button onClick={save}>save</button>
+                <button onClick={zoomOut}>(-)</button>
+                <button onClick={zoomIn}>(+)</button>
             </div>
             <div className="track-header track-header-timeline">
                 <TrackScale />

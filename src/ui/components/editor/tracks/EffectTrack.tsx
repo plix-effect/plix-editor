@@ -43,9 +43,7 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
         }
         if (type === "constructor") {
             templateEffect[1] = value;
-            console.log("effectConstructorMap", effectConstructorMap, value);
             const effectConstructor = effectConstructorMap[value];
-            console.log("effectConstructor", effectConstructor);
             const meta: ParseMeta = effectConstructor['meta'];
             templateEffect[2] = meta.defaultValues;
         }
