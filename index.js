@@ -32742,11 +32742,24 @@ const defaultTrack = {
                     ],
                     [[true, null, "posCenter"]]
                 ],
+                [
+                    true,
+                    "Timeline",
+                    [
+                        [
+                            [true, "paintSome", 0, 500],
+                            [true, "paintSomeRight", 1250, 250],
+                            [true, "paintSome", 1750, 250],
+                        ],
+                        1347, 3, 5000
+                    ],
+                    [[true, null, "posCenter"]]
+                ],
             ]], [[true, "OuterBorder", [[0, 1, 1], 1]]]]
 };
 exports.PlixEditor = () => {
     const [zoom, setZoom] = react_1.useState(0.1);
-    const [duration, setDuration] = react_1.useState(1000 * 60 * 5);
+    const [duration, setDuration] = react_1.useState(1000 * 60 * 5 + 2257);
     const [position, setPosition] = react_1.useState(0.01);
     const [{ track, history, historyPosition }, dispatch] = react_1.useReducer(PlixEditorReducer_1.PlixEditorReducer, defaultTrack, (track) => ({
         track: track,
@@ -34356,7 +34369,7 @@ exports.TimelineEffectTrack = react_1.memo(({ effect, effect: [enabled, effectId
             " ",
             react_1.default.createElement("span", { className: "track-description _type" }, timelineConstructorMeta.name)),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { type: "timeline" },
-            react_1.default.createElement(TimelineEditor_1.TimelineEditor, { cycle: 1000, grid: 8, offset: 100, records: [], onChange: () => { } })),
+            react_1.default.createElement(TimelineEditor_1.TimelineEditor, { cycle: params[1], grid: params[2], offset: params[3], records: params[0], onChange: () => { } })),
         react_1.default.createElement(EffectTypeTrack_1.EffectTypeTrack, { onChange: onChange, effect: effect }),
         react_1.default.createElement(Track_1.Track, null,
             react_1.default.createElement(TreeBlock_1.TreeBlock, null,
