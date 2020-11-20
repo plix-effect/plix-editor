@@ -25,9 +25,28 @@ $col-color-grid: #444;
     box-sizing: border-box;
     position: absolute;
     height: 100%;
-    background-color: rgba(0,0,0, 0.5);
     overflow: hidden;
     text-align: right;
     padding: 0 5px 0 5px;
-    color: #888;
+    background-image: linear-gradient(
+                    -45deg,
+                    transparent 0px,
+                    $col-color-grid 0px,
+                    $col-color-grid 1px,
+                    transparent 1px,
+                    transparent 10px,
+                    $col-color-grid 10px,
+                    $col-color-grid 11px,
+                    transparent 11px,
+                    transparent 20px,
+                    $col-color-grid 20px,
+                    $col-color-grid 21px,
+                    transparent 21px,
+                    transparent 30px,
+                    $col-color-grid 30px,
+                    $col-color-grid 31px,
+                    transparent 31px,
+    );
+    background-size: 28.2px 28.2px;
+    background-repeat: repeat;
 }
