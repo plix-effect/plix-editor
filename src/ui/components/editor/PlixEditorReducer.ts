@@ -245,7 +245,7 @@ function reducePath<T, A extends any[]>(handler: <C>(state: C, path: HistoryPath
         const nextState = state[index];
         const editedNextState = handler(nextState, path, ...args);
         if (nextState === editedNextState) return state;
-        const arrayKeys = keyMap.get(state);
+        const arrayKeys = keyMap.get(state as any[]);
         const dummy = Array.from({length: Math.max(state.length, index+1)})
         const result = dummy.map((_, i) => i === index ? editedNextState: state[i] ?? null);
         keyMap.set(result, arrayKeys);
