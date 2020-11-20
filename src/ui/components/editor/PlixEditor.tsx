@@ -1,4 +1,4 @@
-import {FC, default as React, useMemo, useReducer, useState, useRef} from "react";
+import {FC, default as React, useMemo, useReducer, useState, useRef, useEffect} from "react";
 import "./PlixEditor.scss";
 import {SplitTopBottom} from "../divider/SplitTopBottom";
 import {TrackEditor} from "./TrackEditor";
@@ -55,10 +55,16 @@ const defaultTrack: PlixJsonData = {
 
 export const PlixEditor: FC = () => {
 
-    const [zoom, setZoom] = useState(0.1);
+    const [zoom, setZoom] = useState(0.2);
     const [duration, setDuration] = useState(1000*60*5 + 2257);
     const [position, setPosition] = useState(0.01);
+
     const dragRef = useRef<DragType>(null);
+    useEffect(() => {
+        const onDragEnd = () => dragRef.current = null;
+        document.addEventListener("dragend", onDragEnd);
+        return () => document.removeEventListener("dragend", onDragEnd);
+    }, [dragRef]);
 
     const [{track, history, historyPosition}, dispatch] = useReducer(PlixEditorReducer, defaultTrack, (track) => ({
         track: track,
@@ -88,10 +94,9 @@ export const PlixEditor: FC = () => {
             <DragContext.Provider value={dragRef}>
                 <TrackContext.Provider value={trackContextValue}>
                 <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
-
-                        <ScaleDisplayContext.Provider value={scaleDisplayContextValue}>
-                            <TrackEditor />
-                        </ScaleDisplayContext.Provider>
+                    <ScaleDisplayContext.Provider value={scaleDisplayContextValue}>
+                        <TrackEditor />
+                    </ScaleDisplayContext.Provider>
                     <div>LIBS AND CANVAS</div>
                 </SplitTopBottom>
                 </TrackContext.Provider>

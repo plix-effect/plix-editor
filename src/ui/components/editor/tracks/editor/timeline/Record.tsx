@@ -22,7 +22,29 @@ export const Record: FC<RecordProps> = memo(({record, record: [enabled, link, st
     }, []);
 
     const onDragEndName: DragEventHandler<HTMLDivElement> = useCallback((event) => {
-        dragRef.current = null;
+        if (event.dataTransfer.dropEffect === "copy") {
+            console.log("delete current record", event.dataTransfer.dropEffect);
+        }
+    }, []);
+
+    const onDragStartLeft: DragEventHandler<HTMLDivElement> = useCallback((event) => {
+        dragRef.current = {
+            recordScale: {record: record, side: "left"},
+            offsetX: event.nativeEvent.offsetX,
+            offsetY: event.nativeEvent.offsetY,
+        };
+        event.dataTransfer.setDragImage(new Image(), 0, 0);
+        event.dataTransfer.effectAllowed = 'move';
+    }, []);
+
+    const onDragStartRight: DragEventHandler<HTMLDivElement> = useCallback((event) => {
+        dragRef.current = {
+            recordScale: {record: record, side: "right"},
+            offsetX: event.nativeEvent.offsetX,
+            offsetY: event.nativeEvent.offsetY,
+        };
+        event.dataTransfer.setDragImage(new Image(), 0, 0);
+        event.dataTransfer.effectAllowed = 'move';
     }, []);
 
     return useMemo(() => {
@@ -36,14 +58,15 @@ export const Record: FC<RecordProps> = memo(({record, record: [enabled, link, st
                     width: `${durD * 100}%`,
                 }}
             >
-                <div className="timeline-record-scaling _left" draggable/>
-                <div className="timeline-record-scaling _right" draggable />
                 <div
                     onDragStart={onDragStartName} onDragEnd={onDragEndName}
                     className="timeline-record-name"
                     draggable
                     style={{backgroundColor: generateColorByText(link)}}
                 >{link}</div>
+                <div className="timeline-record-scaling _left" draggable onDragStart={onDragStartLeft}/>
+                <div className="timeline-record-scaling _right" draggable onDragStart={onDragStartRight} />
+
             </div>
         );
 

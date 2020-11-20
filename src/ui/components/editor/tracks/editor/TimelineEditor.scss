@@ -18,8 +18,8 @@
 .timeline-editor-records {
   position: absolute;
   width: 100%;
-  top: 4px;
-  bottom: 7px;
+  top: 0;
+  bottom: 0;
   font-size: 75%;
 }
 
@@ -30,4 +30,7 @@
   background-color: white;
   overflow: hidden;
 
+  &._unavailable {
+    background-color: red;
+  }
 }

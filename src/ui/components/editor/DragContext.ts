@@ -6,6 +6,10 @@ export interface DragTypes {
     effect: PlixEffectJsonData,
     filter: PlixFilterJsonData,
     record: PlixTimeEffectRecordJsonData,
+    recordScale: {
+        record: PlixTimeEffectRecordJsonData,
+        side: "left"|"right"
+    },
 }
 
 export type DragType = Partial<DragTypes> & {offsetX: number, offsetY: number}
