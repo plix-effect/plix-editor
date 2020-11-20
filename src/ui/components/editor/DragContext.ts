@@ -1,14 +1,18 @@
 import {createContext, MutableRefObject} from "react";
 import {PlixEffectJsonData, PlixFilterJsonData} from "@plix-effect/core/dist/types/parser";
 import {PlixTimeEffectRecordJsonData} from "@plix-effect/core/dist/parser/parseTimeEffectRecord";
+import {MultiActionType} from "./PlixEditorReducerActions";
 
 export interface DragTypes {
     effect: PlixEffectJsonData,
     filter: PlixFilterJsonData,
-    record: PlixTimeEffectRecordJsonData,
     recordScale: {
         record: PlixTimeEffectRecordJsonData,
         side: "left"|"right"
+    },
+    recordMove: {
+        record: PlixTimeEffectRecordJsonData,
+        deleteAction: MultiActionType
     },
 }
 

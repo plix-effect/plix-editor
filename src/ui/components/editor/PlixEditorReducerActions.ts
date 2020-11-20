@@ -1,5 +1,4 @@
 import type {EditorPath} from "../../types/Editor";
-import type {PlixEditorAction} from "./PlixEditorReducer";
 
 export const EditValueAction = (path: EditorPath, value: any) => {
     return {
@@ -25,6 +24,24 @@ export const DeleteIndexAction = (path: EditorPath, index: number) => {
     } as const;
 }
 
+
+export const DeleteValueAction = (path: EditorPath, value: any) => {
+    return {
+        type: "deleteValue",
+        path,
+        value
+    } as const;
+}
+
+export const InsertIndexAction = (path: EditorPath, index: number, value: any) => {
+    return {
+        type: "insert",
+        path,
+        index,
+        value
+    } as const;
+}
+
 export const UndoAction = () => {
     return {
         type: "undo"
@@ -34,6 +51,20 @@ export const UndoAction = () => {
 export const RedoAction = () => {
     return {
         type: "redo"
+    } as const;
+}
+
+export type MultiActionType = (
+    | ReturnType<typeof EditValueAction>
+    | ReturnType<typeof PushValueAction>
+    | ReturnType<typeof InsertIndexAction>
+    | ReturnType<typeof DeleteIndexAction>
+    | ReturnType<typeof DeleteValueAction>
+);
+export const MultiAction = (actions: MultiActionType[]) => {
+    return {
+        type: "multi",
+        actions
     } as const;
 }
 

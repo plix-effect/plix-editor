@@ -3,29 +3,35 @@ import {ScaleDisplayContext} from "../../../ScaleDisplayContext";
 import {PlixTimeEffectRecordJsonData} from "@plix-effect/core/dist/parser/parseTimeEffectRecord";
 import "./Record.scss";
 import {DragContext} from "../../../DragContext";
+import {DeleteValueAction} from "../../../PlixEditorReducerActions";
+import {EditorPath} from "../../../../../types/Editor";
 
 export interface RecordProps {
-    record: PlixTimeEffectRecordJsonData
+    record: PlixTimeEffectRecordJsonData,
+    path: EditorPath,
 }
-export const Record: FC<RecordProps> = memo(({record, record: [enabled, link, start, recordDuration]}) => {
+export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, link, start, recordDuration]}) => {
     const {duration} = useContext(ScaleDisplayContext);
     const dragRef = useContext(DragContext);
 
     const onDragStartName: DragEventHandler<HTMLDivElement> = useCallback((event) => {
         dragRef.current = {
             effect: [true, null, link, []],
-            record: record,
+            recordMove: {
+                record: record,
+                deleteAction: DeleteValueAction(path.slice(0, -1), record)
+            },
             offsetX: event.nativeEvent.offsetX,
             offsetY: event.nativeEvent.offsetY,
         }
         event.dataTransfer.effectAllowed = 'all';
-    }, []);
+    }, [record, path]);
 
     const onDragEndName: DragEventHandler<HTMLDivElement> = useCallback((event) => {
         if (event.dataTransfer.dropEffect === "copy") {
             console.log("delete current record", event.dataTransfer.dropEffect);
         }
-    }, []);
+    }, [record]);
 
     const onDragStartLeft: DragEventHandler<HTMLDivElement> = useCallback((event) => {
         dragRef.current = {
@@ -35,7 +41,7 @@ export const Record: FC<RecordProps> = memo(({record, record: [enabled, link, st
         };
         event.dataTransfer.setDragImage(new Image(), 0, 0);
         event.dataTransfer.effectAllowed = 'move';
-    }, []);
+    }, [record]);
 
     const onDragStartRight: DragEventHandler<HTMLDivElement> = useCallback((event) => {
         dragRef.current = {
@@ -45,7 +51,7 @@ export const Record: FC<RecordProps> = memo(({record, record: [enabled, link, st
         };
         event.dataTransfer.setDragImage(new Image(), 0, 0);
         event.dataTransfer.effectAllowed = 'move';
-    }, []);
+    }, [record]);
 
     return useMemo(() => {
         const startD = start / duration;
@@ -70,7 +76,7 @@ export const Record: FC<RecordProps> = memo(({record, record: [enabled, link, st
             </div>
         );
 
-    }, [duration, start, link, recordDuration, enabled]);
+    }, [duration, start, link, recordDuration, enabled, onDragStartRight, onDragStartLeft, onDragEndName]);
 });
 
 function generateColorByText(value: string){

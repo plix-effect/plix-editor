@@ -41,7 +41,37 @@ export const PlixEditorReducer: Reducer<PlixEditorState, PlixEditorAction> = (st
                 action.index
             )
         );
+        case "deleteValue": return changeState(
+            state,
+            new DeleteIndexHistoryItem(
+                action.value,
+                toHistoryPath(state.track, action.path),
+                getWIthPath(state.track, toHistoryPath(state.track, action.path)).indexOf(action.value)
+            )
+        );
+        case "insert": return changeState(
+            state,
+            new InsertIndexHistoryItem(
+                action.value,
+                toHistoryPath(state.track, action.path),
+                action.index
+            )
+        );
+        case "multi": {
+            const newState = action.actions.reduce((s, a) => PlixEditorReducer(s, a), state);
+            const initHistoryPos = state.historyPosition;
+            const newHistoryPos = newState.historyPosition;
+            if (newHistoryPos <= initHistoryPos+1) return newState;
+            const newHistory = newState.history.slice(0, initHistoryPos);
+            newHistory.push(new MultiHistoryItem(newState.history.slice(initHistoryPos)))
+            return {
+                ...newState,
+                history: newHistory,
+                historyPosition: initHistoryPos + 1
+            }
+        }
     }
+
 }
 
 function undoState(state: PlixEditorState): PlixEditorState {
@@ -67,24 +97,44 @@ function redoState(state: PlixEditorState): PlixEditorState {
 function changeState(state: PlixEditorState, historyItem: PlixEditorHistoryItem): PlixEditorState {
     const prevHistoryItem = state.history[state.historyPosition-1];
     const now = performance.now();
+
+    const newTrack = historyItem.apply(state.track);
+    if (newTrack === state.track) return state;
+
     if (prevHistoryItem && prevHistoryItem.timestamp + MERGE_HISTORY_TIMEOUT > now) {
         const mergedHistoryItem = prevHistoryItem.merge(historyItem);
         if (mergedHistoryItem) {
             return {
                 ...state,
                 history: state.history.slice(0, state.historyPosition-1).concat(mergedHistoryItem),
-                track: historyItem.apply(state.track),
+                track: newTrack,
             }
         }
     }
+
     return {
         ...state,
         history: state.history.slice(0, state.historyPosition).concat(historyItem),
-        track: historyItem.apply(state.track),
+        track: newTrack,
         historyPosition: state.historyPosition + 1,
     }
 
 }
+
+class MultiHistoryItem implements PlixEditorHistoryItem {
+    public readonly timestamp = performance.now();
+    constructor(private items: PlixEditorHistoryItem[]) {}
+    apply(track: PlixJsonData){
+        return this.items.reduce((t, item) => item.apply(t), track);
+    }
+    revert(track: PlixJsonData){
+        return this.items.reduceRight((t, item) => item.revert(t), track);
+    }
+    merge(){
+        return null;
+    }
+}
+
 class EditHistoryItem<T> implements PlixEditorHistoryItem {
     public readonly timestamp: number;
 
@@ -131,20 +181,43 @@ class PushHistoryItem<T> implements PlixEditorHistoryItem {
 }
 
 class DeleteIndexHistoryItem<T> implements PlixEditorHistoryItem {
-    public readonly timestamp: number;
+    public readonly timestamp = performance.now();
 
     constructor(
         private readonly oldValue: T,
+        public readonly path: HistoryPath,
+        public readonly index: number,
+    ){}
+
+    apply(track: PlixJsonData){
+        if (this.index < 0) return track;
+        return deleteIndexWIthPath(track, this.path, this.index);
+    }
+    revert(track: PlixJsonData){
+        if (this.index < 0) return track;
+        return insertIndexValueWIthPath(track, this.path, this.index, this.oldValue);
+    }
+    merge() {
+        return null;
+    }
+}
+
+class InsertIndexHistoryItem<T> implements PlixEditorHistoryItem {
+    public readonly timestamp = performance.now();
+
+    constructor(
+        private readonly value: T,
         public readonly path: HistoryPath,
         public readonly index: number,
     ){
         this.timestamp = performance.now();
     }
     apply(track: PlixJsonData){
-        return deleteIndexWIthPath(track, this.path, this.index);
+        return insertIndexValueWIthPath(track, this.path, this.index, this.value);
+
     }
     revert(track: PlixJsonData){
-        return insertIndexValueWIthPath(track, this.path, this.index, this.oldValue);
+        return deleteIndexWIthPath(track, this.path, this.index);
     }
     merge() {
         return null;

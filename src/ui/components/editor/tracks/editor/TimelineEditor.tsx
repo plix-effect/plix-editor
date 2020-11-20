@@ -6,72 +6,94 @@ import {PlixTimeEffectRecordJsonData} from "@plix-effect/core/dist/parser/parseT
 import {TimelineEditorGrid} from "./timeline/TimelineEditorGrid";
 import {Records} from "./timeline/Records";
 import {DragContext} from "../../DragContext";
+import {TrackContext} from "../../TrackContext";
+import {EditValueAction, InsertIndexAction, MultiAction, PushValueAction} from "../../PlixEditorReducerActions";
+import {EditorPath} from "../../../../types/Editor";
 
 export interface TimelineEditorProps {
-    onChange: (value: any) => void,
     records: PlixTimeEffectRecordJsonData[],
     cycle: number|null,
     grid: number|null,
     offset: number,
+    path: EditorPath,
 }
-export const TimelineEditor: FC<TimelineEditorProps> = ({records, onChange, cycle, grid, offset}) => {
+export const TimelineEditor: FC<TimelineEditorProps> = ({records, cycle, grid, offset, path}) => {
 
     const dragRef = useContext(DragContext);
     const dragCount = useRef(0);
     const {trackWidth, duration, zoom} = useContext(ScaleDisplayContext);
+    const {dispatch} = useContext(TrackContext);
+    const onDropActionRef = useRef<(event: DragEvent<HTMLDivElement>) => void>();
 
-    const dummyRef = useRef<HTMLDivElement>()
-    const editorRef = useRef<HTMLDivElement>()
+    const dummyRef = useRef<HTMLDivElement>();
+    const editorRef = useRef<HTMLDivElement>();
 
-    const onDragEnter = useCallback((event: DragEvent<HTMLDivElement>) => {
+    const createInsertRecordAction = useCallback((record: PlixTimeEffectRecordJsonData) => {
+        const index = records.findIndex(rec => rec[3] > record[3]);
+        if (index < 0) return PushValueAction(path, record);
+        return InsertIndexAction(path, index, record);
+    }, [records]);
+
+    const onDragEnter = useCallback(() => {
         dragCount.current++;
-        if (dragRef.current?.record) {
-            return event.preventDefault();
-        }
-        if (dragRef.current?.recordScale && records.includes(dragRef.current?.recordScale.record)) {
-            return event.preventDefault();
-        }
     }, []);
 
-    const onDragLeave = useCallback((event: DragEvent<HTMLDivElement>) => {
+    const onDragLeave = useCallback(() => {
         dragCount.current--;
-        if (dragCount.current === 0) dummyRef.current.style.display = "none";
+        if (dragCount.current === 0) clearDummy(dummyRef.current)
     }, []);
 
     const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
         if (!dragRef.current) return;
+        event.dataTransfer.dropEffect = "none";
+        const dummy = dummyRef.current;
         const editorRect = editorRef.current.getBoundingClientRect();
-        const dragLeftPosPx = event.clientX - editorRect.left - dragRef.current.offsetX;
-        const dragLeftPosTime = dragLeftPosPx / zoom;
-        const eventPosTime = (event.clientX - editorRect.left) / zoom;
-        // const record = dragRef.current?.record;
-        // if (record) {
-        //     const editorRect = editorRef.current.getBoundingClientRect();
-        //     event.dataTransfer.dropEffect = event.shiftKey ? "copy" : "move";
-        //     const dummy = dummyRef.current;
-        //     if (!dummy) return;
-        //     const durD = record[3] / duration;
-        //
-        //     dummy.style.display = "";
-        //     dummy.style.width = `${durD*100}%`;
-        //     const dragLeft = (event.clientX - editorRect.left - dragRef.current.offsetX);
-        //     const dummyLeft = event.ctrlKey ? dragLeft : dragLeft + 25 - (dragLeft%50);
-        //     dummy.style.left = `${dummyLeft}px`;
-        //     dummy.classList.toggle("_unavailable", dragLeft > 300);
-        //     event.preventDefault();
-        // }
-        const recordScale = dragRef.current?.recordScale
+
+        // scale record
+        const recordScale = dragRef.current?.recordScale;
         if (recordScale && records.includes(recordScale.record)) {
-            handleDragScale(event, dummyRef.current, eventPosTime, duration, recordScale, records, cycle, grid, offset);
-            event.preventDefault();
+            const eventPosTime = (event.clientX - editorRect.left) / zoom;
+            const [pos, canMove] = getScalingResult(recordScale, eventPosTime, !event.ctrlKey, cycle, grid, offset, records);
+            setDummyPosition(dummy, duration, pos, canMove);
+            if (!canMove) return;
+            event.dataTransfer.dropEffect = "move";
+            onDropActionRef.current = () => {
+                const record = recordScale.record;
+                const newRecordValue = [record[0], record[1], pos[0], pos[1]]
+                dispatch(EditValueAction([...path, records.indexOf(record)], newRecordValue))
+            }
+            return event.preventDefault();
         }
-    }, [zoom, duration]);
+        const recordMove = dragRef.current?.recordMove;
+        if (recordMove) {
+            const action: "copy"|"move" = event.shiftKey ? "copy" : "move"
+            const record = recordMove.record;
+            const posTime = (event.clientX - editorRect.left - dragRef.current.offsetX) / zoom;
+            const [pos, canMove] = getMovingResult(record, posTime, !event.ctrlKey, cycle, grid, offset, records, action);
+            setDummyPosition(dummy, duration, pos, canMove);
+            if (!canMove) return;
+            event.dataTransfer.dropEffect = action;
+            onDropActionRef.current = (event) => {
+                event.dataTransfer.dropEffect = action;
+                const newRecordValue: PlixTimeEffectRecordJsonData = [record[0], record[1], pos[0], pos[1]];
+                const insertAction = createInsertRecordAction(newRecordValue);
+                if (action === "copy") {
+                    dispatch(insertAction)
+                } else { // action === "move"
+                    dispatch(MultiAction([insertAction, recordMove.deleteAction]))
+                }
+            }
+            return event.preventDefault();
+        }
+
+        return clearDummy(dummy);
+    }, [zoom, duration, cycle, grid, offset, records, createInsertRecordAction]);
 
     const onDrop = useCallback((event: DragEvent<HTMLDivElement>) => {
         dragCount.current = 0;
         dummyRef.current.style.display = "none";
-        console.log("MOVE TO NEW POSITION", dragRef.current, event);
-    }, []);
+        onDropActionRef.current?.(event)
+    }, [dragCount, dummyRef, onDropActionRef]);
 
     return (
         <div
@@ -87,85 +109,95 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, onChange, cycl
                     {cycle !== null && <TimelineEditorGrid offset={offset} grid={grid ?? 1} cycle={cycle} />}
                 </div>
                 <div className="timeline-editor-records">
-                    <Records records={records} />
+                    <Records records={records} path={path} />
                 </div>
             </div>
         </div>
     );
 }
 
-function handleDragScale(
-    event: DragEvent<HTMLDivElement>,
-    dummy: HTMLDivElement,
-    dragPosTime: number,
-    duration: number,
+function getScalingResult(
     recordScale: { record: PlixTimeEffectRecordJsonData, side: "left"|"right" },
-    records: PlixTimeEffectRecordJsonData[],
+    eventPosTime: number,
+    bindToGrid: boolean,
     cycle: number|null,
     grid: number|null,
-    offset: number
-){
-    event.dataTransfer.dropEffect = "none";
-    const bindToGrid = (cycle !== null) && !event.ctrlKey;
-    const selectedPosTime = bindToGrid ? getNearGridPosition(dragPosTime, cycle, grid, offset) : dragPosTime;
+    offset: number,
+    records: PlixTimeEffectRecordJsonData[],
 
-    if (selectedPosTime < 0) return clearDummy(event, dummy);
-    if (selectedPosTime > duration) return clearDummy(event, dummy);
+): [position: [startPosition: number, duration: number], available: boolean]{
+    const selectedPosition = getSelectedPosition(bindToGrid, eventPosTime, cycle, grid, offset);
+    const moveRecordPosition = getNewPositionAfterScaling(recordScale, selectedPosition);
+    if (moveRecordPosition[1] <= 0) { // overflow
+        return [[recordScale.record[2], recordScale.record[3]], false];
+    }
+    const canMove = canMoveRecord(recordScale.record, records, moveRecordPosition, "move");
+    return [moveRecordPosition, canMove];
+}
 
-    dummy.style.display = "";
-    dummy.classList.toggle("_unavailable", false);
+function getMovingResult(
+    record: PlixTimeEffectRecordJsonData,
+    posTime: number,
+    bindToGrid: boolean,
+    cycle: number|null,
+    grid: number|null,
+    offset: number,
+    records: PlixTimeEffectRecordJsonData[],
+    effect: "move"|"copy",
+): [position: [startPosition: number, duration: number], available: boolean]{
+    const recordDuration = record[3];
+    const posEndTime = posTime + recordDuration;
+    const selectedPositionLeft = getSelectedPosition(bindToGrid, posTime, cycle, grid, offset);
+    const selectedPositionRight = getSelectedPosition(bindToGrid, posEndTime, cycle, grid, offset);
+    const leftDif = Math.abs(selectedPositionLeft - posTime);
+    const rightDif = Math.abs(selectedPositionRight - posEndTime);
+    const selectedPosition = (leftDif <= rightDif) ? selectedPositionLeft : selectedPositionRight - recordDuration;
+    const moveRecordPosition: [number, number] = [selectedPosition, recordDuration];
+    const canMove = canMoveRecord(record, records, moveRecordPosition, effect);
+    return [moveRecordPosition, canMove];
+}
 
-    const selectedPosTimeD = selectedPosTime / duration;
-    const trackPosD = recordScale.record[2] / duration;
-    const trackDurD = recordScale.record[3] / duration;
-
-    let newPosStartTime, newPosDuration;
+function getNewPositionAfterScaling(
+    recordScale: { record: PlixTimeEffectRecordJsonData, side: "left"|"right" },
+    selectedPosition: number
+): [position: number, duration: number]{
+    const [,,recordPosition, recordWidth] = recordScale.record;
     if (recordScale.side === "right") {
-        newPosStartTime = recordScale.record[2];
-        newPosDuration = selectedPosTime - newPosStartTime;
+        return [recordPosition, selectedPosition - recordPosition]
     } else {
-        newPosStartTime = selectedPosTime;
-        newPosDuration = recordScale.record[2] + recordScale.record[3] - newPosStartTime;
-        const trackEndD = trackPosD + trackDurD;
-        if (selectedPosTimeD >= trackEndD) {
-            dummy.style.left = `${trackPosD * 100}%`;
-            dummy.style.width = `${trackDurD * 100}%`;
-            dummy.classList.toggle("_unavailable", true);
-            return;
-        }
-        dummy.style.left = `${selectedPosTimeD * 100}%`;
-        dummy.style.width = `${(trackEndD - selectedPosTimeD) * 100}%`;
+        return [selectedPosition, recordPosition + recordWidth - selectedPosition]
     }
-    if (newPosDuration <= 0) {
-        dummy.style.left = `${trackPosD * 100}%`;
-        dummy.style.width = `${trackDurD * 100}%`;
-        dummy.classList.toggle("_unavailable", true);
-        return;
-    }
-    const newPosStartTimeD = newPosStartTime / duration;
-    const newPosDurationD = newPosDuration / duration;
-    dummy.style.left = `${newPosStartTimeD * 100}%`;
-    dummy.style.width = `${newPosDurationD * 100}%`;
-    if (!canMoveRecord(recordScale.record, records, newPosStartTime, newPosDuration)) {
-        dummy.classList.toggle("_unavailable", true);
-        return;
-    }
-    event.dataTransfer.dropEffect = "move";
-    event.preventDefault();
 }
 
-function clearDummy(event: DragEvent<HTMLDivElement>, dummy: HTMLDivElement){
+function clearDummy(dummy: HTMLDivElement){
     dummy.style.display = "none";
-    event.dataTransfer.dropEffect = "none";
 }
 
-function getNearGridPosition(
+function setDummyPosition(
+    dummy: HTMLDivElement,
+    duration: number,
+    [posStart, posDuration]: [start: number, duration: number],
+    available: boolean
+){
+    const dummyStartD = posStart / duration;
+    const dummyDurationD = posDuration / duration;
+    dummy.style.display = "";
+    dummy.style.left = `${dummyStartD * 100}%`;
+    dummy.classList.toggle("_unavailable", !available);
+    dummy.style.width = `${dummyDurationD * 100}%`;
+}
+
+function getSelectedPosition(
+    bindToGrid: boolean,
     dragLeftPosTime: number,
     cycle: number|null,
     grid: number|null,
     offset: number,
 ){
+    if (dragLeftPosTime < 0) return 0;
+    if (!bindToGrid) return dragLeftPosTime;
     if (!cycle) return dragLeftPosTime;
+
     if (dragLeftPosTime < offset) return dragLeftPosTime;
     const gridSize = cycle/(grid??1);
     const gridsLeft = Math.floor((dragLeftPosTime-offset) / gridSize);
@@ -178,11 +210,11 @@ function getNearGridPosition(
 function canMoveRecord(
     record: PlixTimeEffectRecordJsonData,
     records: PlixTimeEffectRecordJsonData[],
-    start: number,
-    duration: number,
+    [start, duration]: [start: number, duration: number],
+    effect: "move"|"copy",
 ) {
     for (const rec of records) {
-        if (rec === record) continue;
+        if (effect === "move" && rec === record) continue;
         const [,,recPos, recDuration] = rec;
         if (start + duration <= recPos) continue;
         if (start >= recPos + recDuration) continue;
