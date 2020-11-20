@@ -179,7 +179,7 @@ function pushWIthPath<T>(state: T, path: HistoryPath, value: any){
     if (path[0] === undefined) {
         if (state === undefined) state = [] as unknown as T;
         if (Array.isArray(state)) {
-            const arrayKeys = settleKeys(state);
+            const arrayKeys = settleKeys(state as unknown as any[]);
             const newArray = state.concat([value]);
             const newArrayKeys = arrayKeys.concat([generateKeyId()]);
             keyMap.set(newArray, newArrayKeys);
@@ -198,7 +198,7 @@ function insertIndexValueWIthPath<T>(state: T, path: HistoryPath, index: number,
     if (path.length === 0) {
         if (Array.isArray(state)) {
             const stateCopy = state.slice(0);
-            const arrayKeys = settleKeys(state).slice(0);
+            const arrayKeys = settleKeys(state as unknown as any[]).slice(0);
             stateCopy.splice(index, 0, value);
             arrayKeys.splice(index, 0, generateKeyId());
             return stateCopy;
@@ -214,7 +214,7 @@ function deleteIndexWIthPath<T>(state: T, path: HistoryPath, index: number){
         if (Array.isArray(state)) {
             if (state.length <= index) return state;
             const stateCopy = state.slice(0);
-            const arrayKeys = settleKeys(state).slice(0);
+            const arrayKeys = settleKeys(state as unknown as any[]).slice(0);
             stateCopy.splice(index, 1);
             arrayKeys.splice(index, 1);
             keyMap.set(stateCopy, arrayKeys);
@@ -228,7 +228,7 @@ function deleteIndexWIthPath<T>(state: T, path: HistoryPath, index: number){
 function popWIthPath<T>(state: T, path: HistoryPath){
     if (path[0] === undefined) {
         if (Array.isArray(state)) {
-            const arrayKeys = settleKeys(state);
+            const arrayKeys = settleKeys(state as unknown as any[]);
             const newArray = state.slice(0, -1);
             const newArrayKeys = arrayKeys.slice(0, -1);
             keyMap.set(newArray, newArrayKeys);
