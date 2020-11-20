@@ -32863,6 +32863,7 @@ exports.PlixEditor = PlixEditor;
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
 /*! CommonJS bailout: this is used directly at 2:14-18 */
+/*! CommonJS bailout: exports.PlixEditorReducer(...) prevents optimization as exports is passed as call context at 27:61-86 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -32889,6 +32890,18 @@ const PlixEditorReducer = (state, action) => {
         case "edit": return changeState(state, new EditHistoryItem(getWIthPath(state.track, toHistoryPath(state.track, action.path)), toHistoryPath(state.track, action.path), action.value));
         case "push": return changeState(state, new PushHistoryItem(toHistoryPath(state.track, action.path), action.value));
         case "deleteIndex": return changeState(state, new DeleteIndexHistoryItem(getWIthPath(state.track, toHistoryPath(state.track, action.path))[action.index], toHistoryPath(state.track, action.path), action.index));
+        case "deleteValue": return changeState(state, new DeleteIndexHistoryItem(action.value, toHistoryPath(state.track, action.path), getWIthPath(state.track, toHistoryPath(state.track, action.path)).indexOf(action.value)));
+        case "insert": return changeState(state, new InsertIndexHistoryItem(action.value, toHistoryPath(state.track, action.path), action.index));
+        case "multi": {
+            const newState = action.actions.reduce((s, a) => exports.PlixEditorReducer(s, a), state);
+            const initHistoryPos = state.historyPosition;
+            const newHistoryPos = newState.historyPosition;
+            if (newHistoryPos <= initHistoryPos + 1)
+                return newState;
+            const newHistory = newState.history.slice(0, initHistoryPos);
+            newHistory.push(new MultiHistoryItem(newState.history.slice(initHistoryPos)));
+            return Object.assign(Object.assign({}, newState), { history: newHistory, historyPosition: initHistoryPos + 1 });
+        }
     }
 };
 exports.PlixEditorReducer = PlixEditorReducer;
@@ -32907,13 +32920,31 @@ function redoState(state) {
 function changeState(state, historyItem) {
     const prevHistoryItem = state.history[state.historyPosition - 1];
     const now = performance.now();
+    const newTrack = historyItem.apply(state.track);
+    if (newTrack === state.track)
+        return state;
     if (prevHistoryItem && prevHistoryItem.timestamp + MERGE_HISTORY_TIMEOUT > now) {
         const mergedHistoryItem = prevHistoryItem.merge(historyItem);
         if (mergedHistoryItem) {
-            return Object.assign(Object.assign({}, state), { history: state.history.slice(0, state.historyPosition - 1).concat(mergedHistoryItem), track: historyItem.apply(state.track) });
+            return Object.assign(Object.assign({}, state), { history: state.history.slice(0, state.historyPosition - 1).concat(mergedHistoryItem), track: newTrack });
         }
     }
-    return Object.assign(Object.assign({}, state), { history: state.history.slice(0, state.historyPosition).concat(historyItem), track: historyItem.apply(state.track), historyPosition: state.historyPosition + 1 });
+    return Object.assign(Object.assign({}, state), { history: state.history.slice(0, state.historyPosition).concat(historyItem), track: newTrack, historyPosition: state.historyPosition + 1 });
+}
+class MultiHistoryItem {
+    constructor(items) {
+        this.items = items;
+        this.timestamp = performance.now();
+    }
+    apply(track) {
+        return this.items.reduce((t, item) => item.apply(t), track);
+    }
+    revert(track) {
+        return this.items.reduceRight((t, item) => item.revert(t), track);
+    }
+    merge() {
+        return null;
+    }
 }
 class EditHistoryItem {
     constructor(oldValue, path, value, timestamp) {
@@ -32959,10 +32990,32 @@ class DeleteIndexHistoryItem {
         this.timestamp = performance.now();
     }
     apply(track) {
+        if (this.index < 0)
+            return track;
         return deleteIndexWIthPath(track, this.path, this.index);
     }
     revert(track) {
+        if (this.index < 0)
+            return track;
         return insertIndexValueWIthPath(track, this.path, this.index, this.oldValue);
+    }
+    merge() {
+        return null;
+    }
+}
+class InsertIndexHistoryItem {
+    constructor(value, path, index) {
+        this.value = value;
+        this.path = path;
+        this.index = index;
+        this.timestamp = performance.now();
+        this.timestamp = performance.now();
+    }
+    apply(track) {
+        return insertIndexValueWIthPath(track, this.path, this.index, this.value);
+    }
+    revert(track) {
+        return deleteIndexWIthPath(track, this.path, this.index);
     }
     merge() {
         return null;
@@ -33124,7 +33177,10 @@ function toHistoryPath(track, editorPath) {
   \**************************************************************/
 /*! flagged exports */
 /*! export DeleteIndexAction [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export DeleteValueAction [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export EditValueAction [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export InsertIndexAction [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export MultiAction [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export PushValueAction [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export RedoAction [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export UndoAction [provided] [no usage info] [missing usage info prevents renaming] */
@@ -33136,7 +33192,7 @@ function toHistoryPath(track, editorPath) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RedoAction = exports.UndoAction = exports.DeleteIndexAction = exports.PushValueAction = exports.EditValueAction = void 0;
+exports.MultiAction = exports.RedoAction = exports.UndoAction = exports.InsertIndexAction = exports.DeleteValueAction = exports.DeleteIndexAction = exports.PushValueAction = exports.EditValueAction = void 0;
 const EditValueAction = (path, value) => {
     return {
         type: "edit",
@@ -33161,6 +33217,23 @@ const DeleteIndexAction = (path, index) => {
     };
 };
 exports.DeleteIndexAction = DeleteIndexAction;
+const DeleteValueAction = (path, value) => {
+    return {
+        type: "deleteValue",
+        path,
+        value
+    };
+};
+exports.DeleteValueAction = DeleteValueAction;
+const InsertIndexAction = (path, index, value) => {
+    return {
+        type: "insert",
+        path,
+        index,
+        value
+    };
+};
+exports.InsertIndexAction = InsertIndexAction;
 const UndoAction = () => {
     return {
         type: "undo"
@@ -33173,6 +33246,13 @@ const RedoAction = () => {
     };
 };
 exports.RedoAction = RedoAction;
+const MultiAction = (actions) => {
+    return {
+        type: "multi",
+        actions
+    };
+};
+exports.MultiAction = MultiAction;
 
 
 /***/ }),
@@ -34456,13 +34536,14 @@ const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/re
 const Track_1 = __webpack_require__(/*! ../../timeline/Track */ "./src/ui/components/timeline/Track.tsx");
 const TreeBlock_1 = __webpack_require__(/*! ../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
 const TimelineBlock_1 = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
-__webpack_require__(/*! ./tracks.scss */ "./src/ui/components/editor/tracks/tracks.scss");
 const TimelineEditor_1 = __webpack_require__(/*! ./editor/TimelineEditor */ "./src/ui/components/editor/tracks/editor/TimelineEditor.tsx");
 const EffectTypeTrack_1 = __webpack_require__(/*! ./EffectTypeTrack */ "./src/ui/components/editor/tracks/EffectTypeTrack.tsx");
 const ValueTrack_1 = __webpack_require__(/*! ./ValueTrack */ "./src/ui/components/editor/tracks/ValueTrack.tsx");
 const TrackContext_1 = __webpack_require__(/*! ../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+__webpack_require__(/*! ./tracks.scss */ "./src/ui/components/editor/tracks/tracks.scss");
 exports.TimelineEffectTrack = react_1.memo(({ effect, effect: [enabled, effectId, params, filters], path, children, onChange, changeExpanded, expanded, expander }) => {
     const filtersPath = react_1.useMemo(() => [...path, 3], [path]);
+    const timelinePath = react_1.useMemo(() => [...path, 2, 0], [path]);
     const valueFilters = react_1.useMemo(() => filters !== null && filters !== void 0 ? filters : [], [filters]);
     const { effectConstructorMap } = react_1.useContext(TrackContext_1.TrackContext);
     const timelineConstructorMeta = react_1.useMemo(() => effectConstructorMap['Timeline']['meta'], [effectConstructorMap]);
@@ -34473,7 +34554,7 @@ exports.TimelineEffectTrack = react_1.memo(({ effect, effect: [enabled, effectId
             " ",
             react_1.default.createElement("span", { className: "track-description _type" }, timelineConstructorMeta.name)),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { type: "timeline" },
-            react_1.default.createElement(TimelineEditor_1.TimelineEditor, { cycle: params[1], grid: params[2], offset: params[3], records: params[0], onChange: () => { } })),
+            react_1.default.createElement(TimelineEditor_1.TimelineEditor, { cycle: params[1], grid: params[2], offset: params[3], records: params[0], path: timelinePath })),
         react_1.default.createElement(EffectTypeTrack_1.EffectTypeTrack, { onChange: onChange, effect: effect }),
         react_1.default.createElement(Track_1.Track, null,
             react_1.default.createElement(TreeBlock_1.TreeBlock, null,
@@ -34971,107 +35052,137 @@ __webpack_require__(/*! ./TimelineEditor.scss */ "./src/ui/components/editor/tra
 const TimelineEditorGrid_1 = __webpack_require__(/*! ./timeline/TimelineEditorGrid */ "./src/ui/components/editor/tracks/editor/timeline/TimelineEditorGrid.tsx");
 const Records_1 = __webpack_require__(/*! ./timeline/Records */ "./src/ui/components/editor/tracks/editor/timeline/Records.tsx");
 const DragContext_1 = __webpack_require__(/*! ../../DragContext */ "./src/ui/components/editor/DragContext.ts");
-const TimelineEditor = ({ records, onChange, cycle, grid, offset }) => {
+const TrackContext_1 = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+const PlixEditorReducerActions_1 = __webpack_require__(/*! ../../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+const TimelineEditor = ({ records, cycle, grid, offset, path }) => {
     const dragRef = react_1.useContext(DragContext_1.DragContext);
     const dragCount = react_1.useRef(0);
     const { trackWidth, duration, zoom } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
+    const { dispatch } = react_1.useContext(TrackContext_1.TrackContext);
+    const onDropActionRef = react_1.useRef();
     const dummyRef = react_1.useRef();
     const editorRef = react_1.useRef();
-    const onDragEnter = react_1.useCallback((event) => {
-        var _a, _b, _c;
+    const createInsertRecordAction = react_1.useCallback((record) => {
+        const index = records.findIndex(rec => rec[3] > record[3]);
+        if (index < 0)
+            return PlixEditorReducerActions_1.PushValueAction(path, record);
+        return PlixEditorReducerActions_1.InsertIndexAction(path, index, record);
+    }, [records]);
+    const onDragEnter = react_1.useCallback(() => {
         dragCount.current++;
-        if ((_a = dragRef.current) === null || _a === void 0 ? void 0 : _a.record) {
-            return event.preventDefault();
-        }
-        if (((_b = dragRef.current) === null || _b === void 0 ? void 0 : _b.recordScale) && records.includes((_c = dragRef.current) === null || _c === void 0 ? void 0 : _c.recordScale.record)) {
-            return event.preventDefault();
-        }
     }, []);
-    const onDragLeave = react_1.useCallback((event) => {
+    const onDragLeave = react_1.useCallback(() => {
         dragCount.current--;
         if (dragCount.current === 0)
-            dummyRef.current.style.display = "none";
+            clearDummy(dummyRef.current);
     }, []);
     const onDragOver = react_1.useCallback((event) => {
-        var _a;
+        var _a, _b;
         if (!dragRef.current)
             return;
+        event.dataTransfer.dropEffect = "none";
+        const dummy = dummyRef.current;
         const editorRect = editorRef.current.getBoundingClientRect();
-        const dragLeftPosPx = event.clientX - editorRect.left - dragRef.current.offsetX;
-        const dragLeftPosTime = dragLeftPosPx / zoom;
-        const eventPosTime = (event.clientX - editorRect.left) / zoom;
         const recordScale = (_a = dragRef.current) === null || _a === void 0 ? void 0 : _a.recordScale;
         if (recordScale && records.includes(recordScale.record)) {
-            handleDragScale(event, dummyRef.current, eventPosTime, duration, recordScale, records, cycle, grid, offset);
-            event.preventDefault();
+            const eventPosTime = (event.clientX - editorRect.left) / zoom;
+            const [pos, canMove] = getScalingResult(recordScale, eventPosTime, !event.ctrlKey, cycle, grid, offset, records);
+            setDummyPosition(dummy, duration, pos, canMove);
+            if (!canMove)
+                return;
+            event.dataTransfer.dropEffect = "move";
+            onDropActionRef.current = () => {
+                const record = recordScale.record;
+                const newRecordValue = [record[0], record[1], pos[0], pos[1]];
+                dispatch(PlixEditorReducerActions_1.EditValueAction([...path, records.indexOf(record)], newRecordValue));
+            };
+            return event.preventDefault();
         }
-    }, [zoom, duration]);
+        const recordMove = (_b = dragRef.current) === null || _b === void 0 ? void 0 : _b.recordMove;
+        if (recordMove) {
+            const action = event.shiftKey ? "copy" : "move";
+            const record = recordMove.record;
+            const posTime = (event.clientX - editorRect.left - dragRef.current.offsetX) / zoom;
+            const [pos, canMove] = getMovingResult(record, posTime, !event.ctrlKey, cycle, grid, offset, records, action);
+            setDummyPosition(dummy, duration, pos, canMove);
+            if (!canMove)
+                return;
+            event.dataTransfer.dropEffect = action;
+            onDropActionRef.current = (event) => {
+                event.dataTransfer.dropEffect = action;
+                const newRecordValue = [record[0], record[1], pos[0], pos[1]];
+                const insertAction = createInsertRecordAction(newRecordValue);
+                if (action === "copy") {
+                    dispatch(insertAction);
+                }
+                else {
+                    dispatch(PlixEditorReducerActions_1.MultiAction([insertAction, recordMove.deleteAction]));
+                }
+            };
+            return event.preventDefault();
+        }
+        return clearDummy(dummy);
+    }, [zoom, duration, cycle, grid, offset, records, createInsertRecordAction]);
     const onDrop = react_1.useCallback((event) => {
+        var _a;
         dragCount.current = 0;
         dummyRef.current.style.display = "none";
-        console.log("MOVE TO NEW POSITION", dragRef.current, event);
-    }, []);
+        (_a = onDropActionRef.current) === null || _a === void 0 ? void 0 : _a.call(onDropActionRef, event);
+    }, [dragCount, dummyRef, onDropActionRef]);
     return (react_1.default.createElement("div", { className: "timeline-editor-drag-content", onDragEnter: onDragEnter, onDragLeave: onDragLeave, onDragOver: onDragOver, onDrop: onDrop },
         react_1.default.createElement("div", { ref: editorRef, className: "timeline-editor", style: { width: trackWidth } },
             react_1.default.createElement("div", { className: "timeline-editor-dummy", ref: dummyRef }),
             react_1.default.createElement("div", { className: "timeline-editor-grid" }, cycle !== null && react_1.default.createElement(TimelineEditorGrid_1.TimelineEditorGrid, { offset: offset, grid: grid !== null && grid !== void 0 ? grid : 1, cycle: cycle })),
             react_1.default.createElement("div", { className: "timeline-editor-records" },
-                react_1.default.createElement(Records_1.Records, { records: records })))));
+                react_1.default.createElement(Records_1.Records, { records: records, path: path })))));
 };
 exports.TimelineEditor = TimelineEditor;
-function handleDragScale(event, dummy, dragPosTime, duration, recordScale, records, cycle, grid, offset) {
-    event.dataTransfer.dropEffect = "none";
-    const bindToGrid = (cycle !== null) && !event.ctrlKey;
-    const selectedPosTime = bindToGrid ? getNearGridPosition(dragPosTime, cycle, grid, offset) : dragPosTime;
-    if (selectedPosTime < 0)
-        return clearDummy(event, dummy);
-    if (selectedPosTime > duration)
-        return clearDummy(event, dummy);
-    dummy.style.display = "";
-    dummy.classList.toggle("_unavailable", false);
-    const selectedPosTimeD = selectedPosTime / duration;
-    const trackPosD = recordScale.record[2] / duration;
-    const trackDurD = recordScale.record[3] / duration;
-    let newPosStartTime, newPosDuration;
+function getScalingResult(recordScale, eventPosTime, bindToGrid, cycle, grid, offset, records) {
+    const selectedPosition = getSelectedPosition(bindToGrid, eventPosTime, cycle, grid, offset);
+    const moveRecordPosition = getNewPositionAfterScaling(recordScale, selectedPosition);
+    if (moveRecordPosition[1] <= 0) {
+        return [[recordScale.record[2], recordScale.record[3]], false];
+    }
+    const canMove = canMoveRecord(recordScale.record, records, moveRecordPosition, "move");
+    return [moveRecordPosition, canMove];
+}
+function getMovingResult(record, posTime, bindToGrid, cycle, grid, offset, records, effect) {
+    const recordDuration = record[3];
+    const posEndTime = posTime + recordDuration;
+    const selectedPositionLeft = getSelectedPosition(bindToGrid, posTime, cycle, grid, offset);
+    const selectedPositionRight = getSelectedPosition(bindToGrid, posEndTime, cycle, grid, offset);
+    const leftDif = Math.abs(selectedPositionLeft - posTime);
+    const rightDif = Math.abs(selectedPositionRight - posEndTime);
+    const selectedPosition = (leftDif <= rightDif) ? selectedPositionLeft : selectedPositionRight - recordDuration;
+    const moveRecordPosition = [selectedPosition, recordDuration];
+    const canMove = canMoveRecord(record, records, moveRecordPosition, effect);
+    return [moveRecordPosition, canMove];
+}
+function getNewPositionAfterScaling(recordScale, selectedPosition) {
+    const [, , recordPosition, recordWidth] = recordScale.record;
     if (recordScale.side === "right") {
-        newPosStartTime = recordScale.record[2];
-        newPosDuration = selectedPosTime - newPosStartTime;
+        return [recordPosition, selectedPosition - recordPosition];
     }
     else {
-        newPosStartTime = selectedPosTime;
-        newPosDuration = recordScale.record[2] + recordScale.record[3] - newPosStartTime;
-        const trackEndD = trackPosD + trackDurD;
-        if (selectedPosTimeD >= trackEndD) {
-            dummy.style.left = `${trackPosD * 100}%`;
-            dummy.style.width = `${trackDurD * 100}%`;
-            dummy.classList.toggle("_unavailable", true);
-            return;
-        }
-        dummy.style.left = `${selectedPosTimeD * 100}%`;
-        dummy.style.width = `${(trackEndD - selectedPosTimeD) * 100}%`;
+        return [selectedPosition, recordPosition + recordWidth - selectedPosition];
     }
-    if (newPosDuration <= 0) {
-        dummy.style.left = `${trackPosD * 100}%`;
-        dummy.style.width = `${trackDurD * 100}%`;
-        dummy.classList.toggle("_unavailable", true);
-        return;
-    }
-    const newPosStartTimeD = newPosStartTime / duration;
-    const newPosDurationD = newPosDuration / duration;
-    dummy.style.left = `${newPosStartTimeD * 100}%`;
-    dummy.style.width = `${newPosDurationD * 100}%`;
-    if (!canMoveRecord(recordScale.record, records, newPosStartTime, newPosDuration)) {
-        dummy.classList.toggle("_unavailable", true);
-        return;
-    }
-    event.dataTransfer.dropEffect = "move";
-    event.preventDefault();
 }
-function clearDummy(event, dummy) {
+function clearDummy(dummy) {
     dummy.style.display = "none";
-    event.dataTransfer.dropEffect = "none";
 }
-function getNearGridPosition(dragLeftPosTime, cycle, grid, offset) {
+function setDummyPosition(dummy, duration, [posStart, posDuration], available) {
+    const dummyStartD = posStart / duration;
+    const dummyDurationD = posDuration / duration;
+    dummy.style.display = "";
+    dummy.style.left = `${dummyStartD * 100}%`;
+    dummy.classList.toggle("_unavailable", !available);
+    dummy.style.width = `${dummyDurationD * 100}%`;
+}
+function getSelectedPosition(bindToGrid, dragLeftPosTime, cycle, grid, offset) {
+    if (dragLeftPosTime < 0)
+        return 0;
+    if (!bindToGrid)
+        return dragLeftPosTime;
     if (!cycle)
         return dragLeftPosTime;
     if (dragLeftPosTime < offset)
@@ -35084,9 +35195,9 @@ function getNearGridPosition(dragLeftPosTime, cycle, grid, offset) {
         return leftGridPos;
     return leftGridPos + gridSize;
 }
-function canMoveRecord(record, records, start, duration) {
+function canMoveRecord(record, records, [start, duration], effect) {
     for (const rec of records) {
-        if (rec === record)
+        if (effect === "move" && rec === record)
             continue;
         const [, , recPos, recDuration] = rec;
         if (start + duration <= recPos)
@@ -35139,23 +35250,27 @@ const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/re
 const ScaleDisplayContext_1 = __webpack_require__(/*! ../../../ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
 __webpack_require__(/*! ./Record.scss */ "./src/ui/components/editor/tracks/editor/timeline/Record.scss");
 const DragContext_1 = __webpack_require__(/*! ../../../DragContext */ "./src/ui/components/editor/DragContext.ts");
-exports.Record = react_1.memo(({ record, record: [enabled, link, start, recordDuration] }) => {
+const PlixEditorReducerActions_1 = __webpack_require__(/*! ../../../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+exports.Record = react_1.memo(({ path, record, record: [enabled, link, start, recordDuration] }) => {
     const { duration } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
     const dragRef = react_1.useContext(DragContext_1.DragContext);
     const onDragStartName = react_1.useCallback((event) => {
         dragRef.current = {
             effect: [true, null, link, []],
-            record: record,
+            recordMove: {
+                record: record,
+                deleteAction: PlixEditorReducerActions_1.DeleteValueAction(path.slice(0, -1), record)
+            },
             offsetX: event.nativeEvent.offsetX,
             offsetY: event.nativeEvent.offsetY,
         };
         event.dataTransfer.effectAllowed = 'all';
-    }, []);
+    }, [record, path]);
     const onDragEndName = react_1.useCallback((event) => {
         if (event.dataTransfer.dropEffect === "copy") {
             console.log("delete current record", event.dataTransfer.dropEffect);
         }
-    }, []);
+    }, [record]);
     const onDragStartLeft = react_1.useCallback((event) => {
         dragRef.current = {
             recordScale: { record: record, side: "left" },
@@ -35164,7 +35279,7 @@ exports.Record = react_1.memo(({ record, record: [enabled, link, start, recordDu
         };
         event.dataTransfer.setDragImage(new Image(), 0, 0);
         event.dataTransfer.effectAllowed = 'move';
-    }, []);
+    }, [record]);
     const onDragStartRight = react_1.useCallback((event) => {
         dragRef.current = {
             recordScale: { record: record, side: "right" },
@@ -35173,7 +35288,7 @@ exports.Record = react_1.memo(({ record, record: [enabled, link, start, recordDu
         };
         event.dataTransfer.setDragImage(new Image(), 0, 0);
         event.dataTransfer.effectAllowed = 'move';
-    }, []);
+    }, [record]);
     return react_1.useMemo(() => {
         const startD = start / duration;
         const durD = recordDuration / duration;
@@ -35184,7 +35299,7 @@ exports.Record = react_1.memo(({ record, record: [enabled, link, start, recordDu
             react_1.default.createElement("div", { onDragStart: onDragStartName, onDragEnd: onDragEndName, className: "timeline-record-name", draggable: true, style: { backgroundColor: generateColorByText(link) } }, link),
             react_1.default.createElement("div", { className: "timeline-record-scaling _left", draggable: true, onDragStart: onDragStartLeft }),
             react_1.default.createElement("div", { className: "timeline-record-scaling _right", draggable: true, onDragStart: onDragStartRight })));
-    }, [duration, start, link, recordDuration, enabled]);
+    }, [duration, start, link, recordDuration, enabled, onDragStartRight, onDragStartLeft, onDragEndName]);
 });
 function generateColorByText(value) {
     let v = 0;
@@ -35234,10 +35349,10 @@ exports.Records = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 __webpack_require__(/*! ./Record.scss */ "./src/ui/components/editor/tracks/editor/timeline/Record.scss");
 const Record_1 = __webpack_require__(/*! ./Record */ "./src/ui/components/editor/tracks/editor/timeline/Record.tsx");
-exports.Records = react_1.memo(({ records }) => {
+exports.Records = react_1.memo(({ records, path }) => {
     return react_1.useMemo(() => {
         return (react_1.default.createElement(react_1.Fragment, null, records.map((record, i) => {
-            return (react_1.default.createElement(Record_1.Record, { record: record, key: i }));
+            return (react_1.default.createElement(Record_1.Record, { record: record, key: i, path: [...path, i] }));
         })));
     }, [records]);
 });
