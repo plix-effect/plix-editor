@@ -222,6 +222,11 @@ input[type="color"].full-size-color-picker {
     color: #888;
     cursor: auto; }
 
+.timeline-editor-drag-content {
+  position: relative;
+  width: 100%;
+  height: 100%; }
+
 .timeline-editor {
   position: relative;
   height: 100%; }
@@ -235,9 +240,18 @@ input[type="color"].full-size-color-picker {
 .timeline-editor-records {
   position: absolute;
   width: 100%;
-  top: 4px;
-  bottom: 7px;
+  top: 0;
+  bottom: 0;
   font-size: 75%; }
+
+.timeline-editor-dummy {
+  width: 0;
+  height: 100%;
+  position: absolute;
+  background-color: white;
+  overflow: hidden; }
+  .timeline-editor-dummy._unavailable {
+    background-color: red; }
 
 .timeline-editor-grid-cycle {
   box-sizing: border-box;
@@ -261,25 +275,27 @@ input[type="color"].full-size-color-picker {
   box-sizing: border-box;
   position: absolute;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
   overflow: hidden;
   text-align: right;
   padding: 0 5px 0 5px;
-  color: #888; }
+  background-image: linear-gradient(-45deg, transparent 0px, #444 0px, #444 1px, transparent 1px, transparent 10px, #444 10px, #444 11px, transparent 11px, transparent 20px, #444 20px, #444 21px, transparent 21px, transparent 30px, #444 30px, #444 31px, transparent 31px);
+  background-size: 28.2px 28.2px;
+  background-repeat: repeat; }
 
 .timeline-record {
   box-sizing: border-box;
   position: absolute;
-  height: 100%;
-  margin-top: 2px;
-  margin-bottom: 2px;
+  top: 0;
+  bottom: 0;
   overflow: hidden; }
 
 .timeline-record-name {
   background-color: #888;
   display: inline-block;
+  position: absolute;
   width: 100%;
-  height: 100%;
+  top: 5px;
+  bottom: 5px;
   border-radius: 4px;
   border: 2px solid rgba(0, 0, 0, 0.5);
   box-sizing: border-box;
@@ -291,8 +307,8 @@ input[type="color"].full-size-color-picker {
 .timeline-record-scaling {
   position: absolute;
   display: inline-block;
-  top: 0;
-  bottom: 0;
+  top: -7px;
+  bottom: -7px;
   width: 5px;
   cursor: col-resize;
   box-sizing: border-box; }
@@ -300,6 +316,8 @@ input[type="color"].full-size-color-picker {
     left: 0; }
   .timeline-record-scaling._right {
     right: 0; }
+  .timeline-record-scaling:hover {
+    background-color: rgba(255, 255, 255, 0.3); }
 
 .split-tl {
   width: 100%;

@@ -32449,9 +32449,10 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.App = void 0;
 const React = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 const PlixEditor_1 = __webpack_require__(/*! ../editor/PlixEditor */ "./src/ui/components/editor/PlixEditor.tsx");
-exports.App = () => {
+const App = () => {
     return (React.createElement(PlixEditor_1.PlixEditor, null));
 };
+exports.App = App;
 
 
 /***/ }),
@@ -32705,6 +32706,27 @@ exports.SplitTopBottom = react_1.memo(({ children: [topElement, bottomElement], 
 
 /***/ }),
 
+/***/ "./src/ui/components/editor/DragContext.ts":
+/*!*************************************************!*\
+  !*** ./src/ui/components/editor/DragContext.ts ***!
+  \*************************************************/
+/*! flagged exports */
+/*! export DragContext [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_exports__, __webpack_require__ */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DragContext = void 0;
+const react_1 = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+exports.DragContext = react_1.createContext(null);
+
+
+/***/ }),
+
 /***/ "./src/ui/components/editor/PlixEditor.tsx":
 /*!*************************************************!*\
   !*** ./src/ui/components/editor/PlixEditor.tsx ***!
@@ -32748,6 +32770,7 @@ const effectConstructorMap = __importStar(__webpack_require__(/*! @plix-effect/c
 const filterConstructorMap = __importStar(__webpack_require__(/*! @plix-effect/core/filters */ "./node_modules/@plix-effect/core/dist/filters/index.js"));
 const PlixEditorReducer_1 = __webpack_require__(/*! ./PlixEditorReducer */ "./src/ui/components/editor/PlixEditorReducer.ts");
 const ScaleDisplayContext_1 = __webpack_require__(/*! ./ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
+const DragContext_1 = __webpack_require__(/*! ./DragContext */ "./src/ui/components/editor/DragContext.ts");
 const defaultTrack = {
     effects: {
         paintSome: [true, "Paint", [[[0, 1, 0.5, 0.5], [0.33, 1, 0.5, 0.5], [0, 1, 0.5], [0.33, 1, 0.5], [0, 1, 0.5], [0.33, 1, 0.5]]]],
@@ -32790,10 +32813,16 @@ const defaultTrack = {
                 ],
             ]], [[true, "OuterBorder", [[0, 1, 1], 1]]]]
 };
-exports.PlixEditor = () => {
-    const [zoom, setZoom] = react_1.useState(0.1);
+const PlixEditor = () => {
+    const [zoom, setZoom] = react_1.useState(0.2);
     const [duration, setDuration] = react_1.useState(1000 * 60 * 5 + 2257);
     const [position, setPosition] = react_1.useState(0.01);
+    const dragRef = react_1.useRef(null);
+    react_1.useEffect(() => {
+        const onDragEnd = () => dragRef.current = null;
+        document.addEventListener("dragend", onDragEnd);
+        return () => document.removeEventListener("dragend", onDragEnd);
+    }, [dragRef]);
     const [{ track, history, historyPosition }, dispatch] = react_1.useReducer(PlixEditorReducer_1.PlixEditorReducer, defaultTrack, (track) => ({
         track: track,
         history: [],
@@ -32815,12 +32844,14 @@ exports.PlixEditor = () => {
         trackWidth: zoom * duration
     }), [track, duration, setDuration, zoom, setZoom, position, setPosition, dispatch]);
     return (react_1.default.createElement("div", { className: "plix-editor" },
-        react_1.default.createElement(TrackContext_1.TrackContext.Provider, { value: trackContextValue },
-            react_1.default.createElement(SplitTopBottom_1.SplitTopBottom, { minTop: 100, minBottom: 200, storageKey: "s1" },
-                react_1.default.createElement(ScaleDisplayContext_1.ScaleDisplayContext.Provider, { value: scaleDisplayContextValue },
-                    react_1.default.createElement(TrackEditor_1.TrackEditor, null)),
-                react_1.default.createElement("div", null, "LIBS AND CANVAS")))));
+        react_1.default.createElement(DragContext_1.DragContext.Provider, { value: dragRef },
+            react_1.default.createElement(TrackContext_1.TrackContext.Provider, { value: trackContextValue },
+                react_1.default.createElement(SplitTopBottom_1.SplitTopBottom, { minTop: 100, minBottom: 200, storageKey: "s1" },
+                    react_1.default.createElement(ScaleDisplayContext_1.ScaleDisplayContext.Provider, { value: scaleDisplayContextValue },
+                        react_1.default.createElement(TrackEditor_1.TrackEditor, null)),
+                    react_1.default.createElement("div", null, "LIBS AND CANVAS"))))));
 };
+exports.PlixEditor = PlixEditor;
 
 
 /***/ }),
@@ -32851,7 +32882,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PlixEditorReducer = void 0;
 const KeyManager_1 = __webpack_require__(/*! ../../utils/KeyManager */ "./src/ui/utils/KeyManager.ts");
 const MERGE_HISTORY_TIMEOUT = 10000;
-exports.PlixEditorReducer = (state, action) => {
+const PlixEditorReducer = (state, action) => {
     switch (action.type) {
         case "undo": return undoState(state);
         case "redo": return redoState(state);
@@ -32860,6 +32891,7 @@ exports.PlixEditorReducer = (state, action) => {
         case "deleteIndex": return changeState(state, new DeleteIndexHistoryItem(getWIthPath(state.track, toHistoryPath(state.track, action.path))[action.index], toHistoryPath(state.track, action.path), action.index));
     }
 };
+exports.PlixEditorReducer = PlixEditorReducer;
 function undoState(state) {
     if (state.historyPosition <= 0)
         return state;
@@ -33105,37 +33137,42 @@ function toHistoryPath(track, editorPath) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RedoAction = exports.UndoAction = exports.DeleteIndexAction = exports.PushValueAction = exports.EditValueAction = void 0;
-exports.EditValueAction = (path, value) => {
+const EditValueAction = (path, value) => {
     return {
         type: "edit",
         path,
         value
     };
 };
-exports.PushValueAction = (path, value) => {
+exports.EditValueAction = EditValueAction;
+const PushValueAction = (path, value) => {
     return {
         type: "push",
         path,
         value
     };
 };
-exports.DeleteIndexAction = (path, index) => {
+exports.PushValueAction = PushValueAction;
+const DeleteIndexAction = (path, index) => {
     return {
         type: "deleteIndex",
         path,
         index
     };
 };
-exports.UndoAction = () => {
+exports.DeleteIndexAction = DeleteIndexAction;
+const UndoAction = () => {
     return {
         type: "undo"
     };
 };
-exports.RedoAction = () => {
+exports.UndoAction = UndoAction;
+const RedoAction = () => {
     return {
         type: "redo"
     };
 };
+exports.RedoAction = RedoAction;
 
 
 /***/ }),
@@ -33229,7 +33266,7 @@ const Track_1 = __webpack_require__(/*! ../timeline/Track */ "./src/ui/component
 const ScaleDisplayContext_1 = __webpack_require__(/*! ./ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
 const ZOOM_FACTOR = Math.sqrt(2);
 const ZOOM_FACTOR_WHEEL = Math.pow(2, 0.01);
-exports.TrackEditor = () => {
+const TrackEditor = () => {
     const [rightRenderEl, setRightRenderEl] = react_1.useState();
     const { track, dispatch, undoCounts, redoCounts } = react_1.useContext(TrackContext_1.TrackContext);
     const paths = react_1.useMemo(() => ({
@@ -33301,6 +33338,7 @@ exports.TrackEditor = () => {
                     react_1.default.createElement(GroupFiltersTrack_1.GroupFiltersTrack, { filtersMap: track.filters, path: paths.filters })))),
         react_1.default.createElement("div", { className: "track-timeline", ref: setRightRenderEl })));
 };
+exports.TrackEditor = TrackEditor;
 function download(filename, text) {
     const pom = document.createElement('a');
     pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
@@ -33355,11 +33393,12 @@ exports.TrackScale = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 __webpack_require__(/*! ./TrackScale.scss */ "./src/ui/components/editor/TrackScale.scss");
 const ScaleDisplayContext_1 = __webpack_require__(/*! ./ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
-exports.TrackScale = () => {
+const TrackScale = () => {
     const { trackWidth } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
     return (react_1.default.createElement("div", { className: "track-scale" },
         react_1.default.createElement("span", { className: "track-scale-line", style: { width: trackWidth } }, "0ms \u00A0\u00A0\u00A0\u00A0\u00A0 |100ms \u00A0\u00A0\u00A0 |200ms \u00A0\u00A0\u00A0 |300ms \u00A0\u00A0\u00A0 |400ms \u00A0\u00A0\u00A0 |500ms \u00A0\u00A0\u00A0 |600ms \u00A0\u00A0\u00A0 |700ms \u00A0\u00A0\u00A0 |800ms \u00A0\u00A0\u00A0 |etc")));
 };
+exports.TrackScale = TrackScale;
 
 
 /***/ }),
@@ -33383,11 +33422,12 @@ exports.ColorView = void 0;
 const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 const classnames_1 = __importDefault(__webpack_require__(/*! classnames */ "./node_modules/classnames/index.js"));
 __webpack_require__(/*! ./ColorView.scss */ "./src/ui/components/editor/track-elements/ColorView.scss");
-exports.ColorView = ({ background, color: [h, s, l, a] }) => {
+const ColorView = ({ background, color: [h, s, l, a] }) => {
     const htmlColor = `hsla(${h * 360}, ${s * 100}% , ${l * 100}%, ${a})`;
     return (react_1.default.createElement("span", { className: classnames_1.default("color-view-block", { "checkers_background": background }) },
         react_1.default.createElement("span", { className: "color-view-block-fill", style: { backgroundColor: htmlColor } })));
 };
+exports.ColorView = ColorView;
 
 
 /***/ }),
@@ -33433,10 +33473,11 @@ exports.useExpander = exports.Expander = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 const classnames_1 = __importDefault(__webpack_require__(/*! classnames */ "./node_modules/classnames/index.js"));
 __webpack_require__(/*! ./Expander.scss */ "./src/ui/components/editor/track-elements/Expander.scss");
-exports.Expander = ({ show = true, expanded, changeExpanded }) => {
+const Expander = ({ show = true, expanded, changeExpanded }) => {
     return (react_1.default.createElement("a", { className: classnames_1.default("track-expander", show && (expanded ? "_expanded" : "_collapsed")), onClick: changeExpanded }));
 };
-exports.useExpander = (baseExpanded = false, show = true) => {
+exports.Expander = Expander;
+const useExpander = (baseExpanded = false, show = true) => {
     const [expanded, setExpanded] = react_1.useState(baseExpanded);
     const changeExpanded = react_1.useCallback(() => {
         setExpanded(v => !v);
@@ -33447,6 +33488,7 @@ exports.useExpander = (baseExpanded = false, show = true) => {
         changeExpanded
     ];
 };
+exports.useExpander = useExpander;
 
 
 /***/ }),
@@ -33470,10 +33512,11 @@ exports.TimelineBlock = void 0;
 const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 const classnames_1 = __importDefault(__webpack_require__(/*! classnames */ "./node_modules/classnames/index.js"));
 __webpack_require__(/*! ./TimelineBlock.scss */ "./src/ui/components/editor/track-elements/TimelineBlock.scss");
-exports.TimelineBlock = ({ children, fixed = false, type = "default" }) => {
+const TimelineBlock = ({ children, fixed = false, type = "default" }) => {
     return (react_1.default.createElement("div", { className: classnames_1.default("track-timeline-block", `_${type}`) },
         react_1.default.createElement("div", { className: classnames_1.default("track-timeline-block-content", { '_fixed': fixed }) }, children)));
 };
+exports.TimelineBlock = TimelineBlock;
 
 
 /***/ }),
@@ -33497,9 +33540,10 @@ exports.TreeBlock = void 0;
 const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 const classnames_1 = __importDefault(__webpack_require__(/*! classnames */ "./node_modules/classnames/index.js"));
 __webpack_require__(/*! ./TreeBlock.scss */ "./src/ui/components/editor/track-elements/TreeBlock.scss");
-exports.TreeBlock = ({ children, type = "default" }) => {
+const TreeBlock = ({ children, type = "default" }) => {
     return (react_1.default.createElement("div", { className: classnames_1.default("track-tree-block", `_${type}`) }, children));
 };
+exports.TreeBlock = TreeBlock;
 
 
 /***/ }),
@@ -34614,7 +34658,7 @@ const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/re
 const core_1 = __webpack_require__(/*! @plix-effect/core */ "./node_modules/@plix-effect/core/dist/parser/index.js");
 const color_1 = __webpack_require__(/*! @plix-effect/core/color */ "./node_modules/@plix-effect/core/dist/Color.js");
 __webpack_require__(/*! ../../track-elements/ColorView.scss */ "./src/ui/components/editor/track-elements/ColorView.scss");
-exports.ColorEditor = ({ color, onChange }) => {
+const ColorEditor = ({ color, onChange }) => {
     const hslaColor = react_1.useMemo(() => core_1.parseColor(color, null), [color]);
     const htmlColor = react_1.useMemo(() => toHtmlColor(hslaColor), [hslaColor]);
     const onChangeColor = react_1.useCallback((event) => {
@@ -34630,6 +34674,7 @@ exports.ColorEditor = ({ color, onChange }) => {
         Math.round(hslaColor[3] * 255),
         " / 255"));
 };
+exports.ColorEditor = ColorEditor;
 function toHtmlColor(color) {
     return "#" + String((color_1.colorToNumber(color) >>> 8).toString(16)).padStart(6, "0");
 }
@@ -34679,7 +34724,7 @@ exports.EffectEditor = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 __webpack_require__(/*! ../../track-elements/ColorView.scss */ "./src/ui/components/editor/track-elements/ColorView.scss");
 const TrackContext_1 = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
-exports.EffectEditor = ({ onChange, effect }) => {
+const EffectEditor = ({ onChange, effect }) => {
     const { effectConstructorMap, track: { effects: effectAliasMap } } = react_1.useContext(TrackContext_1.TrackContext);
     const handleChange = react_1.useCallback((event) => {
         const selectedValue = event.target.value;
@@ -34723,6 +34768,7 @@ exports.EffectEditor = ({ onChange, effect }) => {
             react_1.default.createElement("optgroup", { label: "aliases" }, aliasData.map(data => (react_1.default.createElement("option", { key: data.value, value: data.value }, data.name)))),
             react_1.default.createElement("optgroup", { label: "basic effects" }, effectConstructorsData.map(data => (react_1.default.createElement("option", { key: data.value, value: data.value }, data.name)))))));
 };
+exports.EffectEditor = EffectEditor;
 
 
 /***/ }),
@@ -34764,7 +34810,7 @@ exports.FilterEditor = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 __webpack_require__(/*! ../../track-elements/ColorView.scss */ "./src/ui/components/editor/track-elements/ColorView.scss");
 const TrackContext_1 = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
-exports.FilterEditor = ({ onChange, filter }) => {
+const FilterEditor = ({ onChange, filter }) => {
     const { filterConstructorMap, track: { filters: filterAliasMap } } = react_1.useContext(TrackContext_1.TrackContext);
     const handleChange = react_1.useCallback((event) => {
         const selectedValue = event.target.value;
@@ -34808,6 +34854,7 @@ exports.FilterEditor = ({ onChange, filter }) => {
             react_1.default.createElement("optgroup", { label: "aliases" }, aliasData.map(data => (react_1.default.createElement("option", { key: data.value, value: data.value }, data.name)))),
             react_1.default.createElement("optgroup", { label: "basic filters" }, filterConstructorsData.map(data => (react_1.default.createElement("option", { key: data.value, value: data.value }, data.name)))))));
 };
+exports.FilterEditor = FilterEditor;
 
 
 /***/ }),
@@ -34848,7 +34895,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JSONEditor = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 __webpack_require__(/*! ../../track-elements/ColorView.scss */ "./src/ui/components/editor/track-elements/ColorView.scss");
-exports.JSONEditor = ({ value, onChange }) => {
+const JSONEditor = ({ value, onChange }) => {
     const [editMode, setEditMode] = react_1.useState(false);
     const [inputValue, setInputValue] = react_1.useState(() => {
         return JSON.stringify(value);
@@ -34879,6 +34926,7 @@ exports.JSONEditor = ({ value, onChange }) => {
         react_1.default.createElement("input", { type: "button", value: "EDIT", onClick: changeEdit }),
         JSON.stringify(value)));
 };
+exports.JSONEditor = JSONEditor;
 
 
 /***/ }),
@@ -34922,13 +34970,133 @@ const ScaleDisplayContext_1 = __webpack_require__(/*! ../../ScaleDisplayContext 
 __webpack_require__(/*! ./TimelineEditor.scss */ "./src/ui/components/editor/tracks/editor/TimelineEditor.scss");
 const TimelineEditorGrid_1 = __webpack_require__(/*! ./timeline/TimelineEditorGrid */ "./src/ui/components/editor/tracks/editor/timeline/TimelineEditorGrid.tsx");
 const Records_1 = __webpack_require__(/*! ./timeline/Records */ "./src/ui/components/editor/tracks/editor/timeline/Records.tsx");
-exports.TimelineEditor = ({ records, onChange, cycle, grid, offset }) => {
-    const { trackWidth } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
-    return (react_1.default.createElement("div", { className: "timeline-editor", style: { width: trackWidth } },
-        react_1.default.createElement("div", { className: "timeline-editor-grid" }, cycle !== null && react_1.default.createElement(TimelineEditorGrid_1.TimelineEditorGrid, { offset: offset, grid: grid !== null && grid !== void 0 ? grid : 1, cycle: cycle })),
-        react_1.default.createElement("div", { className: "timeline-editor-records" },
-            react_1.default.createElement(Records_1.Records, { records: records }))));
+const DragContext_1 = __webpack_require__(/*! ../../DragContext */ "./src/ui/components/editor/DragContext.ts");
+const TimelineEditor = ({ records, onChange, cycle, grid, offset }) => {
+    const dragRef = react_1.useContext(DragContext_1.DragContext);
+    const dragCount = react_1.useRef(0);
+    const { trackWidth, duration, zoom } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
+    const dummyRef = react_1.useRef();
+    const editorRef = react_1.useRef();
+    const onDragEnter = react_1.useCallback((event) => {
+        var _a, _b, _c;
+        dragCount.current++;
+        if ((_a = dragRef.current) === null || _a === void 0 ? void 0 : _a.record) {
+            return event.preventDefault();
+        }
+        if (((_b = dragRef.current) === null || _b === void 0 ? void 0 : _b.recordScale) && records.includes((_c = dragRef.current) === null || _c === void 0 ? void 0 : _c.recordScale.record)) {
+            return event.preventDefault();
+        }
+    }, []);
+    const onDragLeave = react_1.useCallback((event) => {
+        dragCount.current--;
+        if (dragCount.current === 0)
+            dummyRef.current.style.display = "none";
+    }, []);
+    const onDragOver = react_1.useCallback((event) => {
+        var _a;
+        if (!dragRef.current)
+            return;
+        const editorRect = editorRef.current.getBoundingClientRect();
+        const dragLeftPosPx = event.clientX - editorRect.left - dragRef.current.offsetX;
+        const dragLeftPosTime = dragLeftPosPx / zoom;
+        const eventPosTime = (event.clientX - editorRect.left) / zoom;
+        const recordScale = (_a = dragRef.current) === null || _a === void 0 ? void 0 : _a.recordScale;
+        if (recordScale && records.includes(recordScale.record)) {
+            handleDragScale(event, dummyRef.current, eventPosTime, duration, recordScale, records, cycle, grid, offset);
+            event.preventDefault();
+        }
+    }, [zoom, duration]);
+    const onDrop = react_1.useCallback((event) => {
+        dragCount.current = 0;
+        dummyRef.current.style.display = "none";
+        console.log("MOVE TO NEW POSITION", dragRef.current, event);
+    }, []);
+    return (react_1.default.createElement("div", { className: "timeline-editor-drag-content", onDragEnter: onDragEnter, onDragLeave: onDragLeave, onDragOver: onDragOver, onDrop: onDrop },
+        react_1.default.createElement("div", { ref: editorRef, className: "timeline-editor", style: { width: trackWidth } },
+            react_1.default.createElement("div", { className: "timeline-editor-dummy", ref: dummyRef }),
+            react_1.default.createElement("div", { className: "timeline-editor-grid" }, cycle !== null && react_1.default.createElement(TimelineEditorGrid_1.TimelineEditorGrid, { offset: offset, grid: grid !== null && grid !== void 0 ? grid : 1, cycle: cycle })),
+            react_1.default.createElement("div", { className: "timeline-editor-records" },
+                react_1.default.createElement(Records_1.Records, { records: records })))));
 };
+exports.TimelineEditor = TimelineEditor;
+function handleDragScale(event, dummy, dragPosTime, duration, recordScale, records, cycle, grid, offset) {
+    event.dataTransfer.dropEffect = "none";
+    const bindToGrid = (cycle !== null) && !event.ctrlKey;
+    const selectedPosTime = bindToGrid ? getNearGridPosition(dragPosTime, cycle, grid, offset) : dragPosTime;
+    if (selectedPosTime < 0)
+        return clearDummy(event, dummy);
+    if (selectedPosTime > duration)
+        return clearDummy(event, dummy);
+    dummy.style.display = "";
+    dummy.classList.toggle("_unavailable", false);
+    const selectedPosTimeD = selectedPosTime / duration;
+    const trackPosD = recordScale.record[2] / duration;
+    const trackDurD = recordScale.record[3] / duration;
+    let newPosStartTime, newPosDuration;
+    if (recordScale.side === "right") {
+        newPosStartTime = recordScale.record[2];
+        newPosDuration = selectedPosTime - newPosStartTime;
+    }
+    else {
+        newPosStartTime = selectedPosTime;
+        newPosDuration = recordScale.record[2] + recordScale.record[3] - newPosStartTime;
+        const trackEndD = trackPosD + trackDurD;
+        if (selectedPosTimeD >= trackEndD) {
+            dummy.style.left = `${trackPosD * 100}%`;
+            dummy.style.width = `${trackDurD * 100}%`;
+            dummy.classList.toggle("_unavailable", true);
+            return;
+        }
+        dummy.style.left = `${selectedPosTimeD * 100}%`;
+        dummy.style.width = `${(trackEndD - selectedPosTimeD) * 100}%`;
+    }
+    if (newPosDuration <= 0) {
+        dummy.style.left = `${trackPosD * 100}%`;
+        dummy.style.width = `${trackDurD * 100}%`;
+        dummy.classList.toggle("_unavailable", true);
+        return;
+    }
+    const newPosStartTimeD = newPosStartTime / duration;
+    const newPosDurationD = newPosDuration / duration;
+    dummy.style.left = `${newPosStartTimeD * 100}%`;
+    dummy.style.width = `${newPosDurationD * 100}%`;
+    if (!canMoveRecord(recordScale.record, records, newPosStartTime, newPosDuration)) {
+        dummy.classList.toggle("_unavailable", true);
+        return;
+    }
+    event.dataTransfer.dropEffect = "move";
+    event.preventDefault();
+}
+function clearDummy(event, dummy) {
+    dummy.style.display = "none";
+    event.dataTransfer.dropEffect = "none";
+}
+function getNearGridPosition(dragLeftPosTime, cycle, grid, offset) {
+    if (!cycle)
+        return dragLeftPosTime;
+    if (dragLeftPosTime < offset)
+        return dragLeftPosTime;
+    const gridSize = cycle / (grid !== null && grid !== void 0 ? grid : 1);
+    const gridsLeft = Math.floor((dragLeftPosTime - offset) / gridSize);
+    const leftGridPos = offset + gridSize * gridsLeft;
+    const leftGridDif = dragLeftPosTime - leftGridPos;
+    if (leftGridDif < gridSize / 2)
+        return leftGridPos;
+    return leftGridPos + gridSize;
+}
+function canMoveRecord(record, records, start, duration) {
+    for (const rec of records) {
+        if (rec === record)
+            continue;
+        const [, , recPos, recDuration] = rec;
+        if (start + duration <= recPos)
+            continue;
+        if (start >= recPos + recDuration)
+            continue;
+        return false;
+    }
+    return true;
+}
 
 
 /***/ }),
@@ -34970,8 +35138,42 @@ exports.Record = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 const ScaleDisplayContext_1 = __webpack_require__(/*! ../../../ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
 __webpack_require__(/*! ./Record.scss */ "./src/ui/components/editor/tracks/editor/timeline/Record.scss");
-exports.Record = react_1.memo(({ record: [enabled, link, start, recordDuration] }) => {
+const DragContext_1 = __webpack_require__(/*! ../../../DragContext */ "./src/ui/components/editor/DragContext.ts");
+exports.Record = react_1.memo(({ record, record: [enabled, link, start, recordDuration] }) => {
     const { duration } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
+    const dragRef = react_1.useContext(DragContext_1.DragContext);
+    const onDragStartName = react_1.useCallback((event) => {
+        dragRef.current = {
+            effect: [true, null, link, []],
+            record: record,
+            offsetX: event.nativeEvent.offsetX,
+            offsetY: event.nativeEvent.offsetY,
+        };
+        event.dataTransfer.effectAllowed = 'all';
+    }, []);
+    const onDragEndName = react_1.useCallback((event) => {
+        if (event.dataTransfer.dropEffect === "copy") {
+            console.log("delete current record", event.dataTransfer.dropEffect);
+        }
+    }, []);
+    const onDragStartLeft = react_1.useCallback((event) => {
+        dragRef.current = {
+            recordScale: { record: record, side: "left" },
+            offsetX: event.nativeEvent.offsetX,
+            offsetY: event.nativeEvent.offsetY,
+        };
+        event.dataTransfer.setDragImage(new Image(), 0, 0);
+        event.dataTransfer.effectAllowed = 'move';
+    }, []);
+    const onDragStartRight = react_1.useCallback((event) => {
+        dragRef.current = {
+            recordScale: { record: record, side: "right" },
+            offsetX: event.nativeEvent.offsetX,
+            offsetY: event.nativeEvent.offsetY,
+        };
+        event.dataTransfer.setDragImage(new Image(), 0, 0);
+        event.dataTransfer.effectAllowed = 'move';
+    }, []);
     return react_1.useMemo(() => {
         const startD = start / duration;
         const durD = recordDuration / duration;
@@ -34979,9 +35181,9 @@ exports.Record = react_1.memo(({ record: [enabled, link, start, recordDuration] 
                 left: `${startD * 100}%`,
                 width: `${durD * 100}%`,
             } },
-            react_1.default.createElement("div", { className: "timeline-record-scaling _left", draggable: true }),
-            react_1.default.createElement("div", { className: "timeline-record-scaling _right", draggable: true }),
-            react_1.default.createElement("div", { className: "timeline-record-name", draggable: true, style: { backgroundColor: generateColorByText(link) } }, link)));
+            react_1.default.createElement("div", { onDragStart: onDragStartName, onDragEnd: onDragEndName, className: "timeline-record-name", draggable: true, style: { backgroundColor: generateColorByText(link) } }, link),
+            react_1.default.createElement("div", { className: "timeline-record-scaling _left", draggable: true, onDragStart: onDragStartLeft }),
+            react_1.default.createElement("div", { className: "timeline-record-scaling _right", draggable: true, onDragStart: onDragStartRight })));
     }, [duration, start, link, recordDuration, enabled]);
 });
 function generateColorByText(value) {
