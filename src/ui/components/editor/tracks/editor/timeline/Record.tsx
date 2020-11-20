@@ -5,6 +5,7 @@ import "./Record.scss";
 import {DragContext} from "../../../DragContext";
 import {DeleteValueAction} from "../../../PlixEditorReducerActions";
 import {EditorPath} from "../../../../../types/Editor";
+import {generateColorByText} from "../../../../../utils/generateColorByText";
 
 export interface RecordProps {
     record: PlixTimeEffectRecordJsonData,
@@ -26,12 +27,6 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
         }
         event.dataTransfer.effectAllowed = 'all';
     }, [record, path]);
-
-    const onDragEndName: DragEventHandler<HTMLDivElement> = useCallback((event) => {
-        if (event.dataTransfer.dropEffect === "copy") {
-            console.log("delete current record", event.dataTransfer.dropEffect);
-        }
-    }, [record]);
 
     const onDragStartLeft: DragEventHandler<HTMLDivElement> = useCallback((event) => {
         dragRef.current = {
@@ -65,7 +60,7 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
                 }}
             >
                 <div
-                    onDragStart={onDragStartName} onDragEnd={onDragEndName}
+                    onDragStart={onDragStartName}
                     className="timeline-record-name"
                     draggable
                     style={{backgroundColor: generateColorByText(link)}}
@@ -76,13 +71,5 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
             </div>
         );
 
-    }, [duration, start, link, recordDuration, enabled, onDragStartRight, onDragStartLeft, onDragEndName]);
+    }, [duration, start, link, recordDuration, enabled, onDragStartRight, onDragStartLeft]);
 });
-
-function generateColorByText(value: string){
-    let v = 0;
-    for (let i = 0; i < value.length; i++) {
-        v = v += value.charCodeAt(i);
-    }
-    return `hsl(${v%360},100%,40%)`;
-}

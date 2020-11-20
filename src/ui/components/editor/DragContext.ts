@@ -5,6 +5,7 @@ import {MultiActionType} from "./PlixEditorReducerActions";
 
 export interface DragTypes {
     effect: PlixEffectJsonData,
+    effectAlias: string,
     filter: PlixFilterJsonData,
     recordScale: {
         record: PlixTimeEffectRecordJsonData,

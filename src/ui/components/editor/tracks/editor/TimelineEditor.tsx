@@ -53,7 +53,7 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, cycle, grid, o
         const recordScale = dragRef.current?.recordScale;
         if (recordScale && records.includes(recordScale.record)) {
             const eventPosTime = (event.clientX - editorRect.left) / zoom;
-            const [pos, canMove] = getScalingResult(recordScale, eventPosTime, !event.ctrlKey, cycle, grid, offset, records);
+            const [pos, canMove] = getScalingResult(recordScale, eventPosTime, !event.shiftKey, cycle, grid, offset, records);
             setDummyPosition(dummy, duration, pos, canMove);
             if (!canMove) return;
             event.dataTransfer.dropEffect = "move";
@@ -65,22 +65,30 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, cycle, grid, o
             return event.preventDefault();
         }
         const recordMove = dragRef.current?.recordMove;
-        if (recordMove) {
-            const action: "copy"|"move" = event.shiftKey ? "copy" : "move"
-            const record = recordMove.record;
+        const effectAlias = dragRef.current?.effectAlias;
+        if (recordMove || effectAlias) {
+            let dropEffect: "copy"|"move"|"link";
+            let record;
+            if (recordMove) {
+                record = recordMove.record;
+                dropEffect = event.ctrlKey ? "copy" : "move";
+            } else {
+                record = [true, effectAlias, 0, 100/zoom];
+                dropEffect = "link";
+            }
             const posTime = (event.clientX - editorRect.left - dragRef.current.offsetX) / zoom;
-            const [pos, canMove] = getMovingResult(record, posTime, !event.ctrlKey, cycle, grid, offset, records, action);
+            const [pos, canMove] = getMovingResult(record, posTime, !event.shiftKey, cycle, grid, offset, records, dropEffect);
             setDummyPosition(dummy, duration, pos, canMove);
             if (!canMove) return;
-            event.dataTransfer.dropEffect = action;
+            event.dataTransfer.dropEffect = dropEffect;
             onDropActionRef.current = (event) => {
-                event.dataTransfer.dropEffect = action;
+                event.dataTransfer.dropEffect = dropEffect;
                 const newRecordValue: PlixTimeEffectRecordJsonData = [record[0], record[1], pos[0], pos[1]];
                 const insertAction = createInsertRecordAction(newRecordValue);
-                if (action === "copy") {
-                    dispatch(insertAction)
-                } else { // action === "move"
+                if (dropEffect === "move") {
                     dispatch(MultiAction([insertAction, recordMove.deleteAction]))
+                } else { // action === "move" || action === "link"
+                    dispatch(insertAction)
                 }
             }
             return event.preventDefault();
@@ -143,17 +151,22 @@ function getMovingResult(
     grid: number|null,
     offset: number,
     records: PlixTimeEffectRecordJsonData[],
-    effect: "move"|"copy",
+    dropEffect: "move"|"copy"|"link",
 ): [position: [startPosition: number, duration: number], available: boolean]{
     const recordDuration = record[3];
     const posEndTime = posTime + recordDuration;
     const selectedPositionLeft = getSelectedPosition(bindToGrid, posTime, cycle, grid, offset);
     const selectedPositionRight = getSelectedPosition(bindToGrid, posEndTime, cycle, grid, offset);
-    const leftDif = Math.abs(selectedPositionLeft - posTime);
-    const rightDif = Math.abs(selectedPositionRight - posEndTime);
-    const selectedPosition = (leftDif <= rightDif) ? selectedPositionLeft : selectedPositionRight - recordDuration;
+    let selectedPosition
+    if (selectedPositionLeft < offset) {
+        selectedPosition = selectedPositionRight - recordDuration;
+    } else {
+        const leftDif = Math.abs(selectedPositionLeft - posTime);
+        const rightDif = Math.abs(selectedPositionRight - posEndTime);
+        selectedPosition = (leftDif <= rightDif) ? selectedPositionLeft : selectedPositionRight - recordDuration;
+    }
     const moveRecordPosition: [number, number] = [selectedPosition, recordDuration];
-    const canMove = canMoveRecord(record, records, moveRecordPosition, effect);
+    const canMove = canMoveRecord(record, records, moveRecordPosition, dropEffect);
     return [moveRecordPosition, canMove];
 }
 
@@ -211,7 +224,7 @@ function canMoveRecord(
     record: PlixTimeEffectRecordJsonData,
     records: PlixTimeEffectRecordJsonData[],
     [start, duration]: [start: number, duration: number],
-    effect: "move"|"copy",
+    effect: "move"|"copy"|"link",
 ) {
     for (const rec of records) {
         if (effect === "move" && rec === record) continue;
