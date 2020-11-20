@@ -2086,6 +2086,22 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/ui/components/editor/tracks/GroupEffectsTrack.scss":
+/*!****************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/GroupEffectsTrack.scss ***!
+  \****************************************************************/
+/*! namespace exports */
+/*! exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./src/ui/components/editor/tracks/editor/TimelineEditor.scss":
 /*!********************************************************************!*\
   !*** ./src/ui/components/editor/tracks/editor/TimelineEditor.scss ***!
@@ -34364,6 +34380,9 @@ const TreeBlock_1 = __webpack_require__(/*! ../track-elements/TreeBlock */ "./sr
 const TimelineBlock_1 = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
 const TrackContext_1 = __webpack_require__(/*! ../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
 const PlixEditorReducerActions_1 = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+const generateColorByText_1 = __webpack_require__(/*! ../../../utils/generateColorByText */ "./src/ui/utils/generateColorByText.ts");
+__webpack_require__(/*! ./GroupEffectsTrack.scss */ "./src/ui/components/editor/tracks/GroupEffectsTrack.scss");
+const DragContext_1 = __webpack_require__(/*! ../DragContext */ "./src/ui/components/editor/DragContext.ts");
 exports.GroupEffectsTrack = react_1.memo(({ effectsMap, path }) => {
     const [expanded, expander, changeExpanded] = Expander_1.useExpander(true);
     const { dispatch } = react_1.useContext(TrackContext_1.TrackContext);
@@ -34394,16 +34413,28 @@ exports.GroupEffectsTrack = react_1.memo(({ effectsMap, path }) => {
             expander,
             react_1.default.createElement("span", { className: "track-description", onClick: changeExpanded }, "===Effects===")),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { type: "description", fixed: true }, "effect prefabs"),
-        aliasesList.map(alias => (react_1.default.createElement(EffectTrack_1.EffectTrack, { effect: alias.value, path: alias.path, key: alias.name },
-            react_1.default.createElement("button", { className: "btn _remove", onClick: alias.remove }, "X"),
-            " ",
-            alias.name))),
+        aliasesList.map(({ value, path, remove, name }) => (react_1.default.createElement(AliasEffectTrack, { path: path, value: value, name: name, remove: remove, key: name }))),
         react_1.default.createElement(Track_1.Track, null,
             react_1.default.createElement(TreeBlock_1.TreeBlock, { type: "description" }),
             react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true, type: "description" },
                 "Add new effect prefab:",
                 react_1.default.createElement("input", { type: "text", placeholder: "prefab name", value: name, onChange: onEditName }),
                 react_1.default.createElement("button", { onClick: add, disabled: !name || name in effectsMap }, "add")))));
+});
+const AliasEffectTrack = react_1.memo(({ value, remove, path, name }) => {
+    const dragRef = react_1.useContext(DragContext_1.DragContext);
+    const onDragStartEffect = react_1.useCallback((event) => {
+        dragRef.current = {
+            effect: value,
+            effectAlias: name,
+            offsetX: event.nativeEvent.offsetX,
+            offsetY: event.nativeEvent.offsetY,
+        };
+        event.dataTransfer.effectAllowed = 'all';
+    }, []);
+    return (react_1.default.createElement(EffectTrack_1.EffectTrack, { effect: value, path: path, key: name },
+        react_1.default.createElement("button", { className: "btn _remove", onClick: remove }, "X"),
+        react_1.default.createElement("span", { className: "effect-group-alias", style: { backgroundColor: generateColorByText_1.generateColorByText(name) }, draggable: true, onDragStart: onDragStartEffect }, name)));
 });
 const defaultEffect = null;
 
@@ -35077,7 +35108,7 @@ const TimelineEditor = ({ records, cycle, grid, offset, path }) => {
             clearDummy(dummyRef.current);
     }, []);
     const onDragOver = react_1.useCallback((event) => {
-        var _a, _b;
+        var _a, _b, _c;
         if (!dragRef.current)
             return;
         event.dataTransfer.dropEffect = "none";
@@ -35086,7 +35117,7 @@ const TimelineEditor = ({ records, cycle, grid, offset, path }) => {
         const recordScale = (_a = dragRef.current) === null || _a === void 0 ? void 0 : _a.recordScale;
         if (recordScale && records.includes(recordScale.record)) {
             const eventPosTime = (event.clientX - editorRect.left) / zoom;
-            const [pos, canMove] = getScalingResult(recordScale, eventPosTime, !event.ctrlKey, cycle, grid, offset, records);
+            const [pos, canMove] = getScalingResult(recordScale, eventPosTime, !event.shiftKey, cycle, grid, offset, records);
             setDummyPosition(dummy, duration, pos, canMove);
             if (!canMove)
                 return;
@@ -35099,24 +35130,33 @@ const TimelineEditor = ({ records, cycle, grid, offset, path }) => {
             return event.preventDefault();
         }
         const recordMove = (_b = dragRef.current) === null || _b === void 0 ? void 0 : _b.recordMove;
-        if (recordMove) {
-            const action = event.shiftKey ? "copy" : "move";
-            const record = recordMove.record;
+        const effectAlias = (_c = dragRef.current) === null || _c === void 0 ? void 0 : _c.effectAlias;
+        if (recordMove || effectAlias) {
+            let dropEffect;
+            let record;
+            if (recordMove) {
+                record = recordMove.record;
+                dropEffect = event.ctrlKey ? "copy" : "move";
+            }
+            else {
+                record = [true, effectAlias, 0, 100 / zoom];
+                dropEffect = "link";
+            }
             const posTime = (event.clientX - editorRect.left - dragRef.current.offsetX) / zoom;
-            const [pos, canMove] = getMovingResult(record, posTime, !event.ctrlKey, cycle, grid, offset, records, action);
+            const [pos, canMove] = getMovingResult(record, posTime, !event.shiftKey, cycle, grid, offset, records, dropEffect);
             setDummyPosition(dummy, duration, pos, canMove);
             if (!canMove)
                 return;
-            event.dataTransfer.dropEffect = action;
+            event.dataTransfer.dropEffect = dropEffect;
             onDropActionRef.current = (event) => {
-                event.dataTransfer.dropEffect = action;
+                event.dataTransfer.dropEffect = dropEffect;
                 const newRecordValue = [record[0], record[1], pos[0], pos[1]];
                 const insertAction = createInsertRecordAction(newRecordValue);
-                if (action === "copy") {
-                    dispatch(insertAction);
+                if (dropEffect === "move") {
+                    dispatch(PlixEditorReducerActions_1.MultiAction([insertAction, recordMove.deleteAction]));
                 }
                 else {
-                    dispatch(PlixEditorReducerActions_1.MultiAction([insertAction, recordMove.deleteAction]));
+                    dispatch(insertAction);
                 }
             };
             return event.preventDefault();
@@ -35146,16 +35186,22 @@ function getScalingResult(recordScale, eventPosTime, bindToGrid, cycle, grid, of
     const canMove = canMoveRecord(recordScale.record, records, moveRecordPosition, "move");
     return [moveRecordPosition, canMove];
 }
-function getMovingResult(record, posTime, bindToGrid, cycle, grid, offset, records, effect) {
+function getMovingResult(record, posTime, bindToGrid, cycle, grid, offset, records, dropEffect) {
     const recordDuration = record[3];
     const posEndTime = posTime + recordDuration;
     const selectedPositionLeft = getSelectedPosition(bindToGrid, posTime, cycle, grid, offset);
     const selectedPositionRight = getSelectedPosition(bindToGrid, posEndTime, cycle, grid, offset);
-    const leftDif = Math.abs(selectedPositionLeft - posTime);
-    const rightDif = Math.abs(selectedPositionRight - posEndTime);
-    const selectedPosition = (leftDif <= rightDif) ? selectedPositionLeft : selectedPositionRight - recordDuration;
+    let selectedPosition;
+    if (selectedPositionLeft < offset) {
+        selectedPosition = selectedPositionRight - recordDuration;
+    }
+    else {
+        const leftDif = Math.abs(selectedPositionLeft - posTime);
+        const rightDif = Math.abs(selectedPositionRight - posEndTime);
+        selectedPosition = (leftDif <= rightDif) ? selectedPositionLeft : selectedPositionRight - recordDuration;
+    }
     const moveRecordPosition = [selectedPosition, recordDuration];
-    const canMove = canMoveRecord(record, records, moveRecordPosition, effect);
+    const canMove = canMoveRecord(record, records, moveRecordPosition, dropEffect);
     return [moveRecordPosition, canMove];
 }
 function getNewPositionAfterScaling(recordScale, selectedPosition) {
@@ -35251,6 +35297,7 @@ const ScaleDisplayContext_1 = __webpack_require__(/*! ../../../ScaleDisplayConte
 __webpack_require__(/*! ./Record.scss */ "./src/ui/components/editor/tracks/editor/timeline/Record.scss");
 const DragContext_1 = __webpack_require__(/*! ../../../DragContext */ "./src/ui/components/editor/DragContext.ts");
 const PlixEditorReducerActions_1 = __webpack_require__(/*! ../../../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+const generateColorByText_1 = __webpack_require__(/*! ../../../../../utils/generateColorByText */ "./src/ui/utils/generateColorByText.ts");
 exports.Record = react_1.memo(({ path, record, record: [enabled, link, start, recordDuration] }) => {
     const { duration } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
     const dragRef = react_1.useContext(DragContext_1.DragContext);
@@ -35266,11 +35313,6 @@ exports.Record = react_1.memo(({ path, record, record: [enabled, link, start, re
         };
         event.dataTransfer.effectAllowed = 'all';
     }, [record, path]);
-    const onDragEndName = react_1.useCallback((event) => {
-        if (event.dataTransfer.dropEffect === "copy") {
-            console.log("delete current record", event.dataTransfer.dropEffect);
-        }
-    }, [record]);
     const onDragStartLeft = react_1.useCallback((event) => {
         dragRef.current = {
             recordScale: { record: record, side: "left" },
@@ -35296,18 +35338,11 @@ exports.Record = react_1.memo(({ path, record, record: [enabled, link, start, re
                 left: `${startD * 100}%`,
                 width: `${durD * 100}%`,
             } },
-            react_1.default.createElement("div", { onDragStart: onDragStartName, onDragEnd: onDragEndName, className: "timeline-record-name", draggable: true, style: { backgroundColor: generateColorByText(link) } }, link),
+            react_1.default.createElement("div", { onDragStart: onDragStartName, className: "timeline-record-name", draggable: true, style: { backgroundColor: generateColorByText_1.generateColorByText(link) } }, link),
             react_1.default.createElement("div", { className: "timeline-record-scaling _left", draggable: true, onDragStart: onDragStartLeft }),
             react_1.default.createElement("div", { className: "timeline-record-scaling _right", draggable: true, onDragStart: onDragStartRight })));
-    }, [duration, start, link, recordDuration, enabled, onDragStartRight, onDragStartLeft, onDragEndName]);
+    }, [duration, start, link, recordDuration, enabled, onDragStartRight, onDragStartLeft]);
 });
-function generateColorByText(value) {
-    let v = 0;
-    for (let i = 0; i < value.length; i++) {
-        v = v += value.charCodeAt(i);
-    }
-    return `hsl(${v % 360},100%,40%)`;
-}
 
 
 /***/ }),
@@ -35631,6 +35666,33 @@ function settleKeys(array) {
     return keyArray;
 }
 exports.settleKeys = settleKeys;
+
+
+/***/ }),
+
+/***/ "./src/ui/utils/generateColorByText.ts":
+/*!*********************************************!*\
+  !*** ./src/ui/utils/generateColorByText.ts ***!
+  \*********************************************/
+/*! flagged exports */
+/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export generateColorByText [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_exports__ */
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.generateColorByText = void 0;
+function generateColorByText(value) {
+    let v = 0;
+    for (let i = 0; i < value.length; i++) {
+        v = v + value.charCodeAt(i) + i;
+    }
+    return `hsla(${v % 360},100%, 30%)`;
+}
+exports.generateColorByText = generateColorByText;
 
 
 /***/ })
