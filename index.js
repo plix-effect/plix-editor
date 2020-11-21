@@ -32489,7 +32489,7 @@ const EffectGraphView = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ width, he
             }
             ctx.putImageData(imageData, 0, 0);
         });
-    }, [canvas, width, height, effect]);
+    }, [canvas, width, height, effect, track.filters, track.effects]);
     return (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => (react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas })), []);
 });
 
@@ -33804,6 +33804,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ArrayElementsTrack__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ArrayElementsTrack */ "./src/ui/components/editor/tracks/ArrayElementsTrack.tsx");
 /* harmony import */ var _EffectTypeTrack__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./EffectTypeTrack */ "./src/ui/components/editor/tracks/EffectTypeTrack.tsx");
 /* harmony import */ var _editor_DraggableEffect__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./editor/DraggableEffect */ "./src/ui/components/editor/tracks/editor/DraggableEffect.tsx");
+/* harmony import */ var _editor_EffectPreview__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./editor/EffectPreview */ "./src/ui/components/editor/tracks/editor/EffectPreview.tsx");
+
 
 
 
@@ -33865,7 +33867,10 @@ const ChainEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, 
                 "(",
                 paramEffects.length,
                 ")")),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true }, effectData.description),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_12__.EffectPreview, { effect: effect }),
+            " ",
+            effectData.description),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_EffectTypeTrack__WEBPACK_IMPORTED_MODULE_10__.EffectTypeTrack, { onChange: onChange, effect: effect }),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ArrayElementsTrack__WEBPACK_IMPORTED_MODULE_9__.ArrayElementsTrack, { value: paramEffects, type: "effect", path: paramEffectsPath }),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
@@ -34029,7 +34034,8 @@ const AliasEffectTrack = ({ effect, effect: [enabled, , link, filters], path, ch
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_DraggableEffect__WEBPACK_IMPORTED_MODULE_14__.DraggableEffect, { effect: effect, path: path })),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" },
-                "use alias ",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_15__.EffectPreview, { effect: effect }),
+                " use alias ",
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _link" }, link))),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_EffectTypeTrack__WEBPACK_IMPORTED_MODULE_13__.EffectTypeTrack, { onChange: onChange, effect: effect }),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect" }, "Filters")));
