@@ -1,4 +1,4 @@
-import React, {FC, memo, ReactNode, useContext, useMemo} from "react";
+import React, {FC, memo, ReactNode, useCallback, useContext, useMemo} from "react";
 import {Track} from "../../timeline/Track";
 import {PlixEffectConfigurableJsonData} from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
@@ -12,6 +12,8 @@ import {TrackContext} from "../TrackContext";
 import {ParseMeta} from "../../../types/ParseMeta";
 import "./tracks.scss"
 import {DraggableEffect} from "./editor/DraggableEffect";
+import {JSONEditor} from "./editor/JSONEditor";
+import {EditValueAction} from "../PlixEditorReducerActions";
 
 export interface TimelineEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
@@ -22,11 +24,45 @@ export interface TimelineEffectTrackProps {
     expanded: boolean,
     expander: ReactNode;
 }
-export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, effect: [enabled, effectId, params, filters], path, children, onChange, changeExpanded, expanded, expander}) => {
+export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, effect: [,, params, filters], path, children, onChange, changeExpanded, expanded, expander}) => {
 
     const filtersPath = useMemo(() => [...path, 3], [path]);
     const timelinePath = useMemo(() => [...path, 2, 0], [path]);
     const valueFilters = useMemo(() => filters ?? [], [filters]);
+    const {dispatch} = useContext(TrackContext);
+
+    const onChangeCycle = useCallback((value) => {
+        if (!value || !params[1]) {
+            const newParams = [params[0], value ?? 0, params[2] ?? 1, params[3] ?? 0];
+            return dispatch(EditValueAction([...path, 2], newParams));
+        }
+        if (!params[1]) {
+            const newParams = [params[0], null, params[2] ?? 1, params[3] ?? 0];
+            return dispatch(EditValueAction([...path, 2], newParams));
+        }
+        const zoom = value / params[1];
+        const offset = params[3] ?? 0;
+        const newRecords = (params[0] ?? []).map(([enabled, link, start, duration]) => {
+            const zoomStart = (start - offset) * zoom + offset
+            return [enabled, link, zoomStart, duration*zoom];
+        });
+        const newParams = [newRecords, value, params[2] ?? 1, offset];
+        dispatch(EditValueAction([...path, 2], newParams));
+    }, [path, params, dispatch]);
+
+    const onChangeGrid = useCallback((value) => {
+        const newParams = [params[0], params[1] ?? 0, value ?? 1, params[3] ?? 0];
+        dispatch(EditValueAction([...path, 2], newParams));
+    }, [path, params, dispatch]);
+
+    const onChangeOffset = useCallback((value) => {
+        const shift = value - params[3];
+        const newRecords = (params[0] ?? []).map(([enabled, link, start, duration]) => {
+            return [enabled, link, start+shift, duration];
+        });
+        const newParams = [newRecords, params[1] ?? 0, params[2] ?? 1, value ?? 0];
+        dispatch(EditValueAction([...path, 2], newParams));
+    }, [path, params, dispatch]);
 
     return (
         <Track nested expanded={expanded}>
@@ -49,9 +85,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, 
                     </span>
                 </TreeBlock>
                 <TimelineBlock fixed>
-                    <span className="track-description">
-                        {params[1] || "no cycle"} todo: change cycle
-                    </span>
+                    <JSONEditor value={params[1]} onChange={onChangeCycle}/>
                 </TimelineBlock>
             </Track>
 
@@ -62,9 +96,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, 
                     </span>
                 </TreeBlock>
                 <TimelineBlock fixed>
-                    <span className="track-description">
-                        {params[2] || "no grid"} todo: change grid
-                    </span>
+                    <JSONEditor value={params[2]} onChange={onChangeGrid}/>
                 </TimelineBlock>
             </Track>
 
@@ -75,9 +107,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, 
                     </span>
                 </TreeBlock>
                 <TimelineBlock fixed>
-                    <span className="track-description">
-                        {params[3] || 0} todo: change offset
-                    </span>
+                    <JSONEditor value={params[3]} onChange={onChangeOffset}/>
                 </TimelineBlock>
             </Track>
 

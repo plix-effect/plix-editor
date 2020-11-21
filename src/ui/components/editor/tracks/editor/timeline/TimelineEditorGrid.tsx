@@ -51,5 +51,5 @@ export const TimelineEditorGrid: FC<TimelineEditorGridProps> = memo(({cycle, gri
             </Fragment>
         );
 
-    }, [cycleCount, offset, duration, showCycle, showGrid, showOffset]);
+    }, [cycleCount, offset, duration, showCycle, showGrid, showOffset, grid]);
 })

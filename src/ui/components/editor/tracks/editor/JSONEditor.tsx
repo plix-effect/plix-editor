@@ -1,7 +1,4 @@
-import React, {ChangeEvent, ChangeEventHandler, FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {HSLAColor} from "@plix-effect/core/types";
-import {parseColor} from "@plix-effect/core";
-import {colorToNumber, numberToColor} from "@plix-effect/core/color";
+import React, {ChangeEvent, FC, useCallback, useEffect, useRef, useState} from "react";
 import "../../track-elements/ColorView.scss";
 
 export interface JSONEditorProps {

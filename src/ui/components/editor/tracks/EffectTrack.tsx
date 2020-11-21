@@ -125,10 +125,8 @@ const NoEffectTrack: FC<NoEffectTrackProps> = memo(({children, onChange, expande
                 <span className="track-description _empty">empty</span>
             </TreeBlock>
             <TimelineBlock fixed>
+                <EffectTypeEditor onChange={onChange} effect={null} />
             </TimelineBlock>
-
-            <EffectTypeTrack onChange={onChange} effect={null} />
-
         </Track>
     );
 });

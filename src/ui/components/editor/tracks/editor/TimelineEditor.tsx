@@ -115,7 +115,7 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, cycle, grid, o
             <div ref={editorRef} className="timeline-editor" style={{width: trackWidth}}>
                 <div className="timeline-editor-dummy" ref={dummyRef} />
                 <div className="timeline-editor-grid">
-                    {cycle !== null && <TimelineEditorGrid offset={offset} grid={grid ?? 1} cycle={cycle} />}
+                    <TimelineEditorGrid offset={offset} grid={grid ?? 1} cycle={cycle} />
                 </div>
                 <div className="timeline-editor-records">
                     <Records records={records} path={path} />
