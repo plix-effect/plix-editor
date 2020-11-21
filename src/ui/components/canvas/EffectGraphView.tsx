@@ -25,7 +25,7 @@ export const EffectGraphView = memo<EffectGraphViewProps>(({width, height, effec
             }
             ctx.putImageData(imageData, 0, 0);
         });
-    }, [canvas, width, height, effect]);
+    }, [canvas, width, height, effect, track.filters, track.effects]);
 
     return useMemo(() => (
         <canvas ref={setCanvas} />

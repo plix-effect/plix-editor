@@ -17,6 +17,7 @@ import {ArrayElementsTrack} from "./ArrayElementsTrack";
 import {EffectTypeEditor} from "./editor/EffectTypeEditor";
 import {EffectTypeTrack} from "./EffectTypeTrack";
 import {DraggableEffect} from "./editor/DraggableEffect";
+import {EffectPreview} from "./editor/EffectPreview";
 
 export interface ChainEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
@@ -92,7 +93,7 @@ export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo((
                 <span className="track-description _desc">({paramEffects.length})</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                {effectData.description}
+                <EffectPreview effect={effect} /> {effectData.description}
             </TimelineBlock>
 
             <EffectTypeTrack onChange={onChange} effect={effect} />

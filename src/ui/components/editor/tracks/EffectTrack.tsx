@@ -154,7 +154,7 @@ const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, effect: [enabled ,
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description _desc">
-                    use alias <span className="track-description _link">{link}</span>
+                    <EffectPreview effect={effect} /> use alias <span className="track-description _link">{link}</span>
                 </span>
             </TimelineBlock>
 
