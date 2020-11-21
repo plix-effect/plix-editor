@@ -14,8 +14,9 @@ import {PushValueAction} from "../PlixEditorReducerActions";
 import "./tracks.scss"
 import {ArrayTrack} from "./ArrayTrack";
 import {ArrayElementsTrack} from "./ArrayElementsTrack";
-import {EffectEditor} from "./editor/EffectEditor";
+import {EffectTypeEditor} from "./editor/EffectTypeEditor";
 import {EffectTypeTrack} from "./EffectTypeTrack";
+import {DraggableEffect} from "./editor/DraggableEffect";
 
 export interface ChainEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
@@ -86,7 +87,7 @@ export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo((
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
                 {" "}
-                <span className="track-description _type">{effectData.name}</span>
+                <DraggableEffect effect={effect} path={path}/>
                 {" "}
                 <span className="track-description _desc">({paramEffects.length})</span>
             </TreeBlock>

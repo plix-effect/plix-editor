@@ -17,9 +17,10 @@ import {useExpander} from "../track-elements/Expander";
 import {getArrayKey} from "../../../utils/KeyManager";
 import {TimelineEffectTrack} from "./TimelineEffectTrack";
 import {ChainEffectTrack} from "./ChainEffectTrack";
-import {EffectEditor} from "./editor/EffectEditor";
+import {EffectTypeEditor} from "./editor/EffectTypeEditor";
 import {EditValueAction} from "../PlixEditorReducerActions";
 import {EffectTypeTrack} from "./EffectTypeTrack";
+import {DraggableEffect} from "./editor/DraggableEffect";
 
 export interface EffectTrackProps {
     effect: PlixEffectJsonData,
@@ -40,8 +41,7 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
         if (type === "alias") {
             templateEffect[1] = null;
             templateEffect[2] = value;
-        }
-        if (type === "constructor") {
+        } else if (type === "constructor") {
             templateEffect[1] = value;
             const effectConstructor = effectConstructorMap[value];
             const meta: ParseMeta = effectConstructor['meta'];
@@ -92,15 +92,17 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
             changeExpanded={changeExpanded}
         />
     )
-    return <ConfigurableEffectTrack
-        path={path}
-        onChange={onChangeEffect}
-        expanded={expanded}
-        expander={expander}
-        changeExpanded={changeExpanded}
-        effect={effect as PlixEffectConfigurableJsonData}
-        children={children}
-    />
+    return (
+        <ConfigurableEffectTrack
+            path={path}
+            onChange={onChangeEffect}
+            expanded={expanded}
+            expander={expander}
+            changeExpanded={changeExpanded}
+            effect={effect as PlixEffectConfigurableJsonData}
+            children={children}
+        />
+    )
 })
 
 ////////////////////////////////////////////////////////////
@@ -149,7 +151,7 @@ const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, effect: [enabled ,
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
                 {" "}
-                <span className="track-description _link">{link}</span>
+                <DraggableEffect effect={effect} path={path}/>
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description _desc">
@@ -202,7 +204,7 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, ef
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
                 {" "}
-                <span className="track-description _type">{effectData.name}</span>
+                <DraggableEffect effect={effect} path={path}/>
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description _desc">

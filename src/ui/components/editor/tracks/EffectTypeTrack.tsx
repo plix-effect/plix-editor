@@ -17,7 +17,7 @@ import {useExpander} from "../track-elements/Expander";
 import {getArrayKey} from "../../../utils/KeyManager";
 import {TimelineEffectTrack} from "./TimelineEffectTrack";
 import {ChainEffectTrack} from "./ChainEffectTrack";
-import {EffectEditor} from "./editor/EffectEditor";
+import {EffectTypeEditor} from "./editor/EffectTypeEditor";
 import {EditValueAction} from "../PlixEditorReducerActions";
 
 export interface EffectTypeTrackProps {
@@ -31,7 +31,7 @@ export const EffectTypeTrack: FC<EffectTypeTrackProps> = memo(({effect, onChange
                 Effect type
             </TreeBlock>
             <TimelineBlock fixed>
-                <EffectEditor onChange={onChange} effect={effect} />
+                <EffectTypeEditor onChange={onChange} effect={effect} />
             </TimelineBlock>
         </Track>
     )

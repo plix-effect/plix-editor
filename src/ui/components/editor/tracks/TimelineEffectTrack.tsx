@@ -11,6 +11,7 @@ import {ValueTrack} from "./ValueTrack";
 import {TrackContext} from "../TrackContext";
 import {ParseMeta} from "../../../types/ParseMeta";
 import "./tracks.scss"
+import {DraggableEffect} from "./editor/DraggableEffect";
 
 export interface TimelineEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
@@ -26,8 +27,6 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, 
     const filtersPath = useMemo(() => [...path, 3], [path]);
     const timelinePath = useMemo(() => [...path, 2, 0], [path]);
     const valueFilters = useMemo(() => filters ?? [], [filters]);
-    const {effectConstructorMap} = useContext(TrackContext);
-    const timelineConstructorMeta = useMemo<ParseMeta>(() => effectConstructorMap['Timeline']['meta'], [effectConstructorMap]);
 
     return (
         <Track nested expanded={expanded}>
@@ -35,7 +34,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, 
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
                 {" "}
-                <span className="track-description _type">{timelineConstructorMeta.name}</span>
+                <DraggableEffect effect={effect} path={path}/>
             </TreeBlock>
             <TimelineBlock type="timeline">
                 <TimelineEditor cycle={params[1]} grid={params[2]} offset={params[3]} records={params[0]} path={timelinePath} />

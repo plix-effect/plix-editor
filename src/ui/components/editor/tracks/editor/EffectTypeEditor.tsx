@@ -2,15 +2,15 @@ import React, {ChangeEvent, FC, useCallback, useContext, useMemo} from "react";
 import "../../track-elements/ColorView.scss";
 import {TrackContext} from "../../TrackContext";
 import {ParseMeta} from "../../../../types/ParseMeta";
-import {PlixFilterJsonData} from "@plix-effect/core/dist/types/parser";
+import {PlixEffectJsonData} from "@plix-effect/core/dist/types/parser";
 
-export interface FilterEditorProps {
-    filter: PlixFilterJsonData
+export interface EffectTypeEditorProps {
+    effect: PlixEffectJsonData
     onChange: (type: null|"alias"|"constructor", value?: string) => void,
 }
-export const FilterEditor: FC<FilterEditorProps> = ({onChange, filter}) => {
+export const EffectTypeEditor: FC<EffectTypeEditorProps> = ({onChange, effect}) => {
 
-    const {filterConstructorMap, track: { filters: filterAliasMap }} = useContext(TrackContext);
+    const {effectConstructorMap, track: { effects: effectAliasMap }} = useContext(TrackContext);
 
     const handleChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
         const selectedValue = event.target.value;
@@ -21,42 +21,42 @@ export const FilterEditor: FC<FilterEditorProps> = ({onChange, filter}) => {
         if (type === "C") return onChange("constructor", value);
     }, []);
 
-    const filterConstructorsData = useMemo(() => {
-        return Object.keys(filterConstructorMap).sort(/*a-z*/).map((id) => {
-            const filterConstructor = filterConstructorMap[id];
-            const meta: ParseMeta = filterConstructor['meta'];
+    const effectConstructorsData = useMemo(() => {
+        return Object.keys(effectConstructorMap).sort(/*a-z*/).map((id) => {
+            const effectConstructor = effectConstructorMap[id];
+            const meta: ParseMeta = effectConstructor['meta'];
             return {
                 name: meta.name,
                 value: "C"+id,
             };
         });
-    }, [filterConstructorMap]);
+    }, [effectConstructorMap]);
 
     const aliasData = useMemo(() => {
-        return Object.keys(filterAliasMap).sort(/*a-z*/).map((name) => {
+        return Object.keys(effectAliasMap).sort(/*a-z*/).map((name) => {
             return {
                 name: name,
                 value: "A"+name,
             };
         });
-    }, [filterAliasMap]);
+    }, [effectAliasMap]);
 
     const selectedId = useMemo<string>(() => {
-        if (!filter) return "X";
-        if (filter[1] !== null) return "C"+filter[1];
-        return "A"+filter[2];
-    }, [filter])
+        if (!effect) return "X";
+        if (effect[1] !== null) return "C"+effect[1];
+        return "A"+effect[2];
+    }, [effect])
 
     return (<>
         <select value={selectedId} onChange={handleChange}>
-            <option value="X">(no filter)</option>
+            <option value="X">(no effect)</option>
             <optgroup label="aliases">
                 {aliasData.map(data => (
                     <option key={data.value} value={data.value}>{data.name}</option>
                 ))}
             </optgroup>
-            <optgroup label="basic filters">
-                {filterConstructorsData.map(data => (
+            <optgroup label="basic effects">
+                {effectConstructorsData.map(data => (
                     <option key={data.value} value={data.value}>{data.name}</option>
                 ))}
             </optgroup>

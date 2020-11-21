@@ -81,6 +81,7 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, cycle, grid, o
             setDummyPosition(dummy, duration, pos, canMove);
             if (!canMove) return;
             event.dataTransfer.dropEffect = dropEffect;
+            if (records.includes(record) && record[2] === pos[0] && record[3] === pos[1]) return; // no move
             onDropActionRef.current = (event) => {
                 event.dataTransfer.dropEffect = dropEffect;
                 const newRecordValue: PlixTimeEffectRecordJsonData = [record[0], record[1], pos[0], pos[1]];
@@ -165,6 +166,7 @@ function getMovingResult(
         const rightDif = Math.abs(selectedPositionRight - posEndTime);
         selectedPosition = (leftDif <= rightDif) ? selectedPositionLeft : selectedPositionRight - recordDuration;
     }
+    if (selectedPosition < 0) selectedPosition = 0;
     const moveRecordPosition: [number, number] = [selectedPosition, recordDuration];
     const canMove = canMoveRecord(record, records, moveRecordPosition, dropEffect);
     return [moveRecordPosition, canMove];

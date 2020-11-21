@@ -6,9 +6,10 @@ import {TrackContextProps, TrackContext} from "./TrackContext";
 import * as effectConstructorMap from "@plix-effect/core/effects";
 import * as filterConstructorMap from "@plix-effect/core/filters";
 import {PlixJsonData} from "@plix-effect/core/types/parser";
-import {PlixEditorReducer} from "./PlixEditorReducer";
+import {PlixEditorAction, PlixEditorReducer} from "./PlixEditorReducer";
 import {ScaleDisplayContext, ScaleDisplayContextProps} from "./ScaleDisplayContext";
 import {DragContext, DragType} from "./DragContext";
+import {RedoAction, UndoAction} from "./PlixEditorReducerActions";
 
 const defaultTrack: PlixJsonData = {
     effects: {

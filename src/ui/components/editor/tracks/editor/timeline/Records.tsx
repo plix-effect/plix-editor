@@ -3,6 +3,7 @@ import {PlixTimeEffectRecordJsonData} from "@plix-effect/core/dist/parser/parseT
 import "./Record.scss"
 import {Record} from "./Record";
 import {EditorPath} from "../../../../../types/Editor";
+import {getArrayKey} from "../../../../../utils/KeyManager";
 
 export interface RecordsProps {
     records: PlixTimeEffectRecordJsonData[],
@@ -14,8 +15,10 @@ export const Records: FC<RecordsProps> = memo(({records, path}) => {
         return (
             <Fragment>
                 {records.map((record, i) => {
+                    const key = getArrayKey(records, i);
+                    const valPath: EditorPath = [...path, {key: String(key), array: records}]
                     return (
-                        <Record record={record} key={i} path={[...path, i]} />
+                        <Record record={record} key={key} path={valPath} />
                     );
                 })}
             </Fragment>

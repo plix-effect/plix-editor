@@ -1,4 +1,14 @@
-import React, {FC, UIEventHandler, useCallback, useContext, useMemo, useRef, useState, WheelEvent} from "react";
+import React, {
+    FC,
+    UIEventHandler,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    WheelEvent
+} from "react";
 import {PortalContext} from "../timeline/PortalContext";
 import {TrackContext} from "./TrackContext";
 import {EffectTrack} from "./tracks/EffectTrack";
@@ -9,6 +19,7 @@ import {RedoAction, UndoAction} from "./PlixEditorReducerActions";
 import {TrackScale} from "./TrackScale";
 import {Track} from "../timeline/Track";
 import {ScaleDisplayContext} from "./ScaleDisplayContext";
+import {PlixEditorAction} from "./PlixEditorReducer";
 
 
 const ZOOM_FACTOR = Math.sqrt(2);
@@ -37,6 +48,16 @@ export const TrackEditor: FC = () => {
         download('plix-track.json', JSON.stringify(track));
     }, [track])
 
+    const mouseLeftRef = useRef(0);
+    useEffect(() => {
+        const onMouseMove = ({pageX}: DocumentEventMap["mousemove"]) => {
+            mouseLeftRef.current = pageX;
+        }
+        document.addEventListener("mousemove", onMouseMove);
+        return () => document.removeEventListener("mousemove", onMouseMove);
+    })
+
+
     const {setZoom, duration} = useContext(ScaleDisplayContext);
     const multiplyZoom = useCallback((value: number) => {
         setZoom(v => {
@@ -49,7 +70,9 @@ export const TrackEditor: FC = () => {
             if (z === v) return v;
             const timeline = timelineRef.current;
             if (timeline) {
-                timeline.scrollLeft = timeline.scrollLeft * z / v;
+                const {left} = timeline.getBoundingClientRect();
+                const dif = Math.max(mouseLeftRef.current - left, 0);
+                timeline.scrollLeft = (timeline.scrollLeft + dif) * z / v - (dif);
             }
             return z;
 
@@ -58,6 +81,20 @@ export const TrackEditor: FC = () => {
 
     const zoomIn = useCallback(() => multiplyZoom(ZOOM_FACTOR), [multiplyZoom])
     const zoomOut = useCallback(() => multiplyZoom(1/ZOOM_FACTOR), [multiplyZoom])
+
+    useEffect(() => {
+        const onKeydown = ({ctrlKey, shiftKey, altKey, code}: DocumentEventMap["keydown"]) => {
+            const focusedNode = document.querySelectorAll(":focus:not(body)");
+            const active = (focusedNode.length <= 0);
+            if (active && ctrlKey && !shiftKey && !altKey && code === "KeyZ") return dispatch(UndoAction());
+            if (active && ctrlKey && shiftKey && !altKey && code === "KeyZ") return dispatch(RedoAction());
+            if (active && ctrlKey && !shiftKey && !altKey && code === "KeyY") return dispatch(RedoAction());
+            if (active && !ctrlKey && !shiftKey && !altKey && code === "Minus") return zoomOut();
+            if (active && !ctrlKey && !shiftKey && !altKey && code === "Equal") return zoomIn();
+        }
+        document.addEventListener("keydown", onKeydown);
+        return () => document.removeEventListener("keydown", onKeydown);
+    }, [dispatch, zoomIn, zoomOut]);
 
     const onWheel = useCallback((event: WheelEvent<any>) => {
         if (!event.ctrlKey && !event.metaKey) return;

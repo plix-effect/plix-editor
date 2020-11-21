@@ -4,6 +4,13 @@
     top: 0;
     bottom: 0;
     overflow: hidden;
+
+    &._disabled {
+        color: #ccc;
+        .timeline-record-name {
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+    }
 }
 
 .timeline-record-name {

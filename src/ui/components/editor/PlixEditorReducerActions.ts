@@ -16,6 +16,13 @@ export const PushValueAction = (path: EditorPath, value: any) => {
     } as const;
 }
 
+export const DeleteAction = (path: EditorPath) => {
+    return {
+        type: "delete",
+        path
+    } as const;
+}
+
 export const DeleteIndexAction = (path: EditorPath, index: number) => {
     return {
         type: "deleteIndex",
@@ -23,7 +30,6 @@ export const DeleteIndexAction = (path: EditorPath, index: number) => {
         index
     } as const;
 }
-
 
 export const DeleteValueAction = (path: EditorPath, value: any) => {
     return {
@@ -58,6 +64,7 @@ export type MultiActionType = (
     | ReturnType<typeof EditValueAction>
     | ReturnType<typeof PushValueAction>
     | ReturnType<typeof InsertIndexAction>
+    | ReturnType<typeof DeleteAction>
     | ReturnType<typeof DeleteIndexAction>
     | ReturnType<typeof DeleteValueAction>
 );

@@ -9,7 +9,7 @@ import {useExpander} from "../track-elements/Expander";
 import {TrackContext} from "../TrackContext";
 import {DeleteIndexAction, EditValueAction, PushValueAction} from "../PlixEditorReducerActions";
 import {ArrayElementsTrack} from "./ArrayElementsTrack";
-import {EffectEditor} from "./editor/EffectEditor";
+import {EffectTypeEditor} from "./editor/EffectTypeEditor";
 
 export interface ArrayTrackProps {
     value: any[],

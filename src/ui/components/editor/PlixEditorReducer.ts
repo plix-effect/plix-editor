@@ -33,6 +33,17 @@ export const PlixEditorReducer: Reducer<PlixEditorState, PlixEditorAction> = (st
             new EditHistoryItem(getWIthPath(state.track, toHistoryPath(state.track, action.path)), toHistoryPath(state.track, action.path), action.value)
         );
         case "push": return changeState(state, new PushHistoryItem(toHistoryPath(state.track, action.path), action.value));
+        case "delete": {
+            const historyPath = toHistoryPath(state.track, action.path);
+            const value = getWIthPath(state.track, historyPath);
+            const lastPath = historyPath[historyPath.length - 1];
+            if (typeof lastPath === "string") {
+                return changeState(state, new EditHistoryItem(value, historyPath, undefined))
+            } else {
+                const index = Number(lastPath);
+                return changeState(state, new DeleteIndexHistoryItem(value, historyPath.slice(0, -1), index));
+            }
+        }
         case "deleteIndex": return changeState(
             state,
             new DeleteIndexHistoryItem(
@@ -274,6 +285,7 @@ function insertIndexValueWIthPath<T>(state: T, path: HistoryPath, index: number,
             const arrayKeys = settleKeys(state as unknown as any[]).slice(0);
             stateCopy.splice(index, 0, value);
             arrayKeys.splice(index, 0, generateKeyId());
+            keyMap.set(stateCopy, arrayKeys);
             return stateCopy;
         }
         return state;

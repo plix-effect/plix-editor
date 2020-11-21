@@ -22,4 +22,8 @@
     cursor: auto;
   }
 
+  &._disabled {
+    text-decoration: line-through;
+  }
+
 }

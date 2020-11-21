@@ -6,7 +6,7 @@ import React, {
     useCallback,
     useContext,
     useMemo,
-    useRef,
+    MouseEvent,
     useState
 } from "react";
 import {Track} from "../../timeline/Track";
@@ -99,12 +99,16 @@ const AliasEffectTrack: FC<AliasEffectTrackProps> = memo(({value, remove, path, 
         event.dataTransfer.effectAllowed = 'all';
     }, []);
 
+    const onClick = useCallback((event: MouseEvent<HTMLElement>) => {
+        if (event.altKey) return remove();
+    }, [remove]);
+
     return (
         <EffectTrack effect={value} path={path} key={name}>
-            <button className="btn _remove" onClick={remove}>X</button>
             <span
+                onClick={onClick}
                 className="effect-group-alias"
-                style={{backgroundColor: generateColorByText(name)}}
+                style={{backgroundColor: generateColorByText(name, 1, 0.3)}}
                 draggable
                 onDragStart={onDragStartEffect}
             >
