@@ -1,6 +1,6 @@
 import React, {FC, memo, ReactNode, useCallback, useContext, useMemo} from "react";
 import {Track} from "../../timeline/Track";
-import {
+import type {
     PlixEffectAliasJsonData,
     PlixEffectConfigurableJsonData,
     PlixEffectJsonData
@@ -21,6 +21,7 @@ import {EffectTypeEditor} from "./editor/EffectTypeEditor";
 import {EditValueAction} from "../PlixEditorReducerActions";
 import {EffectTypeTrack} from "./EffectTypeTrack";
 import {DraggableEffect} from "./editor/DraggableEffect";
+import {EffectPreview} from "./editor/EffectPreview";
 
 export interface EffectTrackProps {
     effect: PlixEffectJsonData,
@@ -206,7 +207,7 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, ef
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description _desc">
-                    {effectData.description}
+                    <EffectPreview effect={effect} /> {effectData.description}
                 </span>
             </TimelineBlock>
 
