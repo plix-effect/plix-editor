@@ -2086,6 +2086,22 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/ui/components/editor/tracks/ArrayElementsTrack.scss":
+/*!*****************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/ArrayElementsTrack.scss ***!
+  \*****************************************************************/
+/*! namespace exports */
+/*! exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./src/ui/components/editor/tracks/GroupEffectsTrack.scss":
 /*!****************************************************************!*\
   !*** ./src/ui/components/editor/tracks/GroupEffectsTrack.scss ***!
@@ -32879,7 +32895,7 @@ exports.PlixEditor = PlixEditor;
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
 /*! CommonJS bailout: this is used directly at 2:14-18 */
-/*! CommonJS bailout: exports.PlixEditorReducer(...) prevents optimization as exports is passed as call context at 27:61-86 */
+/*! CommonJS bailout: exports.PlixEditorReducer(...) prevents optimization as exports is passed as call context at 39:61-86 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -32905,6 +32921,18 @@ const PlixEditorReducer = (state, action) => {
         case "redo": return redoState(state);
         case "edit": return changeState(state, new EditHistoryItem(getWIthPath(state.track, toHistoryPath(state.track, action.path)), toHistoryPath(state.track, action.path), action.value));
         case "push": return changeState(state, new PushHistoryItem(toHistoryPath(state.track, action.path), action.value));
+        case "delete": {
+            const historyPath = toHistoryPath(state.track, action.path);
+            const value = getWIthPath(state.track, historyPath);
+            const lastPath = historyPath[historyPath.length - 1];
+            if (typeof lastPath === "string") {
+                return changeState(state, new EditHistoryItem(value, historyPath, undefined));
+            }
+            else {
+                const index = Number(lastPath);
+                return changeState(state, new DeleteIndexHistoryItem(value, historyPath.slice(0, -1), index));
+            }
+        }
         case "deleteIndex": return changeState(state, new DeleteIndexHistoryItem(getWIthPath(state.track, toHistoryPath(state.track, action.path))[action.index], toHistoryPath(state.track, action.path), action.index));
         case "deleteValue": return changeState(state, new DeleteIndexHistoryItem(action.value, toHistoryPath(state.track, action.path), getWIthPath(state.track, toHistoryPath(state.track, action.path)).indexOf(action.value)));
         case "insert": return changeState(state, new InsertIndexHistoryItem(action.value, toHistoryPath(state.track, action.path), action.index));
@@ -33090,6 +33118,7 @@ function insertIndexValueWIthPath(state, path, index, value) {
             const arrayKeys = KeyManager_1.settleKeys(state).slice(0);
             stateCopy.splice(index, 0, value);
             arrayKeys.splice(index, 0, KeyManager_1.generateKeyId());
+            KeyManager_1.keyMap.set(stateCopy, arrayKeys);
             return stateCopy;
         }
         return state;
@@ -33192,6 +33221,7 @@ function toHistoryPath(track, editorPath) {
   !*** ./src/ui/components/editor/PlixEditorReducerActions.ts ***!
   \**************************************************************/
 /*! flagged exports */
+/*! export DeleteAction [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export DeleteIndexAction [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export DeleteValueAction [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export EditValueAction [provided] [no usage info] [missing usage info prevents renaming] */
@@ -33208,7 +33238,7 @@ function toHistoryPath(track, editorPath) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.MultiAction = exports.RedoAction = exports.UndoAction = exports.InsertIndexAction = exports.DeleteValueAction = exports.DeleteIndexAction = exports.PushValueAction = exports.EditValueAction = void 0;
+exports.MultiAction = exports.RedoAction = exports.UndoAction = exports.InsertIndexAction = exports.DeleteValueAction = exports.DeleteIndexAction = exports.DeleteAction = exports.PushValueAction = exports.EditValueAction = void 0;
 const EditValueAction = (path, value) => {
     return {
         type: "edit",
@@ -33225,6 +33255,13 @@ const PushValueAction = (path, value) => {
     };
 };
 exports.PushValueAction = PushValueAction;
+const DeleteAction = (path) => {
+    return {
+        type: "delete",
+        path
+    };
+};
+exports.DeleteAction = DeleteAction;
 const DeleteIndexAction = (path, index) => {
     return {
         type: "deleteIndex",
@@ -33380,6 +33417,14 @@ const TrackEditor = () => {
     const save = react_1.useCallback(() => {
         download('plix-track.json', JSON.stringify(track));
     }, [track]);
+    const mouseLeftRef = react_1.useRef(0);
+    react_1.useEffect(() => {
+        const onMouseMove = ({ pageX }) => {
+            mouseLeftRef.current = pageX;
+        };
+        document.addEventListener("mousemove", onMouseMove);
+        return () => document.removeEventListener("mousemove", onMouseMove);
+    });
     const { setZoom, duration } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
     const multiplyZoom = react_1.useCallback((value) => {
         setZoom(v => {
@@ -33394,13 +33439,33 @@ const TrackEditor = () => {
                 return v;
             const timeline = timelineRef.current;
             if (timeline) {
-                timeline.scrollLeft = timeline.scrollLeft * z / v;
+                const { left } = timeline.getBoundingClientRect();
+                const dif = Math.max(mouseLeftRef.current - left, 0);
+                timeline.scrollLeft = (timeline.scrollLeft + dif) * z / v - (dif);
             }
             return z;
         });
     }, [setZoom, duration]);
     const zoomIn = react_1.useCallback(() => multiplyZoom(ZOOM_FACTOR), [multiplyZoom]);
     const zoomOut = react_1.useCallback(() => multiplyZoom(1 / ZOOM_FACTOR), [multiplyZoom]);
+    react_1.useEffect(() => {
+        const onKeydown = ({ ctrlKey, shiftKey, altKey, code }) => {
+            const focusedNode = document.querySelectorAll(":focus:not(body)");
+            const active = (focusedNode.length <= 0);
+            if (active && ctrlKey && !shiftKey && !altKey && code === "KeyZ")
+                return dispatch(PlixEditorReducerActions_1.UndoAction());
+            if (active && ctrlKey && shiftKey && !altKey && code === "KeyZ")
+                return dispatch(PlixEditorReducerActions_1.RedoAction());
+            if (active && ctrlKey && !shiftKey && !altKey && code === "KeyY")
+                return dispatch(PlixEditorReducerActions_1.RedoAction());
+            if (active && !ctrlKey && !shiftKey && !altKey && code === "Minus")
+                return zoomOut();
+            if (active && !ctrlKey && !shiftKey && !altKey && code === "Equal")
+                return zoomIn();
+        };
+        document.addEventListener("keydown", onKeydown);
+        return () => document.removeEventListener("keydown", onKeydown);
+    }, [dispatch, zoomIn, zoomOut]);
     const onWheel = react_1.useCallback((event) => {
         if (!event.ctrlKey && !event.metaKey)
             return;
@@ -33684,6 +33749,7 @@ const KeyManager_1 = __webpack_require__(/*! ../../../utils/KeyManager */ "./src
 const TrackContext_1 = __webpack_require__(/*! ../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
 const PlixEditorReducerActions_1 = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
 const Track_1 = __webpack_require__(/*! ../../timeline/Track */ "./src/ui/components/timeline/Track.tsx");
+__webpack_require__(/*! ./ArrayElementsTrack.scss */ "./src/ui/components/editor/tracks/ArrayElementsTrack.scss");
 exports.ArrayElementsTrack = react_1.memo(({ value, type, path }) => {
     const { dispatch } = react_1.useContext(TrackContext_1.TrackContext);
     const valuesData = react_1.useMemo(() => {
@@ -33695,19 +33761,26 @@ exports.ArrayElementsTrack = react_1.memo(({ value, type, path }) => {
                 key: key,
                 value: val,
                 index: i,
-                remove: () => dispatch(PlixEditorReducerActions_1.DeleteIndexAction(path, i)),
+                onClick(event) {
+                    if (event.altKey)
+                        dispatch(PlixEditorReducerActions_1.DeleteIndexAction(path, i));
+                },
             };
         });
     }, [value, dispatch]);
     return (react_1.default.createElement(Track_1.Track, null,
         null,
         null,
-        valuesData.map(({ key, value, path, index, remove }) => {
+        valuesData.map(({ key, value, path, index, onClick }) => {
             return (react_1.default.createElement(ValueTrack_1.ValueTrack, { key: key, type: type, value: value, path: path },
-                react_1.default.createElement("button", { className: "btn _remove", onClick: remove }, "X"),
-                " [",
-                index,
-                "]"));
+                react_1.default.createElement("span", { className: "NO_drop-target" },
+                    react_1.default.createElement("span", { className: "array-track-drop-target _top" }),
+                    react_1.default.createElement("span", { className: "array-track-drop-target _center" }),
+                    react_1.default.createElement("span", { className: "array-track-drop-target _bottom" })),
+                react_1.default.createElement("span", { onClick: onClick, title: "[Alt + Click] = delete" },
+                    "[",
+                    index,
+                    "]")));
         })));
 });
 
@@ -33845,6 +33918,7 @@ const PlixEditorReducerActions_1 = __webpack_require__(/*! ../PlixEditorReducerA
 __webpack_require__(/*! ./tracks.scss */ "./src/ui/components/editor/tracks/tracks.scss");
 const ArrayElementsTrack_1 = __webpack_require__(/*! ./ArrayElementsTrack */ "./src/ui/components/editor/tracks/ArrayElementsTrack.tsx");
 const EffectTypeTrack_1 = __webpack_require__(/*! ./EffectTypeTrack */ "./src/ui/components/editor/tracks/EffectTypeTrack.tsx");
+const DraggableEffect_1 = __webpack_require__(/*! ./editor/DraggableEffect */ "./src/ui/components/editor/tracks/editor/DraggableEffect.tsx");
 exports.ChainEffectTrack = react_1.memo(({ effect, effect: [enabled, effectId, params, filters], path, expanded, expander, changeExpanded, children, onChange, }) => {
     const paramEffects = react_1.useMemo(() => params[0] || [], [params]);
     const paramEffectsPath = react_1.useMemo(() => [...path, 2, 0], [path]);
@@ -33888,7 +33962,7 @@ exports.ChainEffectTrack = react_1.memo(({ effect, effect: [enabled, effectId, p
             expander,
             react_1.default.createElement("span", { className: "track-description", onClick: changeExpanded }, children),
             " ",
-            react_1.default.createElement("span", { className: "track-description _type" }, effectData.name),
+            react_1.default.createElement(DraggableEffect_1.DraggableEffect, { effect: effect, path: path }),
             " ",
             react_1.default.createElement("span", { className: "track-description _desc" },
                 "(",
@@ -34016,6 +34090,7 @@ const TimelineEffectTrack_1 = __webpack_require__(/*! ./TimelineEffectTrack */ "
 const ChainEffectTrack_1 = __webpack_require__(/*! ./ChainEffectTrack */ "./src/ui/components/editor/tracks/ChainEffectTrack.tsx");
 const PlixEditorReducerActions_1 = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
 const EffectTypeTrack_1 = __webpack_require__(/*! ./EffectTypeTrack */ "./src/ui/components/editor/tracks/EffectTypeTrack.tsx");
+const DraggableEffect_1 = __webpack_require__(/*! ./editor/DraggableEffect */ "./src/ui/components/editor/tracks/editor/DraggableEffect.tsx");
 exports.EffectTrack = react_1.memo(({ effect, path, baseExpanded, children }) => {
     const [expanded, expander, changeExpanded] = Expander_1.useExpander(baseExpanded);
     const { effectConstructorMap } = react_1.useContext(TrackContext_1.TrackContext);
@@ -34029,7 +34104,7 @@ exports.EffectTrack = react_1.memo(({ effect, path, baseExpanded, children }) =>
             templateEffect[1] = null;
             templateEffect[2] = value;
         }
-        if (type === "constructor") {
+        else if (type === "constructor") {
             templateEffect[1] = value;
             const effectConstructor = effectConstructorMap[value];
             const meta = effectConstructor['meta'];
@@ -34045,7 +34120,7 @@ exports.EffectTrack = react_1.memo(({ effect, path, baseExpanded, children }) =>
         return (react_1.default.createElement(TimelineEffectTrack_1.TimelineEffectTrack, { effect: effect, onChange: onChangeEffect, path: path, children: children, expanded: expanded, expander: expander, changeExpanded: changeExpanded }));
     if (effect[1] === "Chain")
         return (react_1.default.createElement(ChainEffectTrack_1.ChainEffectTrack, { effect: effect, path: path, children: children, expanded: expanded, expander: expander, onChange: onChangeEffect, changeExpanded: changeExpanded }));
-    return react_1.default.createElement(ConfigurableEffectTrack, { path: path, onChange: onChangeEffect, expanded: expanded, expander: expander, changeExpanded: changeExpanded, effect: effect, children: children });
+    return (react_1.default.createElement(ConfigurableEffectTrack, { path: path, onChange: onChangeEffect, expanded: expanded, expander: expander, changeExpanded: changeExpanded, effect: effect, children: children }));
 });
 const NoEffectTrack = react_1.memo(({ children, onChange, expanded, expander, changeExpanded }) => {
     return (react_1.default.createElement(Track_1.Track, { nested: true, expanded: expanded },
@@ -34065,7 +34140,7 @@ const AliasEffectTrack = ({ effect, effect: [enabled, , link, filters], path, ch
             expander,
             react_1.default.createElement("span", { className: "track-description", onClick: changeExpanded }, children),
             " ",
-            react_1.default.createElement("span", { className: "track-description _link" }, link)),
+            react_1.default.createElement(DraggableEffect_1.DraggableEffect, { effect: effect, path: path })),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
             react_1.default.createElement("span", { className: "track-description _desc" },
                 "use alias ",
@@ -34098,7 +34173,7 @@ const ConfigurableEffectTrack = ({ onChange, effect, effect: [enabled, effectId,
             expander,
             react_1.default.createElement("span", { className: "track-description", onClick: changeExpanded }, children),
             " ",
-            react_1.default.createElement("span", { className: "track-description _type" }, effectData.name)),
+            react_1.default.createElement(DraggableEffect_1.DraggableEffect, { effect: effect, path: path })),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
             react_1.default.createElement("span", { className: "track-description _desc" }, effectData.description)),
         react_1.default.createElement(EffectTypeTrack_1.EffectTypeTrack, { onChange: onChange, effect: effect }),
@@ -34148,12 +34223,12 @@ const Track_1 = __webpack_require__(/*! ../../timeline/Track */ "./src/ui/compon
 const TreeBlock_1 = __webpack_require__(/*! ../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
 const TimelineBlock_1 = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
 __webpack_require__(/*! ./tracks.scss */ "./src/ui/components/editor/tracks/tracks.scss");
-const EffectEditor_1 = __webpack_require__(/*! ./editor/EffectEditor */ "./src/ui/components/editor/tracks/editor/EffectEditor.tsx");
+const EffectTypeEditor_1 = __webpack_require__(/*! ./editor/EffectTypeEditor */ "./src/ui/components/editor/tracks/editor/EffectTypeEditor.tsx");
 exports.EffectTypeTrack = react_1.memo(({ effect, onChange }) => {
     return (react_1.default.createElement(Track_1.Track, null,
         react_1.default.createElement(TreeBlock_1.TreeBlock, null, "Effect type"),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
-            react_1.default.createElement(EffectEditor_1.EffectEditor, { onChange: onChange, effect: effect }))));
+            react_1.default.createElement(EffectTypeEditor_1.EffectTypeEditor, { onChange: onChange, effect: effect }))));
 });
 
 
@@ -34326,13 +34401,13 @@ const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/re
 const Track_1 = __webpack_require__(/*! ../../timeline/Track */ "./src/ui/components/timeline/Track.tsx");
 const TreeBlock_1 = __webpack_require__(/*! ../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
 const TimelineBlock_1 = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
-const FilterEditor_1 = __webpack_require__(/*! ./editor/FilterEditor */ "./src/ui/components/editor/tracks/editor/FilterEditor.tsx");
+const FilterTypeEditor_1 = __webpack_require__(/*! ./editor/FilterTypeEditor */ "./src/ui/components/editor/tracks/editor/FilterTypeEditor.tsx");
 __webpack_require__(/*! ./tracks.scss */ "./src/ui/components/editor/tracks/tracks.scss");
 exports.FilterTypeTrack = react_1.memo(({ filter, onChange }) => {
     return (react_1.default.createElement(Track_1.Track, null,
         react_1.default.createElement(TreeBlock_1.TreeBlock, null, "Filter type"),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
-            react_1.default.createElement(FilterEditor_1.FilterEditor, { onChange: onChange, filter: filter }))));
+            react_1.default.createElement(FilterTypeEditor_1.FilterTypeEditor, { onChange: onChange, filter: filter }))));
 });
 
 
@@ -34432,9 +34507,12 @@ const AliasEffectTrack = react_1.memo(({ value, remove, path, name }) => {
         };
         event.dataTransfer.effectAllowed = 'all';
     }, []);
+    const onClick = react_1.useCallback((event) => {
+        if (event.altKey)
+            return remove();
+    }, [remove]);
     return (react_1.default.createElement(EffectTrack_1.EffectTrack, { effect: value, path: path, key: name },
-        react_1.default.createElement("button", { className: "btn _remove", onClick: remove }, "X"),
-        react_1.default.createElement("span", { className: "effect-group-alias", style: { backgroundColor: generateColorByText_1.generateColorByText(name) }, draggable: true, onDragStart: onDragStartEffect }, name)));
+        react_1.default.createElement("span", { onClick: onClick, className: "effect-group-alias", style: { backgroundColor: generateColorByText_1.generateColorByText(name, 1, 0.3) }, draggable: true, onDragStart: onDragStartEffect }, name)));
 });
 const defaultEffect = null;
 
@@ -34492,7 +34570,10 @@ exports.GroupFiltersTrack = react_1.memo(({ filtersMap, path }) => {
                 name: name,
                 path: [...path, name],
                 value: filtersMap[name],
-                remove: () => dispatch(PlixEditorReducerActions_1.EditValueAction([...path, name], undefined)),
+                onClick: (event) => {
+                    if (event.altKey)
+                        return dispatch(PlixEditorReducerActions_1.EditValueAction([...path, name], undefined));
+                },
             };
         });
     }, [filtersMap, dispatch]);
@@ -34514,9 +34595,7 @@ exports.GroupFiltersTrack = react_1.memo(({ filtersMap, path }) => {
             react_1.default.createElement("span", { className: "track-description", onClick: changeExpanded }, "===Filters===")),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { type: "description", fixed: true }, "filter prefabs"),
         aliasesList.map(alias => (react_1.default.createElement(FilterTrack_1.FilterTrack, { filter: alias.value, path: alias.path, key: alias.name },
-            react_1.default.createElement("button", { className: "btn _remove", onClick: alias.remove }, "X"),
-            " ",
-            alias.name))),
+            react_1.default.createElement("span", { onClick: alias.onClick }, alias.name)))),
         react_1.default.createElement(Track_1.Track, null,
             react_1.default.createElement(TreeBlock_1.TreeBlock, { type: "description" }),
             react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true, type: "description" },
@@ -34570,20 +34649,18 @@ const TimelineBlock_1 = __webpack_require__(/*! ../track-elements/TimelineBlock 
 const TimelineEditor_1 = __webpack_require__(/*! ./editor/TimelineEditor */ "./src/ui/components/editor/tracks/editor/TimelineEditor.tsx");
 const EffectTypeTrack_1 = __webpack_require__(/*! ./EffectTypeTrack */ "./src/ui/components/editor/tracks/EffectTypeTrack.tsx");
 const ValueTrack_1 = __webpack_require__(/*! ./ValueTrack */ "./src/ui/components/editor/tracks/ValueTrack.tsx");
-const TrackContext_1 = __webpack_require__(/*! ../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
 __webpack_require__(/*! ./tracks.scss */ "./src/ui/components/editor/tracks/tracks.scss");
+const DraggableEffect_1 = __webpack_require__(/*! ./editor/DraggableEffect */ "./src/ui/components/editor/tracks/editor/DraggableEffect.tsx");
 exports.TimelineEffectTrack = react_1.memo(({ effect, effect: [enabled, effectId, params, filters], path, children, onChange, changeExpanded, expanded, expander }) => {
     const filtersPath = react_1.useMemo(() => [...path, 3], [path]);
     const timelinePath = react_1.useMemo(() => [...path, 2, 0], [path]);
     const valueFilters = react_1.useMemo(() => filters !== null && filters !== void 0 ? filters : [], [filters]);
-    const { effectConstructorMap } = react_1.useContext(TrackContext_1.TrackContext);
-    const timelineConstructorMeta = react_1.useMemo(() => effectConstructorMap['Timeline']['meta'], [effectConstructorMap]);
     return (react_1.default.createElement(Track_1.Track, { nested: true, expanded: expanded },
         react_1.default.createElement(TreeBlock_1.TreeBlock, { type: "timeline" },
             expander,
             react_1.default.createElement("span", { className: "track-description", onClick: changeExpanded }, children),
             " ",
-            react_1.default.createElement("span", { className: "track-description _type" }, timelineConstructorMeta.name)),
+            react_1.default.createElement(DraggableEffect_1.DraggableEffect, { effect: effect, path: path })),
         react_1.default.createElement(TimelineBlock_1.TimelineBlock, { type: "timeline" },
             react_1.default.createElement(TimelineEditor_1.TimelineEditor, { cycle: params[1], grid: params[2], offset: params[3], records: params[0], path: timelinePath })),
         react_1.default.createElement(EffectTypeTrack_1.EffectTypeTrack, { onChange: onChange, effect: effect }),
@@ -34799,10 +34876,94 @@ function toSaveColor(htmlColor, opacity) {
 
 /***/ }),
 
-/***/ "./src/ui/components/editor/tracks/editor/EffectEditor.tsx":
-/*!*****************************************************************!*\
-  !*** ./src/ui/components/editor/tracks/editor/EffectEditor.tsx ***!
-  \*****************************************************************/
+/***/ "./src/ui/components/editor/tracks/editor/DraggableEffect.tsx":
+/*!********************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/editor/DraggableEffect.tsx ***!
+  \********************************************************************/
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
+/*! CommonJS bailout: this is used directly at 2:23-27 */
+/*! CommonJS bailout: this is used directly at 9:26-30 */
+/*! CommonJS bailout: this is used directly at 14:20-24 */
+/*! CommonJS bailout: this is used directly at 21:23-27 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DraggableEffect = void 0;
+const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+const TrackContext_1 = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+const PlixEditorReducerActions_1 = __webpack_require__(/*! ../../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+const DragContext_1 = __webpack_require__(/*! ../../DragContext */ "./src/ui/components/editor/DragContext.ts");
+const classnames_1 = __importDefault(__webpack_require__(/*! classnames */ "./node_modules/classnames/index.js"));
+exports.DraggableEffect = react_1.memo(({ effect, path }) => {
+    const { effectConstructorMap, dispatch } = react_1.useContext(TrackContext_1.TrackContext);
+    const dragRef = react_1.useContext(DragContext_1.DragContext);
+    const onClick = react_1.useCallback((event) => {
+        if (!effect)
+            return;
+        if (event.ctrlKey)
+            dispatch(PlixEditorReducerActions_1.EditValueAction([...path, 0], !effect[0]));
+    }, [effect, path]);
+    const onDragStart = react_1.useCallback((event) => {
+        if (!effect)
+            return;
+        dragRef.current = {
+            effect,
+            offsetX: event.nativeEvent.offsetX,
+            offsetY: event.nativeEvent.offsetY,
+        };
+    }, [effect, path]);
+    if (!effect) {
+        return react_1.default.createElement("span", { className: "track-description _empty" }, "empty");
+    }
+    const [enabled, id, params] = effect;
+    if (id) {
+        const effectConstructor = effectConstructorMap[id];
+        const meta = effectConstructor['meta'];
+        return (react_1.default.createElement("span", { className: classnames_1.default("track-description _type", { "_disabled": !enabled }), onClick: onClick, onDragStart: onDragStart, draggable: true, title: getEffectTitle(enabled) }, meta.name));
+    }
+    else {
+        return (react_1.default.createElement("span", { className: classnames_1.default("track-description _link", { "_disabled": !enabled }), onClick: onClick, onDragStart: onDragStart, draggable: true, title: getEffectTitle(enabled) }, params));
+    }
+    return null;
+});
+function getEffectTitle(enabled) {
+    return '' +
+        `[Ctrl + click] = ${enabled ? 'disable' : 'enable'}\n` +
+        `[Drag] = move and copy effect`;
+}
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/tracks/editor/EffectTypeEditor.tsx":
+/*!*********************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/editor/EffectTypeEditor.tsx ***!
+  \*********************************************************************/
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
 /*! CommonJS bailout: this is used directly at 2:23-27 */
@@ -34832,11 +34993,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.EffectEditor = void 0;
+exports.EffectTypeEditor = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 __webpack_require__(/*! ../../track-elements/ColorView.scss */ "./src/ui/components/editor/track-elements/ColorView.scss");
 const TrackContext_1 = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
-const EffectEditor = ({ onChange, effect }) => {
+const EffectTypeEditor = ({ onChange, effect }) => {
     const { effectConstructorMap, track: { effects: effectAliasMap } } = react_1.useContext(TrackContext_1.TrackContext);
     const handleChange = react_1.useCallback((event) => {
         const selectedValue = event.target.value;
@@ -34880,15 +35041,15 @@ const EffectEditor = ({ onChange, effect }) => {
             react_1.default.createElement("optgroup", { label: "aliases" }, aliasData.map(data => (react_1.default.createElement("option", { key: data.value, value: data.value }, data.name)))),
             react_1.default.createElement("optgroup", { label: "basic effects" }, effectConstructorsData.map(data => (react_1.default.createElement("option", { key: data.value, value: data.value }, data.name)))))));
 };
-exports.EffectEditor = EffectEditor;
+exports.EffectTypeEditor = EffectTypeEditor;
 
 
 /***/ }),
 
-/***/ "./src/ui/components/editor/tracks/editor/FilterEditor.tsx":
-/*!*****************************************************************!*\
-  !*** ./src/ui/components/editor/tracks/editor/FilterEditor.tsx ***!
-  \*****************************************************************/
+/***/ "./src/ui/components/editor/tracks/editor/FilterTypeEditor.tsx":
+/*!*********************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/editor/FilterTypeEditor.tsx ***!
+  \*********************************************************************/
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
 /*! CommonJS bailout: this is used directly at 2:23-27 */
@@ -34918,11 +35079,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.FilterEditor = void 0;
+exports.FilterTypeEditor = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 __webpack_require__(/*! ../../track-elements/ColorView.scss */ "./src/ui/components/editor/track-elements/ColorView.scss");
 const TrackContext_1 = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
-const FilterEditor = ({ onChange, filter }) => {
+const FilterTypeEditor = ({ onChange, filter }) => {
     const { filterConstructorMap, track: { filters: filterAliasMap } } = react_1.useContext(TrackContext_1.TrackContext);
     const handleChange = react_1.useCallback((event) => {
         const selectedValue = event.target.value;
@@ -34966,7 +35127,7 @@ const FilterEditor = ({ onChange, filter }) => {
             react_1.default.createElement("optgroup", { label: "aliases" }, aliasData.map(data => (react_1.default.createElement("option", { key: data.value, value: data.value }, data.name)))),
             react_1.default.createElement("optgroup", { label: "basic filters" }, filterConstructorsData.map(data => (react_1.default.createElement("option", { key: data.value, value: data.value }, data.name)))))));
 };
-exports.FilterEditor = FilterEditor;
+exports.FilterTypeEditor = FilterTypeEditor;
 
 
 /***/ }),
@@ -35148,6 +35309,8 @@ const TimelineEditor = ({ records, cycle, grid, offset, path }) => {
             if (!canMove)
                 return;
             event.dataTransfer.dropEffect = dropEffect;
+            if (records.includes(record) && record[2] === pos[0] && record[3] === pos[1])
+                return;
             onDropActionRef.current = (event) => {
                 event.dataTransfer.dropEffect = dropEffect;
                 const newRecordValue = [record[0], record[1], pos[0], pos[1]];
@@ -35200,6 +35363,8 @@ function getMovingResult(record, posTime, bindToGrid, cycle, grid, offset, recor
         const rightDif = Math.abs(selectedPositionRight - posEndTime);
         selectedPosition = (leftDif <= rightDif) ? selectedPositionLeft : selectedPositionRight - recordDuration;
     }
+    if (selectedPosition < 0)
+        selectedPosition = 0;
     const moveRecordPosition = [selectedPosition, recordDuration];
     const canMove = canMoveRecord(record, records, moveRecordPosition, dropEffect);
     return [moveRecordPosition, canMove];
@@ -35267,6 +35432,7 @@ function canMoveRecord(record, records, [start, duration], effect) {
 /*! CommonJS bailout: this is used directly at 2:23-27 */
 /*! CommonJS bailout: this is used directly at 9:26-30 */
 /*! CommonJS bailout: this is used directly at 14:20-24 */
+/*! CommonJS bailout: this is used directly at 21:23-27 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -35290,6 +35456,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Record = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
@@ -35298,21 +35467,32 @@ __webpack_require__(/*! ./Record.scss */ "./src/ui/components/editor/tracks/edit
 const DragContext_1 = __webpack_require__(/*! ../../../DragContext */ "./src/ui/components/editor/DragContext.ts");
 const PlixEditorReducerActions_1 = __webpack_require__(/*! ../../../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
 const generateColorByText_1 = __webpack_require__(/*! ../../../../../utils/generateColorByText */ "./src/ui/utils/generateColorByText.ts");
+const TrackContext_1 = __webpack_require__(/*! ../../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+const classnames_1 = __importDefault(__webpack_require__(/*! classnames */ "./node_modules/classnames/index.js"));
 exports.Record = react_1.memo(({ path, record, record: [enabled, link, start, recordDuration] }) => {
     const { duration } = react_1.useContext(ScaleDisplayContext_1.ScaleDisplayContext);
     const dragRef = react_1.useContext(DragContext_1.DragContext);
+    const { dispatch } = react_1.useContext(TrackContext_1.TrackContext);
     const onDragStartName = react_1.useCallback((event) => {
         dragRef.current = {
             effect: [true, null, link, []],
             recordMove: {
                 record: record,
-                deleteAction: PlixEditorReducerActions_1.DeleteValueAction(path.slice(0, -1), record)
+                deleteAction: PlixEditorReducerActions_1.DeleteAction(path)
             },
             offsetX: event.nativeEvent.offsetX,
             offsetY: event.nativeEvent.offsetY,
         };
         event.dataTransfer.effectAllowed = 'all';
     }, [record, path]);
+    const onClick = react_1.useCallback((event) => {
+        if (event.altKey) {
+            return dispatch(PlixEditorReducerActions_1.DeleteValueAction(path.slice(0, -1), record));
+        }
+        if (event.ctrlKey) {
+            return dispatch(PlixEditorReducerActions_1.EditValueAction([...path, 0], !enabled));
+        }
+    }, [path, record]);
     const onDragStartLeft = react_1.useCallback((event) => {
         dragRef.current = {
             recordScale: { record: record, side: "left" },
@@ -35334,15 +35514,25 @@ exports.Record = react_1.memo(({ path, record, record: [enabled, link, start, re
     return react_1.useMemo(() => {
         const startD = start / duration;
         const durD = recordDuration / duration;
-        return (react_1.default.createElement("div", { className: "timeline-record", style: {
+        return (react_1.default.createElement("div", { className: classnames_1.default("timeline-record", { "_disabled": !enabled }), style: {
                 left: `${startD * 100}%`,
                 width: `${durD * 100}%`,
-            } },
-            react_1.default.createElement("div", { onDragStart: onDragStartName, className: "timeline-record-name", draggable: true, style: { backgroundColor: generateColorByText_1.generateColorByText(link) } }, link),
-            react_1.default.createElement("div", { className: "timeline-record-scaling _left", draggable: true, onDragStart: onDragStartLeft }),
-            react_1.default.createElement("div", { className: "timeline-record-scaling _right", draggable: true, onDragStart: onDragStartRight })));
+            }, onClick: onClick, title: createTitleRecord(record) },
+            react_1.default.createElement("div", { onDragStart: onDragStartName, className: "timeline-record-name", draggable: true, style: { backgroundColor: generateColorByText_1.generateColorByText(link, enabled ? 1 : 0.2, 0.3, enabled ? 1 : 0.5) } }, link),
+            react_1.default.createElement("div", { className: "timeline-record-scaling _left", draggable: true, onDragStart: onDragStartLeft, title: createTitleResize(record, "left") }),
+            react_1.default.createElement("div", { className: "timeline-record-scaling _right", draggable: true, onDragStart: onDragStartRight, title: createTitleResize(record, "right") })));
     }, [duration, start, link, recordDuration, enabled, onDragStartRight, onDragStartLeft]);
 });
+const createTitleRecord = (record) => `${record[1]}\n\n` +
+    "[Alt + Click] = delete\n" +
+    `[Ctrl + Click] = ${record[0] ? 'disable' : 'enable'}\n` +
+    "[Drag] = move to new position\n" +
+    "[Shift + Drag] = don't snap on grid\n" +
+    "[Ctrl + Drag] = copy\n";
+const createTitleResize = (record, pos) => `start = ${Math.round(record[2])}ms\n` +
+    `duration = ${Math.round(record[3])}ms\n\n` +
+    "[Drag] = resize\n" +
+    "[Shift + Drag] = don't snap on grid\n";
 
 
 /***/ }),
@@ -35384,10 +35574,13 @@ exports.Records = void 0;
 const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 __webpack_require__(/*! ./Record.scss */ "./src/ui/components/editor/tracks/editor/timeline/Record.scss");
 const Record_1 = __webpack_require__(/*! ./Record */ "./src/ui/components/editor/tracks/editor/timeline/Record.tsx");
+const KeyManager_1 = __webpack_require__(/*! ../../../../../utils/KeyManager */ "./src/ui/utils/KeyManager.ts");
 exports.Records = react_1.memo(({ records, path }) => {
     return react_1.useMemo(() => {
         return (react_1.default.createElement(react_1.Fragment, null, records.map((record, i) => {
-            return (react_1.default.createElement(Record_1.Record, { record: record, key: i, path: [...path, i] }));
+            const key = KeyManager_1.getArrayKey(records, i);
+            const valPath = [...path, { key: String(key), array: records }];
+            return (react_1.default.createElement(Record_1.Record, { record: record, key: key, path: valPath }));
         })));
     }, [records]);
 });
@@ -35685,12 +35878,12 @@ exports.settleKeys = settleKeys;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.generateColorByText = void 0;
-function generateColorByText(value) {
+function generateColorByText(value, s = 1, l = 0.5, a = 1) {
     let v = 0;
     for (let i = 0; i < value.length; i++) {
         v = v + value.charCodeAt(i) + i;
     }
-    return `hsla(${v % 360},100%, 30%)`;
+    return `hsla(${v % 360},${s * 100}%, ${l * 100}%, ${a})`;
 }
 exports.generateColorByText = generateColorByText;
 

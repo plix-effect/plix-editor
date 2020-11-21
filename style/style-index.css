@@ -221,6 +221,32 @@ input[type="color"].full-size-color-picker {
   .track-description._desc {
     color: #888;
     cursor: auto; }
+  .track-description._disabled {
+    text-decoration: line-through; }
+
+.array-track-drop-target {
+  position: absolute;
+  display: none;
+  top: -2;
+  bottom: 70%;
+  left: -20px;
+  right: 0; }
+  ._drop-target .array-track-drop-target {
+    display: block; }
+  .array-track-drop-target._top {
+    background-color: rgba(255, 0, 0, 0.5);
+    top: -2;
+    bottom: 75%; }
+  .array-track-drop-target._center {
+    background-color: rgba(0, 255, 0, 0.5);
+    top: 25%;
+    bottom: 25%; }
+  .array-track-drop-target._bottom {
+    background-color: rgba(0, 0, 255, 0.5);
+    top: 75%;
+    bottom: -1px; }
+  .array-track-drop-target:hover {
+    background-color: yellow; }
 
 .timeline-editor-drag-content {
   position: relative;
@@ -288,6 +314,10 @@ input[type="color"].full-size-color-picker {
   top: 0;
   bottom: 0;
   overflow: hidden; }
+  .timeline-record._disabled {
+    color: #ccc; }
+    .timeline-record._disabled .timeline-record-name {
+      border-color: rgba(255, 255, 255, 0.5); }
 
 .timeline-record-name {
   background-color: #888;
