@@ -32558,7 +32558,7 @@ exports.SplitTimeline = react_1.memo(react_1.forwardRef(({ children: [leftHeader
         const dividerBcr = dragRef.current.getBoundingClientRect();
         let leftWidth = dragValue;
         const rightPartWidth = containerBcr.width - dragValue - dividerBcr.width;
-        if (rightPartWidth < minLeft)
+        if (rightPartWidth < minRight)
             leftWidth = containerBcr.width - minRight - dividerBcr.width;
         if (dragValue < minLeft)
             leftWidth = minLeft;
@@ -34088,6 +34088,7 @@ const Expander_1 = __webpack_require__(/*! ../track-elements/Expander */ "./src/
 const KeyManager_1 = __webpack_require__(/*! ../../../utils/KeyManager */ "./src/ui/utils/KeyManager.ts");
 const TimelineEffectTrack_1 = __webpack_require__(/*! ./TimelineEffectTrack */ "./src/ui/components/editor/tracks/TimelineEffectTrack.tsx");
 const ChainEffectTrack_1 = __webpack_require__(/*! ./ChainEffectTrack */ "./src/ui/components/editor/tracks/ChainEffectTrack.tsx");
+const EffectTypeEditor_1 = __webpack_require__(/*! ./editor/EffectTypeEditor */ "./src/ui/components/editor/tracks/editor/EffectTypeEditor.tsx");
 const PlixEditorReducerActions_1 = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
 const EffectTypeTrack_1 = __webpack_require__(/*! ./EffectTypeTrack */ "./src/ui/components/editor/tracks/EffectTypeTrack.tsx");
 const DraggableEffect_1 = __webpack_require__(/*! ./editor/DraggableEffect */ "./src/ui/components/editor/tracks/editor/DraggableEffect.tsx");
@@ -34129,8 +34130,8 @@ const NoEffectTrack = react_1.memo(({ children, onChange, expanded, expander, ch
             react_1.default.createElement("span", { className: "track-description", onClick: changeExpanded }, children),
             " ",
             react_1.default.createElement("span", { className: "track-description _empty" }, "empty")),
-        react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true }),
-        react_1.default.createElement(EffectTypeTrack_1.EffectTypeTrack, { onChange: onChange, effect: null })));
+        react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
+            react_1.default.createElement(EffectTypeEditor_1.EffectTypeEditor, { onChange: onChange, effect: null }))));
 });
 const AliasEffectTrack = ({ effect, effect: [enabled, , link, filters], path, children, changeExpanded, expanded, expander, onChange }) => {
     const filtersPath = react_1.useMemo(() => [...path, 3], [path]);
@@ -34649,12 +34650,49 @@ const TimelineBlock_1 = __webpack_require__(/*! ../track-elements/TimelineBlock 
 const TimelineEditor_1 = __webpack_require__(/*! ./editor/TimelineEditor */ "./src/ui/components/editor/tracks/editor/TimelineEditor.tsx");
 const EffectTypeTrack_1 = __webpack_require__(/*! ./EffectTypeTrack */ "./src/ui/components/editor/tracks/EffectTypeTrack.tsx");
 const ValueTrack_1 = __webpack_require__(/*! ./ValueTrack */ "./src/ui/components/editor/tracks/ValueTrack.tsx");
+const TrackContext_1 = __webpack_require__(/*! ../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
 __webpack_require__(/*! ./tracks.scss */ "./src/ui/components/editor/tracks/tracks.scss");
 const DraggableEffect_1 = __webpack_require__(/*! ./editor/DraggableEffect */ "./src/ui/components/editor/tracks/editor/DraggableEffect.tsx");
-exports.TimelineEffectTrack = react_1.memo(({ effect, effect: [enabled, effectId, params, filters], path, children, onChange, changeExpanded, expanded, expander }) => {
+const JSONEditor_1 = __webpack_require__(/*! ./editor/JSONEditor */ "./src/ui/components/editor/tracks/editor/JSONEditor.tsx");
+const PlixEditorReducerActions_1 = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+exports.TimelineEffectTrack = react_1.memo(({ effect, effect: [, , params, filters], path, children, onChange, changeExpanded, expanded, expander }) => {
     const filtersPath = react_1.useMemo(() => [...path, 3], [path]);
     const timelinePath = react_1.useMemo(() => [...path, 2, 0], [path]);
     const valueFilters = react_1.useMemo(() => filters !== null && filters !== void 0 ? filters : [], [filters]);
+    const { dispatch } = react_1.useContext(TrackContext_1.TrackContext);
+    const onChangeCycle = react_1.useCallback((value) => {
+        var _a, _b, _c, _d, _e, _f, _g;
+        if (!value || !params[1]) {
+            const newParams = [params[0], value !== null && value !== void 0 ? value : 0, (_a = params[2]) !== null && _a !== void 0 ? _a : 1, (_b = params[3]) !== null && _b !== void 0 ? _b : 0];
+            return dispatch(PlixEditorReducerActions_1.EditValueAction([...path, 2], newParams));
+        }
+        if (!params[1]) {
+            const newParams = [params[0], null, (_c = params[2]) !== null && _c !== void 0 ? _c : 1, (_d = params[3]) !== null && _d !== void 0 ? _d : 0];
+            return dispatch(PlixEditorReducerActions_1.EditValueAction([...path, 2], newParams));
+        }
+        const zoom = value / params[1];
+        const offset = (_e = params[3]) !== null && _e !== void 0 ? _e : 0;
+        const newRecords = ((_f = params[0]) !== null && _f !== void 0 ? _f : []).map(([enabled, link, start, duration]) => {
+            const zoomStart = (start - offset) * zoom + offset;
+            return [enabled, link, zoomStart, duration * zoom];
+        });
+        const newParams = [newRecords, value, (_g = params[2]) !== null && _g !== void 0 ? _g : 1, offset];
+        dispatch(PlixEditorReducerActions_1.EditValueAction([...path, 2], newParams));
+    }, [path, params, dispatch]);
+    const onChangeGrid = react_1.useCallback((value) => {
+        var _a, _b;
+        const newParams = [params[0], (_a = params[1]) !== null && _a !== void 0 ? _a : 0, value !== null && value !== void 0 ? value : 1, (_b = params[3]) !== null && _b !== void 0 ? _b : 0];
+        dispatch(PlixEditorReducerActions_1.EditValueAction([...path, 2], newParams));
+    }, [path, params, dispatch]);
+    const onChangeOffset = react_1.useCallback((value) => {
+        var _a, _b, _c;
+        const shift = value - params[3];
+        const newRecords = ((_a = params[0]) !== null && _a !== void 0 ? _a : []).map(([enabled, link, start, duration]) => {
+            return [enabled, link, start + shift, duration];
+        });
+        const newParams = [newRecords, (_b = params[1]) !== null && _b !== void 0 ? _b : 0, (_c = params[2]) !== null && _c !== void 0 ? _c : 1, value !== null && value !== void 0 ? value : 0];
+        dispatch(PlixEditorReducerActions_1.EditValueAction([...path, 2], newParams));
+    }, [path, params, dispatch]);
     return (react_1.default.createElement(Track_1.Track, { nested: true, expanded: expanded },
         react_1.default.createElement(TreeBlock_1.TreeBlock, { type: "timeline" },
             expander,
@@ -34668,23 +34706,17 @@ exports.TimelineEffectTrack = react_1.memo(({ effect, effect: [enabled, effectId
             react_1.default.createElement(TreeBlock_1.TreeBlock, null,
                 react_1.default.createElement("span", { className: "track-description" }, "Cycle")),
             react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
-                react_1.default.createElement("span", { className: "track-description" },
-                    params[1] || "no cycle",
-                    " todo: change cycle"))),
+                react_1.default.createElement(JSONEditor_1.JSONEditor, { value: params[1], onChange: onChangeCycle }))),
         react_1.default.createElement(Track_1.Track, null,
             react_1.default.createElement(TreeBlock_1.TreeBlock, null,
                 react_1.default.createElement("span", { className: "track-description" }, "Grid")),
             react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
-                react_1.default.createElement("span", { className: "track-description" },
-                    params[2] || "no grid",
-                    " todo: change grid"))),
+                react_1.default.createElement(JSONEditor_1.JSONEditor, { value: params[2], onChange: onChangeGrid }))),
         react_1.default.createElement(Track_1.Track, null,
             react_1.default.createElement(TreeBlock_1.TreeBlock, null,
                 react_1.default.createElement("span", { className: "track-description" }, "Offset")),
             react_1.default.createElement(TimelineBlock_1.TimelineBlock, { fixed: true },
-                react_1.default.createElement("span", { className: "track-description" },
-                    params[3] || 0,
-                    " todo: change offset"))),
+                react_1.default.createElement(JSONEditor_1.JSONEditor, { value: params[3], onChange: onChangeOffset }))),
         react_1.default.createElement(ValueTrack_1.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect" }, "Filters")));
 });
 
@@ -35335,7 +35367,8 @@ const TimelineEditor = ({ records, cycle, grid, offset, path }) => {
     return (react_1.default.createElement("div", { className: "timeline-editor-drag-content", onDragEnter: onDragEnter, onDragLeave: onDragLeave, onDragOver: onDragOver, onDrop: onDrop },
         react_1.default.createElement("div", { ref: editorRef, className: "timeline-editor", style: { width: trackWidth } },
             react_1.default.createElement("div", { className: "timeline-editor-dummy", ref: dummyRef }),
-            react_1.default.createElement("div", { className: "timeline-editor-grid" }, cycle !== null && react_1.default.createElement(TimelineEditorGrid_1.TimelineEditorGrid, { offset: offset, grid: grid !== null && grid !== void 0 ? grid : 1, cycle: cycle })),
+            react_1.default.createElement("div", { className: "timeline-editor-grid" },
+                react_1.default.createElement(TimelineEditorGrid_1.TimelineEditorGrid, { offset: offset, grid: grid !== null && grid !== void 0 ? grid : 1, cycle: cycle })),
             react_1.default.createElement("div", { className: "timeline-editor-records" },
                 react_1.default.createElement(Records_1.Records, { records: records, path: path })))));
 };
@@ -35652,7 +35685,7 @@ exports.TimelineEditorGrid = react_1.memo(({ cycle, grid, offset }) => {
                     } },
                     react_1.default.createElement("div", { className: "timeline-editor-grid-cycle-content" }, i + 1)));
             })));
-    }, [cycleCount, offset, duration, showCycle, showGrid, showOffset]);
+    }, [cycleCount, offset, duration, showCycle, showGrid, showOffset, grid]);
 });
 
 
