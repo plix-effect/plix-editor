@@ -13,6 +13,7 @@
     "react-modal-promise": "^0.5.3",
     "react-router-dom": "^5.2.0",
     "react-transition-group": "^4.4.1",
+    "react-x-editable": "^0.0.10-beta",
     "riek": "^1.1.0"
   },
   "devDependencies": {

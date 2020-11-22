@@ -1,4 +1,4 @@
-html, body {
+html, html>body {
   padding: 0;
   margin: 0;
   background-color: black;
@@ -13,4 +13,17 @@ a {
 }
 a:hover {
   color: #aaf;
+}
+
+.btn:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+.btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+body .btn-primary:focus {
+  background-color: #007bff;
+  border-color: #007bff
 }

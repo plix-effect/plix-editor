@@ -1,5 +1,5 @@
 import React, {ChangeEvent, FC, useCallback, useEffect, useRef, useState} from "react";
-import {RIENumber} from 'riek';
+import Editable from 'react-x-editable';
 import "./riek.scss"
 
 export interface JSONEditorProps {
@@ -14,11 +14,12 @@ export const NumberEditor: FC<JSONEditorProps> = ({value, onChange}) => {
     },[onChange])
 
     return (
-        <RIENumber
-            propName='json'
+        <Editable
+            name="number"
+            dataType="text"
+            showButtons={false}
             value={JSON.stringify(value)}
-            change={onValueChange}
-            className={"riek-editor"}
+            handleSubmit={console.log}
         />
     )
 }

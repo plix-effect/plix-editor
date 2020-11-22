@@ -20,6 +20,8 @@ import {TrackScale} from "./TrackScale";
 import {Track} from "../timeline/Track";
 import {ScaleDisplayContext} from "./ScaleDisplayContext";
 import {PlixEditorAction} from "./PlixEditorReducer";
+import {IconZoomIn} from "../icon/IconZoomIn";
+import {IconZoomOut} from "../icon/IconZoomOut";
 
 
 const ZOOM_FACTOR = Math.sqrt(2);
@@ -106,11 +108,17 @@ export const TrackEditor: FC = () => {
     return (
         <SplitTimeline minLeft={100} minRight={200} storageKey="timeline" ref={timelineRef}>
             <div className="track-header track-header-tree">
-                <button onClick={undo} disabled={undoCounts<=0}>undo ({undoCounts})</button>
-                <button onClick={redo} disabled={redoCounts<=0}>redo ({redoCounts})</button>
-                <button onClick={save}>save</button>
-                <button onClick={zoomOut}>(-)</button>
-                <button onClick={zoomIn}>(+)</button>
+                <div className={"btn-group"}>
+                    <button className={"btn btn-primary btn-sm"} onClick={undo} disabled={undoCounts<=0}>undo ({undoCounts})</button>
+                    <button className={"btn btn-primary btn-sm"} onClick={redo} disabled={redoCounts<=0}>redo ({redoCounts})</button>
+                    <button className={"btn btn-primary btn-sm"} onClick={save}>save</button>
+                    <button className={"btn btn-primary btn-sm"} onClick={zoomOut}>
+                        <IconZoomOut/>
+                    </button>
+                    <button className={"btn btn-primary btn-sm"} onClick={zoomIn}>
+                        <IconZoomIn/>
+                    </button>
+                </div>
             </div>
             <div className="track-header track-header-timeline" onWheelCapture={onWheel}>
                 <TrackScale />

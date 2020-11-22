@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-// const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin');
+const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = (env) => {
@@ -71,6 +71,10 @@ module.exports = (env) => {
                     {
                         from: "./src/ui/assets/",
                         to: "./assets"
+                    },
+                    {
+                        from: "./node_modules/bootstrap/dist/css/bootstrap.min.css",
+                        to: "./style/"
                     }
                 ]
             }),
@@ -78,6 +82,9 @@ module.exports = (env) => {
                 template: "./src/index.html",
                 filename: "index.html",
                 base: "/",
+            }),
+            new HtmlWebpackTagsPlugin({
+                tags: ['style/bootstrap.min.css'], append: true
             })
         ]
     };
