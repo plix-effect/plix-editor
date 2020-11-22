@@ -1,8 +1,10 @@
-import React, {memo, useEffect, useMemo, useRef, useState} from "react";
+import React, {memo, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {PlixEffectJsonData, PlixJsonData} from "@plix-effect/core/dist/types/parser";
 import type {CanvasWorkerOutputMessage, CanvasWorkerInputMessage} from "./CanvasWorker";
 import {isArraysEqual} from "../../utils/isArraysEqual";
 import "./EffectGraphView.scss";
+
+const createCanvasWorker = () => new Worker(new URL("./CanvasWorker.ts", import.meta.url));
 
 export interface EffectGraphViewProps {
     width: number;
@@ -53,7 +55,7 @@ export const EffectGraphView = memo<EffectGraphViewProps>(({duration, count, wid
         lastUsedEffectNames.current = null;
         lastUsedFilterNames.current = null;
 
-        const worker = new Worker(new URL("./CanvasWorker.ts", import.meta.url));
+        const worker = createCanvasWorker();
 
         let lastHashMessage: [string[], string[]];
 
@@ -83,9 +85,42 @@ export const EffectGraphView = memo<EffectGraphViewProps>(({duration, count, wid
         return () => worker.terminate();
     }, [canvas, width, height, duration, count, render, track.filters, track.effects]);
 
+    const onClick = useCallback(() => {
+        const {width, height} = document.body.getBoundingClientRect();
+        const box = document.createElement("span");
+        box.classList.add("effect-graph-view-bg");
+        box.style.position = "absolute";
+        box.style.width = "100%";
+        box.style.height = "100%";
+        box.style.zIndex = "999999";
+        const fullCanvas = document.createElement("canvas");
+        fullCanvas.width = width;
+        fullCanvas.height = height;
+        fullCanvas.style.cursor = "wait";
+        box.appendChild(fullCanvas);
+        document.body.prepend(box);
+        const worker = createCanvasWorker();
+        box.addEventListener("click", () => {
+            document.body.removeChild(box);
+            worker.terminate();
+        });
+        worker.addEventListener("message", (event) => {
+            const data: CanvasWorkerOutputMessage = event.data;
+            if (Array.isArray(data))  return;
+            const ctx = fullCanvas.getContext("2d");
+            const imageData = ctx.createImageData(width, height);
+            imageData.data.set(data);
+            ctx.putImageData(imageData, 0, 0);
+            fullCanvas.style.cursor = "";
+            worker.terminate();
+        })
+        const message: CanvasWorkerInputMessage = {width, height, render, track, duration, count};
+        worker.postMessage(message);
+    }, [width, height, duration, count, render, track.filters, track.effects]);
+
     return useMemo(() => (
-        <span className="effect-graph-view-bg">
+        <span className="effect-graph-view-bg" onClick={onClick}>
             <canvas ref={setCanvas} />
         </span>
-    ), []);
+    ), [onClick]);
 });
