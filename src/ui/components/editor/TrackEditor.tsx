@@ -81,12 +81,15 @@ export const TrackEditor: FC = () => {
             if (timelineEl) {
                 const {left} = timelineEl.getBoundingClientRect();
                 const dif = Math.max(mouseLeftRef.current - left, 0);
-                timelineEl.scrollLeft = (timelineEl.scrollLeft + dif) * z / v - (dif);
+                const newScrollLeftPos = (timelineEl.scrollLeft + dif) * z / v - (dif)
+                timelineEl.scrollLeft = newScrollLeftPos;
+                // fix scrollLeft after resizing
+                setTimeout(() => timelineEl.scrollLeft = newScrollLeftPos, 50);
             }
             return z;
 
         });
-    }, [setZoom, duration]);
+    }, [setZoom, duration, timelineEl, mouseLeftRef]);
 
     const zoomIn = useCallback(() => multiplyZoom(ZOOM_FACTOR), [multiplyZoom])
     const zoomOut = useCallback(() => multiplyZoom(1/ZOOM_FACTOR), [multiplyZoom])
