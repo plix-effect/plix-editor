@@ -56,10 +56,6 @@ const defaultTrack: PlixJsonData = {
 
 export const PlixEditor: FC = () => {
 
-    const [zoom, setZoom] = useState(0.2);
-    const [duration, setDuration] = useState(1000*60*5 + 2257);
-    const [position, setPosition] = useState(0.01);
-
     const dragRef = useRef<DragType>(null);
     useEffect(() => {
         const onDragEnd = () => dragRef.current = null;
@@ -82,22 +78,12 @@ export const PlixEditor: FC = () => {
         filterConstructorMap: filterConstructorMap as TrackContextProps["filterConstructorMap"],
     }), [track, dispatch, historyPosition, history]);
 
-    const scaleDisplayContextValue: ScaleDisplayContextProps = useMemo(() => ({
-        track,
-        duration, setDuration,
-        zoom, setZoom,
-        position, setPosition,
-        trackWidth: zoom * duration
-    }), [track, duration, setDuration, zoom, setZoom, position, setPosition, dispatch]);
-
     return (
         <div className="plix-editor">
             <DragContext.Provider value={dragRef}>
                 <TrackContext.Provider value={trackContextValue}>
                 <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
-                    <ScaleDisplayContext.Provider value={scaleDisplayContextValue}>
                         <TrackEditor />
-                    </ScaleDisplayContext.Provider>
                     <div>LIBS AND CANVAS</div>
                 </SplitTopBottom>
                 </TrackContext.Provider>

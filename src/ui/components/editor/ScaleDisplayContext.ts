@@ -9,6 +9,7 @@ export interface ScaleDisplayContextProps {
     setZoom: Dispatch<SetStateAction<number>>
     position: number
     setPosition: Dispatch<SetStateAction<number>>
-    trackWidth: number
+    trackWidth: number,
+    timelineEl: Element,
 }
 export const ScaleDisplayContext = createContext<ScaleDisplayContextProps|null>(null);

@@ -18,7 +18,7 @@ import {SplitTimeline} from "../divider/SplitTimeline";
 import {RedoAction, UndoAction} from "./PlixEditorReducerActions";
 import {TrackScale} from "./TrackScale";
 import {Track} from "../timeline/Track";
-import {ScaleDisplayContext} from "./ScaleDisplayContext";
+import {ScaleDisplayContext, ScaleDisplayContextProps} from "./ScaleDisplayContext";
 import {PlixEditorAction} from "./PlixEditorReducer";
 
 
@@ -26,6 +26,20 @@ const ZOOM_FACTOR = Math.sqrt(2);
 const ZOOM_FACTOR_WHEEL = Math.pow(2, 0.01);
 
 export const TrackEditor: FC = () => {
+
+    const [zoom, setZoom] = useState(0.2);
+    const [duration, setDuration] = useState(1000*60*5 + 2257);
+    const [position, setPosition] = useState(0.01);
+    const [timelineEl, setTimelineEl] = useState<HTMLDivElement>();
+
+    const scaleDisplayContextValue: ScaleDisplayContextProps = useMemo(() => ({
+        duration, setDuration,
+        zoom, setZoom,
+        position, setPosition,
+        trackWidth: zoom * duration,
+        timelineEl: timelineEl,
+    }), [duration, setDuration, zoom, setZoom, position, setPosition, timelineEl]);
+
     const [rightRenderEl, setRightRenderEl] = useState<HTMLDivElement>();
     const {track, dispatch, undoCounts, redoCounts} = useContext(TrackContext);
     const paths = useMemo(() => ({
@@ -33,8 +47,6 @@ export const TrackEditor: FC = () => {
         effects: ["effects"],
         filters: ["filters"],
     }), []);
-
-    const timelineRef = useRef<HTMLDivElement>();
 
     const undo = useCallback(() => {
         dispatch(UndoAction())
@@ -46,7 +58,7 @@ export const TrackEditor: FC = () => {
 
     const save = useCallback(() => {
         download('plix-track.json', JSON.stringify(track));
-    }, [track])
+    }, [track]);
 
     const mouseLeftRef = useRef(0);
     useEffect(() => {
@@ -57,8 +69,6 @@ export const TrackEditor: FC = () => {
         return () => document.removeEventListener("mousemove", onMouseMove);
     })
 
-
-    const {setZoom, duration} = useContext(ScaleDisplayContext);
     const multiplyZoom = useCallback((value: number) => {
         setZoom(v => {
             let z = v*value;
@@ -68,11 +78,10 @@ export const TrackEditor: FC = () => {
                 z = 500/duration;
             }
             if (z === v) return v;
-            const timeline = timelineRef.current;
-            if (timeline) {
-                const {left} = timeline.getBoundingClientRect();
+            if (timelineEl) {
+                const {left} = timelineEl.getBoundingClientRect();
                 const dif = Math.max(mouseLeftRef.current - left, 0);
-                timeline.scrollLeft = (timeline.scrollLeft + dif) * z / v - (dif);
+                timelineEl.scrollLeft = (timelineEl.scrollLeft + dif) * z / v - (dif);
             }
             return z;
 
@@ -104,30 +113,32 @@ export const TrackEditor: FC = () => {
     }, [multiplyZoom]);
 
     return (
-        <SplitTimeline minLeft={100} minRight={200} storageKey="timeline" ref={timelineRef}>
-            <div className="track-header track-header-tree">
-                <button onClick={undo} disabled={undoCounts<=0}>undo ({undoCounts})</button>
-                <button onClick={redo} disabled={redoCounts<=0}>redo ({redoCounts})</button>
-                <button onClick={save}>save</button>
-                <button onClick={zoomOut}>(-)</button>
-                <button onClick={zoomIn}>(+)</button>
-            </div>
-            <div className="track-header track-header-timeline" onWheelCapture={onWheel}>
-                <TrackScale />
-            </div>
-            <div className="track-tree" onWheelCapture={onWheel}>
-                <PortalContext.Provider value={rightRenderEl}>
-                    <Track>
-                        {null /*left*/}
-                        {null /*right*/}
-                        <EffectTrack effect={track.render} baseExpanded={true} path={paths.render}>render</EffectTrack>
-                        <GroupEffectsTrack effectsMap={track.effects} path={paths.effects}/>
-                        <GroupFiltersTrack filtersMap={track.filters} path={paths.filters}/>
-                    </Track>
-                </PortalContext.Provider>
-            </div>
-            <div className="track-timeline" ref={setRightRenderEl} />
-        </SplitTimeline>
+        <ScaleDisplayContext.Provider value={scaleDisplayContextValue}>
+            <SplitTimeline minLeft={100} minRight={200} storageKey="timeline" ref={setTimelineEl}>
+                <div className="track-header track-header-tree">
+                    <button onClick={undo} disabled={undoCounts<=0}>undo ({undoCounts})</button>
+                    <button onClick={redo} disabled={redoCounts<=0}>redo ({redoCounts})</button>
+                    <button onClick={save}>save</button>
+                    <button onClick={zoomOut}>(-)</button>
+                    <button onClick={zoomIn}>(+)</button>
+                </div>
+                <div className="track-header track-header-timeline" onWheelCapture={onWheel}>
+                    <TrackScale />
+                </div>
+                <div className="track-tree" onWheelCapture={onWheel}>
+                    <PortalContext.Provider value={rightRenderEl}>
+                        <Track>
+                            {null /*left*/}
+                            {null /*right*/}
+                            <EffectTrack effect={track.render} baseExpanded={true} path={paths.render}>render</EffectTrack>
+                            <GroupEffectsTrack effectsMap={track.effects} path={paths.effects}/>
+                            <GroupFiltersTrack filtersMap={track.filters} path={paths.filters}/>
+                        </Track>
+                    </PortalContext.Provider>
+                </div>
+                <div className="track-timeline" ref={setRightRenderEl} />
+            </SplitTimeline>
+        </ScaleDisplayContext.Provider>
     );
 }
 
