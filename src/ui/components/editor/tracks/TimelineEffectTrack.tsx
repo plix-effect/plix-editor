@@ -12,8 +12,9 @@ import {TrackContext} from "../TrackContext";
 import {ParseMeta} from "../../../types/ParseMeta";
 import "./tracks.scss"
 import {DraggableEffect} from "./editor/DraggableEffect";
-import {JSONEditor} from "./editor/JSONEditor";
+import {JSONEditor} from "./editor/riek/JSONEditor";
 import {EditValueAction} from "../PlixEditorReducerActions";
+import {NumberEditor} from "./editor/riek/NumberEditor";
 
 export interface TimelineEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
@@ -85,7 +86,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, 
                     </span>
                 </TreeBlock>
                 <TimelineBlock fixed>
-                    <JSONEditor value={params[1]} onChange={onChangeCycle}/>
+                    <NumberEditor value={params[1]} onChange={onChangeCycle}/>
                 </TimelineBlock>
             </Track>
 
@@ -96,7 +97,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, 
                     </span>
                 </TreeBlock>
                 <TimelineBlock fixed>
-                    <JSONEditor value={params[2]} onChange={onChangeGrid}/>
+                    <NumberEditor value={params[2]} onChange={onChangeGrid}/>
                 </TimelineBlock>
             </Track>
 
@@ -107,7 +108,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, 
                     </span>
                 </TreeBlock>
                 <TimelineBlock fixed>
-                    <JSONEditor value={params[3]} onChange={onChangeOffset}/>
+                    <NumberEditor value={params[3]} onChange={onChangeOffset}/>
                 </TimelineBlock>
             </Track>
 

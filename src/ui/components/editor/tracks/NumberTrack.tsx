@@ -12,10 +12,9 @@ export interface ValueUnknownTrackProps {
     children: ReactNode
     path: EditorPath
 }
-export const ValueUnknownTrack: FC<ValueUnknownTrackProps> = memo(({value, children, path}) => {
+export const NumberTrack: FC<ValueUnknownTrackProps> = memo(({value, children, path}) => {
     const {dispatch} = useContext(TrackContext);
     const onChange = useCallback((value) => {
-        console.log("DISPATCH-EDIT", EditValueAction(path, value));
         dispatch(EditValueAction(path, value));
     }, [dispatch, path]);
 
