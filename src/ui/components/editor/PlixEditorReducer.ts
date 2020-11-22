@@ -28,10 +28,11 @@ export const PlixEditorReducer: Reducer<PlixEditorState, PlixEditorAction> = (st
     switch (action.type) {
         case "undo": return undoState(state);
         case "redo": return redoState(state);
-        case "edit": return changeState(
-            state,
-            new EditHistoryItem(getWIthPath(state.track, toHistoryPath(state.track, action.path)), toHistoryPath(state.track, action.path), action.value)
-        );
+        case "edit": {
+            const historyPath = toHistoryPath(state.track, action.path);
+            const value = getWIthPath(state.track, historyPath);
+            return changeState(state, new EditHistoryItem(value, historyPath, action.value))
+        }
         case "push": return changeState(state, new PushHistoryItem(toHistoryPath(state.track, action.path), action.value));
         case "delete": {
             const historyPath = toHistoryPath(state.track, action.path);
@@ -236,6 +237,7 @@ class InsertIndexHistoryItem<T> implements PlixEditorHistoryItem {
 }
 
 function getWIthPath<T>(state: T, [pathKey, ...path]: HistoryPath){
+    if (state === undefined) return state;
     if (pathKey === undefined) return state;
     if (Array.isArray(state)) {
         return getWIthPath(state[Number(pathKey)], path);
@@ -248,6 +250,10 @@ function getWIthPath<T>(state: T, [pathKey, ...path]: HistoryPath){
 }
 
 function editWIthPath<T>(state: T, path: HistoryPath, value: any){
+    if (state === undefined) {
+        if (typeof path[0] === "string") state = {} as unknown as T;
+        if (typeof path[0] === "number") state = [] as unknown as T;
+    }
     if (path[0] === undefined) {
         if (JSON.stringify(state) === JSON.stringify(value)) return state;
         return value;
@@ -367,10 +373,10 @@ function toHistoryPath(track: PlixJsonData, editorPath: EditorPath): HistoryPath
             const keyIndex = getArrayKeyIndex(data, editorPathElement.key);
             if (keyIndex === null) throw new Error("can not change history path");
             historyPath.push(keyIndex);
-            data = data[keyIndex];
+            data = data?.[keyIndex];
         } else {
             historyPath.push(editorPathElement);
-            data = data[editorPathElement];
+            data = data?.[editorPathElement];
         }
     }
     return historyPath;

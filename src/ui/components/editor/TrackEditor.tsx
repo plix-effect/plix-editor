@@ -20,6 +20,7 @@ import {TrackScale} from "./TrackScale";
 import {Track} from "../timeline/Track";
 import {ScaleDisplayContext, ScaleDisplayContextProps} from "./ScaleDisplayContext";
 import {PlixEditorAction} from "./PlixEditorReducer";
+import {GroupOptionsTrack} from "./tracks/GroupOptionsTrack";
 
 
 const ZOOM_FACTOR = Math.sqrt(2);
@@ -27,25 +28,30 @@ const ZOOM_FACTOR_WHEEL = Math.pow(2, 0.01);
 
 export const TrackEditor: FC = () => {
 
+
+    const {track, dispatch, undoCounts, redoCounts} = useContext(TrackContext);
     const [zoom, setZoom] = useState(0.2);
-    const [duration, setDuration] = useState(1000*60*5 + 2257);
     const [position, setPosition] = useState(0.01);
     const [timelineEl, setTimelineEl] = useState<HTMLDivElement>();
 
+    const duration = track?.['editor']?.['duration'] ?? 60*1000;
+    const pixelsCount = track?.['editor']?.['count'] ?? 20;
+
     const scaleDisplayContextValue: ScaleDisplayContextProps = useMemo(() => ({
-        duration, setDuration,
+        duration,
+        pixelsCount,
         zoom, setZoom,
         position, setPosition,
         trackWidth: zoom * duration,
         timelineEl: timelineEl,
-    }), [duration, setDuration, zoom, setZoom, position, setPosition, timelineEl]);
+    }), [duration, zoom, setZoom, position, setPosition, timelineEl, pixelsCount]);
 
     const [rightRenderEl, setRightRenderEl] = useState<HTMLDivElement>();
-    const {track, dispatch, undoCounts, redoCounts} = useContext(TrackContext);
     const paths = useMemo(() => ({
         render: ["render"],
         effects: ["effects"],
         filters: ["filters"],
+        editor: ["editor"],
     }), []);
 
     const undo = useCallback(() => {
@@ -136,6 +142,7 @@ export const TrackEditor: FC = () => {
                             <EffectTrack effect={track.render} baseExpanded={true} path={paths.render}>render</EffectTrack>
                             <GroupEffectsTrack effectsMap={track.effects} path={paths.effects}/>
                             <GroupFiltersTrack filtersMap={track.filters} path={paths.filters}/>
+                            <GroupOptionsTrack options={track?.['editor']} path={paths.editor}/>
                         </Track>
                     </PortalContext.Provider>
                 </div>

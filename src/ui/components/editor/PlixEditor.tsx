@@ -11,7 +11,7 @@ import {ScaleDisplayContext, ScaleDisplayContextProps} from "./ScaleDisplayConte
 import {DragContext, DragType} from "./DragContext";
 import {RedoAction, UndoAction} from "./PlixEditorReducerActions";
 
-const defaultTrack: PlixJsonData = {
+const defaultTrack: PlixJsonData & {editor: any} = {
     effects: {
         paintSome: [true, "Paint", [[[0,1,0.5, 0.5], [0.33,1,0.5, 0.5], [0,1,0.5], [0.33,1,0.5], [0,1,0.5], [0.33,1,0.5]]]],
         paintSomeLeft: [true, null, "paintSome", [[true, null, "posLeft"]]],
@@ -51,7 +51,8 @@ const defaultTrack: PlixJsonData = {
             ],
             [[true, null, "posCenter"]]
         ],
-    ]], [[true, "OuterBorder", [[0,1,1], 1]]]]
+    ]], [[true, "OuterBorder", [[0,1,1], 1]]]],
+    editor: {duration: 10_000, count: 10}
 };
 
 export const PlixEditor: FC = () => {

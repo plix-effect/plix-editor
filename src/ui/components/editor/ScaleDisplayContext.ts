@@ -3,8 +3,8 @@ import type {EffectConstructorMap, FilterConstructorMap, PlixJsonData} from "@pl
 import type {PlixEditorAction} from "./PlixEditorReducer";
 
 export interface ScaleDisplayContextProps {
-    duration: number
-    setDuration: Dispatch<SetStateAction<number>>
+    duration: number,
+    pixelsCount: number,
     zoom: number
     setZoom: Dispatch<SetStateAction<number>>
     position: number
