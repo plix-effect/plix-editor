@@ -3,23 +3,32 @@ import "./TrackScale.scss";
 import {ScaleDisplayContext} from "./ScaleDisplayContext";
 
 export const TrackScale: FC = () => {
+    const seprataion = 1000;
+    const {trackWidth, zoom, duration} = useContext(ScaleDisplayContext);
+    const offsetD = seprataion / duration;
+    const count = Math.ceil(duration/seprataion);
 
-    const {trackWidth} = useContext(ScaleDisplayContext);
-
+    console.log(zoom)
     return (
-        <div className="track-scale">
-            <span className="track-scale-line" style={{width: trackWidth}}>
-                0ms &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                |100ms &nbsp;&nbsp;&nbsp;
-                |200ms &nbsp;&nbsp;&nbsp;
-                |300ms &nbsp;&nbsp;&nbsp;
-                |400ms &nbsp;&nbsp;&nbsp;
-                |500ms &nbsp;&nbsp;&nbsp;
-                |600ms &nbsp;&nbsp;&nbsp;
-                |700ms &nbsp;&nbsp;&nbsp;
-                |800ms &nbsp;&nbsp;&nbsp;
-                |etc
-            </span>
+        <div className="track-scale" style={{height: 41}}>
+            <div className={"timeline-editor"} style={{width: trackWidth}}>
+                <div className={"timeline-editor-grid"}>
+                    {
+                        Array.from({length: count}).map((_, i) => {
+                            const widthPercent = offsetD*100;
+                            return (
+                                <div
+                                    key={i}
+                                    className="timeline-editor-grid-offset"
+                                    style={{width: `${widthPercent}%`, left: `${i*widthPercent}%`}}
+                                >
+                                    {seprataion*(i+1)/1000}s
+                                </div>
+                            );
+                        })
+                    }
+                </div>
+            </div>
         </div>
     )
 
