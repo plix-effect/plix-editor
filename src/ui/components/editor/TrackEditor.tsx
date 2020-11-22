@@ -114,7 +114,7 @@ export const TrackEditor: FC = () => {
                         <span className="badge badge-secondary">{undoCounts}</span>
                     </button>
                     <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={redo} disabled={redoCounts<=0} title={"Redo"}>
-                        <i className="fa fa fa-redo"/>
+                        <i className="fa fa-redo"/>
                         <span className="badge badge-secondary">{redoCounts}</span>
                     </button>
                     <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={save} title={"Save"}>

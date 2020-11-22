@@ -1,6 +1,6 @@
 import React, {ChangeEvent, FC, useCallback, useEffect, useRef, useState} from "react";
 import Editable from 'react-x-editable';
-import "./riek.scss"
+import "./InlineInputEditor.scss"
 
 export interface JSONEditorProps {
     value: any,
@@ -20,6 +20,7 @@ export const NumberEditor: FC<JSONEditorProps> = ({value, onChange}) => {
             showButtons={false}
             value={JSON.stringify(value)}
             handleSubmit={console.log}
+            bsInputClass={"inline-editor"}
         />
     )
 }

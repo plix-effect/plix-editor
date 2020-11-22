@@ -1,6 +1,6 @@
 import React, {ChangeEvent, FC, useCallback, useEffect, useRef, useState} from "react";
 import Editable from 'react-x-editable';
-import "./riek.scss"
+import "./InlineInputEditor.scss"
 
 export interface JSONEditorProps {
     value: any,

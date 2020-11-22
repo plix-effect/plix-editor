@@ -3,7 +3,7 @@ import {Track} from "../../timeline/Track";
 import {EditorPath} from "../../../types/Editor";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
-import {JSONEditor} from "./editor/riek/JSONEditor";
+import {JSONEditor} from "./editor/inline/JSONEditor";
 import {EditValueAction} from "../PlixEditorReducerActions";
 import {TrackContext} from "../TrackContext";
 
