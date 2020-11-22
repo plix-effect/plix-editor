@@ -1,6 +1,5 @@
 .track-description {
-
-  cursor: pointer;
+  
   user-select: none;
 
   &._empty {
@@ -21,6 +20,10 @@
   &._desc {
     color: #888;
     cursor: auto;
+  }
+
+  &._disabled {
+    text-decoration: line-through;
   }
 
 }

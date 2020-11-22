@@ -1,0 +1,53 @@
+$col-color-grid: #444;
+
+.timeline-editor-grid-cycle {
+    box-sizing: border-box;
+    position: absolute;
+    height: 100%;
+    &::before {
+        content: "";
+        position: absolute;
+        height: 100%;
+        border-left: 1px solid #888;
+    }
+    background-image: linear-gradient(90deg, $col-color-grid 1px, transparent 1px);
+    background-repeat: round no-repeat;
+    background-position-y: 50%;
+    overflow: hidden;
+    .timeline-editor-grid-cycle-content {
+        color: #888;
+        padding-left: 2px;
+        font-size: 70%;
+    }
+}
+
+.timeline-editor-grid-offset {
+    box-sizing: border-box;
+    position: absolute;
+    height: 100%;
+    overflow: hidden;
+    text-align: right;
+    padding: 0 5px 0 5px;
+    border-right: 1px solid #888;
+    background-image: linear-gradient(
+                    -45deg,
+                    transparent 0px,
+                    $col-color-grid 0px,
+                    $col-color-grid 1px,
+                    transparent 1px,
+                    transparent 10px,
+                    $col-color-grid 10px,
+                    $col-color-grid 11px,
+                    transparent 11px,
+                    transparent 20px,
+                    $col-color-grid 20px,
+                    $col-color-grid 21px,
+                    transparent 21px,
+                    transparent 30px,
+                    $col-color-grid 30px,
+                    $col-color-grid 31px,
+                    transparent 31px,
+    );
+    background-size: 28.2px 28.2px;
+    background-repeat: repeat;
+}

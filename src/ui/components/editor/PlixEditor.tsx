@@ -1,4 +1,4 @@
-import {FC, default as React, useMemo, useReducer, useState} from "react";
+import {FC, default as React, useMemo, useReducer, useState, useRef, useEffect} from "react";
 import "./PlixEditor.scss";
 import {SplitTopBottom} from "../divider/SplitTopBottom";
 import {TrackEditor} from "./TrackEditor";
@@ -6,8 +6,10 @@ import {TrackContextProps, TrackContext} from "./TrackContext";
 import * as effectConstructorMap from "@plix-effect/core/effects";
 import * as filterConstructorMap from "@plix-effect/core/filters";
 import {PlixJsonData} from "@plix-effect/core/types/parser";
-import {PlixEditorReducer} from "./PlixEditorReducer";
+import {PlixEditorAction, PlixEditorReducer} from "./PlixEditorReducer";
 import {ScaleDisplayContext, ScaleDisplayContextProps} from "./ScaleDisplayContext";
+import {DragContext, DragType} from "./DragContext";
+import {RedoAction, UndoAction} from "./PlixEditorReducerActions";
 
 const defaultTrack: PlixJsonData = {
     effects: {
@@ -23,15 +25,47 @@ const defaultTrack: PlixJsonData = {
     render: [true, "Chain", [[
         [true, null, "paintSomeLeft"],
         [true, null, "paintSomeRight"],
-        [true, "Timeline", [[], null, null, 0], [[true, null, "posCenter"]]],
+        [
+            true,
+            "Timeline",
+            [
+                [
+                    [true, "paintSome", 0, 500],
+                    [true, "paintSomeRight", 1250, 250],
+                    [true, "paintSome", 1750, 250],
+                ],
+                1000, 8, 0
+            ],
+            [[true, null, "posCenter"]]
+        ],
+        [
+            true,
+            "Timeline",
+            [
+                [
+                    [true, "paintSome", 0, 500],
+                    [true, "paintSomeRight", 1250, 250],
+                    [true, "paintSome", 1500, 250],
+                ],
+                1347, 3, 5000
+            ],
+            [[true, null, "posCenter"]]
+        ],
     ]], [[true, "OuterBorder", [[0,1,1], 1]]]]
 };
 
 export const PlixEditor: FC = () => {
 
-    const [zoom, setZoom] = useState(1);
-    const [duration, setDuration] = useState(1000*60*5);
+    const [zoom, setZoom] = useState(0.2);
+    const [duration, setDuration] = useState(1000*60*5 + 2257);
     const [position, setPosition] = useState(0.01);
+
+    const dragRef = useRef<DragType>(null);
+    useEffect(() => {
+        const onDragEnd = () => dragRef.current = null;
+        document.addEventListener("dragend", onDragEnd);
+        return () => document.removeEventListener("dragend", onDragEnd);
+    }, [dragRef]);
 
     const [{track, history, historyPosition}, dispatch] = useReducer(PlixEditorReducer, defaultTrack, (track) => ({
         track: track,
@@ -53,19 +87,21 @@ export const PlixEditor: FC = () => {
         duration, setDuration,
         zoom, setZoom,
         position, setPosition,
-        dispatch,
+        trackWidth: zoom * duration
     }), [track, duration, setDuration, zoom, setZoom, position, setPosition, dispatch]);
 
     return (
         <div className="plix-editor">
-            <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
+            <DragContext.Provider value={dragRef}>
                 <TrackContext.Provider value={trackContextValue}>
+                <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
                     <ScaleDisplayContext.Provider value={scaleDisplayContextValue}>
                         <TrackEditor />
                     </ScaleDisplayContext.Provider>
+                    <div>LIBS AND CANVAS</div>
+                </SplitTopBottom>
                 </TrackContext.Provider>
-                <div>LIBS AND CANVAS</div>
-            </SplitTopBottom>
+            </DragContext.Provider>
         </div>
     )
 }

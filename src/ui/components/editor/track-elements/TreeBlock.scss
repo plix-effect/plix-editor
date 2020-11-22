@@ -8,9 +8,9 @@
   min-width: 100%;
   margin: 1px 0 1px 0;
   position: relative;
+  height: 25px;
 
   &._default {
-    height: 25px;
     border-left: 1px solid #444;
     border-top: 1px solid #444;
     border-bottom: 1px solid #444;
@@ -32,5 +32,15 @@
 
   &._description {
     height: 23px;
+  }
+
+  &._timeline {
+    height: 40px;
+    border-left: 1px solid #444;
+    border-top: 1px solid #444;
+    border-bottom: 1px solid #444;
+    background-color: #222;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
   }
 }

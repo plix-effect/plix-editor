@@ -1,7 +1,4 @@
-import React, {ChangeEvent, ChangeEventHandler, FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {HSLAColor} from "@plix-effect/core/types";
-import {parseColor} from "@plix-effect/core";
-import {colorToNumber, numberToColor} from "@plix-effect/core/color";
+import React, {ChangeEvent, FC, useCallback, useEffect, useRef, useState} from "react";
 import "../../track-elements/ColorView.scss";
 
 export interface JSONEditorProps {
@@ -39,7 +36,7 @@ export const JSONEditor: FC<JSONEditorProps> = ({value, onChange}) => {
     if (editMode) return (
         <form onSubmit={onSubmit}>
             <input type="submit" value="OK"/>
-            <input ref={inputRef} value={inputValue}  onChange={onChangeInput}/>
+            <input ref={inputRef} value={inputValue} autoFocus={true} onChange={onChangeInput}/>
         </form>
     );
 

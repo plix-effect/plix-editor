@@ -1,4 +1,4 @@
-import React, {ChangeEvent, FC, memo, useCallback, useContext, useMemo, useState} from "react";
+import React, {ChangeEvent, FC, memo, MouseEvent, useCallback, useContext, useMemo, useState} from "react";
 import {Track} from "../../timeline/Track";
 import {PlixFiltersMapJsonData} from "@plix-effect/core/types/parser";
 import {FilterTrack} from "./FilterTrack";
@@ -24,7 +24,9 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
                 name: name,
                 path: [...path, name] as EditorPath,
                 value: filtersMap[name],
-                remove: () => dispatch(EditValueAction([...path, name], undefined)),
+                onClick: (event: MouseEvent<HTMLElement>) => {
+                    if (event.altKey) return dispatch(EditValueAction([...path, name], undefined))
+                },
             }
         })
     }, [filtersMap, dispatch]);
@@ -48,15 +50,22 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
                 <span className="track-description" onClick={changeExpanded}>===Filters===</span>
             </TreeBlock>
             <TimelineBlock type="description" fixed>
-                Add new filter alias:
-                <input type="text" placeholder="new filter alias" value={name} onChange={onEditName} />
-                <button onClick={add} disabled={!name || name in filtersMap}>add</button>
+                filter prefabs
             </TimelineBlock>
             {aliasesList.map(alias => (
                 <FilterTrack filter={alias.value} path={alias.path} key={alias.name}>
-                    <button className="btn _remove" onClick={alias.remove}>X</button> {alias.name}
+                    <span onClick={alias.onClick}>{alias.name}</span>
                 </FilterTrack>
             ))}
+            <Track>
+                <TreeBlock type="description">
+                </TreeBlock>
+                <TimelineBlock fixed type="description">
+                    Add new filter prefab:
+                    <input type="text" placeholder="prefab name" value={name} onChange={onEditName} />
+                    <button onClick={add} disabled={!name || name in filtersMap}>add</button>
+                </TimelineBlock>
+            </Track>
         </Track>
     )
 });

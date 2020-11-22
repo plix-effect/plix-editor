@@ -6,7 +6,8 @@ import React, {
     DragEvent,
     TouchEvent,
     useRef,
-    useEffect, useMemo, UIEvent
+    useEffect,
+    forwardRef
 } from "react";
 import "./SplitTimeline.scss";
 
@@ -18,13 +19,14 @@ interface SplitTimelineProps {
     children: readonly [ReactNode, ReactNode, ReactNode, ReactNode],
     storageKey?: string;
 }
-export const SplitTimeline: FC<SplitTimelineProps> = memo((
+export const SplitTimeline = memo(forwardRef<HTMLDivElement, SplitTimelineProps>((
     {
         children: [leftHeader, rightHeader, leftPanel, rightPanel],
         storageKey,
         minLeft,
         minRight
     },
+    fRef
 ) => {
 
     const innerRef = useRef<HTMLDivElement>();
@@ -63,7 +65,7 @@ export const SplitTimeline: FC<SplitTimelineProps> = memo((
         const dividerBcr = dragRef.current.getBoundingClientRect();
         let leftWidth = dragValue;
         const rightPartWidth = containerBcr.width - dragValue - dividerBcr.width;
-        if (rightPartWidth < minLeft) leftWidth = containerBcr.width - minRight - dividerBcr.width;
+        if (rightPartWidth < minRight) leftWidth = containerBcr.width - minRight - dividerBcr.width;
         if (dragValue < minLeft) leftWidth = minLeft;
         menuRef.current.style.width = leftWidth+"px";
         treeRef.current.style.width = leftWidth+"px";
@@ -109,10 +111,25 @@ export const SplitTimeline: FC<SplitTimelineProps> = memo((
             <div className="split-tl-tree hide-scroll" ref={treeRef} onScroll={onScrollTree}>
                 <div className="split-tl-content">{leftPanel}</div>
             </div>
-            <div className="split-tl-timeline hide-scroll" ref={timelineRef} onScroll={onScrollTimeline}>
+            <div className="split-tl-timeline hide-scroll" ref={mergeRefs(fRef, timelineRef)} onScroll={onScrollTimeline}>
                 <div className="split-tl-content">{rightPanel}</div>
             </div>
             <a className="split-tl-sep" ref={dragRef} draggable onDragStart={onDragStart} onDrag={onDrag} onTouchMove={onTouchMove}/>
         </div>
     );
-})
+}))
+
+const mergeRefs = (...refs) => {
+    const filteredRefs = refs.filter(Boolean);
+    if (!filteredRefs.length) return null;
+    if (filteredRefs.length === 0) return filteredRefs[0];
+    return inst => {
+        for (const ref of filteredRefs) {
+            if (typeof ref === 'function') {
+                ref(inst);
+            } else if (ref) {
+                ref.current = inst;
+            }
+        }
+    };
+};

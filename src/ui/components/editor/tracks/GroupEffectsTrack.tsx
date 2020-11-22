@@ -1,6 +1,16 @@
-import React, {ChangeEvent, FC, memo, useCallback, useContext, useMemo, useRef, useState} from "react";
+import React, {
+    ChangeEvent,
+    DragEventHandler,
+    FC,
+    memo,
+    useCallback,
+    useContext,
+    useMemo,
+    MouseEvent,
+    useState
+} from "react";
 import {Track} from "../../timeline/Track";
-import { PlixEffectsMapJsonData} from "@plix-effect/core/types/parser";
+import { PlixEffectsMapJsonData, PlixEffectJsonData} from "@plix-effect/core/types/parser";
 import {EffectTrack} from "./EffectTrack";
 import {EditorPath} from "../../../types/Editor";
 import {useExpander} from "../track-elements/Expander";
@@ -8,6 +18,9 @@ import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {TrackContext} from "../TrackContext";
 import {EditValueAction} from "../PlixEditorReducerActions";
+import {generateColorByText} from "../../../utils/generateColorByText";
+import "./GroupEffectsTrack.scss";
+import {DragContext} from "../DragContext";
 
 export interface GroupEffectsTrackProps {
     effectsMap: PlixEffectsMapJsonData,
@@ -49,17 +62,60 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
                 <span className="track-description" onClick={changeExpanded}>===Effects===</span>
             </TreeBlock>
             <TimelineBlock type="description" fixed>
-                Add new effect alias:
-                <input type="text" placeholder="new effect alias" value={name} onChange={onEditName} />
-                <button onClick={add} disabled={!name || name in effectsMap}>add</button>
+                effect prefabs
             </TimelineBlock>
-            {aliasesList.map(alias => (
-                <EffectTrack effect={alias.value} path={alias.path} key={alias.name}>
-                    <button className="btn _remove" onClick={alias.remove}>X</button> {alias.name}
-                </EffectTrack>
+            {aliasesList.map(({value, path, remove, name}) => (
+                <AliasEffectTrack path={path} value={value} name={name} remove={remove} key={name} />
             ))}
+            <Track>
+                <TreeBlock type="description">
+                </TreeBlock>
+                <TimelineBlock fixed type="description">
+                    Add new effect prefab:
+                    <input type="text" placeholder="prefab name" value={name} onChange={onEditName} />
+                    <button onClick={add} disabled={!name || name in effectsMap}>add</button>
+                </TimelineBlock>
+            </Track>
         </Track>
     )
 });
+
+interface AliasEffectTrackProps {
+    value: PlixEffectJsonData,
+    path: EditorPath,
+    remove: () => void,
+    name: string,
+}
+const AliasEffectTrack: FC<AliasEffectTrackProps> = memo(({value, remove, path, name}) => {
+    const dragRef = useContext(DragContext);
+
+    const onDragStartEffect: DragEventHandler<HTMLDivElement> = useCallback((event) => {
+        dragRef.current = {
+            effect: value,
+            effectAlias: name,
+            offsetX: event.nativeEvent.offsetX,
+            offsetY: event.nativeEvent.offsetY,
+        }
+        event.dataTransfer.effectAllowed = 'all';
+    }, []);
+
+    const onClick = useCallback((event: MouseEvent<HTMLElement>) => {
+        if (event.altKey) return remove();
+    }, [remove]);
+
+    return (
+        <EffectTrack effect={value} path={path} key={name}>
+            <span
+                onClick={onClick}
+                className="effect-group-alias"
+                style={{backgroundColor: generateColorByText(name, 1, 0.3)}}
+                draggable
+                onDragStart={onDragStartEffect}
+            >
+                {name}
+            </span>
+        </EffectTrack>
+    )
+})
 
 const defaultEffect = null;
