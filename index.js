@@ -32586,15 +32586,40 @@ const SplitTimeline = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)((0,react__WEBP
     const timelineRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const dragRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const dragOffset = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(0);
+    const [ignoreScrollSet] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(new WeakMap());
     const onScrollTimeline = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
-        scaleRef.current.scrollLeft = timelineRef.current.scrollLeft;
-        treeRef.current.scrollTop = timelineRef.current.scrollTop;
+        const pr = ignoreScrollSet.get(timelineRef.current);
+        ignoreScrollSet.delete(timelineRef.current);
+        if (pr || pr + 10 > performance.now())
+            return;
+        if (scaleRef.current.scrollLeft !== timelineRef.current.scrollLeft) {
+            ignoreScrollSet.set(scaleRef.current, performance.now());
+            scaleRef.current.scrollLeft = timelineRef.current.scrollLeft;
+        }
+        if (treeRef.current.scrollTop !== timelineRef.current.scrollTop) {
+            ignoreScrollSet.set(treeRef.current, performance.now());
+            treeRef.current.scrollTop = timelineRef.current.scrollTop;
+        }
     }, []);
     const onScrollTree = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
-        timelineRef.current.scrollTop = treeRef.current.scrollTop;
+        const pr = ignoreScrollSet.get(treeRef.current);
+        ignoreScrollSet.delete(treeRef.current);
+        if (pr || pr + 10 > performance.now())
+            return;
+        if (treeRef.current.scrollTop !== timelineRef.current.scrollTop) {
+            ignoreScrollSet.set(timelineRef.current, performance.now());
+            timelineRef.current.scrollTop = treeRef.current.scrollTop;
+        }
     }, []);
     const onScrollScale = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
-        timelineRef.current.scrollLeft = scaleRef.current.scrollLeft;
+        const pr = ignoreScrollSet.get(scaleRef.current);
+        ignoreScrollSet.delete(scaleRef.current);
+        if (pr || pr + 10 > performance.now())
+            return;
+        if (timelineRef.current.scrollLeft !== scaleRef.current.scrollLeft) {
+            ignoreScrollSet.set(timelineRef.current, performance.now());
+            timelineRef.current.scrollLeft = scaleRef.current.scrollLeft;
+        }
     }, []);
     const onDragStart = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         dragOffset.current = event.nativeEvent.offsetX;
@@ -33456,11 +33481,13 @@ const TrackEditor = () => {
             if (timelineEl) {
                 const { left } = timelineEl.getBoundingClientRect();
                 const dif = Math.max(mouseLeftRef.current - left, 0);
-                timelineEl.scrollLeft = (timelineEl.scrollLeft + dif) * z / v - (dif);
+                const newScrollLeftPos = (timelineEl.scrollLeft + dif) * z / v - (dif);
+                timelineEl.scrollLeft = newScrollLeftPos;
+                setTimeout(() => timelineEl.scrollLeft = newScrollLeftPos, 50);
             }
             return z;
         });
-    }, [setZoom, duration]);
+    }, [setZoom, duration, timelineEl, mouseLeftRef]);
     const zoomIn = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => multiplyZoom(ZOOM_FACTOR), [multiplyZoom]);
     const zoomOut = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => multiplyZoom(1 / ZOOM_FACTOR), [multiplyZoom]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
