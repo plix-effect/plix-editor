@@ -33665,7 +33665,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const Expander = ({ show = true, expanded, changeExpanded }) => {
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { className: classnames__WEBPACK_IMPORTED_MODULE_1___default()("track-expander", show && (expanded ? "_expanded" : "_collapsed")), onClick: changeExpanded }));
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { onDragEnter: changeExpanded, className: classnames__WEBPACK_IMPORTED_MODULE_1___default()("track-expander", show && (expanded ? "_expanded" : "_collapsed")), onClick: changeExpanded }));
 };
 const useExpander = (baseExpanded = false, show = true) => {
     const [expanded, setExpanded] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(baseExpanded);
@@ -33926,6 +33926,7 @@ __webpack_require__.r(__webpack_exports__);
 const ChainEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, effect: [enabled, effectId, params, filters], path, expanded, expander, changeExpanded, children, onChange, }) => {
     const paramEffects = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => params[0] || [], [params]);
     const paramEffectsPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, 2, 0], [path]);
+    const effectWithNoFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [enabled, effectId, params, []], [effect]);
     const { effectConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_4__.TrackContext);
     const effectData = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         const effectConstructor = effectConstructorMap[effectId];
@@ -33943,18 +33944,6 @@ const ChainEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, 
             paramDescriptions: paramDescriptions
         };
     }, [effectId, params, path, effectConstructorMap]);
-    const effectsListData = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
-        return paramEffects.map((val, i) => {
-            const key = (0,_utils_KeyManager__WEBPACK_IMPORTED_MODULE_6__.getArrayKey)(paramEffects, i);
-            const valPath = [...path, 2, 0, { key: String(key), array: paramEffects }];
-            return {
-                path: valPath,
-                key: key,
-                value: val,
-                index: i,
-            };
-        });
-    }, [paramEffects, path]);
     const filtersPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, 3], [path]);
     const valueFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => filters !== null && filters !== void 0 ? filters : [], [filters]);
     const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_4__.TrackContext);
@@ -33973,8 +33962,10 @@ const ChainEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, 
                 paramEffects.length,
                 ")")),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
+            ((valueFilters === null || valueFilters === void 0 ? void 0 : valueFilters.length) > 0) && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_12__.EffectPreview, { effect: effectWithNoFilters }),
+                "->")),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_12__.EffectPreview, { effect: effect }),
-            " ",
             effectData.description),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_EffectTypeTrack__WEBPACK_IMPORTED_MODULE_10__.EffectTypeTrack, { onChange: onChange, effect: effect }),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ArrayElementsTrack__WEBPACK_IMPORTED_MODULE_9__.ArrayElementsTrack, { value: paramEffects, type: "effect", path: paramEffectsPath }),
@@ -34130,6 +34121,7 @@ const NoEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ children, o
 });
 const AliasEffectTrack = ({ effect, effect: [enabled, , link, filters], path, children, changeExpanded, expanded, expander, onChange }) => {
     const filtersPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, 3], [path]);
+    const effectWithNoFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [enabled, null, link, []], [effect]);
     const valueFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => filters !== null && filters !== void 0 ? filters : [], [filters]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, null,
@@ -34139,6 +34131,9 @@ const AliasEffectTrack = ({ effect, effect: [enabled, , link, filters], path, ch
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_DraggableEffect__WEBPACK_IMPORTED_MODULE_14__.DraggableEffect, { effect: effect, path: path })),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" },
+                (filters === null || filters === void 0 ? void 0 : filters.length) >= 0 && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_15__.EffectPreview, { effect: effectWithNoFilters }),
+                    "->")),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_15__.EffectPreview, { effect: effect }),
                 " use alias ",
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _link" }, link))),
@@ -34147,6 +34142,7 @@ const AliasEffectTrack = ({ effect, effect: [enabled, , link, filters], path, ch
 };
 const ConfigurableEffectTrack = ({ onChange, effect, effect: [enabled, effectId, params, filters], children, changeExpanded, path, expanded, expander }) => {
     const { effectConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_4__.TrackContext);
+    const effectWithNoFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [enabled, effectId, params, []], [effect]);
     const effectData = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         const effectConstructor = effectConstructorMap[effectId];
         const meta = effectConstructor['meta'];
@@ -34173,8 +34169,10 @@ const ConfigurableEffectTrack = ({ onChange, effect, effect: [enabled, effectId,
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_DraggableEffect__WEBPACK_IMPORTED_MODULE_14__.DraggableEffect, { effect: effect, path: path })),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" },
+                (filters === null || filters === void 0 ? void 0 : filters.length) >= 0 && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_15__.EffectPreview, { effect: effectWithNoFilters }),
+                    "->")),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_15__.EffectPreview, { effect: effect }),
-                " ",
                 effectData.description)),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_EffectTypeTrack__WEBPACK_IMPORTED_MODULE_13__.EffectTypeTrack, { onChange: onChange, effect: effect }),
         effectData.paramDescriptions.map((paramDesc) => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { value: paramDesc.value, type: paramDesc.type, path: paramDesc.path, key: paramDesc.name, description: paramDesc.description }, paramDesc.name))),
