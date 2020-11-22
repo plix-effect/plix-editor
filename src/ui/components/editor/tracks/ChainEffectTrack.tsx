@@ -1,6 +1,6 @@
 import React, {FC, ReactNode, useCallback, useContext, Fragment, useMemo, memo} from "react";
 import {Track} from "../../timeline/Track";
-import {PlixEffectConfigurableJsonData} from "@plix-effect/core/types/parser";
+import {PlixEffectAliasJsonData, PlixEffectConfigurableJsonData} from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
@@ -42,6 +42,7 @@ export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo((
 ) => {
     const paramEffects = useMemo(() => params[0] || [], [params]);
     const paramEffectsPath = useMemo(() => [...path, 2, 0], [path]);
+    const effectWithNoFilters: PlixEffectConfigurableJsonData = useMemo(() => [enabled, effectId, params, []], [effect])
 
     const {effectConstructorMap} = useContext(TrackContext);
     const effectData = useMemo(() => {
@@ -60,19 +61,6 @@ export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo((
             paramDescriptions: paramDescriptions
         }
     }, [effectId, params, path, effectConstructorMap]);
-
-    const effectsListData = useMemo(() => {
-        return paramEffects.map((val, i) => {
-            const key = getArrayKey(paramEffects, i);
-            const valPath: EditorPath = [...path, 2, 0, {key: String(key), array: paramEffects}]
-            return {
-                path: valPath,
-                key: key,
-                value: val,
-                index: i,
-            }
-        })
-    }, [paramEffects, path]);
 
     const filtersPath = useMemo(() => [...path, 3], [path]);
     const valueFilters = useMemo(() => filters ?? [], [filters]);
@@ -93,7 +81,14 @@ export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo((
                 <span className="track-description _desc">({paramEffects.length})</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                <EffectPreview effect={effect} /> {effectData.description}
+                {(valueFilters?.length > 0) && (
+                    <>
+                        <EffectPreview effect={effectWithNoFilters} />
+                        -&gt;
+                    </>
+                )}
+                <EffectPreview effect={effect} />
+                {effectData.description}
             </TimelineBlock>
 
             <EffectTypeTrack onChange={onChange} effect={effect} />
