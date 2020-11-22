@@ -781,7 +781,7 @@ function Position(positions) {
     var innerLength = positions.length;
     return function (effect) { return function (time, duration) {
         return function (index) {
-            var floorIndex = Math.round(index);
+            var floorIndex = Math.floor(index);
             var innerIndex = positions.findIndex(function (pos) {
                 if (typeof pos === "number")
                     return pos === floorIndex;
@@ -32893,7 +32893,8 @@ const defaultTrack = {
                     ],
                     [[true, null, "posCenter"]]
                 ],
-            ]], [[true, "OuterBorder", [[0, 1, 1], 1]]]]
+            ]], [[true, "OuterBorder", [[0, 1, 1], 1]]]],
+    editor: { duration: 10000, count: 10 }
 };
 const PlixEditor = () => {
     const dragRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
@@ -32959,7 +32960,11 @@ const PlixEditorReducer = (state, action) => {
     switch (action.type) {
         case "undo": return undoState(state);
         case "redo": return redoState(state);
-        case "edit": return changeState(state, new EditHistoryItem(getWIthPath(state.track, toHistoryPath(state.track, action.path)), toHistoryPath(state.track, action.path), action.value));
+        case "edit": {
+            const historyPath = toHistoryPath(state.track, action.path);
+            const value = getWIthPath(state.track, historyPath);
+            return changeState(state, new EditHistoryItem(value, historyPath, action.value));
+        }
         case "push": return changeState(state, new PushHistoryItem(toHistoryPath(state.track, action.path), action.value));
         case "delete": {
             const historyPath = toHistoryPath(state.track, action.path);
@@ -33105,6 +33110,8 @@ class InsertIndexHistoryItem {
     }
 }
 function getWIthPath(state, [pathKey, ...path]) {
+    if (state === undefined)
+        return state;
     if (pathKey === undefined)
         return state;
     if (Array.isArray(state)) {
@@ -33116,6 +33123,12 @@ function getWIthPath(state, [pathKey, ...path]) {
     throw new Error("can not edit history: get value");
 }
 function editWIthPath(state, path, value) {
+    if (state === undefined) {
+        if (typeof path[0] === "string")
+            state = {};
+        if (typeof path[0] === "number")
+            state = [];
+    }
     if (path[0] === undefined) {
         if (JSON.stringify(state) === JSON.stringify(value))
             return state;
@@ -33242,11 +33255,11 @@ function toHistoryPath(track, editorPath) {
             if (keyIndex === null)
                 throw new Error("can not change history path");
             historyPath.push(keyIndex);
-            data = data[keyIndex];
+            data = data === null || data === void 0 ? void 0 : data[keyIndex];
         }
         else {
             historyPath.push(editorPathElement);
-            data = data[editorPathElement];
+            data = data === null || data === void 0 ? void 0 : data[editorPathElement];
         }
     }
     return historyPath;
@@ -33418,6 +33431,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TrackScale__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./TrackScale */ "./src/ui/components/editor/TrackScale.tsx");
 /* harmony import */ var _timeline_Track__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../timeline/Track */ "./src/ui/components/timeline/Track.tsx");
 /* harmony import */ var _ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
+/* harmony import */ var _tracks_GroupOptionsTrack__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./tracks/GroupOptionsTrack */ "./src/ui/components/editor/tracks/GroupOptionsTrack.tsx");
+
 
 
 
@@ -33432,23 +33447,27 @@ __webpack_require__.r(__webpack_exports__);
 const ZOOM_FACTOR = Math.sqrt(2);
 const ZOOM_FACTOR_WHEEL = Math.pow(2, 0.01);
 const TrackEditor = () => {
+    var _a, _b, _c, _d;
+    const { track, dispatch, undoCounts, redoCounts } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
     const [zoom, setZoom] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0.2);
-    const [duration, setDuration] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1000 * 60 * 5 + 2257);
     const [position, setPosition] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0.01);
     const [timelineEl, setTimelineEl] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
+    const duration = (_b = (_a = track === null || track === void 0 ? void 0 : track['editor']) === null || _a === void 0 ? void 0 : _a['duration']) !== null && _b !== void 0 ? _b : 60 * 1000;
+    const pixelsCount = (_d = (_c = track === null || track === void 0 ? void 0 : track['editor']) === null || _c === void 0 ? void 0 : _c['count']) !== null && _d !== void 0 ? _d : 20;
     const scaleDisplayContextValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
-        duration, setDuration,
+        duration,
+        pixelsCount,
         zoom, setZoom,
         position, setPosition,
         trackWidth: zoom * duration,
         timelineEl: timelineEl,
-    }), [duration, setDuration, zoom, setZoom, position, setPosition, timelineEl]);
+    }), [duration, zoom, setZoom, position, setPosition, timelineEl, pixelsCount]);
     const [rightRenderEl, setRightRenderEl] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
-    const { track, dispatch, undoCounts, redoCounts } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
     const paths = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
         render: ["render"],
         effects: ["effects"],
         filters: ["filters"],
+        editor: ["editor"],
     }), []);
     const undo = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
         dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.UndoAction)());
@@ -33539,7 +33558,8 @@ const TrackEditor = () => {
                         null,
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_EffectTrack__WEBPACK_IMPORTED_MODULE_3__.EffectTrack, { effect: track.render, baseExpanded: true, path: paths.render }, "render"),
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupEffectsTrack__WEBPACK_IMPORTED_MODULE_4__.GroupEffectsTrack, { effectsMap: track.effects, path: paths.effects }),
-                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupFiltersTrack__WEBPACK_IMPORTED_MODULE_5__.GroupFiltersTrack, { filtersMap: track.filters, path: paths.filters })))),
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupFiltersTrack__WEBPACK_IMPORTED_MODULE_5__.GroupFiltersTrack, { filtersMap: track.filters, path: paths.filters }),
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupOptionsTrack__WEBPACK_IMPORTED_MODULE_11__.GroupOptionsTrack, { options: track === null || track === void 0 ? void 0 : track['editor'], path: paths.editor })))),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-timeline", ref: setRightRenderEl }))));
 };
 function download(filename, text) {
@@ -34534,6 +34554,51 @@ const defaultFilter = null;
 
 /***/ }),
 
+/***/ "./src/ui/components/editor/tracks/GroupOptionsTrack.tsx":
+/*!***************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/GroupOptionsTrack.tsx ***!
+  \***************************************************************/
+/*! namespace exports */
+/*! export GroupOptionsTrack [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "GroupOptionsTrack": () => /* binding */ GroupOptionsTrack
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _timeline_Track__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../timeline/Track */ "./src/ui/components/timeline/Track.tsx");
+/* harmony import */ var _track_elements_Expander__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../track-elements/Expander */ "./src/ui/components/editor/track-elements/Expander.tsx");
+/* harmony import */ var _track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
+/* harmony import */ var _track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
+/* harmony import */ var _ValueTrack__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ValueTrack */ "./src/ui/components/editor/tracks/ValueTrack.tsx");
+
+
+
+
+
+
+const GroupOptionsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ options = {}, path }) => {
+    var _a, _b;
+    const [expanded, expander, changeExpanded] = (0,_track_elements_Expander__WEBPACK_IMPORTED_MODULE_2__.useExpander)(false);
+    const durationPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, "duration"], [path]);
+    const countPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, "count"], [path]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_3__.TreeBlock, { type: "description" },
+            expander,
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description", onClick: changeExpanded }, "===Options===")),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_4__.TimelineBlock, { type: "description", fixed: true }, "options"),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { path: durationPath, value: (_a = options === null || options === void 0 ? void 0 : options['duration']) !== null && _a !== void 0 ? _a : null, type: "number", description: "duration in milliseconds" }, "Track duration"),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { path: countPath, value: (_b = options === null || options === void 0 ? void 0 : options['count']) !== null && _b !== void 0 ? _b : null, type: "number", description: "number of pixels" }, "Pixels")));
+});
+const defaultFilter = null;
+
+
+/***/ }),
+
 /***/ "./src/ui/components/editor/tracks/TimelineEffectTrack.tsx":
 /*!*****************************************************************!*\
   !*** ./src/ui/components/editor/tracks/TimelineEffectTrack.tsx ***!
@@ -34871,14 +34936,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _track_elements_ColorView_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../track-elements/ColorView.scss */ "./src/ui/components/editor/track-elements/ColorView.scss");
 /* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
 /* harmony import */ var _canvas_EffectGraphView__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../canvas/EffectGraphView */ "./src/ui/components/canvas/EffectGraphView.tsx");
+/* harmony import */ var _ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
+
 
 
 
 
 const EffectPreview = ({ effect }) => {
+    const { duration, pixelsCount } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_4__.ScaleDisplayContext);
     const { track } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_canvas_EffectGraphView__WEBPACK_IMPORTED_MODULE_3__.EffectGraphView, { width: 100, height: 20, render: effect, track: track, count: 20, duration: 1000 * 60 * 5 + 2257 })));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_canvas_EffectGraphView__WEBPACK_IMPORTED_MODULE_3__.EffectGraphView, { width: 100, height: 20, render: effect, track: track, count: pixelsCount, duration: duration })));
 };
 
 
