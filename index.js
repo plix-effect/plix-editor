@@ -35415,7 +35415,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const MIN_GRID_SIZE = 5;
-const CANVAS_OVERSIZE = 100;
+const CANVAS_OVERSIZE = 1000;
 const TimelineEditorGrid = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ cycle, grid, offset }) => {
     const { trackWidth, zoom, timelineEl } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_1__.ScaleDisplayContext);
     const [canvasEl, setCanvasEl] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
