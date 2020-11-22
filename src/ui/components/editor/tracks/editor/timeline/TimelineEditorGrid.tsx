@@ -3,7 +3,7 @@ import {ScaleDisplayContext} from "../../../ScaleDisplayContext";
 import "./TimelineEditorGrid.scss";
 
 const MIN_GRID_SIZE = 5;
-const CANVAS_OVERSIZE = 100;
+const CANVAS_OVERSIZE = 1000;
 
 export interface TimelineEditorGridProps {
     cycle: number
