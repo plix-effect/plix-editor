@@ -279,35 +279,10 @@ input[type="color"].full-size-color-picker {
   .timeline-editor-dummy._unavailable {
     background-color: red; }
 
-.timeline-editor-grid-cycle {
-  box-sizing: border-box;
+.timeline-editor-grid-canvas {
   position: absolute;
-  height: 100%;
-  background-image: linear-gradient(90deg, #444 1px, transparent 1px);
-  background-repeat: round no-repeat;
-  background-position-y: 50%;
-  overflow: hidden; }
-  .timeline-editor-grid-cycle::before {
-    content: "";
-    position: absolute;
-    height: 100%;
-    border-left: 1px solid #888; }
-  .timeline-editor-grid-cycle .timeline-editor-grid-cycle-content {
-    color: #888;
-    padding-left: 2px;
-    font-size: 70%; }
-
-.timeline-editor-grid-offset {
-  box-sizing: border-box;
-  position: absolute;
-  height: 100%;
-  overflow: hidden;
-  text-align: right;
-  padding: 0 5px 0 5px;
-  border-right: 1px solid #888;
-  background-image: linear-gradient(-45deg, transparent 0px, #444 0px, #444 1px, transparent 1px, transparent 10px, #444 10px, #444 11px, transparent 11px, transparent 20px, #444 20px, #444 21px, transparent 21px, transparent 30px, #444 30px, #444 31px, transparent 31px);
-  background-size: 28.2px 28.2px;
-  background-repeat: repeat; }
+  top: 0;
+  left: 0; }
 
 .timeline-record {
   box-sizing: border-box;
@@ -349,6 +324,29 @@ input[type="color"].full-size-color-picker {
     right: 0; }
   .timeline-record-scaling:hover {
     background-color: rgba(255, 255, 255, 0.3); }
+
+.effect-graph-view-bg {
+  display: inline-block;
+  position: relative; }
+  .effect-graph-view-bg::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: -1;
+    background-color: white;
+    background-image: linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%);
+    background-size: 10px 10px;
+    animation: .7s linear 0s infinite effect-graph-view-bg-move;
+    animation-play-state: paused; }
+  .effect-graph-view-bg:hover::before {
+    animation-play-state: running; }
+
+@keyframes effect-graph-view-bg-move {
+  from {
+    background-position: 0 0, 0 5px, 5px -5px, -5px 0px; }
+  to {
+    background-position: -15px -5px, -15px 0px, -10px -10px, -20px -5px; } }
 
 .effect-group-alias {
   box-sizing: border-box;

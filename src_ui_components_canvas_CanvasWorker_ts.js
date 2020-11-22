@@ -21,15 +21,18 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-onmessage = (e) => {
-    const [width, height, render, track] = e.data;
+onmessage = (event) => {
+    const { width, height, render, track, duration, count } = event.data;
     const parseData = (0,_plix_effect_core__WEBPACK_IMPORTED_MODULE_0__.default)(render, track.effects, track.filters, _plix_effect_core_effects__WEBPACK_IMPORTED_MODULE_2__, _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_3__);
+    const effectKeys = Object.keys(parseData.effectsMap).sort();
+    const filterKeys = Object.keys(parseData.filtersMap).sort();
+    self.postMessage([effectKeys, filterKeys], null);
     const effect = parseData.effect;
     const colorMap = new Uint8ClampedArray(width * height * 4);
     for (let h = 0; h < height; h++) {
-        const line = effect(h, height);
+        const line = effect(h / height * duration, duration);
         for (let w = 0; w < width; w++) {
-            const mod = line(w, width);
+            const mod = line(w / width * count, count);
             const color = mod([0, 0, 0, 0]);
             const { r, g, b, a } = (0,_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_1__.hslaToRgba)(color);
             const index = ((h * width) + w) * 4;

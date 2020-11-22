@@ -473,7 +473,7 @@ exports.default = Timeline;
 function getLastRecord(records, time) {
     for (var i = records.length - 1; i >= 0; i--) {
         var record = records[i];
-        if (record.start < time)
+        if (record.start <= time)
             return record;
     }
 }
@@ -1954,6 +1954,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 function n(n,r,t){return{r:255*t(n.r/255,r.r/255),g:255*t(n.g/255,r.g/255),b:255*t(n.b/255,r.b/255)}}function r(n,r){return r}function t(n,r){return n*r}function u(n,r){return n+r-n*r}function o(n,r){return f(r,n)}function i(n,r){return Math.min(n,r)}function a(n,r){return Math.min(Math.max(n,r),1)}function e(n,r){return 0===n?0:1===r?1:Math.min(1,n/(1-r))}function c(n,r){return 1===n?1:0===r?0:1-Math.min(1,(1-n)/r)}function f(n,r){return r<=.5?t(n,2*r):u(n,2*r-1)}function g(n,r){return r<=.5?n-(1-2*r)*n*(1-n):n+(2*r-1)*((n<=.25?((16*n-12)*n+4)*n:Math.sqrt(n))-n)}function b(n,r){return Math.abs(n-r)}function s(n,r){return n+r-2*n*r}function h(n,r,t){return Math.min(Math.max(n,r),t)}function M(n){return{r:h(n.r,0,255),g:h(n.g,0,255),b:h(n.b,0,255),a:h(n.a,0,1)}}function m(n){return{r:255*n.r,g:255*n.g,b:255*n.b,a:n.a}}function d(n){return{r:n.r/255,g:n.g/255,b:n.b/255,a:n.a}}function l(n,r){void 0===r&&(r=0);var t=Math.pow(10,r);return{r:Math.round(n.r*t)/t,g:Math.round(n.g*t)/t,b:Math.round(n.b*t)/t,a:n.a}}function p(n,r,t,u,o,i){return(1-r/t)*u+r/t*Math.round((1-n)*o+n*i)}function v(n,r,t,u,o){void 0===o&&(o={unitInput:!1,unitOutput:!1,roundOutput:!0}),o.unitInput&&(n=m(n),r=m(r)),n=M(n);var i=(r=M(r)).a+n.a-r.a*n.a,a=t(n,r,u),e=M({r:p(n.a,r.a,i,n.r,r.r,a.r),g:p(n.a,r.a,i,n.g,r.g,a.g),b:p(n.a,r.a,i,n.b,r.b,a.b),a:i});return o.unitOutput?d(e):o.roundOutput?l(e):function(n){return l(n,9)}(e)}function x(n,r,t){return m(t(d(n),d(r)))}function O(n){return.3*n.r+.59*n.g+.11*n.b}function y(n,r){var t=r-O(n);return function(n){var r=O(n),t=n.r,u=n.g,o=n.b,i=Math.min(t,u,o),a=Math.max(t,u,o);function e(n){return r+(n-r)*r/(r-i)}function c(n){return r+(n-r)*(1-r)/(a-r)}return i<0&&(t=e(t),u=e(u),o=e(o)),a>1&&(t=c(t),u=c(u),o=c(o)),{r:t,g:u,b:o}}({r:n.r+t,g:n.g+t,b:n.b+t})}function I(n){return Math.max(n.r,n.g,n.b)-Math.min(n.r,n.g,n.b)}function L(n,r){var t=["r","g","b"].sort(function(r,t){return n[r]-n[t]}),u=t[0],o=t[1],i=t[2],a={r:n.r,g:n.g,b:n.b};return a[i]>a[u]?(a[o]=(a[o]-a[u])*r/(a[i]-a[u]),a[i]=r):a[o]=a[i]=0,a[u]=0,a}function k(n,r){return y(L(r,I(n)),O(n))}function q(n,r){return y(L(n,I(r)),O(n))}function w(n,r){return y(r,O(n))}function B(n,r){return y(n,O(r))}function D(t,u){return v(t,u,n,r)}function j(r,u){return v(r,u,n,t)}function z(r,t){return v(r,t,n,u)}function A(r,t){return v(r,t,n,o)}function C(r,t){return v(r,t,n,i)}function E(r,t){return v(r,t,n,a)}function F(r,t){return v(r,t,n,e)}function G(r,t){return v(r,t,n,c)}function H(r,t){return v(r,t,n,f)}function J(r,t){return v(r,t,n,g)}function K(r,t){return v(r,t,n,b)}function N(r,t){return v(r,t,n,s)}function P(n,r){return v(n,r,x,k)}function Q(n,r){return v(n,r,x,q)}function R(n,r){return v(n,r,x,w)}function S(n,r){return v(n,r,x,B)}
 //# sourceMappingURL=index.modern.js.map
+
+
+/***/ }),
+
+/***/ "./src/ui/components/canvas/EffectGraphView.scss":
+/*!*******************************************************!*\
+  !*** ./src/ui/components/canvas/EffectGraphView.scss ***!
+  \*******************************************************/
+/*! namespace exports */
+/*! exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
 
 
 /***/ }),
@@ -32471,26 +32487,72 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "EffectGraphView": () => /* binding */ EffectGraphView
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../utils/isArraysEqual */ "./src/ui/utils/isArraysEqual.ts");
+/* harmony import */ var _EffectGraphView_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EffectGraphView.scss */ "./src/ui/components/canvas/EffectGraphView.scss");
 
-const EffectGraphView = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ width, height, effect, track }) => {
+
+
+const EffectGraphView = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ duration, count, width, height, render, track }) => {
     const [canvas, setCanvas] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
+    const lastUsedSize = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)([]);
+    const lastUsedEffectRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const lastUsedEffectNames = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const lastUsedFilterNames = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const lastUsedEffects = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const lastUsedFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         if (!canvas)
             return;
+        function isRerenderRequired() {
+            if (!(0,_utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_1__.isArraysEqual)(lastUsedSize.current, [duration, count, width, height])) {
+                return true;
+            }
+            if (lastUsedEffectRef.current !== render) {
+                return true;
+            }
+            if (!lastUsedEffectNames.current || !lastUsedFilterNames.current) {
+                return true;
+            }
+            const usedEffects = lastUsedEffectNames.current.map(name => track.effects[name]);
+            if (!(0,_utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_1__.isArraysEqual)(lastUsedEffects.current, usedEffects)) {
+                return true;
+            }
+            const usedFilters = lastUsedFilterNames.current.map(name => track.filters[name]);
+            return !(0,_utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_1__.isArraysEqual)(lastUsedFilters.current, usedFilters);
+        }
+        if (!isRerenderRequired())
+            return;
         canvas.width = width;
         canvas.height = height;
+        lastUsedSize.current = [duration, count, width, height];
+        lastUsedEffectRef.current = render;
+        lastUsedEffectNames.current = null;
+        lastUsedFilterNames.current = null;
         const worker = new Worker(new URL(/* worker import */ __webpack_require__.p + __webpack_require__.u("src_ui_components_canvas_CanvasWorker_ts"), __webpack_require__.b));
-        worker.postMessage([width, height, effect, track]);
-        const ctx = canvas.getContext("2d");
-        const imageData = ctx.createImageData(width, height);
-        worker.addEventListener("message", ({ data }) => {
-            for (let i = 0; i < imageData.data.length; i++) {
-                imageData.data[i] = data[i];
+        let lastHashMessage;
+        worker.addEventListener("message", (event) => {
+            const data = event.data;
+            if (Array.isArray(data)) {
+                lastHashMessage = data;
+                return;
             }
+            const ctx = canvas.getContext("2d");
+            const imageData = ctx.createImageData(width, height);
+            imageData.data.set(data);
             ctx.putImageData(imageData, 0, 0);
+            const [usedEffectNames, usedFilterNames] = lastHashMessage;
+            lastUsedEffectNames.current = usedEffectNames;
+            lastUsedFilterNames.current = usedFilterNames;
+            lastUsedEffects.current = usedEffectNames.map(name => track.effects[name]);
+            lastUsedFilters.current = usedFilterNames.map(name => track.filters[name]);
+            worker.terminate();
         });
-    }, [canvas, width, height, effect, track.filters, track.effects]);
-    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => (react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas })), []);
+        const message = { width, height, render, track, duration, count };
+        worker.postMessage(message);
+        return () => worker.terminate();
+    }, [canvas, width, height, duration, count, render, track.filters, track.effects]);
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "effect-graph-view-bg" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas }))), []);
 });
 
 
@@ -32756,9 +32818,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _plix_effect_core_effects__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @plix-effect/core/effects */ "./node_modules/@plix-effect/core/dist/effects/index.js");
 /* harmony import */ var _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @plix-effect/core/filters */ "./node_modules/@plix-effect/core/dist/filters/index.js");
 /* harmony import */ var _PlixEditorReducer__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./PlixEditorReducer */ "./src/ui/components/editor/PlixEditorReducer.ts");
-/* harmony import */ var _ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
-/* harmony import */ var _DragContext__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./DragContext */ "./src/ui/components/editor/DragContext.ts");
-
+/* harmony import */ var _DragContext__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./DragContext */ "./src/ui/components/editor/DragContext.ts");
 
 
 
@@ -32811,9 +32871,6 @@ const defaultTrack = {
             ]], [[true, "OuterBorder", [[0, 1, 1], 1]]]]
 };
 const PlixEditor = () => {
-    const [zoom, setZoom] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0.2);
-    const [duration, setDuration] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1000 * 60 * 5 + 2257);
-    const [position, setPosition] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0.01);
     const dragRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         const onDragEnd = () => dragRef.current = null;
@@ -32833,19 +32890,11 @@ const PlixEditor = () => {
         effectConstructorMap: _plix_effect_core_effects__WEBPACK_IMPORTED_MODULE_5__,
         filterConstructorMap: _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_6__,
     }), [track, dispatch, historyPosition, history]);
-    const scaleDisplayContextValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
-        track,
-        duration, setDuration,
-        zoom, setZoom,
-        position, setPosition,
-        trackWidth: zoom * duration
-    }), [track, duration, setDuration, zoom, setZoom, position, setPosition, dispatch]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-editor" },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_DragContext__WEBPACK_IMPORTED_MODULE_9__.DragContext.Provider, { value: dragRef },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_DragContext__WEBPACK_IMPORTED_MODULE_8__.DragContext.Provider, { value: dragRef },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackContext__WEBPACK_IMPORTED_MODULE_4__.TrackContext.Provider, { value: trackContextValue },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_divider_SplitTopBottom__WEBPACK_IMPORTED_MODULE_2__.SplitTopBottom, { minTop: 100, minBottom: 200, storageKey: "s1" },
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_8__.ScaleDisplayContext.Provider, { value: scaleDisplayContextValue },
-                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackEditor__WEBPACK_IMPORTED_MODULE_3__.TrackEditor, null)),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackEditor__WEBPACK_IMPORTED_MODULE_3__.TrackEditor, null),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, "LIBS AND CANVAS"))))));
 };
 
@@ -33358,6 +33407,17 @@ __webpack_require__.r(__webpack_exports__);
 const ZOOM_FACTOR = Math.sqrt(2);
 const ZOOM_FACTOR_WHEEL = Math.pow(2, 0.01);
 const TrackEditor = () => {
+    const [zoom, setZoom] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0.2);
+    const [duration, setDuration] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1000 * 60 * 5 + 2257);
+    const [position, setPosition] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0.01);
+    const [timelineEl, setTimelineEl] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
+    const scaleDisplayContextValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
+        duration, setDuration,
+        zoom, setZoom,
+        position, setPosition,
+        trackWidth: zoom * duration,
+        timelineEl: timelineEl,
+    }), [duration, setDuration, zoom, setZoom, position, setPosition, timelineEl]);
     const [rightRenderEl, setRightRenderEl] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
     const { track, dispatch, undoCounts, redoCounts } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
     const paths = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
@@ -33365,7 +33425,6 @@ const TrackEditor = () => {
         effects: ["effects"],
         filters: ["filters"],
     }), []);
-    const timelineRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const undo = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
         dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.UndoAction)());
     }, [dispatch]);
@@ -33383,7 +33442,6 @@ const TrackEditor = () => {
         document.addEventListener("mousemove", onMouseMove);
         return () => document.removeEventListener("mousemove", onMouseMove);
     });
-    const { setZoom, duration } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_10__.ScaleDisplayContext);
     const multiplyZoom = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
         setZoom(v => {
             let z = v * value;
@@ -33395,11 +33453,10 @@ const TrackEditor = () => {
             }
             if (z === v)
                 return v;
-            const timeline = timelineRef.current;
-            if (timeline) {
-                const { left } = timeline.getBoundingClientRect();
+            if (timelineEl) {
+                const { left } = timelineEl.getBoundingClientRect();
                 const dif = Math.max(mouseLeftRef.current - left, 0);
-                timeline.scrollLeft = (timeline.scrollLeft + dif) * z / v - (dif);
+                timelineEl.scrollLeft = (timelineEl.scrollLeft + dif) * z / v - (dif);
             }
             return z;
         });
@@ -33432,30 +33489,31 @@ const TrackEditor = () => {
         const zoomIndex = Math.pow(ZOOM_FACTOR_WHEEL, event.deltaY);
         multiplyZoom(zoomIndex);
     }, [multiplyZoom]);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_divider_SplitTimeline__WEBPACK_IMPORTED_MODULE_6__.SplitTimeline, { minLeft: 100, minRight: 200, storageKey: "timeline", ref: timelineRef },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header track-header-tree" },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { onClick: undo, disabled: undoCounts <= 0 },
-                "undo (",
-                undoCounts,
-                ")"),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { onClick: redo, disabled: redoCounts <= 0 },
-                "redo (",
-                redoCounts,
-                ")"),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { onClick: save }, "save"),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { onClick: zoomOut }, "(-)"),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { onClick: zoomIn }, "(+)")),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header track-header-timeline", onWheelCapture: onWheel },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackScale__WEBPACK_IMPORTED_MODULE_8__.TrackScale, null)),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-tree", onWheelCapture: onWheel },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_PortalContext__WEBPACK_IMPORTED_MODULE_1__.PortalContext.Provider, { value: rightRenderEl },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_9__.Track, null,
-                    null,
-                    null,
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_EffectTrack__WEBPACK_IMPORTED_MODULE_3__.EffectTrack, { effect: track.render, baseExpanded: true, path: paths.render }, "render"),
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupEffectsTrack__WEBPACK_IMPORTED_MODULE_4__.GroupEffectsTrack, { effectsMap: track.effects, path: paths.effects }),
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupFiltersTrack__WEBPACK_IMPORTED_MODULE_5__.GroupFiltersTrack, { filtersMap: track.filters, path: paths.filters })))),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-timeline", ref: setRightRenderEl })));
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_10__.ScaleDisplayContext.Provider, { value: scaleDisplayContextValue },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_divider_SplitTimeline__WEBPACK_IMPORTED_MODULE_6__.SplitTimeline, { minLeft: 100, minRight: 200, storageKey: "timeline", ref: setTimelineEl },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header track-header-tree" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { onClick: undo, disabled: undoCounts <= 0 },
+                    "undo (",
+                    undoCounts,
+                    ")"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { onClick: redo, disabled: redoCounts <= 0 },
+                    "redo (",
+                    redoCounts,
+                    ")"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { onClick: save }, "save"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { onClick: zoomOut }, "(-)"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { onClick: zoomIn }, "(+)")),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header track-header-timeline", onWheelCapture: onWheel },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackScale__WEBPACK_IMPORTED_MODULE_8__.TrackScale, null)),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-tree", onWheelCapture: onWheel },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_PortalContext__WEBPACK_IMPORTED_MODULE_1__.PortalContext.Provider, { value: rightRenderEl },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_9__.Track, null,
+                        null,
+                        null,
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_EffectTrack__WEBPACK_IMPORTED_MODULE_3__.EffectTrack, { effect: track.render, baseExpanded: true, path: paths.render }, "render"),
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupEffectsTrack__WEBPACK_IMPORTED_MODULE_4__.GroupEffectsTrack, { effectsMap: track.effects, path: paths.effects }),
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupFiltersTrack__WEBPACK_IMPORTED_MODULE_5__.GroupFiltersTrack, { filtersMap: track.filters, path: paths.filters })))),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-timeline", ref: setRightRenderEl }))));
 };
 function download(filename, text) {
     const pom = document.createElement('a');
@@ -34637,7 +34695,6 @@ __webpack_require__.r(__webpack_exports__);
 const ValueUnknownTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, children, path }) => {
     const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_6__.TrackContext);
     const onChange = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
-        console.log("DISPATCH-EDIT", (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_5__.EditValueAction)(path, value));
         dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_5__.EditValueAction)(path, value));
     }, [dispatch, path]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
@@ -34794,7 +34851,7 @@ __webpack_require__.r(__webpack_exports__);
 const EffectPreview = ({ effect }) => {
     const { track } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_canvas_EffectGraphView__WEBPACK_IMPORTED_MODULE_3__.EffectGraphView, { width: 100, height: 20, effect: effect, track: track })));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_canvas_EffectGraphView__WEBPACK_IMPORTED_MODULE_3__.EffectGraphView, { width: 100, height: 20, render: effect, track: track, count: 20, duration: 1000 * 60 * 5 + 2257 })));
 };
 
 
@@ -35358,34 +35415,99 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const MIN_GRID_SIZE = 5;
+const CANVAS_OVERSIZE = 100;
 const TimelineEditorGrid = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ cycle, grid, offset }) => {
-    const { trackWidth, zoom, duration } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_1__.ScaleDisplayContext);
+    const { trackWidth, zoom, timelineEl } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_1__.ScaleDisplayContext);
+    const [canvasEl, setCanvasEl] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
     const offsetPx = zoom * offset;
     const cycleWidth = cycle * zoom;
     const cycleCount = Math.ceil((trackWidth - offsetPx) / cycleWidth);
-    if (cycleCount <= 0)
-        return null;
-    const showOffset = offsetPx >= 1;
     const showCycle = cycleWidth >= MIN_GRID_SIZE;
-    const showGrid = cycleWidth / grid >= MIN_GRID_SIZE;
-    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
-        const offsetD = offset / duration;
-        const cycleD = cycle / duration;
-        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
-            showOffset && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-grid-offset", style: { width: `${offsetD * 100}%` } },
-                offset,
-                "ms")),
-            showCycle && Array.from({ length: cycleCount }).map((_, i) => {
-                return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { key: i, className: "timeline-editor-grid-cycle", style: {
-                        left: `${(offsetD + cycleD * i) * 100}%`,
-                        width: `${cycleD * 100}%`,
-                        backgroundSize: `${100 / grid}% 80%`,
-                        backgroundImage: showGrid ? "" : "none",
-                    } },
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-grid-cycle-content" }, i + 1)));
-            })));
-    }, [cycleCount, offset, duration, showCycle, showGrid, showOffset, grid]);
+    const showGrid = grid > 1 && cycleWidth / grid >= MIN_GRID_SIZE;
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        if (!canvasEl || !timelineEl)
+            return;
+        const ctx = canvasEl.getContext("2d");
+        let canvasStartPx = 0;
+        let canvasEndPx = 0;
+        function paint() {
+            const { height } = canvasEl.parentElement.getBoundingClientRect();
+            const timelineBcr = timelineEl.getBoundingClientRect();
+            canvasStartPx = timelineEl.scrollLeft - CANVAS_OVERSIZE;
+            const canvasWidth = timelineBcr.width + CANVAS_OVERSIZE * 2;
+            canvasEndPx = canvasStartPx + canvasWidth;
+            canvasEl.height = height;
+            canvasEl.width = canvasWidth;
+            canvasEl.style.left = `${canvasStartPx}px`;
+            const offsetWidth = (offset * zoom);
+            if (!cycle) {
+                hatchRect(ctx, 0, 0, canvasWidth, height, 15, "#444");
+                if (offsetWidth >= canvasStartPx) {
+                    drawLine(ctx, offsetWidth - canvasStartPx, 0, height, "#888");
+                }
+                return;
+            }
+            if (offsetWidth >= canvasStartPx) {
+                hatchRect(ctx, 0, 0, offsetWidth - canvasStartPx, height, 15, "#444");
+                drawLine(ctx, offsetWidth - canvasStartPx, 0, height, "#888");
+            }
+            const cycleWidth = cycle * zoom;
+            const startCycle = Math.max(0, ((canvasStartPx - offsetWidth) / cycleWidth) | 0);
+            if (showCycle)
+                for (let i = startCycle; i < cycleCount; i++) {
+                    const linePos = (offset + cycle * i) * zoom - canvasStartPx;
+                    if (linePos > canvasWidth)
+                        break;
+                    drawLine(ctx, linePos | 0, 0, height, "#888");
+                    if (showGrid)
+                        for (let j = 1; j < grid; j++) {
+                            const lineGridPos = ((offset + cycle * i) + (cycle * j / grid)) * zoom - canvasStartPx;
+                            if (lineGridPos > canvasWidth)
+                                break;
+                            drawLine(ctx, lineGridPos | 0, 4, height - 8, "#444");
+                        }
+                    if (cycleWidth >= 10) {
+                        ctx.fillStyle = "#fff";
+                        ctx.fillText(String(i + 1), linePos + 2, 10, cycleWidth);
+                    }
+                }
+        }
+        paint();
+        function onScroll() {
+            const timelineBcr = timelineEl.getBoundingClientRect();
+            const leftViewPos = timelineEl.scrollLeft;
+            if (leftViewPos <= canvasStartPx)
+                return paint();
+            const rightViewPos = timelineEl.scrollLeft + timelineBcr.width;
+            if (rightViewPos >= canvasEndPx)
+                return paint();
+        }
+        timelineEl.addEventListener("scroll", onScroll);
+        return () => timelineEl.removeEventListener("scroll", onScroll);
+    }, [canvasEl, zoom, cycle, grid, offset, showCycle, showGrid]);
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => (react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { className: "timeline-editor-grid-canvas", ref: setCanvasEl })), []);
 });
+function drawLine(ctx, x, y, dy, color) {
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x, y + dy);
+    ctx.stroke();
+}
+function hatchRect(ctx, x1, y1, dx, dy, delta, color) {
+    ctx.rect(x1, y1, dx, dy);
+    ctx.save();
+    ctx.clip();
+    const majorAxe = Math.max(dx, dy);
+    ctx.strokeStyle = color;
+    for (let n = -majorAxe; n < majorAxe; n += delta) {
+        ctx.beginPath();
+        ctx.moveTo(n + x1, y1);
+        ctx.lineTo(dy + n + x1, y1 + dy);
+        ctx.stroke();
+    }
+    ctx.restore();
+}
 
 
 /***/ }),
@@ -35449,7 +35571,7 @@ const Track = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ children: [leftChil
     }, [childList]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(TrackBasic, { leftChild: leftChild, rightChild: rightChild, child: child, collapsed: !expanded, nested: nested }));
 });
-const TrackBasic = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ leftChild, rightChild, child, collapsed, nested }) => {
+const TrackBasic = ({ leftChild, rightChild, child, collapsed, nested }) => {
     const childRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)({ leftChild, rightChild, child, collapsed, nested });
     childRef.current = { leftChild, rightChild, child, collapsed, nested };
     const rightPortalEl = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_PortalContext__WEBPACK_IMPORTED_MODULE_3__.PortalContext);
@@ -35479,7 +35601,7 @@ const TrackBasic = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ leftChild, rig
             return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PortalContext__WEBPACK_IMPORTED_MODULE_3__.PortalContext.Provider, { value: rightEl[key], key: key }, d));
         }))),
         rightPortalEl && (0,react_dom__WEBPACK_IMPORTED_MODULE_1__.createPortal)(right, rightPortalEl)));
-});
+};
 const RefUpdate = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ index, updateRef }) => {
     const updateRefCb = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(ref => {
         updateRef(ref, index);
@@ -35515,6 +35637,8 @@ function childrenIsEqual(a, b) {
     return true;
 }
 function nodeIsEqual(a, b) {
+    if (a === b)
+        return true;
     return false;
 }
 
@@ -35599,6 +35723,38 @@ function generateColorByText(value, s = 1, l = 0.5, a = 1) {
         v = v + value.charCodeAt(i) + i;
     }
     return `hsla(${v % 360},${s * 100}%, ${l * 100}%, ${a})`;
+}
+
+
+/***/ }),
+
+/***/ "./src/ui/utils/isArraysEqual.ts":
+/*!***************************************!*\
+  !*** ./src/ui/utils/isArraysEqual.ts ***!
+  \***************************************/
+/*! namespace exports */
+/*! export isArraysEqual [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "isArraysEqual": () => /* binding */ isArraysEqual
+/* harmony export */ });
+function isArraysEqual(arrA, arrB) {
+    if (arrA === arrB)
+        return true;
+    if (!arrA || !arrB)
+        return false;
+    if (arrA.length !== arrB.length)
+        return false;
+    for (let i = 0; i < arrA.length; i++) {
+        if (!Object.is(arrA[i], arrB[i]))
+            return false;
+    }
+    return true;
 }
 
 
