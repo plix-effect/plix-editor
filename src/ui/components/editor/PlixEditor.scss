@@ -19,3 +19,16 @@ $track-header-height: 20px;
 .track-header-tree {
   margin: 5px;
 }
+
+button.btn.track-header-icon-button {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  &>i {
+    font-size: 21px;
+  }
+  &>.badge {
+    margin-left: 5px;
+  }
+}

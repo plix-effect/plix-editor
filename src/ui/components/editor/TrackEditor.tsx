@@ -109,14 +109,22 @@ export const TrackEditor: FC = () => {
         <SplitTimeline minLeft={100} minRight={200} storageKey="timeline" ref={timelineRef}>
             <div className="track-header track-header-tree">
                 <div className={"btn-group"}>
-                    <button className={"btn btn-primary btn-sm"} onClick={undo} disabled={undoCounts<=0}>undo ({undoCounts})</button>
-                    <button className={"btn btn-primary btn-sm"} onClick={redo} disabled={redoCounts<=0}>redo ({redoCounts})</button>
-                    <button className={"btn btn-primary btn-sm"} onClick={save}>save</button>
-                    <button className={"btn btn-primary btn-sm"} onClick={zoomOut}>
-                        <IconZoomOut/>
+                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={undo} disabled={undoCounts<=0} title={"Undo"}>
+                        <i className="fa fa-undo"/>
+                        <span className="badge badge-secondary">{undoCounts}</span>
                     </button>
-                    <button className={"btn btn-primary btn-sm"} onClick={zoomIn}>
-                        <IconZoomIn/>
+                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={redo} disabled={redoCounts<=0} title={"Redo"}>
+                        <i className="fa fa fa-redo"/>
+                        <span className="badge badge-secondary">{redoCounts}</span>
+                    </button>
+                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={save} title={"Save"}>
+                        <i className="fa fa-save"/>
+                    </button>
+                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={zoomOut} title={"Zoom out"}>
+                        <i className="fa fa-search-minus"/>
+                    </button>
+                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={zoomIn} title={"Zoom in"}>
+                        <i className="fa fa-search-plus"/>
                     </button>
                 </div>
             </div>
