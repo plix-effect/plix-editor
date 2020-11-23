@@ -10,6 +10,7 @@
     "bootstrap": "^4.5.3",
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.0",
+    "react-color": "^2.19.3",
     "react-dom": "^17.0.1",
     "react-modal-promise": "^0.5.3",
     "react-router-dom": "^5.2.0",
