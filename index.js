@@ -32492,6 +32492,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+const createCanvasWorker = () => new Worker(new URL(/* worker import */ __webpack_require__.p + __webpack_require__.u("src_ui_components_canvas_CanvasWorker_ts"), __webpack_require__.b));
 const EffectGraphView = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ duration, count, width, height, render, track }) => {
     const [canvas, setCanvas] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
     const lastUsedSize = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)([]);
@@ -32528,7 +32529,7 @@ const EffectGraphView = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ duration,
         lastUsedEffectRef.current = render;
         lastUsedEffectNames.current = null;
         lastUsedFilterNames.current = null;
-        const worker = new Worker(new URL(/* worker import */ __webpack_require__.p + __webpack_require__.u("src_ui_components_canvas_CanvasWorker_ts"), __webpack_require__.b));
+        const worker = createCanvasWorker();
         let lastHashMessage;
         worker.addEventListener("message", (event) => {
             const data = event.data;
@@ -32551,8 +32552,41 @@ const EffectGraphView = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ duration,
         worker.postMessage(message);
         return () => worker.terminate();
     }, [canvas, width, height, duration, count, render, track.filters, track.effects]);
-    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "effect-graph-view-bg" },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas }))), []);
+    const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        const { width, height } = document.body.getBoundingClientRect();
+        const box = document.createElement("span");
+        box.classList.add("effect-graph-view-bg");
+        box.style.position = "absolute";
+        box.style.width = "100%";
+        box.style.height = "100%";
+        box.style.zIndex = "999999";
+        const fullCanvas = document.createElement("canvas");
+        fullCanvas.width = width;
+        fullCanvas.height = height;
+        fullCanvas.style.cursor = "wait";
+        box.appendChild(fullCanvas);
+        document.body.prepend(box);
+        const worker = createCanvasWorker();
+        box.addEventListener("click", () => {
+            document.body.removeChild(box);
+            worker.terminate();
+        });
+        worker.addEventListener("message", (event) => {
+            const data = event.data;
+            if (Array.isArray(data))
+                return;
+            const ctx = fullCanvas.getContext("2d");
+            const imageData = ctx.createImageData(width, height);
+            imageData.data.set(data);
+            ctx.putImageData(imageData, 0, 0);
+            fullCanvas.style.cursor = "";
+            worker.terminate();
+        });
+        const message = { width, height, render, track, duration, count };
+        worker.postMessage(message);
+    }, [width, height, duration, count, render, track.filters, track.effects]);
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "effect-graph-view-bg", onClick: onClick },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas }))), [onClick]);
 });
 
 
