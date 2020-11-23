@@ -6,7 +6,6 @@ import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {EditValueAction} from "../PlixEditorReducerActions";
 import {TrackContext} from "../TrackContext";
 import {InlineJsonEditor} from "./editor/inline/InlineJsonEditor";
-import {InlineEditor} from "./editor/inline/InlineEditor";
 
 export interface ValueUnknownTrackProps {
     value: any,
@@ -25,7 +24,7 @@ export const NumberTrack: FC<ValueUnknownTrackProps> = memo(({value, children, p
                 {children}
             </TreeBlock>
             <TimelineBlock fixed>
-                <InlineEditor type={"json"} value={value} onChange={onChange} />
+                <InlineJsonEditor inputType={"number"} value={value} onChange={onChange} />
             </TimelineBlock>
         </Track>
     );

@@ -8,7 +8,6 @@ export const TrackScale: FC = () => {
     const offsetD = seprataion / duration;
     const count = Math.ceil(duration/seprataion);
 
-    console.log(zoom)
     return (
         <div className="track-scale" style={{height: 41}}>
             <div className={"timeline-editor"} style={{width: trackWidth}}>

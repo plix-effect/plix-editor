@@ -5,8 +5,8 @@ import {
 } from "@plix-effect/core/types/parser";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
-import {FilterTypeEditor} from "./editor/FilterTypeEditor";
 import "./tracks.scss"
+import {InlineFilterTypeEditor} from "./editor/inline/InlineFilterTypeEditor";
 
 export interface FilterTypeTrackProps {
     filter: PlixFilterJsonData,
@@ -19,7 +19,7 @@ export const FilterTypeTrack: FC<FilterTypeTrackProps> = memo(({filter, onChange
                 Filter type
             </TreeBlock>
             <TimelineBlock fixed>
-                <FilterTypeEditor onChange={onChange} filter={filter} />
+                <InlineFilterTypeEditor onChange={onChange} filter={filter} />
             </TimelineBlock>
         </Track>
     )

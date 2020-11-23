@@ -1,7 +1,7 @@
 import React, {ChangeEvent, FC, MutableRefObject, useCallback, useEffect, useRef, useState} from "react";
 import "./InlineEditor.scss"
 import Select from 'react-select';
-import {ValueableRefType} from "./InlineEditor";
+import {useInlineEditableContainer} from "../../../../../use/useInlineEditableContainer";
 
 export type InlineSelectOption = InlineSelectOptionValue|InlineSelectOptionGroup
 
@@ -16,15 +16,29 @@ export type InlineSelectOptionGroup = {
     options: InlineSelectOptionValue[]
 }
 
-export interface InlineSelectEditorProps {
-    value: string,
-    onSubmit: (value: any) => void
-    options: InlineSelectOption[]
-    valuaebleRef: MutableRefObject<ValueableRefType>
-}
-export const InlineSelectEditor: FC<InlineSelectEditorProps> = ({value, onSubmit, valuaebleRef, options}) => {
 
-    const selectRef = useRef<HTMLSelectElement>()
+const colourStyles = {
+    option: (styles, { data, isDisabled, isFocused, isSelected }) => {
+        return {
+            ...styles,
+            backgroundColor: isSelected ? "#4fba06": "#FFFFFF",
+            color: isSelected ? "#FFFFFF" : "#000",
+            cursor: isDisabled ? 'not-allowed' : 'pointer',
+        };
+    },
+};
+
+export interface InlineSelectEditorProps {
+    value: InlineSelectOptionValue,
+    onChange: (value: any) => void,
+    options: InlineSelectOption[],
+    emptyText?: string
+}
+
+export const InlineSelectEditor: FC<InlineSelectEditorProps> = ({value, onChange, options, emptyText="Not selected"}) => {
+
+    const formRef = useRef<HTMLFormElement>();
+    const [editMode, setEditMode, toggleEditMode] = useInlineEditableContainer(formRef,false)
 
     const getItemById = (id: string, searchList =  options) => {
         let item = null;
@@ -46,56 +60,42 @@ export const InlineSelectEditor: FC<InlineSelectEditorProps> = ({value, onSubmit
     }
 
     const onSetValue = (val, type) => {
-        console.log("SUBMIT SELECTEIDOTR", val)
-        onSubmit(val);
+        onChange(val);
+        setEditMode(false);
     }
 
-    const onChangeSelect = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
-        const selectedValue = event.target.value;
-        const item = getItemById(selectedValue);
-        console.log("SUBMIT SELECTEIDOTR", item, selectedValue)
-        onSubmit(item);
-    }, []);
-
-    useEffect(() => {
-        valuaebleRef.current = {
-            value: getItemById(value)
-        }
-    }, [value])
-
-    // const getOptionView = (opt: InlineSelectOption, key: any) => {
-    //     if (opt.type === "group") {
-    //         return (
-    //             <optgroup key={key} label={opt.label}>
-    //                 {
-    //                     opt.options.map((ch, i) => {
-    //                         return getOptionView(ch,key+"-"+i);
-    //                     })
-    //                 }
-    //             </optgroup>
-    //         )
-    //     } else {
-    //         return (
-    //             <option key={key} value={opt.value}>
-    //                 {opt.label}
-    //             </option>
-    //         )
-    //     }
-    // }
-
     return (
-        <div style={{width: 300}}>
-            <Select
-                defaultValue={value}
-                options={options}
-                className={"form-control"}
-                value={value}
-                autosize={true}
-                autoFocus={true}
-                setValue={onSetValue}
-                menuPortalTarget={document.querySelector('body')}
-                onChange={onChangeSelect}
-            />
-        </div>
+        <form ref={formRef} className={"inline-select-editor"}>
+            {
+                editMode ?
+                    (
+                        <Select
+                            defaultValue={value}
+                            options={options}
+                            className={"form-control"}
+                            value={value}
+                            autosize={true}
+                            autoFocus={true}
+                            onChange={onSetValue}
+                            menuPortalTarget={document.querySelector('body')}
+                            defaultMenuIsOpen={true}
+                            theme={(theme) => ({
+                                ...theme,
+                                colors: {
+                                    ...theme.colors,
+                                    text: 'orangered',
+                                    primary25: 'hotpink',
+                                    primary: 'black',
+                                },
+                            })}
+                            styles={colourStyles}
+                        />
+                    )
+                :
+                    (
+                        <span className={"inline-editor-span"} onClick={toggleEditMode}>{(value && value.label) || emptyText}</span>
+                    )
+            }
+        </form>
     );
 }

@@ -17,7 +17,7 @@ import {getArrayKey} from "../../../utils/KeyManager";
 import {EditValueAction} from "../PlixEditorReducerActions";
 import {FilterTypeTrack} from "./FilterTypeTrack";
 import "./tracks.scss";
-import {FilterTypeEditor} from "./editor/FilterTypeEditor";
+import {InlineFilterTypeEditor} from "./editor/inline/InlineFilterTypeEditor";
 
 export interface FilterTrackProps {
     filter: PlixFilterJsonData,
@@ -94,7 +94,7 @@ const NoFilterTrack: FC<NoFilterTrackProps> = memo(({children, expanded, expande
                 <span className="track-description _empty">empty</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                <FilterTypeEditor onChange={onChange} filter={null} />
+                <InlineFilterTypeEditor onChange={onChange} filter={null} />
             </TimelineBlock>
         </Track>
     )
@@ -119,7 +119,7 @@ const AliasFilterTrack: FC<AliasFilterTrackProps> = memo(({filter, filter: [enab
                 <span className="track-description _link">{link}</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                <FilterTypeEditor onChange={onChange} filter={filter} />
+                <InlineFilterTypeEditor onChange={onChange} filter={filter} />
             </TimelineBlock>
 
         </Track>

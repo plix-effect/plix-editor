@@ -17,11 +17,11 @@ import {useExpander} from "../track-elements/Expander";
 import {getArrayKey} from "../../../utils/KeyManager";
 import {TimelineEffectTrack} from "./TimelineEffectTrack";
 import {ChainEffectTrack} from "./ChainEffectTrack";
-import {EffectTypeEditor} from "./editor/EffectTypeEditor";
 import {EditValueAction} from "../PlixEditorReducerActions";
 import {EffectTypeTrack} from "./EffectTypeTrack";
 import {DraggableEffect} from "./editor/DraggableEffect";
 import {EffectPreview} from "./editor/EffectPreview";
+import {InlineEffectTypeEditor} from "./editor/inline/InlineEffectTypeEditor";
 
 export interface EffectTrackProps {
     effect: PlixEffectJsonData,
@@ -126,7 +126,7 @@ const NoEffectTrack: FC<NoEffectTrackProps> = memo(({children, onChange, expande
                 <span className="track-description _empty">empty</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                <EffectTypeEditor onChange={onChange} effect={null} />
+                <InlineEffectTypeEditor onChange={onChange} effect={null} />
             </TimelineBlock>
         </Track>
     );
@@ -154,7 +154,7 @@ const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, effect: [enabled ,
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description _desc">
-                    <EffectPreview effect={effect} /> use alias <span className="track-description _link">{link}</span>
+                    <EffectPreview effect={effect} /> use alias<span className="track-description _link">{link}</span>
                 </span>
             </TimelineBlock>
 

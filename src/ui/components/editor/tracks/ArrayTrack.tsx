@@ -1,15 +1,12 @@
 import React, {FC, memo, ReactNode, useCallback, useContext, useMemo} from "react";
 import {Track} from "../../timeline/Track";
 import {EditorPath} from "../../../types/Editor";
-import {ValueTrack} from "./ValueTrack";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
-import {getArrayKey} from "../../../utils/KeyManager";
 import {useExpander} from "../track-elements/Expander";
 import {TrackContext} from "../TrackContext";
-import {DeleteIndexAction, EditValueAction, PushValueAction} from "../PlixEditorReducerActions";
+import {PushValueAction} from "../PlixEditorReducerActions";
 import {ArrayElementsTrack} from "./ArrayElementsTrack";
-import {EffectTypeEditor} from "./editor/EffectTypeEditor";
 
 export interface ArrayTrackProps {
     value: any[],

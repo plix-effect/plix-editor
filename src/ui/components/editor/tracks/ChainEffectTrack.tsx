@@ -7,14 +7,11 @@ import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {TrackContext} from "../TrackContext";
 import {ParseMeta} from "../../../types/ParseMeta";
 import {ValueTrack} from "./ValueTrack";
-import {useExpander} from "../track-elements/Expander";
 import {getArrayKey} from "../../../utils/KeyManager";
 import {PushValueAction} from "../PlixEditorReducerActions";
 
 import "./tracks.scss"
-import {ArrayTrack} from "./ArrayTrack";
 import {ArrayElementsTrack} from "./ArrayElementsTrack";
-import {EffectTypeEditor} from "./editor/EffectTypeEditor";
 import {EffectTypeTrack} from "./EffectTypeTrack";
 import {DraggableEffect} from "./editor/DraggableEffect";
 import {EffectPreview} from "./editor/EffectPreview";

@@ -1,32 +1,48 @@
 import React, {
     FC,
-    MutableRefObject,
     useCallback,
     useContext,
     useMemo,
 } from "react";
-import "./InlineEditor.scss"
-import {ValueableRefType} from "./InlineEditor";
-import {InlineSelectEditor, InlineSelectOption, InlineSelectOptionValue} from "./InlineSelectEditor";
-import {PlixEffectJsonData} from "@plix-effect/core/dist/types/parser";
+import {
+    InlineSelectEditor,
+    InlineSelectOptionGroup,
+    InlineSelectOptionValue
+} from "./InlineSelectEditor";
+import {PlixEffectAliasJsonData, PlixEffectJsonData} from "@plix-effect/core/dist/types/parser";
 import {ParseMeta} from "../../../../../types/ParseMeta";
 import {TrackContext} from "../../../TrackContext";
+
+interface EffectInlineSelectOptionValue extends InlineSelectOptionValue {
+    effectType: null|"ALIAS"|"CONSTRUCTOR"
+}
+interface EffectInlineSelectOptionGroup extends InlineSelectOptionGroup {
+    options: EffectInlineSelectOptionValue[]
+}
+type EffectInlineSelectOption = EffectInlineSelectOptionValue|EffectInlineSelectOptionGroup
+
+const NO_EFFECT_OPTION:EffectInlineSelectOptionValue = (
+    {
+        type: "value",
+        value: "X",
+        label: "(no-effect)",
+        effectType: null
+    }
+)
 
 export interface InlineSelectEditorProps {
     effect: PlixEffectJsonData,
     onChange: (type: null|"alias"|"constructor", value?: string) => void
-    valuaebleRef: MutableRefObject<ValueableRefType>
 }
-export const InlineEffectTypeEditor: FC<InlineSelectEditorProps> = ({effect, onChange, valuaebleRef}) => {
 
-    const handleChange = useCallback((option: InlineSelectOptionValue) => {
-        const selectedValue = option.value;
-        const type = selectedValue.substring(0, 1);
-        const value = selectedValue.substring(1);
-        console.log("GETTED VALUE", value);
-        if (type === "X") return onChange(null);
-        if (type === "A") return onChange("alias", value);
-        if (type === "C") return onChange("constructor", value);
+export const InlineEffectTypeEditor: FC<InlineSelectEditorProps> = ({effect, onChange}) => {
+
+    const handleChange = useCallback((option: EffectInlineSelectOptionValue) => {
+        const type = option.effectType;
+        const value = option.value.substr(1);
+        if (type === null) return onChange(null);
+        if (type === "ALIAS") return onChange("alias", value);
+        if (type === "CONSTRUCTOR") return onChange("constructor", value);
     }, []);
 
     const {effectConstructorMap, track: { effects: effectAliasMap }} = useContext(TrackContext);
@@ -37,7 +53,7 @@ export const InlineEffectTypeEditor: FC<InlineSelectEditorProps> = ({effect, onC
             const meta: ParseMeta = effectConstructor['meta'];
             return {
                 name: meta.name,
-                value: "C"+id,
+                value: id,
             };
         });
     }, [effectConstructorMap]);
@@ -46,26 +62,23 @@ export const InlineEffectTypeEditor: FC<InlineSelectEditorProps> = ({effect, onC
         return Object.keys(effectAliasMap).sort(/*a-z*/).map((name) => {
             return {
                 name: name,
-                value: "A"+name,
+                value: name,
             };
         });
     }, [effectAliasMap]);
 
-    const options: InlineSelectOption[] = useMemo(() => {
-        const res: InlineSelectOption[] = [
-            {
-                type: "value",
-                value: "X",
-                label: "(no-effect)"
-            },
+    const options: EffectInlineSelectOption[] = useMemo(() => {
+        const res: EffectInlineSelectOption[] = [
+            NO_EFFECT_OPTION,
             {
                 type: "group",
                 label: "aliases",
                 options: aliasData.map(data => (
                     {
                         type: "value",
-                        value: data.value,
-                        label: data.name
+                        value: "A"+data.value,
+                        label: data.name,
+                        effectType: "ALIAS"
                     }
                 ))
             },
@@ -75,8 +88,9 @@ export const InlineEffectTypeEditor: FC<InlineSelectEditorProps> = ({effect, onC
                 options: effectConstructorsData.map(data => (
                     {
                         type: "value",
-                        value: data.value,
-                        label: data.name
+                        value: "C"+data.value,
+                        label: data.name,
+                        effectType: "CONSTRUCTOR"
                     }
                 ))
             }
@@ -84,20 +98,35 @@ export const InlineEffectTypeEditor: FC<InlineSelectEditorProps> = ({effect, onC
         return res;
     }, [])
 
-    const selectedId = useMemo<string>(() => {
-        if (!effect) return "X";
-        if (effect[1] !== null) return "C"+effect[1];
-        return "A"+effect[2];
-    }, [effect]);
-
-    console.log("SELECTED", selectedId);
+    const currentValue = useMemo<EffectInlineSelectOptionValue>(() => {
+        if (effect == null) {
+            return NO_EFFECT_OPTION
+        } else {
+            if (effect[1] == null) { // Alias
+                const alias = effect as PlixEffectAliasJsonData;
+                return {
+                    value: "A"+alias[2],
+                    label: alias[2],
+                    effectType: "ALIAS",
+                    type: "value"
+                }
+            } else if (effect[1] !== null) {
+                return {
+                    value: "C"+effect[1],
+                    label: effect[1],
+                    effectType: "CONSTRUCTOR",
+                    type: "value"
+                }
+            }
+        }
+    }, [effect, options])
 
     return (
         <InlineSelectEditor
-            value={selectedId}
+            value={currentValue}
             options={options}
-            onSubmit={handleChange}
-            valuaebleRef={valuaebleRef}
+            onChange={handleChange}
+            emptyText={"(no-effect)"}
         />
     );
 }
