@@ -47,11 +47,10 @@ export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, 
     if (type === "number") {
         return (
             <NumberTrack value={value} path={path}>
-                <span style={{color: "red"}}>{children}</span>
+                <span>{children}</span>
             </NumberTrack>
         )
-    }
-    console.log("type-"+type);
+    };
     return <ValueUnknownTrack value={value} path={path} >
         <span>{children}</span>
     </ValueUnknownTrack>

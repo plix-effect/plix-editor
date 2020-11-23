@@ -1,80 +1,56 @@
-import React, {ChangeEvent, FC, useCallback, useEffect, useRef, useState} from "react";
-import Editable from 'react-x-editable';
-import "./InlineInputEditor.scss"
-import {useClickOutside} from "../../../../../use/useClickOutside";
+import React, {ChangeEvent, FC, MutableRefObject, useCallback, useEffect, useRef, useState} from "react";
+import "./InlineEditor.scss"
+import {ValueableRefType} from "./InlineEditor";
 
 export interface InlineJsonEditorEditorProps {
     value: any,
-    onChange: (value: any) => void
-    inputType?: string
+    onSubmit: (value: any) => void
+    inputType: "text"|"number",
+    valuaebleRef: MutableRefObject<ValueableRefType>
 }
-export const InlineJsonEditor: FC<InlineJsonEditorEditorProps> = ({value, onChange, inputType= "text"}) => {
-
-    const [editMode, setEditMode] = useState(false);
+export const InlineJsonEditor: FC<InlineJsonEditorEditorProps> = ({value, onSubmit, inputType="text", valuaebleRef}) => {
     const [inputValue, setInputValue] = useState(() => {
         return JSON.stringify(value);
     });
     const inputRef = useRef<HTMLInputElement>();
-    const containerRef = useRef<HTMLFormElement>();
-
-    const submit = useCallback(() => {
-        try {
-            const newValue = JSON.parse(inputValue);
-            onChange(newValue);
-            setEditMode(false);
-        } catch {}
-    }, [setEditMode, onChange, inputValue]);
-
-    const onClickOutsideCb = useCallback(() => {
-        submit();
-    }, [submit]);
-    useClickOutside(containerRef, onClickOutsideCb, editMode)
-
-    const changeEdit = useCallback(() => setEditMode(v => !v), [setEditMode]);
 
     const onChangeInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
         setInputValue(event.target.value);
     }, [setInputValue]);
 
+    const submitForm = useCallback(() => {
+        try {
+            const newValue = JSON.parse(inputValue);
+            onSubmit(newValue);
+        } catch {}
+    }, [onSubmit, inputValue]);
 
 
-    const onSubmit = useCallback((event: ChangeEvent<HTMLFormElement>) => {
+    const onSubmitForm = useCallback((event: ChangeEvent<HTMLFormElement>) => {
         event.preventDefault();
-        submit();
-    }, [submit]);
+        submitForm();
+    }, [submitForm]);
 
     useEffect(() => {
-        setEditMode(false);
         setInputValue(JSON.stringify(value));
     }, [value])
 
-    const onKeyPress = (event) => {
-        if(event.key === 'Enter'){
-            changeEdit()
+    useEffect(() => {
+        valuaebleRef.current = {
+            value: JSON.parse(inputValue)
         }
-    }
+    }, [inputValue])
 
-    const content = editMode ?
-        (
+    return (
+        <form onSubmit={onSubmitForm} className={"inline-input-editor"}>
             <input
-                className={"form-control-xs"}
+                className={"form-control"}
                 ref={inputRef}
                 value={inputValue}
                 autoFocus={true}
                 type={inputType}
                 onChange={onChangeInput}
             />
-        )
-        :
-        (
-            <span onClick={changeEdit}>{JSON.stringify(value)}</span>
-        )
-    ;
-
-
-    return (
-        <form ref={containerRef} className={"inline-input-editor"} onSubmit={onSubmit}>
-            {content}
         </form>
     );
 }

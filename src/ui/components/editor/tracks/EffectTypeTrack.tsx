@@ -19,6 +19,7 @@ import {TimelineEffectTrack} from "./TimelineEffectTrack";
 import {ChainEffectTrack} from "./ChainEffectTrack";
 import {EffectTypeEditor} from "./editor/EffectTypeEditor";
 import {EditValueAction} from "../PlixEditorReducerActions";
+import {InlineEditor} from "./editor/inline/InlineEditor";
 
 export interface EffectTypeTrackProps {
     effect: PlixEffectJsonData,
@@ -31,7 +32,7 @@ export const EffectTypeTrack: FC<EffectTypeTrackProps> = memo(({effect, onChange
                 Effect type
             </TreeBlock>
             <TimelineBlock fixed>
-                <EffectTypeEditor onChange={onChange} effect={effect} />
+                <InlineEditor type={"effectType"} onChange={onChange} value={effect} />
             </TimelineBlock>
         </Track>
     )

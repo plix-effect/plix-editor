@@ -3,9 +3,9 @@ import {Track} from "../../timeline/Track";
 import {EditorPath} from "../../../types/Editor";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
-import {JSONEditor} from "./editor/inline/JSONEditor";
 import {EditValueAction} from "../PlixEditorReducerActions";
 import {TrackContext} from "../TrackContext";
+import {InlineJsonEditor} from "./editor/inline/InlineJsonEditor";
 
 export interface ValueUnknownTrackProps {
     value: any,
@@ -25,7 +25,8 @@ export const ValueUnknownTrack: FC<ValueUnknownTrackProps> = memo(({value, child
                 {children}
             </TreeBlock>
             <TimelineBlock fixed>
-                <JSONEditor value={value} onChange={onChange} />
+                <span/>
+            {/*    TODO*/}
             </TimelineBlock>
         </Track>
     );
