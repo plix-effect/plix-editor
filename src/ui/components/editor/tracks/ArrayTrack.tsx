@@ -32,7 +32,7 @@ export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [na
             <TreeBlock>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{name}</span>
-                {" "}
+                <span>{" "}</span>
                 <span className="track-description _desc">({value.length})</span>
             </TreeBlock>
             <TimelineBlock fixed>

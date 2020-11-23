@@ -90,7 +90,7 @@ const NoFilterTrack: FC<NoFilterTrackProps> = memo(({children, expanded, expande
             <TreeBlock>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
-                {" "}
+                <span>{" "}</span>
                 <span className="track-description _empty">empty</span>
             </TreeBlock>
             <TimelineBlock fixed>
@@ -115,7 +115,7 @@ const AliasFilterTrack: FC<AliasFilterTrackProps> = memo(({filter, filter: [enab
             <TreeBlock>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
-                {" "}
+                <span>{" "}</span>
                 <span className="track-description _link">{link}</span>
             </TreeBlock>
             <TimelineBlock fixed>
@@ -159,7 +159,7 @@ const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = memo(({filter,
             <TreeBlock>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
-                {" "}
+                <span>{" "}</span>
                 <span className="track-description _type">{filterData.name}</span>
             </TreeBlock>
             <TimelineBlock fixed>

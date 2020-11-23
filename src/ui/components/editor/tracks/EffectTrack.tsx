@@ -122,7 +122,7 @@ const NoEffectTrack: FC<NoEffectTrackProps> = memo(({children, onChange, expande
             <TreeBlock>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
-                {" "}
+                <span>{" "}</span>
                 <span className="track-description _empty">empty</span>
             </TreeBlock>
             <TimelineBlock fixed>
@@ -149,12 +149,12 @@ const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, effect: [enabled ,
             <TreeBlock>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
-                {" "}
+                <span>{" "}</span>
                 <DraggableEffect effect={effect} path={path}/>
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description _desc">
-                    <EffectPreview effect={effect} /> use alias<span className="track-description _link">{link}</span>
+                    <EffectPreview effect={effect} /> use alias <span className="track-description _link">{link}</span>
                 </span>
             </TimelineBlock>
 
@@ -202,7 +202,7 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, ef
             <TreeBlock>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
-                {" "}
+                <span>{" "}</span>
                 <DraggableEffect effect={effect} path={path}/>
             </TreeBlock>
             <TimelineBlock fixed>

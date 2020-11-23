@@ -56,7 +56,7 @@ export const InlineJsonEditor: FC<InlineJsonEditorEditorProps> = ({value, onChan
                     )
                 :
                     (
-                        <span className={"inline-editor-span"} onClick={toggleEditMode}>{JSON.stringify(value)}</span>
+                        <span className={"inline-editor-span"} title={"Click to edit"} onClick={toggleEditMode}>{JSON.stringify(value)}</span>
                     )
             }
         </form>

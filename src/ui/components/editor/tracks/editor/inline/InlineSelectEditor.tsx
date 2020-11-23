@@ -93,7 +93,7 @@ export const InlineSelectEditor: FC<InlineSelectEditorProps> = ({value, onChange
                     )
                 :
                     (
-                        <span className={"inline-editor-span"} onClick={toggleEditMode}>{(value && value.label) || emptyText}</span>
+                        <span className={"inline-editor-span"} title={"Click to edit"} onClick={toggleEditMode}>{(value && value.label) || emptyText}</span>
                     )
             }
         </form>

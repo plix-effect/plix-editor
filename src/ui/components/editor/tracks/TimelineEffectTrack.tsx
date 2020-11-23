@@ -69,7 +69,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, 
             <TreeBlock type="timeline">
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
-                {" "}
+                <span>{" "}</span>
                 <DraggableEffect effect={effect} path={path}/>
             </TreeBlock>
             <TimelineBlock type="timeline">
