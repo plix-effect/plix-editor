@@ -5,9 +5,9 @@ import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {parseColor} from "@plix-effect/core";
 import {ColorView} from "../track-elements/ColorView";
-import {ColorEditor} from "./editor/ColorEditor";
 import {TrackContext} from "../TrackContext";
 import {EditValueAction} from "../PlixEditorReducerActions";
+import {InlineColorEditor} from "./editor/inline/InlineColorEditor";
 
 export interface ColorTrackProps {
     value: any,
@@ -27,7 +27,7 @@ export const ColorTrack: FC<ColorTrackProps> = memo(({value, children, path}) =>
                 {children} <ColorView background={true} color={color}/>
             </TreeBlock>
             <TimelineBlock fixed>
-                <ColorEditor color={value} onChange={onChange}/>
+                <InlineColorEditor color={value} onChange={onChange}/>
             </TimelineBlock>
         </Track>
     );

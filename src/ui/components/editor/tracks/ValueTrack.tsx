@@ -5,6 +5,7 @@ import {ValueUnknownTrack} from "./ValueUnknownTrack";
 import {ArrayTrack} from "./ArrayTrack";
 import {EffectTrack} from "./EffectTrack";
 import {ColorTrack} from "./ColorTrack";
+import {NumberTrack} from "./NumberTrack";
 
 export interface ValueTrackProps {
     value: any,
@@ -43,6 +44,13 @@ export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, 
             </ColorTrack>
         );
     }
+    if (type === "number") {
+        return (
+            <NumberTrack value={value} path={path}>
+                <span>{children}</span>
+            </NumberTrack>
+        )
+    };
     return <ValueUnknownTrack value={value} path={path} >
         <span>{children}</span>
     </ValueUnknownTrack>

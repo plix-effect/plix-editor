@@ -12,8 +12,8 @@ import {TrackContext} from "../TrackContext";
 import {ParseMeta} from "../../../types/ParseMeta";
 import "./tracks.scss"
 import {DraggableEffect} from "./editor/DraggableEffect";
-import {JSONEditor} from "./editor/JSONEditor";
 import {EditValueAction} from "../PlixEditorReducerActions";
+import {InlineJsonEditor} from "./editor/inline/InlineJsonEditor";
 
 export interface TimelineEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
@@ -69,7 +69,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, 
             <TreeBlock type="timeline">
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
-                {" "}
+                <span>{" "}</span>
                 <DraggableEffect effect={effect} path={path}/>
             </TreeBlock>
             <TimelineBlock type="timeline">
@@ -85,7 +85,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, 
                     </span>
                 </TreeBlock>
                 <TimelineBlock fixed>
-                    <JSONEditor value={params[1]} onChange={onChangeCycle}/>
+                    <InlineJsonEditor inputType={"number"} value={params[1]} onChange={onChangeCycle}/>
                 </TimelineBlock>
             </Track>
 
@@ -96,7 +96,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, 
                     </span>
                 </TreeBlock>
                 <TimelineBlock fixed>
-                    <JSONEditor value={params[2]} onChange={onChangeGrid}/>
+                    <InlineJsonEditor inputType={"number"}  value={params[2]} onChange={onChangeGrid}/>
                 </TimelineBlock>
             </Track>
 
@@ -107,7 +107,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, 
                     </span>
                 </TreeBlock>
                 <TimelineBlock fixed>
-                    <JSONEditor value={params[3]} onChange={onChangeOffset}/>
+                    <InlineJsonEditor inputType={"number"} value={params[3]} onChange={onChangeOffset}/>
                 </TimelineBlock>
             </Track>
 

@@ -17,7 +17,7 @@ import {getArrayKey} from "../../../utils/KeyManager";
 import {EditValueAction} from "../PlixEditorReducerActions";
 import {FilterTypeTrack} from "./FilterTypeTrack";
 import "./tracks.scss";
-import {FilterTypeEditor} from "./editor/FilterTypeEditor";
+import {InlineFilterTypeEditor} from "./editor/inline/InlineFilterTypeEditor";
 
 export interface FilterTrackProps {
     filter: PlixFilterJsonData,
@@ -90,11 +90,11 @@ const NoFilterTrack: FC<NoFilterTrackProps> = memo(({children, expanded, expande
             <TreeBlock>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
-                {" "}
+                <span>{" "}</span>
                 <span className="track-description _empty">empty</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                <FilterTypeEditor onChange={onChange} filter={null} />
+                <InlineFilterTypeEditor onChange={onChange} filter={null} />
             </TimelineBlock>
         </Track>
     )
@@ -115,11 +115,11 @@ const AliasFilterTrack: FC<AliasFilterTrackProps> = memo(({filter, filter: [enab
             <TreeBlock>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
-                {" "}
+                <span>{" "}</span>
                 <span className="track-description _link">{link}</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                <FilterTypeEditor onChange={onChange} filter={filter} />
+                <InlineFilterTypeEditor onChange={onChange} filter={filter} />
             </TimelineBlock>
 
         </Track>
@@ -159,7 +159,7 @@ const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = memo(({filter,
             <TreeBlock>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{children}</span>
-                {" "}
+                <span>{" "}</span>
                 <span className="track-description _type">{filterData.name}</span>
             </TreeBlock>
             <TimelineBlock fixed>

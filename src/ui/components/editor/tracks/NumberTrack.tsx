@@ -12,7 +12,7 @@ export interface ValueUnknownTrackProps {
     children: ReactNode
     path: EditorPath
 }
-export const ValueUnknownTrack: FC<ValueUnknownTrackProps> = memo(({value, children, path}) => {
+export const NumberTrack: FC<ValueUnknownTrackProps> = memo(({value, children, path}) => {
     const {dispatch} = useContext(TrackContext);
     const onChange = useCallback((value) => {
         dispatch(EditValueAction(path, value));
@@ -24,8 +24,7 @@ export const ValueUnknownTrack: FC<ValueUnknownTrackProps> = memo(({value, child
                 {children}
             </TreeBlock>
             <TimelineBlock fixed>
-                <span/>
-            {/*    TODO*/}
+                <InlineJsonEditor inputType={"number"} value={value} onChange={onChange} />
             </TimelineBlock>
         </Track>
     );

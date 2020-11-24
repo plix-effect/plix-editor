@@ -21,6 +21,8 @@ import {Track} from "../timeline/Track";
 import {ScaleDisplayContext, ScaleDisplayContextProps} from "./ScaleDisplayContext";
 import {PlixEditorAction} from "./PlixEditorReducer";
 import {GroupOptionsTrack} from "./tracks/GroupOptionsTrack";
+import {IconZoomIn} from "../icon/IconZoomIn";
+import {IconZoomOut} from "../icon/IconZoomOut";
 
 
 const ZOOM_FACTOR = Math.sqrt(2);
@@ -125,11 +127,23 @@ export const TrackEditor: FC = () => {
         <ScaleDisplayContext.Provider value={scaleDisplayContextValue}>
             <SplitTimeline minLeft={100} minRight={200} storageKey="timeline" ref={setTimelineEl}>
                 <div className="track-header track-header-tree">
-                    <button onClick={undo} disabled={undoCounts<=0}>undo ({undoCounts})</button>
-                    <button onClick={redo} disabled={redoCounts<=0}>redo ({redoCounts})</button>
-                    <button onClick={save}>save</button>
-                    <button onClick={zoomOut}>(-)</button>
-                    <button onClick={zoomIn}>(+)</button>
+                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={undo} disabled={undoCounts<=0} title={"Undo"}>
+                        <i className="fa fa-undo"/>
+                        <span className="badge badge-secondary">{undoCounts}</span>
+                    </button>
+                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={redo} disabled={redoCounts<=0} title={"Redo"}>
+                        <i className="fa fa-redo"/>
+                        <span className="badge badge-secondary">{redoCounts}</span>
+                    </button>
+                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={save} title={"Save"}>
+                        <i className="fa fa-save"/>
+                    </button>
+                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={zoomOut} title={"Zoom out"}>
+                        <i className="fa fa-search-minus"/>
+                    </button>
+                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={zoomIn} title={"Zoom in"}>
+                        <i className="fa fa-search-plus"/>
+                    </button>
                 </div>
                 <div className="track-header track-header-timeline" onWheelCapture={onWheel}>
                     <TrackScale />
