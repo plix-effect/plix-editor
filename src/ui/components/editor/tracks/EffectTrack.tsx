@@ -143,6 +143,7 @@ interface AliasEffectTrackProps {
 }
 const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, effect: [enabled ,, link, filters], path, children, changeExpanded, expanded, expander, onChange}) => {
     const filtersPath = useMemo(() => [...path, 3], [path]);
+    const effectWithNoFilters: PlixEffectAliasJsonData = useMemo(() => [enabled, null, link, []], [effect])
     const valueFilters = useMemo(() => filters ?? [], [filters]);
     return (
         <Track nested expanded={expanded}>
@@ -154,6 +155,12 @@ const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, effect: [enabled ,
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description _desc">
+                    {filters?.length >= 0 && (
+                        <>
+                            <EffectPreview effect={effectWithNoFilters} />
+                            -&gt;
+                        </>
+                    )}
                     <EffectPreview effect={effect} /> use alias <span className="track-description _link">{link}</span>
                 </span>
             </TimelineBlock>
@@ -179,6 +186,7 @@ interface ConfigurableEffectTrackProps {
 }
 const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, effect, effect: [enabled, effectId, params, filters], children, changeExpanded, path, expanded, expander}) => {
     const {effectConstructorMap} = useContext(TrackContext);
+    const effectWithNoFilters: PlixEffectConfigurableJsonData = useMemo(() => [enabled, effectId, params, []], [effect])
     const effectData = useMemo(() => {
         const effectConstructor = effectConstructorMap[effectId];
         const meta: ParseMeta = effectConstructor['meta'];
@@ -207,7 +215,14 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, ef
             </TreeBlock>
             <TimelineBlock fixed>
                 <span className="track-description _desc">
-                    <EffectPreview effect={effect} /> {effectData.description}
+                    {filters?.length >= 0 && (
+                        <>
+                            <EffectPreview effect={effectWithNoFilters} />
+                            -&gt;
+                        </>
+                    )}
+                    <EffectPreview effect={effect} />
+                    {effectData.description}
                 </span>
             </TimelineBlock>
 

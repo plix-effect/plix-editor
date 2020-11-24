@@ -11,7 +11,7 @@ import {ScaleDisplayContext, ScaleDisplayContextProps} from "./ScaleDisplayConte
 import {DragContext, DragType} from "./DragContext";
 import {RedoAction, UndoAction} from "./PlixEditorReducerActions";
 
-const defaultTrack: PlixJsonData = {
+const defaultTrack: PlixJsonData & {editor: any} = {
     effects: {
         paintSome: [true, "Paint", [[[0,1,0.5, 0.5], [0.33,1,0.5, 0.5], [0,1,0.5], [0.33,1,0.5], [0,1,0.5], [0.33,1,0.5]]]],
         paintSomeLeft: [true, null, "paintSome", [[true, null, "posLeft"]]],
@@ -51,14 +51,11 @@ const defaultTrack: PlixJsonData = {
             ],
             [[true, null, "posCenter"]]
         ],
-    ]], [[true, "OuterBorder", [[0,1,1], 1]]]]
+    ]], [[true, "OuterBorder", [[0,1,1], 1]]]],
+    editor: {duration: 10_000, count: 10}
 };
 
 export const PlixEditor: FC = () => {
-
-    const [zoom, setZoom] = useState(0.2);
-    const [duration, setDuration] = useState(1000*60*5 + 2257);
-    const [position, setPosition] = useState(0.01);
 
     const dragRef = useRef<DragType>(null);
     useEffect(() => {
@@ -82,22 +79,12 @@ export const PlixEditor: FC = () => {
         filterConstructorMap: filterConstructorMap as TrackContextProps["filterConstructorMap"],
     }), [track, dispatch, historyPosition, history]);
 
-    const scaleDisplayContextValue: ScaleDisplayContextProps = useMemo(() => ({
-        track,
-        duration, setDuration,
-        zoom, setZoom,
-        position, setPosition,
-        trackWidth: zoom * duration
-    }), [track, duration, setDuration, zoom, setZoom, position, setPosition, dispatch]);
-
     return (
         <div className="plix-editor">
             <DragContext.Provider value={dragRef}>
                 <TrackContext.Provider value={trackContextValue}>
                 <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
-                    <ScaleDisplayContext.Provider value={scaleDisplayContextValue}>
                         <TrackEditor />
-                    </ScaleDisplayContext.Provider>
                     <div>LIBS AND CANVAS</div>
                 </SplitTopBottom>
                 </TrackContext.Provider>

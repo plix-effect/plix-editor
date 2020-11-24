@@ -1,4 +1,4 @@
-import React, {FC, ReactNode, useCallback, useState} from "react";
+import React, {FC, ReactNode, useCallback, useState, DragEvent} from "react";
 import cn from "classnames";
 import "./Expander.scss"
 
@@ -9,8 +9,8 @@ interface ExpanderProps {
 }
 export const Expander: FC<ExpanderProps> = ({show = true, expanded, changeExpanded}) => {
     return (
-        <a className={cn("track-expander", show && (expanded ? "_expanded" : "_collapsed") )} onClick={changeExpanded} />
-    )
+        <a onDragEnter={changeExpanded} className={cn("track-expander", show && (expanded ? "_expanded" : "_collapsed") )} onClick={changeExpanded} />
+    );
 }
 
 export const useExpander = (baseExpanded = false, show: boolean = true): [boolean, ReactNode, () => void] => {

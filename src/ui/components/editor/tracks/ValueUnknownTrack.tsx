@@ -15,7 +15,6 @@ export interface ValueUnknownTrackProps {
 export const ValueUnknownTrack: FC<ValueUnknownTrackProps> = memo(({value, children, path}) => {
     const {dispatch} = useContext(TrackContext);
     const onChange = useCallback((value) => {
-        console.log("DISPATCH-EDIT", EditValueAction(path, value));
         dispatch(EditValueAction(path, value));
     }, [dispatch, path]);
 

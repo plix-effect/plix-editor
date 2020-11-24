@@ -44,7 +44,7 @@ interface TrackBasicProps {
     collapsed: boolean,
     nested: boolean
 }
-const TrackBasic: FC<TrackBasicProps> = memo(({leftChild, rightChild, child, collapsed, nested}) => {
+const TrackBasic: FC<TrackBasicProps> = ({leftChild, rightChild, child, collapsed, nested}) => {
 
     const childRef = useRef({leftChild, rightChild, child, collapsed, nested});
     childRef.current = {leftChild, rightChild, child, collapsed, nested};
@@ -96,7 +96,7 @@ const TrackBasic: FC<TrackBasicProps> = memo(({leftChild, rightChild, child, col
             {rightPortalEl && createPortal(right, rightPortalEl)}
         </Fragment>
     );
-});
+};
 
 interface RefUpdateProps {
     index: string,
@@ -140,7 +140,7 @@ function childrenIsEqual(a?: ReactNode[], b?:ReactNode[]) {
 }
 
 function nodeIsEqual(a: ReactNode, b: ReactNode){
-    // if (a === b) return true;
+    if (a === b) return true;
     // if (typeof a === "object" && typeof b === "object") {
     //     return true;
     // }
