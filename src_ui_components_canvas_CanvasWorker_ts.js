@@ -42,7 +42,8 @@ onmessage = (event) => {
             colorMap[index + 3] = (a * 255) | 0;
         }
     }
-    self.postMessage(colorMap, null);
+    self.postMessage(colorMap.buffer, [colorMap.buffer]);
+    close();
 };
 
 

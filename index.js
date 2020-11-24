@@ -64914,7 +64914,7 @@ const EffectGraphView = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ duration,
             }
             const ctx = canvas.getContext("2d");
             const imageData = ctx.createImageData(width, height);
-            imageData.data.set(data);
+            imageData.data.set(new Uint8ClampedArray(data));
             ctx.putImageData(imageData, 0, 0);
             const [usedEffectNames, usedFilterNames] = lastHashMessage;
             lastUsedEffectNames.current = usedEffectNames;
@@ -64952,7 +64952,7 @@ const EffectGraphView = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ duration,
                 return;
             const ctx = fullCanvas.getContext("2d");
             const imageData = ctx.createImageData(width, height);
-            imageData.data.set(data);
+            imageData.data.set(new Uint8ClampedArray(data));
             ctx.putImageData(imageData, 0, 0);
             fullCanvas.style.cursor = "";
             worker.terminate();
@@ -67388,6 +67388,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DragContext__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../DragContext */ "./src/ui/components/editor/DragContext.ts");
 /* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
 /* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+/* harmony import */ var _utils_generateColorByText__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../../../utils/generateColorByText */ "./src/ui/utils/generateColorByText.ts");
+
 
 
 
@@ -67427,14 +67429,14 @@ const TimelineEditor = ({ records, cycle, grid, offset, path }) => {
         const editorRect = editorRef.current.getBoundingClientRect();
         const recordScale = (_a = dragRef.current) === null || _a === void 0 ? void 0 : _a.recordScale;
         if (recordScale && records.includes(recordScale.record)) {
+            const record = recordScale.record;
             const eventPosTime = (event.clientX - editorRect.left) / zoom;
             const [pos, canMove] = getScalingResult(recordScale, eventPosTime, !event.shiftKey, cycle, grid, offset, records);
-            setDummyPosition(dummy, duration, pos, canMove);
+            setDummyPosition(dummy, duration, pos, canMove, record[0], record[1]);
             if (!canMove)
                 return;
             event.dataTransfer.dropEffect = "move";
             onDropActionRef.current = () => {
-                const record = recordScale.record;
                 const newRecordValue = [record[0], record[1], pos[0], pos[1]];
                 dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.EditValueAction)([...path, records.indexOf(record)], newRecordValue));
             };
@@ -67455,7 +67457,7 @@ const TimelineEditor = ({ records, cycle, grid, offset, path }) => {
             }
             const posTime = (event.clientX - editorRect.left - dragRef.current.offsetX) / zoom;
             const [pos, canMove] = getMovingResult(record, posTime, !event.shiftKey, cycle, grid, offset, records, dropEffect);
-            setDummyPosition(dummy, duration, pos, canMove);
+            setDummyPosition(dummy, duration, pos, canMove, record[0], record[1]);
             if (!canMove)
                 return;
             event.dataTransfer.dropEffect = dropEffect;
@@ -67484,7 +67486,8 @@ const TimelineEditor = ({ records, cycle, grid, offset, path }) => {
     }, [dragCount, dummyRef, onDropActionRef]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-drag-content", onDragEnter: onDragEnter, onDragLeave: onDragLeave, onDragOver: onDragOver, onDrop: onDrop },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { ref: editorRef, className: "timeline-editor", style: { width: trackWidth } },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-dummy", ref: dummyRef }),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-dummy", ref: dummyRef },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-record-name --dummy-record" })),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-grid" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_TimelineEditorGrid__WEBPACK_IMPORTED_MODULE_3__.TimelineEditorGrid, { offset: offset, grid: grid !== null && grid !== void 0 ? grid : 1, cycle: cycle })),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-records" },
@@ -67531,13 +67534,18 @@ function getNewPositionAfterScaling(recordScale, selectedPosition) {
 function clearDummy(dummy) {
     dummy.style.display = "none";
 }
-function setDummyPosition(dummy, duration, [posStart, posDuration], available) {
+function setDummyPosition(dummy, duration, [posStart, posDuration], available, enabled, name) {
     const dummyStartD = posStart / duration;
     const dummyDurationD = posDuration / duration;
     dummy.style.display = "";
     dummy.style.left = `${dummyStartD * 100}%`;
     dummy.classList.toggle("_unavailable", !available);
     dummy.style.width = `${dummyDurationD * 100}%`;
+    const dummyRecord = dummy.querySelector(".--dummy-record");
+    dummyRecord.textContent = name;
+    const bgColor = (0,_utils_generateColorByText__WEBPACK_IMPORTED_MODULE_8__.generateColorByText)(name, enabled ? 1 : 0.2, 0.3, enabled ? 1 : 0.5);
+    dummyRecord.classList.toggle("_disabled", !enabled);
+    dummyRecord.style.backgroundColor = bgColor;
 }
 function getSelectedPosition(bindToGrid, dragLeftPosTime, cycle, grid, offset) {
     if (dragLeftPosTime < 0)
@@ -68021,6 +68029,7 @@ const Record = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ path, record, reco
     const { duration } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_1__.ScaleDisplayContext);
     const dragRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_DragContext__WEBPACK_IMPORTED_MODULE_3__.DragContext);
     const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_6__.TrackContext);
+    const recordRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const onDragStartName = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         dragRef.current = {
             effect: [true, null, link, []],
@@ -68031,7 +68040,12 @@ const Record = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ path, record, reco
             offsetX: event.nativeEvent.offsetX,
             offsetY: event.nativeEvent.offsetY,
         };
+        event.dataTransfer.setDragImage(new Image(), 0, 0);
         event.dataTransfer.effectAllowed = 'all';
+        recordRef.current.classList.add("_edit");
+    }, [record, path]);
+    const onDragName = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        recordRef.current.classList.toggle("_move", !event.ctrlKey);
     }, [record, path]);
     const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         if (event.altKey) {
@@ -68049,6 +68063,7 @@ const Record = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ path, record, reco
         };
         event.dataTransfer.setDragImage(new Image(), 0, 0);
         event.dataTransfer.effectAllowed = 'move';
+        recordRef.current.classList.add("_edit", "_move");
     }, [record]);
     const onDragStartRight = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         dragRef.current = {
@@ -68058,17 +68073,21 @@ const Record = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ path, record, reco
         };
         event.dataTransfer.setDragImage(new Image(), 0, 0);
         event.dataTransfer.effectAllowed = 'move';
+        recordRef.current.classList.add("_edit", "_move");
+    }, [record]);
+    const onDragEndAll = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        recordRef.current.classList.remove("_edit", "_move");
     }, [record]);
     return (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         const startD = start / duration;
         const durD = recordDuration / duration;
-        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: classnames__WEBPACK_IMPORTED_MODULE_7___default()("timeline-record", { "_disabled": !enabled }), style: {
+        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: classnames__WEBPACK_IMPORTED_MODULE_7___default()("timeline-record"), style: {
                 left: `${startD * 100}%`,
                 width: `${durD * 100}%`,
-            }, onClick: onClick, title: createTitleRecord(record) },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { onDragStart: onDragStartName, className: "timeline-record-name", draggable: true, style: { backgroundColor: (0,_utils_generateColorByText__WEBPACK_IMPORTED_MODULE_5__.generateColorByText)(link, enabled ? 1 : 0.2, 0.3, enabled ? 1 : 0.5) } }, link),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-record-scaling _left", draggable: true, onDragStart: onDragStartLeft, title: createTitleResize(record, "left") }),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-record-scaling _right", draggable: true, onDragStart: onDragStartRight, title: createTitleResize(record, "right") })));
+            }, ref: recordRef, onClick: onClick, title: createTitleRecord(record) },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { onDragStart: onDragStartName, onDrag: onDragName, onDragEnd: onDragEndAll, className: classnames__WEBPACK_IMPORTED_MODULE_7___default()("timeline-record-name", { "_disabled": !enabled }), draggable: true, style: { backgroundColor: (0,_utils_generateColorByText__WEBPACK_IMPORTED_MODULE_5__.generateColorByText)(link, enabled ? 1 : 0.2, 0.3, enabled ? 1 : 0.5) } }, link),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-record-scaling _left", draggable: true, onDragStart: onDragStartLeft, onDragEnd: onDragEndAll, title: createTitleResize(record, "left") }),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-record-scaling _right", draggable: true, onDragStart: onDragStartRight, onDragEnd: onDragEndAll, title: createTitleResize(record, "right") })));
     }, [duration, start, link, recordDuration, enabled, onDragStartRight, onDragStartLeft]);
 });
 const createTitleRecord = (record) => `${record[1]}\n\n` +

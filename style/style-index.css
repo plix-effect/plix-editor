@@ -347,8 +347,7 @@ input[type="color"].full-size-color-picker {
   position: absolute;
   width: 100%;
   top: 0;
-  bottom: 0;
-  font-size: 75%; }
+  bottom: 0; }
 
 .timeline-editor-dummy {
   width: 0;
@@ -370,12 +369,15 @@ input[type="color"].full-size-color-picker {
   top: 0;
   bottom: 0;
   overflow: hidden; }
-  .timeline-record._disabled {
-    color: #ccc; }
-    .timeline-record._disabled .timeline-record-name {
-      border-color: rgba(255, 255, 255, 0.5); }
+  .timeline-record._edit {
+    outline: none; }
+  .timeline-record._move {
+    outline: 2px solid rgba(255, 255, 255, 0.7); }
+    .timeline-record._move .timeline-record-name {
+      opacity: 0; }
 
 .timeline-record-name {
+  font-size: 10pt;
   background-color: #888;
   display: inline-block;
   position: absolute;
@@ -389,6 +391,8 @@ input[type="color"].full-size-color-picker {
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: grab; }
+  .timeline-record-name._disabled {
+    border-color: rgba(255, 255, 255, 0.5); }
 
 .timeline-record-scaling {
   position: absolute;
