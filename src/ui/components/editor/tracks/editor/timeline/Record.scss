@@ -5,15 +5,21 @@
     bottom: 0;
     overflow: hidden;
 
-    &._disabled {
-        color: #ccc;
+    &._edit {
+        outline: none;
+    }
+
+    &._move {
+        outline: 2px solid rgba(255,255,255, 0.7);
         .timeline-record-name {
-            border-color: rgba(255, 255, 255, 0.5);
+            opacity: 0;
         }
+
     }
 }
 
 .timeline-record-name {
+    font-size: 10pt;
     background-color: #888;
     display: inline-block;
     position: absolute;
@@ -27,6 +33,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: grab;
+    &._disabled {
+        border-color: rgba(255, 255, 255, 0.5);
+    }
 }
 
 .timeline-record-scaling {

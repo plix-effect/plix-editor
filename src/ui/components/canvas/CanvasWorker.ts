@@ -6,6 +6,8 @@ import * as filterConstructorMap from "@plix-effect/core/filters";
 import {PlixEffectJsonData} from "@plix-effect/core/dist/types/parser";
 import {PlixJsonData} from "@plix-effect/core/types/parser";
 
+declare const self: Worker;
+
 onmessage = (event) => {
     const {width, height, render, track, duration, count} = event.data as CanvasWorkerInputMessage;
 
@@ -30,7 +32,8 @@ onmessage = (event) => {
             colorMap[index+3] = (a*255)|0;
         }
     }
-    self.postMessage(colorMap, null);
+    self.postMessage(colorMap.buffer, [colorMap.buffer]);
+    close();
 }
 
 export interface CanvasWorkerInputMessage {
@@ -42,4 +45,4 @@ export interface CanvasWorkerInputMessage {
     count: number,
 }
 
-export type CanvasWorkerOutputMessage = [string[], string[]] | Uint8ClampedArray
+export type CanvasWorkerOutputMessage = [string[], string[]] | Uint8ClampedArray["buffer"]

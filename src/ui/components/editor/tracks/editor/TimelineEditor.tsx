@@ -9,6 +9,7 @@ import {DragContext} from "../../DragContext";
 import {TrackContext} from "../../TrackContext";
 import {EditValueAction, InsertIndexAction, MultiAction, PushValueAction} from "../../PlixEditorReducerActions";
 import {EditorPath} from "../../../../types/Editor";
+import {generateColorByText} from "../../../../utils/generateColorByText";
 
 export interface TimelineEditorProps {
     records: PlixTimeEffectRecordJsonData[],
@@ -52,13 +53,14 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, cycle, grid, o
         // scale record
         const recordScale = dragRef.current?.recordScale;
         if (recordScale && records.includes(recordScale.record)) {
+            const record = recordScale.record;
             const eventPosTime = (event.clientX - editorRect.left) / zoom;
             const [pos, canMove] = getScalingResult(recordScale, eventPosTime, !event.shiftKey, cycle, grid, offset, records);
-            setDummyPosition(dummy, duration, pos, canMove);
+            setDummyPosition(dummy, duration, pos, canMove, record[0], record[1]);
             if (!canMove) return;
             event.dataTransfer.dropEffect = "move";
             onDropActionRef.current = () => {
-                const record = recordScale.record;
+
                 const newRecordValue = [record[0], record[1], pos[0], pos[1]]
                 dispatch(EditValueAction([...path, records.indexOf(record)], newRecordValue))
             }
@@ -78,7 +80,7 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, cycle, grid, o
             }
             const posTime = (event.clientX - editorRect.left - dragRef.current.offsetX) / zoom;
             const [pos, canMove] = getMovingResult(record, posTime, !event.shiftKey, cycle, grid, offset, records, dropEffect);
-            setDummyPosition(dummy, duration, pos, canMove);
+            setDummyPosition(dummy, duration, pos, canMove, record[0], record[1]);
             if (!canMove) return;
             event.dataTransfer.dropEffect = dropEffect;
             if (records.includes(record) && record[2] === pos[0] && record[3] === pos[1]) return; // no move
@@ -113,7 +115,9 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, cycle, grid, o
             onDrop={onDrop}
         >
             <div ref={editorRef} className="timeline-editor" style={{width: trackWidth}}>
-                <div className="timeline-editor-dummy" ref={dummyRef} />
+                <div className="timeline-editor-dummy" ref={dummyRef}>
+                    <div className="timeline-record-name --dummy-record"/>
+                </div>
                 <div className="timeline-editor-grid">
                     <TimelineEditorGrid offset={offset} grid={grid ?? 1} cycle={cycle} />
                 </div>
@@ -192,7 +196,9 @@ function setDummyPosition(
     dummy: HTMLDivElement,
     duration: number,
     [posStart, posDuration]: [start: number, duration: number],
-    available: boolean
+    available: boolean,
+    enabled: boolean,
+    name: string,
 ){
     const dummyStartD = posStart / duration;
     const dummyDurationD = posDuration / duration;
@@ -200,6 +206,11 @@ function setDummyPosition(
     dummy.style.left = `${dummyStartD * 100}%`;
     dummy.classList.toggle("_unavailable", !available);
     dummy.style.width = `${dummyDurationD * 100}%`;
+    const dummyRecord = dummy.querySelector(".--dummy-record") as HTMLElement;
+    dummyRecord.textContent = name;
+    const bgColor = generateColorByText(name, enabled ? 1 : 0.2, 0.3, enabled ? 1 : 0.5);
+    dummyRecord.classList.toggle("_disabled", !enabled);
+    dummyRecord.style.backgroundColor = bgColor;
 }
 
 function getSelectedPosition(

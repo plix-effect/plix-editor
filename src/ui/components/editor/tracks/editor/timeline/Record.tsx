@@ -1,4 +1,4 @@
-import React, {DragEvent, FC, memo, useCallback, useContext, useMemo, MouseEvent} from "react";
+import React, {DragEvent, FC, memo, useCallback, useContext, useMemo, MouseEvent, useRef} from "react";
 import {ScaleDisplayContext} from "../../../ScaleDisplayContext";
 import {PlixTimeEffectRecordJsonData} from "@plix-effect/core/dist/parser/parseTimeEffectRecord";
 import "./Record.scss";
@@ -17,6 +17,7 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
     const {duration} = useContext(ScaleDisplayContext);
     const dragRef = useContext(DragContext);
     const {dispatch} = useContext(TrackContext);
+    const recordRef = useRef<HTMLDivElement>()
 
     const onDragStartName = useCallback((event: DragEvent<HTMLDivElement>) => {
         dragRef.current = {
@@ -28,7 +29,13 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
             offsetX: event.nativeEvent.offsetX,
             offsetY: event.nativeEvent.offsetY,
         }
+        event.dataTransfer.setDragImage(new Image(), 0, 0);
         event.dataTransfer.effectAllowed = 'all';
+        recordRef.current.classList.add("_edit");
+    }, [record, path]);
+
+    const onDragName = useCallback((event: DragEvent<HTMLDivElement>) => {
+        recordRef.current.classList.toggle("_move", !event.ctrlKey);
     }, [record, path]);
 
     const onClick = useCallback((event: MouseEvent<HTMLDivElement>) => {
@@ -48,6 +55,7 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
         };
         event.dataTransfer.setDragImage(new Image(), 0, 0);
         event.dataTransfer.effectAllowed = 'move';
+        recordRef.current.classList.add("_edit", "_move");
     }, [record]);
 
     const onDragStartRight = useCallback((event: DragEvent<HTMLDivElement>) => {
@@ -58,6 +66,11 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
         };
         event.dataTransfer.setDragImage(new Image(), 0, 0);
         event.dataTransfer.effectAllowed = 'move';
+        recordRef.current.classList.add("_edit", "_move");
+    }, [record]);
+
+    const onDragEndAll = useCallback((event: DragEvent<HTMLDivElement>) => {
+        recordRef.current.classList.remove("_edit", "_move");
     }, [record]);
 
     return useMemo(() => {
@@ -65,17 +78,20 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
         const durD = recordDuration / duration;
         return (
             <div
-                className={cn("timeline-record", {"_disabled": !enabled})}
+                className={cn("timeline-record")}
                 style={{
                     left: `${startD * 100}%`,
                     width: `${durD * 100}%`,
                 }}
+                ref={recordRef}
                 onClick={onClick}
                 title={createTitleRecord(record)}
             >
                 <div
                     onDragStart={onDragStartName}
-                    className="timeline-record-name"
+                    onDrag={onDragName}
+                    onDragEnd={onDragEndAll}
+                    className={cn("timeline-record-name", {"_disabled": !enabled})}
                     draggable
                     style={{backgroundColor: generateColorByText(link, enabled ? 1 : 0.2, 0.3, enabled ? 1 : 0.5)}}
                 >{link}</div>
@@ -83,12 +99,14 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
                     className="timeline-record-scaling _left"
                     draggable
                     onDragStart={onDragStartLeft}
+                    onDragEnd={onDragEndAll}
                     title={createTitleResize(record, "left")}
                 />
                 <div
                     className="timeline-record-scaling _right"
                     draggable
                     onDragStart={onDragStartRight}
+                    onDragEnd={onDragEndAll}
                     title={createTitleResize(record, "right")}
                 />
 

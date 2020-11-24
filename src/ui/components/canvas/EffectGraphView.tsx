@@ -67,7 +67,7 @@ export const EffectGraphView = memo<EffectGraphViewProps>(({duration, count, wid
             }
             const ctx = canvas.getContext("2d");
             const imageData = ctx.createImageData(width, height);
-            imageData.data.set(data);
+            imageData.data.set(new Uint8ClampedArray(data));
             ctx.putImageData(imageData, 0, 0);
             const [usedEffectNames, usedFilterNames] = lastHashMessage;
 
@@ -109,7 +109,7 @@ export const EffectGraphView = memo<EffectGraphViewProps>(({duration, count, wid
             if (Array.isArray(data))  return;
             const ctx = fullCanvas.getContext("2d");
             const imageData = ctx.createImageData(width, height);
-            imageData.data.set(data);
+            imageData.data.set(new Uint8ClampedArray(data));
             ctx.putImageData(imageData, 0, 0);
             fullCanvas.style.cursor = "";
             worker.terminate();
