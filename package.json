@@ -15,7 +15,8 @@
     "react-modal-promise": "^0.5.3",
     "react-router-dom": "^5.2.0",
     "react-select": "^3.1.0",
-    "react-transition-group": "^4.4.1"
+    "react-transition-group": "^4.4.1",
+    "reactjs-popup": "^2.0.4"
   },
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.1",
