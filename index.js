@@ -66279,9 +66279,6 @@ const ArrayElementTrack = ({ type, value, path, parentPath, canDelete, index, ca
     const onDragOverItemSelf = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, value) => {
         if (!canInsert || !value)
             return setDropTargetVisible(null);
-        const typedValue = value.typedValue;
-        if (!typedValue)
-            return setDropTargetVisible(null);
         let side = null;
         const offsetY = event.nativeEvent.offsetY;
         if (offsetY < 10)
@@ -66293,22 +66290,34 @@ const ArrayElementTrack = ({ type, value, path, parentPath, canDelete, index, ca
         }
         if (!side)
             return setDropTargetVisible(null);
+        let allowLink = value[type + "Link"] != null;
+        let mode = allowLink ? "link" : "none";
+        if (event.ctrlKey && event.shiftKey)
+            mode = allowLink ? "link" : "none";
+        else if (event.ctrlKey)
+            mode = "copy";
+        else if (event.shiftKey)
+            mode = value.deleteAction ? "move" : "none";
+        else if (!allowLink)
+            mode = value.deleteAction ? "move" : "copy";
         let insertValue;
-        if (typedValue.type === type)
+        if (mode === "link" && allowLink) {
+            insertValue = value[type + "Link"];
+        }
+        if (!insertValue) {
+            const baseValue = value[type];
+            if (baseValue)
+                insertValue = baseValue;
+        }
+        const typedValue = value.typedValue;
+        if (!insertValue && !typedValue)
+            return setDropTargetVisible(null);
+        if (!insertValue && typedValue.type === type)
             insertValue = typedValue.value;
         if (!insertValue && typedValue.type === "array:" + type)
             insertValue = typedValue.value;
         if (!insertValue)
             return setDropTargetVisible(null);
-        let mode;
-        if (event.ctrlKey && event.shiftKey)
-            mode = "none";
-        else if (event.ctrlKey)
-            mode = "copy";
-        else if (event.shiftKey)
-            mode = value.deleteAction ? "move" : "none";
-        else
-            mode = value.deleteAction ? "move" : "copy";
         if (!mode)
             return setDropTargetVisible(null);
         if (mode === "move" && (0,_utils_isObjectContains__WEBPACK_IMPORTED_MODULE_7__.isObjectEqualOrContains)(insertValue, value)) {
@@ -66610,7 +66619,7 @@ const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path,
         return {
             typedValue: { type: "effect", value: effect },
             effect: effect,
-            effectAlias: alias,
+            effectLink: alias && [true, null, alias, []],
             deleteAction: deleteAction
         };
     }, [effect, alias]);
@@ -66628,7 +66637,7 @@ const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path,
             mode = "copy";
         else if (event.shiftKey)
             mode = value.deleteAction ? "move" : "none";
-        else if (value.effectAlias)
+        else if (value.effectLink)
             mode = "link";
         else if (value.effect)
             mode = "copy";
@@ -66638,8 +66647,8 @@ const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path,
         if (value.effect && mode !== "link") {
             valueEffect = value.effect;
         }
-        if (!valueEffect && value.effectAlias && mode === "link") {
-            valueEffect = [true, null, value.effectAlias, []];
+        if (!valueEffect && value.effectLink && mode === "link") {
+            valueEffect = value.effectLink;
         }
         if (!valueEffect)
             return void (value.dropEffect = "none");
@@ -67583,9 +67592,9 @@ const TimelineEditor = ({ records, cycle, grid, offset, path }) => {
         let dropEffect = "none";
         if (record)
             dropEffect = dragRef.current.deleteAction && !event.ctrlKey ? "move" : "copy";
-        const effectAlias = (_c = dragRef.current) === null || _c === void 0 ? void 0 : _c.effectAlias;
-        if (!record && effectAlias) {
-            record = [true, effectAlias, 0, 100 / zoom];
+        const effectLink = (_c = dragRef.current) === null || _c === void 0 ? void 0 : _c.effectLink;
+        if (!record && effectLink) {
+            record = [true, effectLink[2], 0, 100 / zoom];
             dropEffect = "link";
         }
         if (record) {
@@ -68236,7 +68245,7 @@ const Record = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ path, record, reco
         dragRef.current = {
             effect: [true, null, link, []],
             typedValue: { type: "effect", value: [true, null, link, []] },
-            effectAlias: link,
+            effectLink: [true, null, link, []],
             record: record,
             deleteAction: (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.DeleteAction)(path),
             offsetX: event.nativeEvent.offsetX,
