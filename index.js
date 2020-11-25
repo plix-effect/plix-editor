@@ -66653,12 +66653,20 @@ const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path,
         if (!valueEffect)
             return void (value.dropEffect = "none");
         value.dropEffect = mode;
+        if (effect === valueEffect)
+            return void (value.dropEffect = "none");
         if (mode === "move") {
             if ((0,_utils_isObjectContains__WEBPACK_IMPORTED_MODULE_15__.isObjectEqualOrContains)(effect, valueEffect))
                 return void (value.dropEffect = "none");
         }
         return () => {
-            const changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.EditValueAction)(path, valueEffect);
+            let changeAction;
+            if (mode === "link" && effect !== null && valueEffect !== null) {
+                changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.EditValueAction)(path, [true, null, valueEffect[2], effect[3]]);
+            }
+            else {
+                changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.EditValueAction)(path, valueEffect);
+            }
             if (mode === "move" && value.deleteAction) {
                 dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.MultiAction)([changeAction, value.deleteAction]));
             }
