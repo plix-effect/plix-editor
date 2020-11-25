@@ -6,7 +6,6 @@ import type {
     PlixEffectJsonData
 } from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
-import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {TrackContext} from "../TrackContext";
 import {ParseMeta} from "../../../types/ParseMeta";
@@ -74,11 +73,17 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
         if (!valueEffect) return void (value.dropEffect = "none");
         value.dropEffect = mode;
 
+        if (effect === valueEffect) return void (value.dropEffect = "none");
         if (mode === "move") {
             if (isObjectEqualOrContains(effect, valueEffect)) return void (value.dropEffect = "none");
         }
         return () => {
-            const changeAction = EditValueAction(path, valueEffect);
+            let changeAction;
+            if (mode === "link" && effect !== null && valueEffect !== null) { // save filters on paste as link
+                changeAction = EditValueAction(path, [true, null, valueEffect[2], effect[3]]);
+            } else {
+                changeAction = EditValueAction(path, valueEffect);
+            }
             if (mode === "move" && value.deleteAction) {
                 dispatch(MultiAction([changeAction, value.deleteAction]))
             } else { // action === "copy" || action === "link"
