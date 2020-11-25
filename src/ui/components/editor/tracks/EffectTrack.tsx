@@ -37,11 +37,11 @@ export interface EffectTrackProps {
 export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpanded, children, alias, deleteAction, onDragOverItem}) => {
     const [expanded, expander, changeExpanded] = useExpander(baseExpanded);
 
-    const dragValue: DragType = useMemo(() => {
+    const dragValue: DragType = useMemo<DragType>(() => {
         return {
             typedValue: {type: "effect", value: effect},
             effect: effect,
-            effectAlias: alias,
+            effectLink: alias && [true, null, alias, []],
             deleteAction: deleteAction
         }
     }, [effect, alias]);
@@ -57,7 +57,7 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
         if (event.ctrlKey && event.shiftKey) mode = "link";
         else if (event.ctrlKey) mode = "copy";
         else if (event.shiftKey) mode = value.deleteAction ? "move" : "none";
-        else if (value.effectAlias) mode = "link";
+        else if (value.effectLink) mode = "link";
         else if (value.effect) mode = "copy";
 
         if (mode === "none") return void (value.dropEffect = "none");
@@ -68,8 +68,8 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
             valueEffect = value.effect;
         }
 
-        if (!valueEffect && value.effectAlias && mode === "link") {
-            valueEffect = [true, null, value.effectAlias, []];
+        if (!valueEffect && value.effectLink && mode === "link") {
+            valueEffect = value.effectLink;
         }
         if (!valueEffect) return void (value.dropEffect = "none");
         value.dropEffect = mode;

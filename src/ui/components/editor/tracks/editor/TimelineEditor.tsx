@@ -78,9 +78,9 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, cycle, grid, o
         let record = dragRef.current?.record;
         let dropEffect: "copy"|"move"|"link"|"none" = "none";
         if (record) dropEffect = dragRef.current.deleteAction && !event.ctrlKey ? "move" : "copy"
-        const effectAlias = dragRef.current?.effectAlias;
-        if (!record && effectAlias) {
-            record = [true, effectAlias, 0, 100/zoom];
+        const effectLink = dragRef.current?.effectLink;
+        if (!record && effectLink) {
+            record = [true, effectLink[2], 0, 100/zoom];
             dropEffect = "link";
         }
         if (record) {

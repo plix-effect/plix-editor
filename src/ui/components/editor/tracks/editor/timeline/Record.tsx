@@ -23,7 +23,7 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
         dragRef.current = {
             effect: [true, null, link, []],
             typedValue: {type: "effect", value: [true, null, link, []]},
-            effectAlias: link,
+            effectLink: [true, null, link, []],
             record: record,
             deleteAction: DeleteAction(path),
             offsetX: event.nativeEvent.offsetX,
