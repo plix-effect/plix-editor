@@ -48,4 +48,16 @@
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px;
   }
+
+  &._drag {
+    outline: 2px solid #888;
+  }
+
+  &._move {
+    & > * {
+      opacity: 0;
+    };
+    background-color: transparent;
+    color: transparent;
+  }
 }

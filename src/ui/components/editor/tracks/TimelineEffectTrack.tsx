@@ -9,22 +9,18 @@ import {TimelineEditor} from "./editor/TimelineEditor";
 import {EffectTypeTrack} from "./EffectTypeTrack";
 import {ValueTrack} from "./ValueTrack";
 import {TrackContext} from "../TrackContext";
-import {ParseMeta} from "../../../types/ParseMeta";
 import "./tracks.scss"
-import {DraggableEffect} from "./editor/DraggableEffect";
 import {EditValueAction} from "../PlixEditorReducerActions";
 import {InlineJsonEditor} from "./editor/inline/InlineJsonEditor";
 
 export interface TimelineEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
     path: EditorPath,
-    children: ReactNode,
     onChange: (type: null|"alias"|"constructor", value?: string) => void,
-    changeExpanded: () => void,
     expanded: boolean,
-    expander: ReactNode;
+    leftBlock?: ReactNode
 }
-export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, effect: [,, params, filters], path, children, onChange, changeExpanded, expanded, expander}) => {
+export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({leftBlock, effect, effect: [,, params, filters], path, onChange, expanded}) => {
 
     const filtersPath = useMemo(() => [...path, 3], [path]);
     const timelinePath = useMemo(() => [...path, 2, 0], [path]);
@@ -66,12 +62,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({effect, 
 
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock type="timeline">
-                {expander}
-                <span className="track-description" onClick={changeExpanded}>{children}</span>
-                <span>{" "}</span>
-                <DraggableEffect effect={effect} path={path}/>
-            </TreeBlock>
+            {leftBlock}
             <TimelineBlock type="timeline">
                 <TimelineEditor cycle={params[1]} grid={params[2]} offset={params[3]} records={params[0]} path={timelinePath} />
             </TimelineBlock>

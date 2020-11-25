@@ -5,16 +5,24 @@
     bottom: 0;
     overflow: hidden;
 
-    &._edit {
-        outline: none;
+    &._drag {
+        .timeline-record-name {
+            border-style: dashed;
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+    }
+
+    &._copy {
+        .timeline-record-name {
+            border-style: dashed;
+        }
     }
 
     &._move {
-        outline: 2px solid rgba(255,255,255, 0.7);
         .timeline-record-name {
-            opacity: 0;
+            background-color: transparent !important;
+            color: transparent;
         }
-
     }
 }
 

@@ -36,19 +36,11 @@ export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [na
                 <span className="track-description _desc">({value.length})</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                {desc}
+                { valueToPush !== undefined && (<a onClick={push}>[add {type}]</a>)}
+                &nbsp;
+                <span className="track-description _desc">{desc}</span>
             </TimelineBlock>
-            <ArrayElementsTrack value={value} type={type} path={path}/>
-            { valueToPush !== undefined && (
-                <Track>
-                    <TreeBlock type="description">
-                        <a onClick={push}>[add {type}]</a>
-                    </TreeBlock>
-                    <TimelineBlock fixed type="description">
-
-                    </TimelineBlock>
-                </Track>
-            )}
+            <ArrayElementsTrack value={value} type={type} path={path} canDelete/>
         </Track>
     );
 })

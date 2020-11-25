@@ -26,10 +26,10 @@
   width: 0;
   height: 100%;
   position: absolute;
-  background-color: white;
+  background-color: #666;
   overflow: hidden;
 
   &._unavailable {
-    background-color: red;
+    background-color: #c00;
   }
 }

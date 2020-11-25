@@ -23,6 +23,7 @@ import {PlixEditorAction} from "./PlixEditorReducer";
 import {GroupOptionsTrack} from "./tracks/GroupOptionsTrack";
 import {IconZoomIn} from "../icon/IconZoomIn";
 import {IconZoomOut} from "../icon/IconZoomOut";
+import {DragType} from "./DragContext";
 
 
 const ZOOM_FACTOR = Math.sqrt(2);

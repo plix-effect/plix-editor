@@ -77,7 +77,7 @@ export const InlineEffectTypeEditor: FC<InlineSelectEditorProps> = ({effect, onC
                     {
                         type: "value",
                         value: "A"+data.value,
-                        label: data.name,
+                        label: <span><i className="fa fa-link"/> {data.name}</span>,
                         effectType: "ALIAS"
                     }
                 ))
@@ -96,7 +96,7 @@ export const InlineEffectTypeEditor: FC<InlineSelectEditorProps> = ({effect, onC
             }
         ];
         return res;
-    }, [])
+    }, [aliasData, effectConstructorsData]);
 
     const currentValue = useMemo<EffectInlineSelectOptionValue>(() => {
         if (effect == null) {
@@ -106,7 +106,7 @@ export const InlineEffectTypeEditor: FC<InlineSelectEditorProps> = ({effect, onC
                 const alias = effect as PlixEffectAliasJsonData;
                 return {
                     value: "A"+alias[2],
-                    label: alias[2],
+                    label: <span><i className="fa fa-link"/> {alias[2]}</span>,
                     effectType: "ALIAS",
                     type: "value"
                 }
@@ -128,5 +128,6 @@ export const InlineEffectTypeEditor: FC<InlineSelectEditorProps> = ({effect, onC
             onChange={handleChange}
             emptyText={"(no-effect)"}
         />
+
     );
 }

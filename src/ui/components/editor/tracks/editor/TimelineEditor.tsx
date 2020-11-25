@@ -41,12 +41,21 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, cycle, grid, o
 
     const onDragLeave = useCallback(() => {
         dragCount.current--;
-        if (dragCount.current === 0) clearDummy(dummyRef.current)
+        if (dragCount.current === 0) clearDummy(dummyRef.current);
+        dragRef.current.dropEffect = null;
     }, []);
 
     const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
         if (!dragRef.current) return;
-        event.dataTransfer.dropEffect = "none";
+        dragRef.current.dropEffect = event.dataTransfer.dropEffect = "none";
+        const setDropEffect = (effect: typeof dragRef.current.dropEffect) => {
+            dragRef.current.dropEffect = event.dataTransfer.dropEffect = effect;
+        }
+        const allowEventWithDropEffect = (effect: typeof dragRef.current.dropEffect) => {
+            setDropEffect(effect);
+            event.preventDefault();
+        }
+
         const dummy = dummyRef.current;
         const editorRect = editorRef.current.getBoundingClientRect();
 
@@ -58,45 +67,45 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, cycle, grid, o
             const [pos, canMove] = getScalingResult(recordScale, eventPosTime, !event.shiftKey, cycle, grid, offset, records);
             setDummyPosition(dummy, duration, pos, canMove, record[0], record[1]);
             if (!canMove) return;
-            event.dataTransfer.dropEffect = "move";
-            onDropActionRef.current = () => {
 
+            onDropActionRef.current = () => {
                 const newRecordValue = [record[0], record[1], pos[0], pos[1]]
                 dispatch(EditValueAction([...path, records.indexOf(record)], newRecordValue))
             }
-            return event.preventDefault();
+            return allowEventWithDropEffect("move");
         }
-        const recordMove = dragRef.current?.recordMove;
+
+        let record = dragRef.current?.record;
+        let dropEffect: "copy"|"move"|"link"|"none" = "none";
+        if (record) dropEffect = dragRef.current.deleteAction && !event.ctrlKey ? "move" : "copy"
         const effectAlias = dragRef.current?.effectAlias;
-        if (recordMove || effectAlias) {
-            let dropEffect: "copy"|"move"|"link";
-            let record;
-            if (recordMove) {
-                record = recordMove.record;
-                dropEffect = event.ctrlKey ? "copy" : "move";
-            } else {
-                record = [true, effectAlias, 0, 100/zoom];
-                dropEffect = "link";
-            }
+        if (!record && effectAlias) {
+            record = [true, effectAlias, 0, 100/zoom];
+            dropEffect = "link";
+        }
+        if (record) {
             const posTime = (event.clientX - editorRect.left - dragRef.current.offsetX) / zoom;
             const [pos, canMove] = getMovingResult(record, posTime, !event.shiftKey, cycle, grid, offset, records, dropEffect);
             setDummyPosition(dummy, duration, pos, canMove, record[0], record[1]);
-            if (!canMove) return;
-            event.dataTransfer.dropEffect = dropEffect;
-            if (records.includes(record) && record[2] === pos[0] && record[3] === pos[1]) return; // no move
+            if (!canMove) return setDropEffect("none");
+            if (records.includes(record) && record[2] === pos[0] && record[3] === pos[1]) {
+                onDropActionRef.current = null;
+                return allowEventWithDropEffect(dropEffect);
+            }
             onDropActionRef.current = (event) => {
                 event.dataTransfer.dropEffect = dropEffect;
                 const newRecordValue: PlixTimeEffectRecordJsonData = [record[0], record[1], pos[0], pos[1]];
                 const insertAction = createInsertRecordAction(newRecordValue);
-                if (dropEffect === "move") {
-                    dispatch(MultiAction([insertAction, recordMove.deleteAction]))
-                } else { // action === "move" || action === "link"
-                    dispatch(insertAction)
+                if (dropEffect === "move" && dragRef.current.deleteAction) {
+                    dispatch(MultiAction([insertAction, dragRef.current.deleteAction]))
+                } else { // action === "copy" || action === "link"
+                    dispatch(insertAction);
                 }
             }
-            return event.preventDefault();
+            return allowEventWithDropEffect(dropEffect);
         }
 
+        setDropEffect("none");
         return clearDummy(dummy);
     }, [zoom, duration, cycle, grid, offset, records, createInsertRecordAction]);
 
@@ -156,7 +165,7 @@ function getMovingResult(
     grid: number|null,
     offset: number,
     records: PlixTimeEffectRecordJsonData[],
-    dropEffect: "move"|"copy"|"link",
+    dropEffect: "move"|"copy"|"link"|"none",
 ): [position: [startPosition: number, duration: number], available: boolean]{
     const recordDuration = record[3];
     const posEndTime = posTime + recordDuration;
@@ -207,10 +216,14 @@ function setDummyPosition(
     dummy.classList.toggle("_unavailable", !available);
     dummy.style.width = `${dummyDurationD * 100}%`;
     const dummyRecord = dummy.querySelector(".--dummy-record") as HTMLElement;
-    dummyRecord.textContent = name;
-    const bgColor = generateColorByText(name, enabled ? 1 : 0.2, 0.3, enabled ? 1 : 0.5);
-    dummyRecord.classList.toggle("_disabled", !enabled);
-    dummyRecord.style.backgroundColor = bgColor;
+    dummyRecord.style.display = available ? "" : "none";
+    if (available) {
+        dummyRecord.textContent = name;
+        const bgColor = generateColorByText(name, enabled ? 1 : 0.2, 0.3, enabled ? 1 : 0.5);
+        dummyRecord.classList.toggle("_disabled", !enabled);
+        dummyRecord.style.backgroundColor = bgColor;
+    }
+
 }
 
 function getSelectedPosition(
@@ -237,7 +250,7 @@ function canMoveRecord(
     record: PlixTimeEffectRecordJsonData,
     records: PlixTimeEffectRecordJsonData[],
     [start, duration]: [start: number, duration: number],
-    effect: "move"|"copy"|"link",
+    effect: "move"|"copy"|"link"|"none",
 ) {
     for (const rec of records) {
         if (effect === "move" && rec === record) continue;

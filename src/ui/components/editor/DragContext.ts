@@ -11,12 +11,14 @@ export interface DragTypes {
         record: PlixTimeEffectRecordJsonData,
         side: "left"|"right"
     },
-    recordMove: {
-        record: PlixTimeEffectRecordJsonData,
-        deleteAction: MultiActionType
-    },
+    typedValue: { type: string, value: any }
+    record: PlixTimeEffectRecordJsonData,
+    deleteAction: MultiActionType,
+    dropEffect: null | "none" | "copy" | "link" | "move",
+    offsetX: number,
+    offsetY: number
 }
 
-export type DragType = Partial<DragTypes> & {offsetX: number, offsetY: number}
+export type DragType = Partial<DragTypes>
 
-export const DragContext = createContext<MutableRefObject<DragType>|null>(null);
+export const DragContext = createContext<MutableRefObject<DragType>>({current: {}});

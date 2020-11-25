@@ -29,6 +29,7 @@
 }
 
 .inline-select-editor {
+  display: inline-block;
   margin: 0;
   &>div.form-control {
     background: transparent;

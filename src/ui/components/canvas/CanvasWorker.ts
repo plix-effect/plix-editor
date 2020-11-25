@@ -15,7 +15,7 @@ onmessage = (event) => {
     const effectKeys = Object.keys(parseData.effectsMap).sort();
     const filterKeys = Object.keys(parseData.filtersMap).sort();
 
-    self.postMessage([effectKeys, filterKeys], null);
+    self.postMessage([effectKeys, filterKeys], []);
 
     const effect: Effect = parseData.effect;
     const colorMap = new Uint8ClampedArray(width*height*4);

@@ -1,4 +1,4 @@
-import React, {FC, memo, ReactNode, useCallback, useContext, useMemo} from "react";
+import React, {DragEvent, DragEventHandler, FC, memo, ReactNode, useCallback, useContext, useMemo} from "react";
 import {Track} from "../../timeline/Track";
 import type {
     PlixEffectAliasJsonData,
@@ -17,23 +17,77 @@ import {useExpander} from "../track-elements/Expander";
 import {getArrayKey} from "../../../utils/KeyManager";
 import {TimelineEffectTrack} from "./TimelineEffectTrack";
 import {ChainEffectTrack} from "./ChainEffectTrack";
-import {EditValueAction} from "../PlixEditorReducerActions";
+import {EditValueAction, MultiAction, MultiActionType} from "../PlixEditorReducerActions";
 import {EffectTypeTrack} from "./EffectTypeTrack";
-import {DraggableEffect} from "./editor/DraggableEffect";
 import {EffectPreview} from "./editor/EffectPreview";
 import {InlineEffectTypeEditor} from "./editor/inline/InlineEffectTypeEditor";
+import {DragType} from "../DragContext";
+import {TreeBlockEffect} from "./editor/TreeBlockEffect";
+import {isObjectEqualOrContains} from "../../../utils/isObjectContains";
 
 export interface EffectTrackProps {
-    effect: PlixEffectJsonData,
     path: EditorPath,
     baseExpanded?: boolean,
     children: ReactNode,
+    alias?: string,
+    effect: PlixEffectJsonData,
+    deleteAction?: MultiActionType,
+    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler
 }
-export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpanded, children}) => {
+export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpanded, children, alias, deleteAction, onDragOverItem}) => {
     const [expanded, expander, changeExpanded] = useExpander(baseExpanded);
 
-    const {effectConstructorMap} = useContext(TrackContext);
+    const dragValue: DragType = useMemo(() => {
+        return {
+            typedValue: {type: "effect", value: effect},
+            effect: effect,
+            effectAlias: alias,
+            deleteAction: deleteAction
+        }
+    }, [effect, alias]);
+
     const {dispatch} = useContext(TrackContext);
+
+    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, value: DragType): void | DragEventHandler => {
+        const originDragHandler = onDragOverItem?.(event, value);
+        if (originDragHandler) return originDragHandler;
+        if (!value) return;
+
+        let mode: "copy"|"move"|"link"|"none" = "none";
+        if (event.ctrlKey && event.shiftKey) mode = "link";
+        else if (event.ctrlKey) mode = "copy";
+        else if (event.shiftKey) mode = value.deleteAction ? "move" : "none";
+        else if (value.effectAlias) mode = "link";
+        else if (value.effect) mode = "copy";
+
+        if (mode === "none") return void (value.dropEffect = "none");
+
+        let valueEffect: PlixEffectJsonData;
+
+        if (value.effect && mode !== "link") {
+            valueEffect = value.effect;
+        }
+
+        if (!valueEffect && value.effectAlias && mode === "link") {
+            valueEffect = [true, null, value.effectAlias, []];
+        }
+        if (!valueEffect) return void (value.dropEffect = "none");
+        value.dropEffect = mode;
+
+        if (mode === "move") {
+            if (isObjectEqualOrContains(effect, valueEffect)) return void (value.dropEffect = "none");
+        }
+        return () => {
+            const changeAction = EditValueAction(path, valueEffect);
+            if (mode === "move" && value.deleteAction) {
+                dispatch(MultiAction([changeAction, value.deleteAction]))
+            } else { // action === "copy" || action === "link"
+                dispatch(changeAction);
+            }
+        };
+    }, [onDragOverItem, path, dispatch]);
+
+    const {effectConstructorMap} = useContext(TrackContext);
     const onChangeEffect = useCallback((type: null|"alias"|"constructor", value?: string) => {
         if (!type) {
             return dispatch(EditValueAction(path, null));
@@ -51,13 +105,23 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
         return dispatch(EditValueAction(path, templateEffect));
     }, [effect, dispatch]);
 
+    const leftBlock = (
+        <TreeBlockEffect
+            effect={effect}
+            changeExpanded={changeExpanded}
+            expander={expander}
+            path={path}
+            deleteAction={deleteAction}
+            dragValue={dragValue}
+            onDragOverItem={onDragOverItemSelf}
+        > {children} </TreeBlockEffect>
+    )
+
     if (!effect) return (
         <NoEffectTrack
             onChange={onChangeEffect}
-            path={path}
             expanded={expanded}
-            expander={expander}
-            changeExpanded={changeExpanded}
+            leftBlock={leftBlock}
         >{children}</NoEffectTrack>
     )
     if (effect[1] === null) return (
@@ -65,10 +129,9 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
             path={path}
             onChange={onChangeEffect}
             expanded={expanded}
-            expander={expander}
-            changeExpanded={changeExpanded}
             effect={effect as PlixEffectAliasJsonData}
             children={children}
+            leftBlock={leftBlock}
         />
     );
     if (effect[1] === "Timeline") return (
@@ -76,21 +139,17 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
             effect={effect as PlixEffectConfigurableJsonData}
             onChange={onChangeEffect}
             path={path}
-            children={children}
             expanded={expanded}
-            expander={expander}
-            changeExpanded={changeExpanded}
+            leftBlock={leftBlock}
         />
     )
     if (effect[1] === "Chain") return (
         <ChainEffectTrack
             effect={effect as PlixEffectConfigurableJsonData}
             path={path}
-            children={children}
             expanded={expanded}
-            expander={expander}
             onChange={onChangeEffect}
-            changeExpanded={changeExpanded}
+            leftBlock={leftBlock}
         />
     )
     return (
@@ -98,33 +157,24 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
             path={path}
             onChange={onChangeEffect}
             expanded={expanded}
-            expander={expander}
-            changeExpanded={changeExpanded}
             effect={effect as PlixEffectConfigurableJsonData}
             children={children}
+            leftBlock={leftBlock}
         />
-    )
+    );
 })
 
 ////////////////////////////////////////////////////////////
 
 export interface NoEffectTrackProps {
-    path: EditorPath,
-    children: ReactNode,
     onChange: (type: null|"alias"|"constructor", value?: string) => void,
-    changeExpanded: () => void,
     expanded: boolean,
-    expander: ReactNode;
+    leftBlock: ReactNode;
 }
-const NoEffectTrack: FC<NoEffectTrackProps> = memo(({children, onChange, expanded, expander, changeExpanded}) => {
+const NoEffectTrack: FC<NoEffectTrackProps> = memo(({onChange, expanded, leftBlock}) => {
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock>
-                {expander}
-                <span className="track-description" onClick={changeExpanded}>{children}</span>
-                <span>{" "}</span>
-                <span className="track-description _empty">empty</span>
-            </TreeBlock>
+            {leftBlock}
             <TimelineBlock fixed>
                 <InlineEffectTypeEditor onChange={onChange} effect={null} />
             </TimelineBlock>
@@ -135,24 +185,18 @@ const NoEffectTrack: FC<NoEffectTrackProps> = memo(({children, onChange, expande
 interface AliasEffectTrackProps {
     effect: PlixEffectAliasJsonData
     path: EditorPath,
-    children: ReactNode,
-    changeExpanded: () => void,
     expanded: boolean,
-    expander: ReactNode;
     onChange: (type: null|"alias"|"constructor", value?: string) => void,
+    leftBlock: ReactNode;
 }
-const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, effect: [enabled ,, link, filters], path, children, changeExpanded, expanded, expander, onChange}) => {
+const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, leftBlock, effect: [enabled ,, link, filters], path,  expanded, onChange}) => {
     const filtersPath = useMemo(() => [...path, 3], [path]);
     const effectWithNoFilters: PlixEffectAliasJsonData = useMemo(() => [enabled, null, link, []], [effect])
     const valueFilters = useMemo(() => filters ?? [], [filters]);
+
     return (
-        <Track nested expanded={expanded}>
-            <TreeBlock>
-                {expander}
-                <span className="track-description" onClick={changeExpanded}>{children}</span>
-                <span>{" "}</span>
-                <DraggableEffect effect={effect} path={path}/>
-            </TreeBlock>
+        <Track nested expanded={expanded} >
+            {leftBlock}
             <TimelineBlock fixed>
                 <span className="track-description _desc">
                     {filters?.length >= 0 && (
@@ -178,13 +222,11 @@ interface ConfigurableEffectTrackProps {
 
     effect: PlixEffectConfigurableJsonData
     path: EditorPath,
-    children: ReactNode,
     expanded: boolean,
-    changeExpanded: () => void,
-    expander: ReactNode;
     onChange: (type: null|"alias"|"constructor", value?: string) => void,
+    leftBlock?: ReactNode
 }
-const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, effect, effect: [enabled, effectId, params, filters], children, changeExpanded, path, expanded, expander}) => {
+const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, leftBlock, effect, effect: [enabled, effectId, params, filters], children, path, expanded}) => {
     const {effectConstructorMap} = useContext(TrackContext);
     const effectWithNoFilters: PlixEffectConfigurableJsonData = useMemo(() => [enabled, effectId, params, []], [effect])
     const effectData = useMemo(() => {
@@ -207,12 +249,7 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, ef
     const valueFilters = useMemo(() => filters ?? [], [filters]);
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock>
-                {expander}
-                <span className="track-description" onClick={changeExpanded}>{children}</span>
-                <span>{" "}</span>
-                <DraggableEffect effect={effect} path={path}/>
-            </TreeBlock>
+            {leftBlock}
             <TimelineBlock fixed>
                 <span className="track-description _desc">
                     {filters?.length >= 0 && (

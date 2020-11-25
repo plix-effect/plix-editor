@@ -15,24 +15,22 @@ import {ArrayElementsTrack} from "./ArrayElementsTrack";
 import {EffectTypeTrack} from "./EffectTypeTrack";
 import {DraggableEffect} from "./editor/DraggableEffect";
 import {EffectPreview} from "./editor/EffectPreview";
+import {DragType} from "../DragContext";
 
 export interface ChainEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
     path: EditorPath,
-    changeExpanded: () => void,
     expanded: boolean,
-    expander: ReactNode,
-    children: ReactNode,
     onChange: (type: null|"alias"|"constructor", value?: string) => void,
+    leftBlock?: ReactNode,
 }
 export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo((
     {
+        leftBlock,
         effect,
         effect: [enabled, effectId, params, filters],
         path,
         expanded,
-        expander,
-        changeExpanded,
         children,
         onChange,
     }
@@ -69,14 +67,7 @@ export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo((
 
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock>
-                {expander}
-                <span className="track-description" onClick={changeExpanded}>{children}</span>
-                <span>{" "}</span>
-                <DraggableEffect effect={effect} path={path}/>
-                <span>{" "}</span>
-                <span className="track-description _desc">({paramEffects.length})</span>
-            </TreeBlock>
+            {leftBlock}
             <TimelineBlock fixed>
                 {(valueFilters?.length > 0) && (
                     <>
@@ -90,7 +81,7 @@ export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo((
 
             <EffectTypeTrack onChange={onChange} effect={effect} />
 
-            <ArrayElementsTrack value={paramEffects} type="effect" path={paramEffectsPath}/>
+            <ArrayElementsTrack value={paramEffects} type="effect" path={paramEffectsPath} canDelete/>
 
             <Track>
                 <TreeBlock type="description">

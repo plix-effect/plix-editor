@@ -80,7 +80,7 @@ export const InlineFilterTypeEditor: FC<InlineSelectEditorProps> = ({filter, onC
                     {
                         type: "value",
                         value: "A"+data.value,
-                        label: data.name,
+                        label: <span><i className="fa fa-link"/> {data.name}</span>,
                         filterType: "ALIAS"
                     }
                 ))
@@ -109,7 +109,7 @@ export const InlineFilterTypeEditor: FC<InlineSelectEditorProps> = ({filter, onC
                 const alias = filter as PlixFilterAliasJsonData;
                 return {
                     value: "A"+alias[2],
-                    label: alias[2],
+                    label: <span><i className="fa fa-link"/> {alias[2]}</span>,
                     filterType: "ALIAS",
                     type: "value"
                 }

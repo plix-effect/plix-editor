@@ -1,4 +1,4 @@
-import React, {ChangeEvent, FC, MutableRefObject, useCallback, useEffect, useRef, useState} from "react";
+import React, {ChangeEvent, FC, MutableRefObject, ReactNode, useCallback, useEffect, useRef, useState} from "react";
 import "./InlineEditor.scss"
 import Select from 'react-select';
 import {useInlineEditableContainer} from "../../../../../use/useInlineEditableContainer";
@@ -8,11 +8,11 @@ export type InlineSelectOption = InlineSelectOptionValue|InlineSelectOptionGroup
 export type InlineSelectOptionValue = {
     value: string,
     type: "value"
-    label: string
+    label: ReactNode
 }
 export type InlineSelectOptionGroup = {
     type: "group"
-    label: string
+    label: ReactNode
     options: InlineSelectOptionValue[]
 }
 

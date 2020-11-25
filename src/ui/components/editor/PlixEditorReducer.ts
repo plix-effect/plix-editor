@@ -63,8 +63,8 @@ export const PlixEditorReducer: Reducer<PlixEditorState, PlixEditorAction> = (st
         );
         case "insert": return changeState(
             state,
-            new InsertIndexHistoryItem(
-                action.value,
+            new InsertIndexValuesHistoryItem(
+                action.values,
                 toHistoryPath(state.track, action.path),
                 action.index
             )
@@ -203,33 +203,35 @@ class DeleteIndexHistoryItem<T> implements PlixEditorHistoryItem {
 
     apply(track: PlixJsonData){
         if (this.index < 0) return track;
-        return deleteIndexWIthPath(track, this.path, this.index);
+        return deleteIndexValuesWIthPath(track, this.path, this.index, 1);
     }
     revert(track: PlixJsonData){
         if (this.index < 0) return track;
-        return insertIndexValueWIthPath(track, this.path, this.index, this.oldValue);
+        return insertIndexValuesWIthPath(track, this.path, this.index, [this.oldValue]);
     }
     merge() {
         return null;
     }
 }
 
-class InsertIndexHistoryItem<T> implements PlixEditorHistoryItem {
+class InsertIndexValuesHistoryItem<T> implements PlixEditorHistoryItem {
     public readonly timestamp = performance.now();
+    public readonly count: number;
 
     constructor(
-        private readonly value: T,
+        private readonly values: readonly T[],
         public readonly path: HistoryPath,
         public readonly index: number,
     ){
         this.timestamp = performance.now();
+        this.count = values.length;
     }
     apply(track: PlixJsonData){
-        return insertIndexValueWIthPath(track, this.path, this.index, this.value);
+        return insertIndexValuesWIthPath(track, this.path, this.index, this.values);
 
     }
     revert(track: PlixJsonData){
-        return deleteIndexWIthPath(track, this.path, this.index);
+        return deleteIndexValuesWIthPath(track, this.path, this.index, this.count);
     }
     merge() {
         return null;
@@ -280,7 +282,7 @@ function pushWIthPath<T>(state: T, path: HistoryPath, value: any){
     return reducePath(pushWIthPath, state, path, value);
 }
 
-function insertIndexValueWIthPath<T>(state: T, path: HistoryPath, index: number, value: any){
+function insertIndexValuesWIthPath<T>(state: T, path: HistoryPath, index: number, values: readonly any[]){
     if (state === undefined) {
         if (typeof path[0] === "string") state = {} as unknown as T;
         if (typeof path[0] === "number") state = [] as unknown as T;
@@ -289,31 +291,32 @@ function insertIndexValueWIthPath<T>(state: T, path: HistoryPath, index: number,
         if (Array.isArray(state)) {
             const stateCopy = state.slice(0);
             const arrayKeys = settleKeys(state as unknown as any[]).slice(0);
-            stateCopy.splice(index, 0, value);
-            arrayKeys.splice(index, 0, generateKeyId());
+            stateCopy.splice(index, 0, ...values);
+            arrayKeys.splice(index, 0, ...values.map(() => generateKeyId()));
             keyMap.set(stateCopy, arrayKeys);
             return stateCopy;
         }
         return state;
     }
-    return reducePath(insertIndexValueWIthPath, state, path, index, value);
+    return reducePath(insertIndexValuesWIthPath, state, path, index, values);
 }
 
-function deleteIndexWIthPath<T>(state: T, path: HistoryPath, index: number){
+function deleteIndexValuesWIthPath<T>(state: T, path: HistoryPath, index: number, count: number){
+    if (count === 0) return;
     if (state === undefined) return;
     if (path.length === 0) {
         if (Array.isArray(state)) {
             if (state.length <= index) return state;
             const stateCopy = state.slice(0);
             const arrayKeys = settleKeys(state as unknown as any[]).slice(0);
-            stateCopy.splice(index, 1);
-            arrayKeys.splice(index, 1);
+            stateCopy.splice(index, count);
+            arrayKeys.splice(index, count);
             keyMap.set(stateCopy, arrayKeys);
             return stateCopy;
         }
         return state;
     }
-    return reducePath(deleteIndexWIthPath, state, path, index);
+    return reducePath(deleteIndexValuesWIthPath, state, path, index, count);
 }
 
 function popWIthPath<T>(state: T, path: HistoryPath){

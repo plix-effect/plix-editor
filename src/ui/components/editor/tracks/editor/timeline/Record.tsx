@@ -14,31 +14,34 @@ export interface RecordProps {
     path: EditorPath,
 }
 export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, link, start, recordDuration]}) => {
-    const {duration} = useContext(ScaleDisplayContext);
+    const {duration} = useContext(ScaleDisplayContext) ?? {duration: 1};
     const dragRef = useContext(DragContext);
-    const {dispatch} = useContext(TrackContext);
+    const {dispatch} = useContext(TrackContext) || {};
     const recordRef = useRef<HTMLDivElement>()
 
     const onDragStartName = useCallback((event: DragEvent<HTMLDivElement>) => {
         dragRef.current = {
             effect: [true, null, link, []],
-            recordMove: {
-                record: record,
-                deleteAction: DeleteAction(path)
-            },
+            typedValue: {type: "effect", value: [true, null, link, []]},
+            effectAlias: link,
+            record: record,
+            deleteAction: DeleteAction(path),
             offsetX: event.nativeEvent.offsetX,
             offsetY: event.nativeEvent.offsetY,
         }
         event.dataTransfer.setDragImage(new Image(), 0, 0);
         event.dataTransfer.effectAllowed = 'all';
-        recordRef.current.classList.add("_edit");
+        recordRef.current.classList.add("_drag");
     }, [record, path]);
 
-    const onDragName = useCallback((event: DragEvent<HTMLDivElement>) => {
-        recordRef.current.classList.toggle("_move", !event.ctrlKey);
+    const onDragName = useCallback(() => {
+        const dropEffect = dragRef.current?.dropEffect
+        recordRef.current.classList.remove("_move", "_copy", "_link", "_none");
+        if (dropEffect) recordRef.current.classList.add(`_${dropEffect}`);
     }, [record, path]);
 
     const onClick = useCallback((event: MouseEvent<HTMLDivElement>) => {
+        if (!dispatch) return;
         if (event.altKey) {
             return dispatch(DeleteValueAction(path.slice(0, -1), record));
         }
@@ -55,7 +58,7 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
         };
         event.dataTransfer.setDragImage(new Image(), 0, 0);
         event.dataTransfer.effectAllowed = 'move';
-        recordRef.current.classList.add("_edit", "_move");
+        recordRef.current.classList.add("_drag", "_move");
     }, [record]);
 
     const onDragStartRight = useCallback((event: DragEvent<HTMLDivElement>) => {
@@ -66,11 +69,11 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
         };
         event.dataTransfer.setDragImage(new Image(), 0, 0);
         event.dataTransfer.effectAllowed = 'move';
-        recordRef.current.classList.add("_edit", "_move");
+        recordRef.current.classList.add("_drag", "_move");
     }, [record]);
 
     const onDragEndAll = useCallback((event: DragEvent<HTMLDivElement>) => {
-        recordRef.current.classList.remove("_edit", "_move");
+        recordRef.current.classList.remove("_drag", "_move", "_copy", "_link", "_none");
     }, [record]);
 
     return useMemo(() => {

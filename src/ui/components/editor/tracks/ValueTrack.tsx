@@ -1,4 +1,4 @@
-import React, {FC, memo, ReactNode} from "react";
+import React, {FC, memo, MouseEventHandler, ReactNode, useMemo, DragEvent, DragEventHandler} from "react";
 import {EditorPath} from "../../../types/Editor";
 import {FilterTrack} from "./FilterTrack";
 import {ValueUnknownTrack} from "./ValueUnknownTrack";
@@ -6,15 +6,25 @@ import {ArrayTrack} from "./ArrayTrack";
 import {EffectTrack} from "./EffectTrack";
 import {ColorTrack} from "./ColorTrack";
 import {NumberTrack} from "./NumberTrack";
+import {DeleteAction} from "../PlixEditorReducerActions";
+import {DragType} from "../DragContext";
+import {TreeBlockProps} from "../track-elements/TreeBlock";
 
 export interface ValueTrackProps {
     value: any,
     type: string,
     children?: ReactNode
     description?: ReactNode
-    path: EditorPath
+    path: EditorPath,
+    canDelete?: boolean
+    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler
 }
-export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, children, path}) => {
+export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, children, path, canDelete, onDragOverItem}) => {
+
+    const deleteAction = useMemo(() => {
+        return canDelete ? DeleteAction(path) : undefined
+    }, [canDelete]);
+
     if (type.startsWith("array:")) {
         return (
             <ArrayTrack path={path} value={value} type={type.substring(6)}>
@@ -32,7 +42,7 @@ export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, 
     }
     if (type === "effect") {
         return (
-            <EffectTrack effect={value} path={path}>
+            <EffectTrack effect={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction}>
                 {children}
             </EffectTrack>
         );
@@ -50,7 +60,7 @@ export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, 
                 <span>{children}</span>
             </NumberTrack>
         )
-    };
+    }
     return <ValueUnknownTrack value={value} path={path} >
         <span>{children}</span>
     </ValueUnknownTrack>

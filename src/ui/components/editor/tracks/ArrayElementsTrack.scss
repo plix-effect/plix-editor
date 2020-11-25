@@ -1,30 +1,20 @@
 .array-track-drop-target {
     position: absolute;
+    z-index: 1;
+    //pointer-events: none;
     display: none;
-    top: -2;
-    bottom: 70%;
-    left: -20px;
+    height: 10px;
+    left: 0;
     right: 0;
-    ._drop-target & {
+    background-color: rgba(255,255,255,0.5);
+    &._drop-target {
         display: block;
     }
     &._top {
-        background-color: rgba(255,0,0,0.5);
-        top: -2;
-        bottom: 75%;
-    }
-    &._center {
-        background-color: rgba(0,255,0,0.5);
-        top: 25%;
-        bottom: 25%;
+        top: -5px;
     }
     &._bottom {
-        background-color: rgba(0,0,255,0.5);
-        top: 75%;
-        bottom: -1px;
-    }
-
-    &:hover {
-        background-color: yellow;
+        bottom: -5px;
+        pointer-events: none;
     }
 }
