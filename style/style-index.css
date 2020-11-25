@@ -130,6 +130,39 @@ button.btn.track-header-icon-button {
       border-bottom: 1px solid #444;
       content: ""; }
 
+.track-timeline-block {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  height: 40px;
+  margin: 1px 0 1px 0; }
+  .track-timeline-block .track-timeline-block-content {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding-left: 5px;
+    width: max-content; }
+    .track-timeline-block .track-timeline-block-content._fixed {
+      position: sticky;
+      display: inline-flex;
+      width: max-content;
+      left: 0; }
+  .track-timeline-block._default {
+    border-top: 1px solid #444;
+    border-bottom: 1px solid #444;
+    background-color: #222; }
+  .track-timeline-block._description {
+    height: 23px; }
+  .track-timeline-block._timeline {
+    height: 40px;
+    border-top: 1px solid #444;
+    border-bottom: 1px solid #444;
+    border-right: 1px solid #444;
+    background-color: #222;
+    width: max-content; }
+    .track-timeline-block._timeline .track-timeline-block-content {
+      padding-left: 0; }
+
 .track-tree-block {
   box-sizing: border-box;
   padding-left: 5px;
@@ -169,39 +202,13 @@ button.btn.track-header-icon-button {
     background-color: #222;
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px; }
-
-.track-timeline-block {
-  box-sizing: border-box;
-  display: flex;
-  width: 100%;
-  height: 40px;
-  margin: 1px 0 1px 0; }
-  .track-timeline-block .track-timeline-block-content {
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    padding-left: 5px;
-    width: max-content; }
-    .track-timeline-block .track-timeline-block-content._fixed {
-      position: sticky;
-      display: inline-flex;
-      width: max-content;
-      left: 0; }
-  .track-timeline-block._default {
-    border-top: 1px solid #444;
-    border-bottom: 1px solid #444;
-    background-color: #222; }
-  .track-timeline-block._description {
-    height: 23px; }
-  .track-timeline-block._timeline {
-    height: 40px;
-    border-top: 1px solid #444;
-    border-bottom: 1px solid #444;
-    border-right: 1px solid #444;
-    background-color: #222;
-    width: max-content; }
-    .track-timeline-block._timeline .track-timeline-block-content {
-      padding-left: 0; }
+  .track-tree-block._drag {
+    outline: 2px solid #888; }
+  .track-tree-block._move {
+    background-color: transparent;
+    color: transparent; }
+    .track-tree-block._move > * {
+      opacity: 0; }
 
 .track-expander {
   width: 20px;
@@ -248,6 +255,7 @@ button.btn.track-header-icon-button {
     padding-left: 5px; }
 
 .inline-select-editor {
+  display: inline-block;
   margin: 0; }
   .inline-select-editor > div.form-control {
     background: transparent;
@@ -277,27 +285,19 @@ button.btn.track-header-icon-button {
 
 .array-track-drop-target {
   position: absolute;
+  z-index: 1;
   display: none;
-  top: -2;
-  bottom: 70%;
-  left: -20px;
-  right: 0; }
-  ._drop-target .array-track-drop-target {
+  height: 10px;
+  left: 0;
+  right: 0;
+  background-color: rgba(255, 255, 255, 0.5); }
+  .array-track-drop-target._drop-target {
     display: block; }
   .array-track-drop-target._top {
-    background-color: rgba(255, 0, 0, 0.5);
-    top: -2;
-    bottom: 75%; }
-  .array-track-drop-target._center {
-    background-color: rgba(0, 255, 0, 0.5);
-    top: 25%;
-    bottom: 25%; }
+    top: -5px; }
   .array-track-drop-target._bottom {
-    background-color: rgba(0, 0, 255, 0.5);
-    top: 75%;
-    bottom: -1px; }
-  .array-track-drop-target:hover {
-    background-color: yellow; }
+    bottom: -5px;
+    pointer-events: none; }
 
 .color-view-block {
   height: 12px;
@@ -353,10 +353,10 @@ input[type="color"].full-size-color-picker {
   width: 0;
   height: 100%;
   position: absolute;
-  background-color: white;
+  background-color: #666;
   overflow: hidden; }
   .timeline-editor-dummy._unavailable {
-    background-color: red; }
+    background-color: #c00; }
 
 .timeline-editor-grid-canvas {
   position: absolute;
@@ -369,12 +369,14 @@ input[type="color"].full-size-color-picker {
   top: 0;
   bottom: 0;
   overflow: hidden; }
-  .timeline-record._edit {
-    outline: none; }
-  .timeline-record._move {
-    outline: 2px solid rgba(255, 255, 255, 0.7); }
-    .timeline-record._move .timeline-record-name {
-      opacity: 0; }
+  .timeline-record._drag .timeline-record-name {
+    border-style: dashed;
+    border-color: rgba(255, 255, 255, 0.7); }
+  .timeline-record._copy .timeline-record-name {
+    border-style: dashed; }
+  .timeline-record._move .timeline-record-name {
+    background-color: transparent !important;
+    color: transparent; }
 
 .timeline-record-name {
   font-size: 10pt;

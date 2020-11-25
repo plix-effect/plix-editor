@@ -26,7 +26,7 @@ onmessage = (event) => {
     const parseData = (0,_plix_effect_core__WEBPACK_IMPORTED_MODULE_0__.default)(render, track.effects, track.filters, _plix_effect_core_effects__WEBPACK_IMPORTED_MODULE_2__, _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_3__);
     const effectKeys = Object.keys(parseData.effectsMap).sort();
     const filterKeys = Object.keys(parseData.filtersMap).sort();
-    self.postMessage([effectKeys, filterKeys], null);
+    self.postMessage([effectKeys, filterKeys], []);
     const effect = parseData.effect;
     const colorMap = new Uint8ClampedArray(width * height * 4);
     for (let h = 0; h < height; h++) {
