@@ -67281,10 +67281,10 @@ const GroupEffectsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effects
             effect !== undefined && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_DisplayEffect__WEBPACK_IMPORTED_MODULE_9__.DisplayEffect, { effect: effect }),
                 "\u00A0",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", { style: { margin: 0 }, onSubmit: onSubmit },
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { ref: inputRef, type: "text", placeholder: "prefab name", value: name, onChange: onEditName }),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", { style: { margin: 0 }, onSubmit: onSubmit, onReset: clearEffect },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { autoFocus: true, ref: inputRef, type: "text", placeholder: "prefab name", value: name, onChange: onEditName }),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { type: "submit", onClick: add, disabled: !name || name in effectsMap }, "add"),
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { type: "button", onClick: clearEffect }, "cancel"))))),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { type: "reset" }, "cancel"))))),
         aliasesList.map(({ value, path, name }) => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(AliasEffectTrack, { path: path, value: value, name: name, key: name })))));
 });
 const AliasEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, path, name }) => {
@@ -67423,16 +67423,16 @@ const GroupFiltersTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ filters
             filter !== undefined && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_DisplayFilter__WEBPACK_IMPORTED_MODULE_8__.DisplayFilter, { filter: filter }),
                 "\u00A0",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", { style: { margin: 0 }, onSubmit: onSubmit },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", { style: { margin: 0 }, onSubmit: onSubmit, onReset: clearFilter },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { ref: inputRef, type: "text", placeholder: "prefab name", value: name, onChange: onEditName }),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { type: "submit", onClick: add, disabled: !name || name in filtersMap }, "add"),
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { type: "button", onClick: clearFilter }, "cancel"))))),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { type: "reset" }, "cancel"))))),
         aliasesList.map(alias => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(AliasFilterTrack, { name: alias.name, path: alias.path, key: alias.name, value: alias.value }))),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_4__.TreeBlock, { type: "description" }),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_5__.TimelineBlock, { fixed: true, type: "description" },
                 "Add new filter prefab:",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { type: "text", placeholder: "prefab name", value: name, onChange: onEditName }),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { autoFocus: true, type: "text", placeholder: "prefab name", value: name, onChange: onEditName }),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { onClick: add, disabled: !name || name in filtersMap }, "add")))));
 });
 const defaultFilter = null;
