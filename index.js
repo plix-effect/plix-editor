@@ -4430,7 +4430,7 @@ function parseRender(effectData, effectsMapData, filtersMapData, effectConstruct
                 throw new Error("circular effect alias: " + name);
             parsedEffectsNames.add(name);
             var effectData = effectsMapData[name];
-            if (!effectData)
+            if (effectData === undefined)
                 throw new Error("unknown effect alias: " + name);
             var parsedEffect = parseEffect_1.default(effectData, parserData);
             effectsMap[name] = parsedEffect;
@@ -4444,7 +4444,7 @@ function parseRender(effectData, effectsMapData, filtersMapData, effectConstruct
                 throw new Error("circular filter alias: " + name);
             parsedFiltersNames.add(name);
             var filterData = filtersMapData[name];
-            if (!filterData)
+            if (filterData === undefined)
                 throw new Error("unknown filter alias: " + name);
             var parsedFilter = parseFilter_1.default(filterData, parserData);
             filtersMap[name] = parsedFilter;
@@ -67363,7 +67363,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
 /* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
 /* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
-/* harmony import */ var _editor_inline_InlineJsonEditor__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./editor/inline/InlineJsonEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineJsonEditor.tsx");
+/* harmony import */ var _editor_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./editor/inline/InlineNumberEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineNumberEditor.tsx");
 
 
 
@@ -67379,7 +67379,7 @@ const NumberTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, childr
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, null, children),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineJsonEditor__WEBPACK_IMPORTED_MODULE_6__.InlineJsonEditor, { inputType: "number", value: value, onChange: onChange }))));
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_6__.InlineNumberEditor, { value: value, onChange: onChange }))));
 });
 
 
@@ -67410,7 +67410,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
 /* harmony import */ var _tracks_scss__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./tracks.scss */ "./src/ui/components/editor/tracks/tracks.scss");
 /* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
-/* harmony import */ var _editor_inline_InlineJsonEditor__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./editor/inline/InlineJsonEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineJsonEditor.tsx");
+/* harmony import */ var _editor_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./editor/inline/InlineNumberEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineNumberEditor.tsx");
 
 
 
@@ -67472,17 +67472,17 @@ const TimelineEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ leftB
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, null,
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description" }, "Cycle")),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineJsonEditor__WEBPACK_IMPORTED_MODULE_10__.InlineJsonEditor, { inputType: "number", value: params[1], onChange: onChangeCycle }))),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_10__.InlineNumberEditor, { value: params[1], onChange: onChangeCycle }))),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, null,
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description" }, "Grid")),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineJsonEditor__WEBPACK_IMPORTED_MODULE_10__.InlineJsonEditor, { inputType: "number", value: params[2], onChange: onChangeGrid }))),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_10__.InlineNumberEditor, { value: params[2], onChange: onChangeGrid }))),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, null,
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description" }, "Offset")),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineJsonEditor__WEBPACK_IMPORTED_MODULE_10__.InlineJsonEditor, { inputType: "number", value: params[3], onChange: onChangeOffset }))),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_10__.InlineNumberEditor, { value: params[3], onChange: onChangeOffset }))),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_6__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect", deleteAction: clearFilters }, "Filters")));
 });
 
@@ -67565,6 +67565,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
 /* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
 /* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+/* harmony import */ var _editor_inline_InlineJsonEditor__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./editor/inline/InlineJsonEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineJsonEditor.tsx");
+
 
 
 
@@ -67579,7 +67581,7 @@ const ValueUnknownTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, 
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, null, children),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null))));
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineJsonEditor__WEBPACK_IMPORTED_MODULE_6__.InlineJsonEditor, { value: value, onChange: onChange }))));
 });
 
 
@@ -68352,12 +68354,12 @@ const InlineFilterTypeEditor = ({ filter, onChange }) => {
 
 /***/ }),
 
-/***/ "./src/ui/components/editor/tracks/editor/inline/InlineJsonEditor.tsx":
-/*!****************************************************************************!*\
-  !*** ./src/ui/components/editor/tracks/editor/inline/InlineJsonEditor.tsx ***!
-  \****************************************************************************/
+/***/ "./src/ui/components/editor/tracks/editor/inline/InlineInputEditor.tsx":
+/*!*****************************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/editor/inline/InlineInputEditor.tsx ***!
+  \*****************************************************************************/
 /*! namespace exports */
-/*! export InlineJsonEditor [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export InlineInputEditor [provided] [no usage info] [missing usage info prevents renaming] */
 /*! other exports [not provided] [no usage info] */
 /*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
@@ -68365,7 +68367,7 @@ const InlineFilterTypeEditor = ({ filter, onChange }) => {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "InlineJsonEditor": () => /* binding */ InlineJsonEditor
+/* harmony export */   "InlineInputEditor": () => /* binding */ InlineInputEditor
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _InlineEditor_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./InlineEditor.scss */ "./src/ui/components/editor/tracks/editor/inline/InlineEditor.scss");
@@ -68373,15 +68375,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const InlineJsonEditor = ({ value, onChange, inputType = "text" }) => {
-    const [inputValue, setInputValue] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(() => {
-        return JSON.stringify(value);
-    });
+const InlineInputEditor = ({ value, onChange, inputParams = {} }) => {
+    const [inputValue, setInputValue] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(value);
     const inputRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const submit = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
         try {
-            const newValue = JSON.parse(inputValue);
-            onChange(newValue);
+            onChange(inputValue);
         }
         catch (_a) { }
     }, [onChange, inputValue]);
@@ -68399,12 +68398,75 @@ const InlineJsonEditor = ({ value, onChange, inputType = "text" }) => {
         setEditMode(false);
     }, [submit]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
-        setInputValue(JSON.stringify(value));
+        setInputValue(value);
     }, [value]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", { ref: formRef, onSubmit: onSubmitForm, className: "inline-input-editor" }, editMode ?
-        (react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { className: "form-control", ref: inputRef, value: inputValue, autoFocus: true, type: inputType, onChange: onChangeInput }))
+        (react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", Object.assign({}, inputParams, { className: "form-control", ref: inputRef, value: inputValue, autoFocus: true, onChange: onChangeInput })))
         :
-            (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "inline-editor-span", title: "Click to edit", onClick: toggleEditMode }, JSON.stringify(value)))));
+            (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "inline-editor-span", title: "Click to edit", onClick: toggleEditMode }, value))));
+};
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/tracks/editor/inline/InlineJsonEditor.tsx":
+/*!****************************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/editor/inline/InlineJsonEditor.tsx ***!
+  \****************************************************************************/
+/*! namespace exports */
+/*! export InlineJsonEditor [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "InlineJsonEditor": () => /* binding */ InlineJsonEditor
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _InlineEditor_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./InlineEditor.scss */ "./src/ui/components/editor/tracks/editor/inline/InlineEditor.scss");
+/* harmony import */ var _InlineInputEditor__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./InlineInputEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineInputEditor.tsx");
+
+
+
+const InlineJsonEditor = ({ value, onChange }) => {
+    const stringVal = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return JSON.stringify(value);
+    }, [value]);
+    const onChangeValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((newVal) => {
+        const newJson = JSON.parse(newVal);
+        onChange(newJson);
+    }, [onChange]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_InlineInputEditor__WEBPACK_IMPORTED_MODULE_2__.InlineInputEditor, { value: stringVal, onChange: onChangeValue }));
+};
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/tracks/editor/inline/InlineNumberEditor.tsx":
+/*!******************************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/editor/inline/InlineNumberEditor.tsx ***!
+  \******************************************************************************/
+/*! namespace exports */
+/*! export InlineNumberEditor [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "InlineNumberEditor": () => /* binding */ InlineNumberEditor
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _InlineEditor_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./InlineEditor.scss */ "./src/ui/components/editor/tracks/editor/inline/InlineEditor.scss");
+/* harmony import */ var _InlineInputEditor__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./InlineInputEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineInputEditor.tsx");
+
+
+
+const InlineNumberEditor = ({ value, onChange, step = "any" }) => {
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_InlineInputEditor__WEBPACK_IMPORTED_MODULE_2__.InlineInputEditor, { value: value, onChange: onChange, inputParams: { type: "number", step: step } }));
 };
 
 
