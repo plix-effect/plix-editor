@@ -21,6 +21,8 @@ export const DisplayFilter: FC<DisplayFilterProps> = memo(({filter}) => {
         return (
             <span className={cn("track-description _type", {"_disabled": !enabled})}>
                 {meta.name}
+                {id === "FChain" && <> ({params[0]?.length})</>}
+                {id === "BlendFilters" && <> ({params[0]?.length})</>}
             </span>
         );
     } else {

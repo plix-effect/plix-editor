@@ -32,13 +32,14 @@ export interface TreeBlockFilterProps {
 export const TreeBlockFilter: FC<TreeBlockFilterProps> = memo(({dragValue, setExpanded, filter, path, deleteAction, clearAction, expander, changeExpanded, children, onDragOverItem}) => {
     const {dispatch} = useContext(TrackContext);
 
-    const filterIsChain = filter && filter[1] === "FChain";
+    const id = filter?.[1];
+    const filterIsContainer = id === "FChain" || id === "BlendFilters";
 
     const title: string|undefined = useMemo(() => {
         if (!deleteAction && !dragValue) return undefined;
         let title = "Ctrl + Click = disable\n"
         if (deleteAction) title += "Alt + Click = delete\n";
-        if (filterIsChain) title += "Shift + Click = add filter\n";
+        if (filterIsContainer) title += "Shift + Click = add filter\n";
         if (dragValue) {
             title += "Draggable\n"
         }
@@ -53,7 +54,7 @@ export const TreeBlockFilter: FC<TreeBlockFilterProps> = memo(({dragValue, setEx
             if (filter) dispatch(EditValueAction([...path, 0], !filter[0]));
         }
         if (!event.ctrlKey && !event.altKey  && event.shiftKey) {
-            if (filterIsChain) {
+            if (filterIsContainer) {
                 dispatch(PushValueAction([...path, 2, 0], null));
                 setExpanded(true);
             }
