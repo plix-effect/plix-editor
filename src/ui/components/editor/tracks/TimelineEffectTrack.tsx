@@ -12,6 +12,7 @@ import {TrackContext} from "../TrackContext";
 import "./tracks.scss"
 import {EditValueAction} from "../PlixEditorReducerActions";
 import {InlineJsonEditor} from "./editor/inline/InlineJsonEditor";
+import {InlineNumberEditor} from "./editor/inline/InlineNumberEditor";
 
 export interface TimelineEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
@@ -80,7 +81,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({leftBloc
                     </span>
                 </TreeBlock>
                 <TimelineBlock fixed>
-                    <InlineJsonEditor inputType={"number"} value={params[1]} onChange={onChangeCycle}/>
+                    <InlineNumberEditor value={params[1]} onChange={onChangeCycle}/>
                 </TimelineBlock>
             </Track>
 
@@ -91,7 +92,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({leftBloc
                     </span>
                 </TreeBlock>
                 <TimelineBlock fixed>
-                    <InlineJsonEditor inputType={"number"}  value={params[2]} onChange={onChangeGrid}/>
+                    <InlineNumberEditor  value={params[2]} onChange={onChangeGrid}/>
                 </TimelineBlock>
             </Track>
 
@@ -102,7 +103,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({leftBloc
                     </span>
                 </TreeBlock>
                 <TimelineBlock fixed>
-                    <InlineJsonEditor inputType={"number"} value={params[3]} onChange={onChangeOffset}/>
+                    <InlineNumberEditor value={params[3]} onChange={onChangeOffset}/>
                 </TimelineBlock>
             </Track>
 
