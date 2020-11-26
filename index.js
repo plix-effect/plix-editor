@@ -65103,6 +65103,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @plix-effect/core/filters */ "./node_modules/@plix-effect/core/dist/filters/index.js");
 /* harmony import */ var _PlixEditorReducer__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./PlixEditorReducer */ "./src/ui/components/editor/PlixEditorReducer.ts");
 /* harmony import */ var _DragContext__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./DragContext */ "./src/ui/components/editor/DragContext.ts");
+/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+
 
 
 
@@ -65125,9 +65127,13 @@ const defaultTrack = {
 const PlixEditor = () => {
     const dragRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
-        const onDragEnd = () => dragRef.current = null;
-        document.addEventListener("dragend", onDragEnd);
-        return () => document.removeEventListener("dragend", onDragEnd);
+        const clearDragRef = () => dragRef.current = null;
+        document.addEventListener("dragend", clearDragRef);
+        document.addEventListener("drop", clearDragRef);
+        return () => {
+            document.removeEventListener("dragend", clearDragRef);
+            document.removeEventListener("drop", clearDragRef);
+        };
     }, [dragRef]);
     const [{ track, history, historyPosition }, dispatch] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useReducer)(_PlixEditorReducer__WEBPACK_IMPORTED_MODULE_7__.PlixEditorReducer, null, () => {
         const savedTrack = localStorage.getItem("plix_editor_track");
@@ -65148,7 +65154,32 @@ const PlixEditor = () => {
         effectConstructorMap: _plix_effect_core_effects__WEBPACK_IMPORTED_MODULE_5__,
         filterConstructorMap: _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_6__,
     }), [track, dispatch, historyPosition, history]);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-editor" },
+    const onDragOver = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        var _a, _b;
+        const firstItem = (_b = (_a = event.dataTransfer) === null || _a === void 0 ? void 0 : _a.items) === null || _b === void 0 ? void 0 : _b[0];
+        if (!firstItem)
+            return;
+        if (firstItem.kind !== "file" || firstItem.type !== "application/json")
+            return;
+        event.preventDefault();
+    }, []);
+    const onDrop = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        var _a, _b;
+        const firstItem = (_b = (_a = event.dataTransfer) === null || _a === void 0 ? void 0 : _a.items) === null || _b === void 0 ? void 0 : _b[0];
+        if (!firstItem)
+            return;
+        if (firstItem.kind !== "file" || firstItem.type !== "application/json")
+            return;
+        const file = event.dataTransfer.files[0];
+        const reader = new FileReader();
+        reader.addEventListener("load", (event) => {
+            const track = JSON.parse(String(event.target.result));
+            dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.OpenAction)(track));
+        });
+        reader.readAsBinaryString(file);
+        event.preventDefault();
+    }, []);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-editor", onDragOver: onDragOver, onDrop: onDrop },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_DragContext__WEBPACK_IMPORTED_MODULE_8__.DragContext.Provider, { value: dragRef },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackContext__WEBPACK_IMPORTED_MODULE_4__.TrackContext.Provider, { value: trackContextValue },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_divider_SplitTopBottom__WEBPACK_IMPORTED_MODULE_2__.SplitTopBottom, { minTop: 100, minBottom: 200, storageKey: "s1" },
@@ -65192,6 +65223,7 @@ const PlixEditorReducer = (state, action) => {
     switch (action.type) {
         case "undo": return undoState(state);
         case "redo": return redoState(state);
+        case "open": return Object.assign(Object.assign({}, state), { track: action.track, history: [], historyPosition: 0 });
         case "edit": {
             const historyPath = toHistoryPath(state.track, action.path);
             const value = getWIthPath(state.track, historyPath);
@@ -65515,6 +65547,7 @@ function toHistoryPath(track, editorPath) {
 /*! export InsertIndexAction [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export InsertValuesAction [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export MultiAction [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export OpenAction [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export PushValueAction [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export RedoAction [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export UndoAction [provided] [no usage info] [missing usage info prevents renaming] */
@@ -65534,6 +65567,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "InsertIndexAction": () => /* binding */ InsertIndexAction,
 /* harmony export */   "UndoAction": () => /* binding */ UndoAction,
 /* harmony export */   "RedoAction": () => /* binding */ RedoAction,
+/* harmony export */   "OpenAction": () => /* binding */ OpenAction,
 /* harmony export */   "MultiAction": () => /* binding */ MultiAction
 /* harmony export */ });
 const EditValueAction = (path, value) => {
@@ -65594,6 +65628,12 @@ const UndoAction = () => {
 const RedoAction = () => {
     return {
         type: "redo"
+    };
+};
+const OpenAction = (track) => {
+    return {
+        type: "open",
+        track
     };
 };
 const MultiAction = (actions) => {
