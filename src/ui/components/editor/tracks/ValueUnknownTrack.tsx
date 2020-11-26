@@ -13,9 +13,10 @@ import {Track} from "../../timeline/Track";
 import {EditorPath} from "../../../types/Editor";
 import {createDefaultDragTypeBehavior, TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
-import {MultiActionType} from "../PlixEditorReducerActions";
+import {EditValueAction, MultiActionType} from "../PlixEditorReducerActions";
 import {TrackContext} from "../TrackContext";
 import {DragType} from "../DragContext";
+import {InlineJsonEditor} from "./editor/inline/InlineJsonEditor";
 
 export interface ValueUnknownTrackProps {
     type: string,
@@ -28,6 +29,10 @@ export interface ValueUnknownTrackProps {
 }
 export const ValueUnknownTrack: FC<ValueUnknownTrackProps> = memo(({type, value, children, path, deleteAction, clearAction, onDragOverItem}) => {
     const {dispatch} = useContext(TrackContext);
+
+    const onChange = useCallback((value) => {
+        dispatch(EditValueAction(path, value));
+    }, [dispatch, path]);
 
     const dragValue: DragType = useMemo<DragType>(() => {
         return {
