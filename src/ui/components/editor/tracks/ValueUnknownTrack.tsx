@@ -24,8 +24,7 @@ export const ValueUnknownTrack: FC<ValueUnknownTrackProps> = memo(({value, child
                 {children}
             </TreeBlock>
             <TimelineBlock fixed>
-                <span/>
-            {/*    TODO*/}
+                <InlineJsonEditor value={value} onChange={onChange}/>
             </TimelineBlock>
         </Track>
     );
