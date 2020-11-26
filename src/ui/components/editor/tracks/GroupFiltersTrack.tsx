@@ -129,10 +129,10 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
                 {filter !== undefined && (<>
                     <DisplayFilter filter={filter}/>
                     &nbsp;
-                    <form style={{margin:0}} onSubmit={onSubmit}>
+                    <form style={{margin:0}} onSubmit={onSubmit} onReset={clearFilter}>
                         <input ref={inputRef} type="text" placeholder="prefab name" value={name} onChange={onEditName} />
                         <button type="submit" onClick={add} disabled={!name || name in filtersMap}>add</button>
-                        <button type="button" onClick={clearFilter}>cancel</button>
+                        <button type="reset">cancel</button>
                     </form>
                 </>)}
 
@@ -145,7 +145,7 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
                 </TreeBlock>
                 <TimelineBlock fixed type="description">
                     Add new filter prefab:
-                    <input type="text" placeholder="prefab name" value={name} onChange={onEditName} />
+                    <input autoFocus type="text" placeholder="prefab name" value={name} onChange={onEditName} />
                     <button onClick={add} disabled={!name || name in filtersMap}>add</button>
                 </TimelineBlock>
             </Track>

@@ -130,10 +130,10 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
                 {effect !== undefined && (<>
                     <DisplayEffect effect={effect}/>
                     &nbsp;
-                    <form style={{margin:0}} onSubmit={onSubmit}>
-                        <input ref={inputRef} type="text" placeholder="prefab name" value={name} onChange={onEditName} />
+                    <form style={{margin:0}} onSubmit={onSubmit} onReset={clearEffect}>
+                        <input autoFocus ref={inputRef} type="text" placeholder="prefab name" value={name} onChange={onEditName} />
                         <button type="submit" onClick={add} disabled={!name || name in effectsMap}>add</button>
-                        <button type="button" onClick={clearEffect}>cancel</button>
+                        <button type="reset">cancel</button>
                     </form>
                 </>)}
 
