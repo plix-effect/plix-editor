@@ -66304,23 +66304,23 @@ const ArrayElementTrack = ({ type, value, path, parentPath, canDelete, index, ca
         if (mode === "link" && allowLink) {
             insertValue = dragData[type + "Link"];
         }
-        if (!insertValue) {
+        if (insertValue === undefined) {
             const baseValue = dragData[type];
             if (baseValue)
                 insertValue = baseValue;
         }
         const typedValue = dragData.typedValue;
-        if (!insertValue && !typedValue)
+        if (insertValue === undefined && !typedValue)
             return setDropTargetVisible(null);
-        if (!insertValue && typedValue.type === type)
+        if (insertValue === undefined && typedValue.type === type)
             insertValue = typedValue.value;
-        if (!insertValue && typedValue.type === "array:" + type)
+        if (insertValue === undefined && typedValue.type === "array:" + type)
             insertValue = typedValue.value;
-        if (!insertValue)
+        if (insertValue === undefined)
             return setDropTargetVisible(null);
         if (!mode)
             return setDropTargetVisible(null);
-        if (mode === "move" && (0,_utils_isObjectContains__WEBPACK_IMPORTED_MODULE_7__.isObjectEqualOrContains)(insertValue, value)) {
+        if (mode === "move" && insertValue !== value && (0,_utils_isObjectContains__WEBPACK_IMPORTED_MODULE_7__.isObjectEqualOrContains)(insertValue, value)) {
             dragData.dropEffect = "none";
             return setDropTargetVisible(null);
         }
@@ -66342,7 +66342,10 @@ const ArrayElementTrack = ({ type, value, path, parentPath, canDelete, index, ca
             return setDropTargetVisible(null);
         };
     }, [path, dispatch]);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_1__.ValueTrack, { type: type, value: value, path: path, canDelete: canDelete, onDragOverItem: onDragOverItemSelf },
+    const deleteAction = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return canDelete ? (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.DeleteAction)(path) : undefined;
+    }, [canDelete, path]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_1__.ValueTrack, { type: type, value: value, path: path, deleteAction: deleteAction, onDragOverItem: onDragOverItemSelf },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "array-track-drop-target _top", ref: dropTargetTopRef }),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "array-track-drop-target _bottom", ref: dropTargetBottomRef }),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { title: "[Alt + Click] = delete" },
@@ -66427,21 +66430,21 @@ const ArrayTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, type, c
         if (mode === "link" && allowLink) {
             dragOverValue = dragData[type + "Link"];
         }
-        if (!dragOverValue) {
+        if (dragOverValue === undefined) {
             const baseValue = dragData[type];
             if (baseValue)
                 dragOverValue = baseValue;
         }
         const typedValue = dragData.typedValue;
-        if (!dragOverValue && !typedValue)
+        if (dragOverValue === undefined && !typedValue)
             return void (dragData.dropEffect = "none");
-        if (!dragOverValue && typedValue.type === type)
+        if (dragOverValue === undefined && typedValue.type === type)
             dragOverValue = typedValue.value;
-        if (!dragOverValue && typedValue.type === "array:" + type) {
+        if (dragOverValue === undefined && typedValue.type === "array:" + type) {
             dragOverValue = typedValue.value;
             replaceArray = true;
         }
-        if (!dragOverValue)
+        if (dragOverValue === undefined)
             return;
         if (value === dragOverValue)
             return;
@@ -66465,8 +66468,12 @@ const ArrayTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, type, c
             return void (dragData.dropEffect = "none");
         };
     }, [path, dispatch, onDragOverItem]);
+    const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        if (event.altKey && deleteAction)
+            dispatch(deleteAction);
+    }, [deleteAction, dispatch]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, { onDragOverItem: onDragOverItemSelf, dragValue: dragValue },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, { onDragOverItem: onDragOverItemSelf, dragValue: dragValue, onClick: onClick },
             expander,
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description", onClick: changeExpanded }, name),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null, " "),
@@ -66563,6 +66570,9 @@ const ChainEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ leftBloc
     const push = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
         dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.PushValueAction)([...path, 2, 0], null));
     }, [path]);
+    const clearFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.EditValueAction)([...path, 3], []);
+    }, [path]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         leftBlock,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
@@ -66578,7 +66588,7 @@ const ChainEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ leftBloc
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { onClick: push }, "[add effect]")),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true, type: "description" })),
         effectData.paramDescriptions.map((paramDesc) => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { value: paramDesc.value, type: paramDesc.type, path: paramDesc.path, key: paramDesc.name, description: paramDesc.description }, paramDesc.name))),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect", key: "filters" }, "Filters")));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect", deleteAction: clearFilters }, "Filters")));
 });
 
 
@@ -66617,14 +66627,57 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const ColorTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, children, path }) => {
+const ColorTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, children, path, deleteAction, onDragOverItem }) => {
     const color = (0,_plix_effect_core__WEBPACK_IMPORTED_MODULE_4__.parseColor)(value, null);
     const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_6__.TrackContext);
     const onChange = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
         dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.EditValueAction)(path, value));
     }, [dispatch, path]);
+    const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        if (event.altKey && deleteAction)
+            dispatch(deleteAction);
+    }, [deleteAction, dispatch]);
+    const dragValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return {
+            typedValue: { type: "color", value: value },
+            deleteAction: deleteAction
+        };
+    }, [value, deleteAction]);
+    const onDragOverItemSelf = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, dragData) => {
+        const originDragHandler = onDragOverItem === null || onDragOverItem === void 0 ? void 0 : onDragOverItem(event, dragData);
+        if (originDragHandler)
+            return originDragHandler;
+        if (!dragData)
+            return;
+        let mode = "none";
+        if (event.ctrlKey && event.shiftKey)
+            mode = "none";
+        else if (event.ctrlKey)
+            mode = "copy";
+        else if (event.shiftKey)
+            mode = dragData.deleteAction ? "move" : "none";
+        else
+            mode = dragData.deleteAction ? "move" : "copy";
+        if (mode === "none")
+            return void (dragData.dropEffect = "none");
+        const typedValue = dragData === null || dragData === void 0 ? void 0 : dragData.typedValue;
+        if (!typedValue || typedValue.type !== "color")
+            return void (dragData.dropEffect = "none");
+        const valueColor = typedValue === null || typedValue === void 0 ? void 0 : typedValue.value;
+        if (!valueColor)
+            return void (dragData.dropEffect = "none");
+        return () => {
+            const changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.EditValueAction)(path, valueColor);
+            if (mode === "move" && value.deleteAction) {
+                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.MultiAction)([changeAction, value.deleteAction]));
+            }
+            else {
+                dispatch(changeAction);
+            }
+        };
+    }, [onDragOverItem, path, dispatch]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, null,
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, { onClick: onClick, onDragOverItem: onDragOverItemSelf, dragValue: dragValue },
             children,
             " ",
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_ColorView__WEBPACK_IMPORTED_MODULE_5__.ColorView, { background: true, color: color })),
@@ -66693,11 +66746,11 @@ const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path,
         };
     }, [effect, alias, deleteAction]);
     const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_3__.TrackContext);
-    const onDragOverItemSelf = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, value) => {
-        const originDragHandler = onDragOverItem === null || onDragOverItem === void 0 ? void 0 : onDragOverItem(event, value);
+    const onDragOverItemSelf = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, dragData) => {
+        const originDragHandler = onDragOverItem === null || onDragOverItem === void 0 ? void 0 : onDragOverItem(event, dragData);
         if (originDragHandler)
             return originDragHandler;
-        if (!value)
+        if (!dragData)
             return;
         let mode = "none";
         if (event.ctrlKey && event.shiftKey)
@@ -66705,31 +66758,31 @@ const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path,
         else if (event.ctrlKey)
             mode = "copy";
         else if (event.shiftKey)
-            mode = value.deleteAction ? "move" : "none";
-        else if (value.effectLink)
+            mode = dragData.deleteAction ? "move" : "none";
+        else if (dragData.effectLink)
             mode = "link";
-        else if (value.effect)
+        else if (dragData.effect)
             mode = "copy";
         if (mode === "none")
-            return void (value.dropEffect = "none");
+            return void (dragData.dropEffect = "none");
         let valueEffect;
-        if (value.effect && mode !== "link") {
-            valueEffect = value.effect;
+        if (dragData.effect && mode !== "link") {
+            valueEffect = dragData.effect;
         }
-        if (!valueEffect && value.effectLink && mode === "link") {
-            valueEffect = value.effectLink;
+        if (valueEffect === undefined && dragData.effectLink && mode === "link") {
+            valueEffect = dragData.effectLink;
         }
-        if (!valueEffect)
-            return void (value.dropEffect = "none");
-        value.dropEffect = mode;
+        if (valueEffect === undefined)
+            return void (dragData.dropEffect = "none");
+        dragData.dropEffect = mode;
         if (effect === valueEffect)
-            return void (value.dropEffect = "none");
+            return void (dragData.dropEffect = "none");
         if (mode === "move") {
             if ((0,_utils_isObjectContains__WEBPACK_IMPORTED_MODULE_15__.isObjectEqualOrContains)(valueEffect, effect))
-                return void (value.dropEffect = "none");
+                return void (dragData.dropEffect = "none");
         }
         if (mode === "link" && valueEffect[2] === alias)
-            return void (value.dropEffect = "none");
+            return void (dragData.dropEffect = "none");
         return () => {
             let changeAction;
             if (mode === "link" && effect !== null && valueEffect !== null) {
@@ -66738,8 +66791,8 @@ const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path,
             else {
                 changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.EditValueAction)(path, valueEffect);
             }
-            if (mode === "move" && value.deleteAction) {
-                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.MultiAction)([changeAction, value.deleteAction]));
+            if (mode === "move" && dragData.deleteAction) {
+                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.MultiAction)([changeAction, dragData.deleteAction]));
             }
             else {
                 dispatch(changeAction);
@@ -66788,6 +66841,9 @@ const AliasEffectTrack = ({ effect, leftBlock, effect: [enabled, , link, filters
     const filtersPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, 3], [path]);
     const effectWithNoFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [enabled, null, link, []], [effect]);
     const valueFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => filters !== null && filters !== void 0 ? filters : [], [filters]);
+    const clearFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.EditValueAction)([...path, 3], []);
+    }, [path]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         leftBlock,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_2__.TimelineBlock, { fixed: true },
@@ -66799,7 +66855,7 @@ const AliasEffectTrack = ({ effect, leftBlock, effect: [enabled, , link, filters
                 " use alias ",
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _link" }, link))),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_EffectTypeTrack__WEBPACK_IMPORTED_MODULE_11__.EffectTypeTrack, { onChange: onChange, effect: effect }),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_4__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect" }, "Filters")));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_4__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect", deleteAction: clearFilters }, "Filters")));
 };
 const ConfigurableEffectTrack = ({ onChange, leftBlock, effect, effect: [enabled, effectId, params, filters], children, path, expanded }) => {
     const { effectConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_3__.TrackContext);
@@ -66822,6 +66878,9 @@ const ConfigurableEffectTrack = ({ onChange, leftBlock, effect, effect: [enabled
     }, [effectId, params]);
     const filtersPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, 3], [path]);
     const valueFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => filters !== null && filters !== void 0 ? filters : [], [filters]);
+    const clearFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.EditValueAction)([...path, 3], []);
+    }, [path]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         leftBlock,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_2__.TimelineBlock, { fixed: true },
@@ -66833,7 +66892,7 @@ const ConfigurableEffectTrack = ({ onChange, leftBlock, effect, effect: [enabled
                 effectData.description)),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_EffectTypeTrack__WEBPACK_IMPORTED_MODULE_11__.EffectTypeTrack, { onChange: onChange, effect: effect }),
         effectData.paramDescriptions.map((paramDesc) => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_4__.ValueTrack, { value: paramDesc.value, type: paramDesc.type, path: paramDesc.path, key: paramDesc.name, description: paramDesc.description }, paramDesc.name))),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_4__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect" }, "Filters")));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_4__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect", deleteAction: clearFilters }, "Filters")));
 };
 
 
@@ -66928,11 +66987,11 @@ const FilterTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ baseExpanded,
             deleteAction: deleteAction
         };
     }, [filter, alias, deleteAction]);
-    const onDragOverItemSelf = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, value) => {
-        const originDragHandler = onDragOverItem === null || onDragOverItem === void 0 ? void 0 : onDragOverItem(event, value);
+    const onDragOverItemSelf = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, dragData) => {
+        const originDragHandler = onDragOverItem === null || onDragOverItem === void 0 ? void 0 : onDragOverItem(event, dragData);
         if (originDragHandler)
             return originDragHandler;
-        if (!value)
+        if (!dragData)
             return;
         let mode = "none";
         if (event.ctrlKey && event.shiftKey)
@@ -66940,35 +66999,35 @@ const FilterTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ baseExpanded,
         else if (event.ctrlKey)
             mode = "copy";
         else if (event.shiftKey)
-            mode = value.deleteAction ? "move" : "none";
-        else if (value.filterLink)
+            mode = dragData.deleteAction ? "move" : "none";
+        else if (dragData.filterLink)
             mode = "link";
-        else if (value.filter)
+        else if (dragData.filter)
             mode = "copy";
         if (mode === "none")
-            return void (value.dropEffect = "none");
+            return void (dragData.dropEffect = "none");
         let valueFilter;
-        if (value.filter && mode !== "link") {
-            valueFilter = value.filter;
+        if (dragData.filter && mode !== "link") {
+            valueFilter = dragData.filter;
         }
-        if (!valueFilter && value.filterLink && mode === "link") {
-            valueFilter = value.filterLink;
+        if (valueFilter === undefined && dragData.filterLink && mode === "link") {
+            valueFilter = dragData.filterLink;
         }
-        if (!valueFilter)
-            return void (value.dropEffect = "none");
-        value.dropEffect = mode;
+        if (valueFilter === undefined)
+            return void (dragData.dropEffect = "none");
+        dragData.dropEffect = mode;
         if (filter === valueFilter)
-            return void (value.dropEffect = "none");
+            return void (dragData.dropEffect = "none");
         if (mode === "move") {
             if ((0,_utils_isObjectContains__WEBPACK_IMPORTED_MODULE_12__.isObjectEqualOrContains)(valueFilter, filter))
-                return void (value.dropEffect = "none");
+                return void (dragData.dropEffect = "none");
         }
         if (mode === "link" && valueFilter[2] === alias)
-            return void (value.dropEffect = "none");
+            return void (dragData.dropEffect = "none");
         return () => {
             let changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.EditValueAction)(path, valueFilter);
-            if (mode === "move" && value.deleteAction) {
-                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.MultiAction)([changeAction, value.deleteAction]));
+            if (mode === "move" && dragData.deleteAction) {
+                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.MultiAction)([changeAction, dragData.deleteAction]));
             }
             else {
                 dispatch(changeAction);
@@ -67401,6 +67460,9 @@ const TimelineEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ leftB
         const newParams = [newRecords, (_b = params[1]) !== null && _b !== void 0 ? _b : 0, (_c = params[2]) !== null && _c !== void 0 ? _c : 1, value !== null && value !== void 0 ? value : 0];
         dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)([...path, 2], newParams));
     }, [path, params, dispatch]);
+    const clearFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)([...path, 3], []);
+    }, [path]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         leftBlock,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { type: "timeline" },
@@ -67421,7 +67483,7 @@ const TimelineEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ leftB
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description" }, "Offset")),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineJsonEditor__WEBPACK_IMPORTED_MODULE_10__.InlineJsonEditor, { inputType: "number", value: params[3], onChange: onChangeOffset }))),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_6__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect" }, "Filters")));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_6__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect", deleteAction: clearFilters }, "Filters")));
 });
 
 
@@ -67449,7 +67511,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EffectTrack__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./EffectTrack */ "./src/ui/components/editor/tracks/EffectTrack.tsx");
 /* harmony import */ var _ColorTrack__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ColorTrack */ "./src/ui/components/editor/tracks/ColorTrack.tsx");
 /* harmony import */ var _NumberTrack__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./NumberTrack */ "./src/ui/components/editor/tracks/NumberTrack.tsx");
-/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
 
 
 
@@ -67457,11 +67518,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-const ValueTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ type, value, description, children, path, canDelete, onDragOverItem }) => {
-    const deleteAction = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
-        return canDelete ? (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.DeleteAction)(path) : undefined;
-    }, [canDelete]);
+const ValueTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ type, value, description, children, path, deleteAction, onDragOverItem }) => {
     if (type.startsWith("array:")) {
         return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ArrayTrack__WEBPACK_IMPORTED_MODULE_3__.ArrayTrack, { path: path, value: value, type: type.substring(6), onDragOverItem: onDragOverItem, deleteAction: deleteAction },
             children,
@@ -67474,7 +67531,7 @@ const ValueTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ type, value, d
         return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_EffectTrack__WEBPACK_IMPORTED_MODULE_4__.EffectTrack, { effect: value, path: path, onDragOverItem: onDragOverItem, deleteAction: deleteAction }, children));
     }
     if (type === "color") {
-        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ColorTrack__WEBPACK_IMPORTED_MODULE_5__.ColorTrack, { value: value, path: path }, children));
+        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ColorTrack__WEBPACK_IMPORTED_MODULE_5__.ColorTrack, { value: value, path: path, onDragOverItem: onDragOverItem, deleteAction: deleteAction }, children));
     }
     if (type === "number") {
         return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_NumberTrack__WEBPACK_IMPORTED_MODULE_6__.NumberTrack, { value: value, path: path },
