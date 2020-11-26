@@ -7,11 +7,11 @@ import { ChromePicker } from 'react-color'
 import {colorToNumber, hslaToRgba, rgbaToNumber} from "@plix-effect/core/color";
 import Popup from "reactjs-popup";
 
-export interface InlineJsonEditorEditorProps {
+export interface InlineColorEditorProps {
     color: any,
     onChange: (color: any) => void
 }
-export const InlineColorEditor: FC<InlineJsonEditorEditorProps> = ({color, onChange}) => {
+export const InlineColorEditor: FC<InlineColorEditorProps> = ({color, onChange}) => {
 
     const hslaColor = useMemo(() => parseColor(color, null), [color]);
     const styleColor = useMemo(() => getStyleColor(hslaColor), [hslaColor]);
