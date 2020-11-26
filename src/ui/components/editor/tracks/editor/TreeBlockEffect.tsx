@@ -31,7 +31,7 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
 
     const onClick: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
         if (event.altKey && deleteAction) dispatch(deleteAction);
-    }, [deleteAction, dispatch])
+    }, [deleteAction, dispatch]);
 
     return (
         <TreeBlock dragValue={dragValue} onClick={onClick} title={title} onDragOverItem={onDragOverItem}>

@@ -55,41 +55,41 @@ export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, filter, pa
         }
     }, [filter, alias, deleteAction]);
 
-    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, value: DragType): void | DragEventHandler => {
-        const originDragHandler = onDragOverItem?.(event, value);
+    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | DragEventHandler => {
+        const originDragHandler = onDragOverItem?.(event, dragData);
         if (originDragHandler) return originDragHandler;
-        if (!value) return;
+        if (!dragData) return;
 
         let mode: "copy"|"move"|"link"|"none" = "none";
         if (event.ctrlKey && event.shiftKey) mode = "link";
         else if (event.ctrlKey) mode = "copy";
-        else if (event.shiftKey) mode = value.deleteAction ? "move" : "none";
-        else if (value.filterLink) mode = "link";
-        else if (value.filter) mode = "copy";
+        else if (event.shiftKey) mode = dragData.deleteAction ? "move" : "none";
+        else if (dragData.filterLink) mode = "link";
+        else if (dragData.filter) mode = "copy";
 
-        if (mode === "none") return void (value.dropEffect = "none");
+        if (mode === "none") return void (dragData.dropEffect = "none");
 
         let valueFilter: PlixFilterJsonData;
 
-        if (value.filter && mode !== "link") {
-            valueFilter = value.filter;
+        if (dragData.filter && mode !== "link") {
+            valueFilter = dragData.filter;
         }
 
-        if (!valueFilter && value.filterLink && mode === "link") {
-            valueFilter = value.filterLink;
+        if (valueFilter === undefined && dragData.filterLink && mode === "link") {
+            valueFilter = dragData.filterLink;
         }
-        if (!valueFilter) return void (value.dropEffect = "none");
-        value.dropEffect = mode;
+        if (valueFilter === undefined) return void (dragData.dropEffect = "none");
+        dragData.dropEffect = mode;
 
-        if (filter === valueFilter) return void (value.dropEffect = "none");
+        if (filter === valueFilter) return void (dragData.dropEffect = "none");
         if (mode === "move") {
-            if (isObjectEqualOrContains(valueFilter, filter)) return void (value.dropEffect = "none");
+            if (isObjectEqualOrContains(valueFilter, filter)) return void (dragData.dropEffect = "none");
         }
-        if (mode === "link" && valueFilter[2] === alias) return void (value.dropEffect = "none");
+        if (mode === "link" && valueFilter[2] === alias) return void (dragData.dropEffect = "none");
         return () => {
             let changeAction = EditValueAction(path, valueFilter);
-            if (mode === "move" && value.deleteAction) {
-                dispatch(MultiAction([changeAction, value.deleteAction]))
+            if (mode === "move" && dragData.deleteAction) {
+                dispatch(MultiAction([changeAction, dragData.deleteAction]))
             } else { // action === "copy" || action === "link"
                 dispatch(changeAction);
             }

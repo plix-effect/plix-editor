@@ -8,7 +8,7 @@ import {TrackContext} from "../TrackContext";
 import {ParseMeta} from "../../../types/ParseMeta";
 import {ValueTrack} from "./ValueTrack";
 import {getArrayKey} from "../../../utils/KeyManager";
-import {PushValueAction} from "../PlixEditorReducerActions";
+import {EditValueAction, PushValueAction} from "../PlixEditorReducerActions";
 
 import "./tracks.scss"
 import {ArrayElementsTrack} from "./ArrayElementsTrack";
@@ -60,7 +60,11 @@ export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo((
     const {dispatch} = useContext(TrackContext);
     const push = useCallback(() => {
         dispatch(PushValueAction([...path, 2, 0], null));
-    }, [path])
+    }, [path]);
+
+    const clearFilters = useMemo(() => {
+        return EditValueAction([...path, 3], []);
+    }, [path]);
 
     return (
         <Track nested expanded={expanded}>
@@ -95,7 +99,7 @@ export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo((
                 </ValueTrack>
             ))}
 
-            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" key="filters">
+            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" deleteAction={clearFilters}>
                 Filters
             </ValueTrack>
         </Track>

@@ -1,4 +1,14 @@
-import React, {DragEvent, DragEventHandler, FC, memo, ReactNode, useCallback, useContext, useMemo} from "react";
+import React, {
+    DragEvent,
+    DragEventHandler,
+    FC,
+    memo,
+    MouseEventHandler,
+    ReactNode,
+    useCallback,
+    useContext,
+    useMemo
+} from "react";
 import {Track} from "../../timeline/Track";
 import {EditorPath} from "../../../types/Editor";
 import {TreeBlock} from "../track-elements/TreeBlock";
@@ -65,19 +75,19 @@ export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [na
             dragOverValue = dragData[type+"Link"]
         }
 
-        if (!dragOverValue) {
+        if (dragOverValue === undefined) {
             const baseValue = dragData[type];
             if (baseValue) dragOverValue = baseValue;
         }
 
         const typedValue = dragData.typedValue;
-        if (!dragOverValue && !typedValue) return void (dragData.dropEffect = "none");
-        if (!dragOverValue && typedValue.type === type) dragOverValue = typedValue.value;
-        if (!dragOverValue && typedValue.type === "array:"+type) {
+        if (dragOverValue === undefined && !typedValue) return void (dragData.dropEffect = "none");
+        if (dragOverValue === undefined && typedValue.type === type) dragOverValue = typedValue.value;
+        if (dragOverValue === undefined && typedValue.type === "array:"+type) {
             dragOverValue = typedValue.value;
             replaceArray = true;
         }
-        if (!dragOverValue) return;
+        if (dragOverValue === undefined) return;
 
         if (value === dragOverValue) return;
         if (mode === "move" && isObjectEqualOrContains(dragOverValue, value)) {
@@ -101,11 +111,13 @@ export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [na
     }, [path, dispatch, onDragOverItem]);
 
 
-    // todo: onDragOverItem, add item on hover;
+    const onClick: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        if (event.altKey && deleteAction) dispatch(deleteAction);
+    }, [deleteAction, dispatch]);
 
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock onDragOverItem={onDragOverItemSelf} dragValue={dragValue}>
+            <TreeBlock onDragOverItem={onDragOverItemSelf} dragValue={dragValue} onClick={onClick}>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>{name}</span>
                 <span>{" "}</span>

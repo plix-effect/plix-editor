@@ -1,4 +1,4 @@
-import React, {FC, memo, MouseEventHandler, ReactNode, useMemo, DragEvent, DragEventHandler} from "react";
+import React, {FC, memo, ReactNode, DragEvent, DragEventHandler} from "react";
 import {EditorPath} from "../../../types/Editor";
 import {FilterTrack} from "./FilterTrack";
 import {ValueUnknownTrack} from "./ValueUnknownTrack";
@@ -6,7 +6,7 @@ import {ArrayTrack} from "./ArrayTrack";
 import {EffectTrack} from "./EffectTrack";
 import {ColorTrack} from "./ColorTrack";
 import {NumberTrack} from "./NumberTrack";
-import {DeleteAction} from "../PlixEditorReducerActions";
+import {MultiActionType} from "../PlixEditorReducerActions";
 import {DragType} from "../DragContext";
 
 export interface ValueTrackProps {
@@ -15,14 +15,10 @@ export interface ValueTrackProps {
     children?: ReactNode
     description?: ReactNode
     path: EditorPath,
-    canDelete?: boolean
+    deleteAction?: MultiActionType
     onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler
 }
-export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, children, path, canDelete, onDragOverItem}) => {
-
-    const deleteAction = useMemo(() => {
-        return canDelete ? DeleteAction(path) : undefined
-    }, [canDelete]);
+export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, children, path, deleteAction, onDragOverItem}) => {
 
     if (type.startsWith("array:")) {
         return (
@@ -48,7 +44,7 @@ export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, 
     }
     if (type === "color") {
         return (
-            <ColorTrack value={value} path={path}>
+            <ColorTrack value={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction}>
                 {children}
             </ColorTrack>
         );

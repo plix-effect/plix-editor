@@ -47,37 +47,37 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
 
     const {dispatch} = useContext(TrackContext);
 
-    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, value: DragType): void | DragEventHandler => {
-        const originDragHandler = onDragOverItem?.(event, value);
+    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | DragEventHandler => {
+        const originDragHandler = onDragOverItem?.(event, dragData);
         if (originDragHandler) return originDragHandler;
-        if (!value) return;
+        if (!dragData) return;
 
         let mode: "copy"|"move"|"link"|"none" = "none";
         if (event.ctrlKey && event.shiftKey) mode = "link";
         else if (event.ctrlKey) mode = "copy";
-        else if (event.shiftKey) mode = value.deleteAction ? "move" : "none";
-        else if (value.effectLink) mode = "link";
-        else if (value.effect) mode = "copy";
+        else if (event.shiftKey) mode = dragData.deleteAction ? "move" : "none";
+        else if (dragData.effectLink) mode = "link";
+        else if (dragData.effect) mode = "copy";
 
-        if (mode === "none") return void (value.dropEffect = "none");
+        if (mode === "none") return void (dragData.dropEffect = "none");
 
         let valueEffect: PlixEffectJsonData;
 
-        if (value.effect && mode !== "link") {
-            valueEffect = value.effect;
+        if (dragData.effect && mode !== "link") {
+            valueEffect = dragData.effect;
         }
 
-        if (!valueEffect && value.effectLink && mode === "link") {
-            valueEffect = value.effectLink;
+        if (valueEffect === undefined && dragData.effectLink && mode === "link") {
+            valueEffect = dragData.effectLink;
         }
-        if (!valueEffect) return void (value.dropEffect = "none");
-        value.dropEffect = mode;
+        if (valueEffect === undefined) return void (dragData.dropEffect = "none");
+        dragData.dropEffect = mode;
 
-        if (effect === valueEffect) return void (value.dropEffect = "none");
+        if (effect === valueEffect) return void (dragData.dropEffect = "none");
         if (mode === "move") {
-            if (isObjectEqualOrContains(valueEffect, effect)) return void (value.dropEffect = "none");
+            if (isObjectEqualOrContains(valueEffect, effect)) return void (dragData.dropEffect = "none");
         }
-        if (mode === "link" && valueEffect[2] === alias) return void (value.dropEffect = "none");
+        if (mode === "link" && valueEffect[2] === alias) return void (dragData.dropEffect = "none");
         return () => {
             let changeAction;
             if (mode === "link" && effect !== null && valueEffect !== null) { // save filters on paste as link
@@ -85,8 +85,8 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
             } else {
                 changeAction = EditValueAction(path, valueEffect);
             }
-            if (mode === "move" && value.deleteAction) {
-                dispatch(MultiAction([changeAction, value.deleteAction]))
+            if (mode === "move" && dragData.deleteAction) {
+                dispatch(MultiAction([changeAction, dragData.deleteAction]))
             } else { // action === "copy" || action === "link"
                 dispatch(changeAction);
             }
@@ -200,6 +200,10 @@ const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, leftBlock, effect:
     const effectWithNoFilters: PlixEffectAliasJsonData = useMemo(() => [enabled, null, link, []], [effect])
     const valueFilters = useMemo(() => filters ?? [], [filters]);
 
+    const clearFilters = useMemo(() => {
+        return EditValueAction([...path, 3], []);
+    }, [path]);
+
     return (
         <Track nested expanded={expanded} >
             {leftBlock}
@@ -217,7 +221,7 @@ const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, leftBlock, effect:
 
             <EffectTypeTrack onChange={onChange} effect={effect} />
 
-            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect">
+            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" deleteAction={clearFilters}>
                 Filters
             </ValueTrack>
         </Track>
@@ -253,6 +257,11 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, le
     }, [effectId, params]);
     const filtersPath = useMemo(() => [...path, 3], [path]);
     const valueFilters = useMemo(() => filters ?? [], [filters]);
+
+    const clearFilters = useMemo(() => {
+        return EditValueAction([...path, 3], []);
+    }, [path]);
+
     return (
         <Track nested expanded={expanded}>
             {leftBlock}
@@ -276,7 +285,7 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, le
                     {paramDesc.name}
                 </ValueTrack>
             ))}
-            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect">
+            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" deleteAction={clearFilters}>
                 Filters
             </ValueTrack>
         </Track>

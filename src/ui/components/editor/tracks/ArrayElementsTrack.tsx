@@ -13,7 +13,7 @@ import {EditorPath} from "../../../types/Editor";
 import {ValueTrack} from "./ValueTrack";
 import {getArrayKey} from "../../../utils/KeyManager";
 import {TrackContext} from "../TrackContext";
-import {InsertValuesAction, MultiAction} from "../PlixEditorReducerActions";
+import {DeleteAction, InsertValuesAction, MultiAction} from "../PlixEditorReducerActions";
 import {Track} from "../../timeline/Track";
 import "./ArrayElementsTrack.scss";
 import {DragType} from "../DragContext";
@@ -87,25 +87,25 @@ const ArrayElementTrack:FC<ArrayElementTrackProps> = ({type, value, path, parent
         if (event.ctrlKey && event.shiftKey) mode = allowLink ? "link" : "none";
         else if (event.ctrlKey) mode = "copy";
         else if (event.shiftKey) mode = dragData.deleteAction ? "move" : "none";
-        else if (!allowLink) mode = dragData.deleteAction ? "move" : "copy"
+        else if (!allowLink) mode = dragData.deleteAction ? "move" : "copy";
 
         let insertValue;
         if (mode === "link" && allowLink) {
             insertValue = dragData[type+"Link"]
         }
-        if (!insertValue) {
+        if (insertValue === undefined) {
             const baseValue = dragData[type];
             if (baseValue) insertValue = baseValue;
         }
 
         const typedValue = dragData.typedValue;
-        if (!insertValue && !typedValue) return setDropTargetVisible(null);
-        if (!insertValue && typedValue.type === type) insertValue = typedValue.value;
-        if (!insertValue && typedValue.type === "array:"+type) insertValue = typedValue.value;
-        if (!insertValue) return setDropTargetVisible(null);
+        if (insertValue === undefined && !typedValue) return setDropTargetVisible(null);
+        if (insertValue === undefined && typedValue.type === type) insertValue = typedValue.value;
+        if (insertValue === undefined && typedValue.type === "array:"+type) insertValue = typedValue.value;
+        if (insertValue === undefined) return setDropTargetVisible(null);
 
         if (!mode) return setDropTargetVisible(null);
-        if (mode === "move" && isObjectEqualOrContains(insertValue, value)) {
+        if (mode === "move" && insertValue !== value && isObjectEqualOrContains(insertValue, value)) {
             dragData.dropEffect = "none";
             return setDropTargetVisible(null);
         }
@@ -127,9 +127,12 @@ const ArrayElementTrack:FC<ArrayElementTrackProps> = ({type, value, path, parent
         };
     }, [path, dispatch]);
 
+    const deleteAction = useMemo(() => {
+        return canDelete ? DeleteAction(path) : undefined;
+    }, [canDelete, path]);
 
     return (
-        <ValueTrack type={type} value={value} path={path} canDelete={canDelete} onDragOverItem={onDragOverItemSelf}>
+        <ValueTrack type={type} value={value} path={path} deleteAction={deleteAction} onDragOverItem={onDragOverItemSelf}>
             <span className="array-track-drop-target _top" ref={dropTargetTopRef}/>
             <span className="array-track-drop-target _bottom" ref={dropTargetBottomRef}/>
             <span title="[Alt + Click] = delete">[{index}]</span>
