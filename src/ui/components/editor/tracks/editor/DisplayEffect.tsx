@@ -7,25 +7,15 @@ import {EditValueAction} from "../../PlixEditorReducerActions";
 import {DragContext} from "../../DragContext";
 import cn from "classnames";
 
-export interface DraggableEffectProps {
+export interface DisplayEffectProps {
     effect: PlixEffectJsonData,
     path: EditorPath,
 }
-export const DraggableEffect: FC<DraggableEffectProps> = memo(({effect, path}) => {
+export const DisplayEffect: FC<DisplayEffectProps> = memo(({effect, path}) => {
     const {effectConstructorMap, dispatch} = useContext(TrackContext);
-    const dragRef = useContext(DragContext);
     const onClick = useCallback((event: MouseEvent<Element>) => {
         if (!effect) return;
         if (event.ctrlKey) dispatch(EditValueAction([...path, 0], !effect[0]))
-    }, [effect, path]);
-
-    const onDragStart = useCallback((event: DragEvent<Element>) => {
-        if (!effect) return;
-        dragRef.current = {
-            effect,
-            offsetX: event.nativeEvent.offsetX,
-            offsetY: event.nativeEvent.offsetY,
-        }
     }, [effect, path]);
 
     if (!effect) {
@@ -39,8 +29,6 @@ export const DraggableEffect: FC<DraggableEffectProps> = memo(({effect, path}) =
             <span
                 className={cn("track-description _type", {"_disabled": !enabled})}
                 onClick={onClick}
-                onDragStart={onDragStart}
-                draggable
                 title={getEffectTitle(enabled)}
             >
                 {meta.name}
@@ -51,15 +39,12 @@ export const DraggableEffect: FC<DraggableEffectProps> = memo(({effect, path}) =
             <span
                 className={cn("track-description _link", {"_disabled": !enabled})}
                 onClick={onClick}
-                onDragStart={onDragStart}
-                draggable
                 title={getEffectTitle(enabled)}
             >
                 {params}
             </span>
         );
     }
-    return null;
 })
 
 function getEffectTitle(enabled) {

@@ -43,7 +43,7 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
             effectLink: alias && [true, null, alias, []],
             deleteAction: deleteAction
         }
-    }, [effect, alias]);
+    }, [effect, alias, deleteAction]);
 
     const {dispatch} = useContext(TrackContext);
 
@@ -75,8 +75,9 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
 
         if (effect === valueEffect) return void (value.dropEffect = "none");
         if (mode === "move") {
-            if (isObjectEqualOrContains(effect, valueEffect)) return void (value.dropEffect = "none");
+            if (isObjectEqualOrContains(valueEffect, effect)) return void (value.dropEffect = "none");
         }
+        if (mode === "link" && valueEffect[2] === alias) return void (value.dropEffect = "none");
         return () => {
             let changeAction;
             if (mode === "link" && effect !== null && valueEffect !== null) { // save filters on paste as link

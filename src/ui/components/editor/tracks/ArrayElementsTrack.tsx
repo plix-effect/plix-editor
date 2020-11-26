@@ -71,8 +71,8 @@ const ArrayElementTrack:FC<ArrayElementTrackProps> = ({type, value, path, parent
         dropTargetBottomRef.current.classList.toggle("_drop-target", side === "bottom");
     }, []);
 
-    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, value: DragType): void | DragEventHandler => {
-        if (!canInsert || !value) return setDropTargetVisible(null);
+    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | DragEventHandler => {
+        if (!canInsert || !dragData) return setDropTargetVisible(null);
         let side: "top"|"bottom"|null = null;
         const offsetY = event.nativeEvent.offsetY;
         if (offsetY < 10) side = "top";
@@ -81,24 +81,24 @@ const ArrayElementTrack:FC<ArrayElementTrackProps> = ({type, value, path, parent
             if (offsetY > height - 10) side = "bottom";
         }
         if (!side) return setDropTargetVisible(null);
-        let allowLink = value[type+"Link"] != null;
+        let allowLink = dragData[type+"Link"] != null;
 
         let mode: "copy"|"move"|"link"|"none" = allowLink ? "link" : "none";
         if (event.ctrlKey && event.shiftKey) mode = allowLink ? "link" : "none";
         else if (event.ctrlKey) mode = "copy";
-        else if (event.shiftKey) mode = value.deleteAction ? "move" : "none";
-        else if (!allowLink) mode = value.deleteAction ? "move" : "copy"
+        else if (event.shiftKey) mode = dragData.deleteAction ? "move" : "none";
+        else if (!allowLink) mode = dragData.deleteAction ? "move" : "copy"
 
         let insertValue;
         if (mode === "link" && allowLink) {
-            insertValue = value[type+"Link"]
+            insertValue = dragData[type+"Link"]
         }
         if (!insertValue) {
-            const baseValue = value[type];
+            const baseValue = dragData[type];
             if (baseValue) insertValue = baseValue;
         }
 
-        const typedValue = value.typedValue;
+        const typedValue = dragData.typedValue;
         if (!insertValue && !typedValue) return setDropTargetVisible(null);
         if (!insertValue && typedValue.type === type) insertValue = typedValue.value;
         if (!insertValue && typedValue.type === "array:"+type) insertValue = typedValue.value;
@@ -106,11 +106,11 @@ const ArrayElementTrack:FC<ArrayElementTrackProps> = ({type, value, path, parent
 
         if (!mode) return setDropTargetVisible(null);
         if (mode === "move" && isObjectEqualOrContains(insertValue, value)) {
-            value.dropEffect = "none";
+            dragData.dropEffect = "none";
             return setDropTargetVisible(null);
         }
 
-        value.dropEffect = mode;
+        dragData.dropEffect = mode;
         setDropTargetVisible(side);
 
         return () => {
@@ -118,8 +118,8 @@ const ArrayElementTrack:FC<ArrayElementTrackProps> = ({type, value, path, parent
             let insertIndex = side === "top" ? index: index+1;
             if (typedValue.type === type) insertAction = InsertValuesAction(parentPath, insertIndex, [insertValue]);
             else insertAction = InsertValuesAction(parentPath, insertIndex, insertValue as any[])
-            if (mode === "move" && value.deleteAction) {
-                dispatch(MultiAction([insertAction, value.deleteAction]))
+            if (mode === "move" && dragData.deleteAction) {
+                dispatch(MultiAction([insertAction, dragData.deleteAction]))
             } else { // action === "copy" || action === "link"
                 dispatch(insertAction);
             }

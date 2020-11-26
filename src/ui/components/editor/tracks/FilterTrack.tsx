@@ -1,9 +1,19 @@
-import React, {FC, memo, ReactNode, useCallback, useContext, useMemo, useState} from "react";
+import React, {
+    DragEvent,
+    DragEventHandler,
+    FC,
+    memo,
+    ReactNode,
+    useCallback,
+    useContext,
+    useMemo,
+    useState
+} from "react";
 import {Track} from "../../timeline/Track";
 import {
     PlixFilterJsonData,
     PlixFilterAliasJsonData,
-    PlixFilterConfigurableJsonData
+    PlixFilterConfigurableJsonData, PlixEffectJsonData
 } from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
 import {TreeBlock} from "../track-elements/TreeBlock";
@@ -14,21 +24,80 @@ import {ParseMeta} from "../../../types/ParseMeta";
 import {ValueTrack} from "./ValueTrack";
 import {useExpander} from "../track-elements/Expander";
 import {getArrayKey} from "../../../utils/KeyManager";
-import {EditValueAction} from "../PlixEditorReducerActions";
+import {EditValueAction, MultiAction, MultiActionType} from "../PlixEditorReducerActions";
 import {FilterTypeTrack} from "./FilterTypeTrack";
 import "./tracks.scss";
 import {InlineFilterTypeEditor} from "./editor/inline/InlineFilterTypeEditor";
+import {DragType} from "../DragContext";
+import {TreeBlockEffect} from "./editor/TreeBlockEffect";
+import {TreeBlockFilter} from "./editor/TreeBlockFilter";
+import {isObjectEqualOrContains} from "../../../utils/isObjectContains";
 
 export interface FilterTrackProps {
+    baseExpanded?: boolean,
     filter: PlixFilterJsonData,
     path: EditorPath,
     children: ReactNode,
+    alias?: string,
+    deleteAction?: MultiActionType,
+    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler
 }
-export const FilterTrack: FC<FilterTrackProps> = memo(({filter, path, children}) => {
-    const [expanded, expander, changeExpanded] = useExpander(false);
+export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, filter, path, children, alias, deleteAction, onDragOverItem}) => {
+    const [expanded, expander, changeExpanded] = useExpander(baseExpanded);
+    const {dispatch} = useContext(TrackContext);
+
+    const dragValue: DragType = useMemo<DragType>(() => {
+        return {
+            typedValue: {type: "filter", value: filter},
+            filter: filter,
+            filterLink: alias && [true, null, alias],
+            deleteAction: deleteAction
+        }
+    }, [filter, alias, deleteAction]);
+
+    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, value: DragType): void | DragEventHandler => {
+        const originDragHandler = onDragOverItem?.(event, value);
+        if (originDragHandler) return originDragHandler;
+        if (!value) return;
+
+        let mode: "copy"|"move"|"link"|"none" = "none";
+        if (event.ctrlKey && event.shiftKey) mode = "link";
+        else if (event.ctrlKey) mode = "copy";
+        else if (event.shiftKey) mode = value.deleteAction ? "move" : "none";
+        else if (value.filterLink) mode = "link";
+        else if (value.filter) mode = "copy";
+
+        if (mode === "none") return void (value.dropEffect = "none");
+
+        let valueFilter: PlixFilterJsonData;
+
+        if (value.filter && mode !== "link") {
+            valueFilter = value.filter;
+        }
+
+        if (!valueFilter && value.filterLink && mode === "link") {
+            valueFilter = value.filterLink;
+        }
+        if (!valueFilter) return void (value.dropEffect = "none");
+        value.dropEffect = mode;
+
+        if (filter === valueFilter) return void (value.dropEffect = "none");
+        if (mode === "move") {
+            if (isObjectEqualOrContains(valueFilter, filter)) return void (value.dropEffect = "none");
+        }
+        if (mode === "link" && valueFilter[2] === alias) return void (value.dropEffect = "none");
+        return () => {
+            let changeAction = EditValueAction(path, valueFilter);
+            if (mode === "move" && value.deleteAction) {
+                dispatch(MultiAction([changeAction, value.deleteAction]))
+            } else { // action === "copy" || action === "link"
+                dispatch(changeAction);
+            }
+        };
+    }, [onDragOverItem, path, dispatch]);
+
 
     const {filterConstructorMap} = useContext(TrackContext);
-    const {dispatch} = useContext(TrackContext);
     const onChangeFilter = useCallback((type: null|"alias"|"constructor", value?: string) => {
         if (!type) {
             return dispatch(EditValueAction(path, null));
@@ -47,31 +116,38 @@ export const FilterTrack: FC<FilterTrackProps> = memo(({filter, path, children})
         return dispatch(EditValueAction(path, templateFilter));
     }, [filter, dispatch]);
 
+    const leftBlock = (
+        <TreeBlockFilter
+            filter={filter}
+            changeExpanded={changeExpanded}
+            expander={expander}
+            path={path}
+            deleteAction={deleteAction}
+            dragValue={dragValue}
+            onDragOverItem={onDragOverItemSelf}
+        > {children} </TreeBlockFilter>
+    )
+
     if (!filter) return <NoFilterTrack
         onChange={onChangeFilter}
         path={path}
         expanded={expanded}
-        expander={expander}
-        changeExpanded={changeExpanded}
+        leftBlock={leftBlock}
     >{children}</NoFilterTrack>
     if (filter[1] === null) return (
         <AliasFilterTrack
             path={path}
             expanded={expanded}
-            expander={expander}
-            changeExpanded={changeExpanded}
             filter={filter as PlixFilterAliasJsonData}
-            children={children}
+            leftBlock={leftBlock}
             onChange={onChangeFilter}
         />
     );
     return <ConfigurableFilterTrack
         path={path}
         expanded={expanded}
-        changeExpanded={changeExpanded}
-        expander={expander}
         filter={filter as PlixFilterConfigurableJsonData}
-        children={children}
+        leftBlock={leftBlock}
         onChange={onChangeFilter}
     />
 })
@@ -80,19 +156,13 @@ export interface NoFilterTrackProps {
     path: EditorPath,
     children: ReactNode,
     onChange: (type: null|"alias"|"constructor", value?: string) => void,
-    changeExpanded: () => void,
     expanded: boolean,
-    expander: ReactNode;
+    leftBlock: ReactNode;
 }
-const NoFilterTrack: FC<NoFilterTrackProps> = memo(({children, expanded, expander, changeExpanded, onChange}) => {
+const NoFilterTrack: FC<NoFilterTrackProps> = memo(({expanded, onChange, leftBlock}) => {
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock>
-                {expander}
-                <span className="track-description" onClick={changeExpanded}>{children}</span>
-                <span>{" "}</span>
-                <span className="track-description _empty">empty</span>
-            </TreeBlock>
+            {leftBlock}
             <TimelineBlock fixed>
                 <InlineFilterTypeEditor onChange={onChange} filter={null} />
             </TimelineBlock>
@@ -103,25 +173,17 @@ const NoFilterTrack: FC<NoFilterTrackProps> = memo(({children, expanded, expande
 interface AliasFilterTrackProps {
     filter: PlixFilterAliasJsonData
     path: EditorPath,
-    children: ReactNode,
     expanded: boolean,
-    changeExpanded: () => void,
-    expander: ReactNode;
+    leftBlock: ReactNode;
     onChange: (type: null|"alias"|"constructor", value?: string) => void,
 }
-const AliasFilterTrack: FC<AliasFilterTrackProps> = memo(({filter, filter: [enabled ,, link], children, changeExpanded, expanded, expander, onChange}) => {
+const AliasFilterTrack: FC<AliasFilterTrackProps> = memo(({filter, leftBlock, expanded, onChange}) => {
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock>
-                {expander}
-                <span className="track-description" onClick={changeExpanded}>{children}</span>
-                <span>{" "}</span>
-                <span className="track-description _link">{link}</span>
-            </TreeBlock>
+            {leftBlock}
             <TimelineBlock fixed>
                 <InlineFilterTypeEditor onChange={onChange} filter={filter} />
             </TimelineBlock>
-
         </Track>
     )
 });
@@ -130,13 +192,11 @@ interface ConfigurableFilterTrackProps {
 
     filter: PlixFilterConfigurableJsonData
     path: EditorPath,
-    children: ReactNode,
     expanded: boolean,
-    changeExpanded: () => void
-    expander: ReactNode;
+    leftBlock: ReactNode,
     onChange: (type: null|"alias"|"constructor", value?: string) => void,
 }
-const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = memo(({filter, filter: [enabled, filterId, params], changeExpanded, children, path, expanded, expander, onChange}) => {
+const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = memo(({filter, filter: [enabled, filterId, params], onChange, path, expanded, leftBlock}) => {
     const {filterConstructorMap} = useContext(TrackContext);
     const filterData = useMemo(() => {
         const filterConstructor = filterConstructorMap[filterId];
@@ -156,12 +216,7 @@ const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = memo(({filter,
     }, [filterId, params])
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock>
-                {expander}
-                <span className="track-description" onClick={changeExpanded}>{children}</span>
-                <span>{" "}</span>
-                <span className="track-description _type">{filterData.name}</span>
-            </TreeBlock>
+            {leftBlock}
             <TimelineBlock fixed>
                 <span className="track-description ">
                     <span className="track-description _desc">

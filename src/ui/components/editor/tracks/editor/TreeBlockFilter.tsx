@@ -6,9 +6,11 @@ import {DragType} from "../../DragContext";
 import {TrackContext} from "../../TrackContext";
 import {EditorPath} from "../../../../types/Editor";
 import {DisplayEffect} from "./DisplayEffect";
+import {PlixFilterJsonData} from "@plix-effect/core/types/parser";
+import {DisplayFilter} from "./DisplayFilter";
 
-export interface TreeBlockEffectProps {
-    effect: PlixEffectJsonData,
+export interface TreeBlockFilterProps {
+    filter: PlixFilterJsonData,
     deleteAction?: MultiActionType,
     dragValue?: DragType,
     path: EditorPath,
@@ -16,7 +18,7 @@ export interface TreeBlockEffectProps {
     changeExpanded: () => void,
     onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler
 }
-export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effect, path, deleteAction, expander, changeExpanded, children, onDragOverItem}) => {
+export const TreeBlockFilter: FC<TreeBlockFilterProps> = memo(({dragValue, filter, path, deleteAction, expander, changeExpanded, children, onDragOverItem}) => {
     const {dispatch} = useContext(TrackContext);
 
     const title: string|undefined = useMemo(() => {
@@ -38,7 +40,7 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
             {expander}
             <span className="track-description" onClick={changeExpanded}>{children}</span>
             <span>{" "}</span>
-            <DisplayEffect effect={effect} path={path}/>
+            <DisplayFilter filter={filter} path={path}/>
         </TreeBlock>
     );
 });

@@ -1,6 +1,6 @@
-import React, {FC, ReactNode, useCallback, useContext, Fragment, useMemo, memo} from "react";
+import React, {FC, ReactNode, useCallback, useContext, useMemo, memo} from "react";
 import {Track} from "../../timeline/Track";
-import {PlixEffectAliasJsonData, PlixEffectConfigurableJsonData} from "@plix-effect/core/types/parser";
+import {PlixEffectConfigurableJsonData} from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
@@ -13,9 +13,7 @@ import {PushValueAction} from "../PlixEditorReducerActions";
 import "./tracks.scss"
 import {ArrayElementsTrack} from "./ArrayElementsTrack";
 import {EffectTypeTrack} from "./EffectTypeTrack";
-import {DraggableEffect} from "./editor/DraggableEffect";
 import {EffectPreview} from "./editor/EffectPreview";
-import {DragType} from "../DragContext";
 
 export interface ChainEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
@@ -31,7 +29,6 @@ export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo((
         effect: [enabled, effectId, params, filters],
         path,
         expanded,
-        children,
         onChange,
     }
 ) => {

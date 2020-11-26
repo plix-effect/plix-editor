@@ -8,7 +8,6 @@ import {ColorTrack} from "./ColorTrack";
 import {NumberTrack} from "./NumberTrack";
 import {DeleteAction} from "../PlixEditorReducerActions";
 import {DragType} from "../DragContext";
-import {TreeBlockProps} from "../track-elements/TreeBlock";
 
 export interface ValueTrackProps {
     value: any,
@@ -27,7 +26,7 @@ export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, 
 
     if (type.startsWith("array:")) {
         return (
-            <ArrayTrack path={path} value={value} type={type.substring(6)}>
+            <ArrayTrack path={path} value={value} type={type.substring(6)} onDragOverItem={onDragOverItem} deleteAction={deleteAction}>
                 {children}
                 <span className="track-description _desc">{description}</span>
             </ArrayTrack>
@@ -35,7 +34,7 @@ export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, 
     }
     if (type === "filter") {
         return (
-            <FilterTrack filter={value} path={path}>
+            <FilterTrack filter={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction}>
                 {children}
             </FilterTrack>
         )

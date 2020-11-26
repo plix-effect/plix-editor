@@ -37,7 +37,6 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
                 name: name,
                 path: [...path, name] as EditorPath,
                 value: effectsMap[name],
-                remove: () => dispatch(EditValueAction([...path, name], undefined)),
             }
         })
     }, [effectsMap]);
@@ -63,8 +62,8 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
             <TimelineBlock type="description" fixed>
                 effect prefabs
             </TimelineBlock>
-            {aliasesList.map(({value, path, remove, name}) => (
-                <AliasEffectTrack path={path} value={value} name={name} remove={remove} key={name} />
+            {aliasesList.map(({value, path, name}) => (
+                <AliasEffectTrack path={path} value={value} name={name} key={name} />
             ))}
             <Track>
                 <TreeBlock type="description">
@@ -82,10 +81,9 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
 interface AliasEffectTrackProps {
     value: PlixEffectJsonData,
     path: EditorPath,
-    remove: () => void,
     name: string,
 }
-const AliasEffectTrack: FC<AliasEffectTrackProps> = memo(({value, remove, path, name}) => {
+const AliasEffectTrack: FC<AliasEffectTrackProps> = memo(({value, path, name}) => {
     const deleteAction = useMemo(() => DeleteAction(path), [path]);
 
     return (

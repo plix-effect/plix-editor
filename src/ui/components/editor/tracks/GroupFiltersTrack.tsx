@@ -1,14 +1,15 @@
 import React, {ChangeEvent, FC, memo, MouseEvent, useCallback, useContext, useMemo, useState} from "react";
 import {Track} from "../../timeline/Track";
-import {PlixFiltersMapJsonData} from "@plix-effect/core/types/parser";
+import {PlixEffectJsonData, PlixFiltersMapJsonData} from "@plix-effect/core/types/parser";
 import {FilterTrack} from "./FilterTrack";
 import {EditorPath} from "../../../types/Editor";
 import {useExpander} from "../track-elements/Expander";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {TrackContext} from "../TrackContext";
-import {EditValueAction} from "../PlixEditorReducerActions";
+import {DeleteAction, EditValueAction} from "../PlixEditorReducerActions";
 import {EffectTrack} from "./EffectTrack";
+import {PlixFilterJsonData} from "@plix-effect/core/dist/types/parser";
 
 export interface GroupFiltersTrackProps {
     filtersMap: PlixFiltersMapJsonData,
@@ -24,9 +25,6 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
                 name: name,
                 path: [...path, name] as EditorPath,
                 value: filtersMap[name],
-                onClick: (event: MouseEvent<HTMLElement>) => {
-                    if (event.altKey) return dispatch(EditValueAction([...path, name], undefined))
-                },
             }
         })
     }, [filtersMap, dispatch]);
@@ -53,9 +51,7 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
                 filter prefabs
             </TimelineBlock>
             {aliasesList.map(alias => (
-                <FilterTrack filter={alias.value} path={alias.path} key={alias.name}>
-                    <span onClick={alias.onClick}>{alias.name}</span>
-                </FilterTrack>
+                <AliasFilterTrack name={alias.name} path={alias.path} key={alias.name} value={alias.value}/>
             ))}
             <Track>
                 <TreeBlock type="description">
@@ -71,3 +67,18 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
 });
 
 const defaultFilter = null;
+
+interface AliasFilterTrackProps {
+    value: PlixFilterJsonData,
+    path: EditorPath,
+    name: string,
+}
+const AliasFilterTrack: FC<AliasFilterTrackProps> = memo(({value, path, name}) => {
+    const deleteAction = useMemo(() => DeleteAction(path), [path]);
+
+    return (
+        <FilterTrack filter={value} path={path} key={name} alias={name} deleteAction={deleteAction}>
+            {name}
+        </FilterTrack>
+    );
+})
