@@ -237,6 +237,40 @@ button.btn.track-header-icon-button {
       opacity: 0; }
   .track-tree-block._link {
     outline: 2px dashed #888; }
+  .track-tree-block._drop._drop-replace .track-tree-icon-replace {
+    display: block; }
+  .track-tree-block._drop._drop-add-item .track-tree-icon-add-item {
+    display: block; }
+  .track-tree-block._drop._drop-add-array .track-tree-icon-add-array {
+    display: block; }
+  .track-tree-block._drop._drop-insert::before {
+    content: "";
+    height: 20px;
+    width: 100%;
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+    position: absolute;
+    z-index: 99; }
+  .track-tree-block._drop._drop-insert._drop-insert-top::before {
+    top: -10px; }
+  .track-tree-block._drop._drop-insert._drop-insert-bottom::before {
+    bottom: -10px; }
+  .track-tree-block .track-tree-block-space {
+    flex-grow: 1; }
+  .track-tree-block .track-tree-block-right {
+    position: sticky;
+    pointer-events: none;
+    right: 0; }
+  .track-tree-block .track-tree-block-right-icon {
+    position: absolute;
+    pointer-events: none; }
+  .track-tree-block .track-tree-drop-icon-content {
+    margin-right: 5px;
+    background-color: black; }
+  .track-tree-block .track-tree-icon {
+    display: none; }
 
 .track-description {
   user-select: none; }

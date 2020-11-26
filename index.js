@@ -3356,31 +3356,29 @@ exports.default = function (_ref) {
 /*!******************************************************!*\
   !*** ./node_modules/@plix-effect/core/dist/Color.js ***!
   \******************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/*! CommonJS bailout: exports.rgbaToNumber(...) prevents optimization as exports is passed as call context at 23:11-31 */
-/*! CommonJS bailout: exports.numberToRgba(...) prevents optimization as exports is passed as call context at 50:22-42 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/*! flagged exports */
+/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export addHue [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export addLightness [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export addSaturation [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export applyOpacityHsla [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export blendHsla [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export colorToNumber [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export gain [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export hslaToRgba [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export numberToColor [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export numberToRgba [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export rgbaToHsla [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export rgbaToNumber [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export shade [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_exports__, __webpack_require__ */
+/*! CommonJS bailout: exports.rgbaToNumber(...) prevents optimization as exports is passed as call context at 7:11-31 */
+/*! CommonJS bailout: exports.numberToRgba(...) prevents optimization as exports is passed as call context at 34:22-42 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.hslaToRgba = exports.rgbaToHsla = exports.shade = exports.gain = exports.addLightness = exports.addSaturation = exports.addHue = exports.numberToColor = exports.numberToRgba = exports.applyOpacityHsla = exports.rgbaToNumber = exports.blendHsla = exports.colorToNumber = void 0;
 var posMod_1 = __webpack_require__(/*! ./util/posMod */ "./node_modules/@plix-effect/core/dist/util/posMod.js");
@@ -3399,7 +3397,7 @@ exports.rgbaToNumber = function (_a) {
     return (r << 24) | (g << 16) | (b << 8) | (a * 255);
 };
 exports.applyOpacityHsla = function (_a, gain) {
-    var _b = __read(_a, 4), h = _b[0], s = _b[1], l = _b[2], a = _b[3];
+    var h = _a[0], s = _a[1], l = _a[2], a = _a[3];
     return [h, s, l, limit_1.default(0, gain * a, 1)];
 };
 exports.numberToRgba = function (color) {
@@ -3416,24 +3414,24 @@ exports.numberToColor = function (color) {
     return rgbaToHsla(exports.numberToRgba(color));
 };
 exports.addHue = function (_a, value) {
-    var _b = __read(_a, 4), h = _b[0], s = _b[1], l = _b[2], a = _b[3];
+    var h = _a[0], s = _a[1], l = _a[2], a = _a[3];
     return [posMod_1.default(h + value, 1), s, l, a];
 };
 exports.addSaturation = function (_a, value) {
-    var _b = __read(_a, 4), h = _b[0], s = _b[1], l = _b[2], a = _b[3];
+    var h = _a[0], s = _a[1], l = _a[2], a = _a[3];
     return [h, limit_1.default(0, s + value, 1), l, a];
 };
 exports.addLightness = function (_a, value) {
-    var _b = __read(_a, 4), h = _b[0], s = _b[1], l = _b[2], a = _b[3];
+    var h = _a[0], s = _a[1], l = _a[2], a = _a[3];
     return [h, s, limit_1.default(0, l + value, 1), a];
 };
 exports.gain = function (_a, value) {
-    var _b = __read(_a, 4), h = _b[0], s = _b[1], l = _b[2], a = _b[3];
+    var h = _a[0], s = _a[1], l = _a[2], a = _a[3];
     return [h, s, limit_1.default(0, l * value, 1), a];
 };
 exports.shade = function (_a, _b, stage) {
-    var _c = __read(_a, 4), h1 = _c[0], s1 = _c[1], l1 = _c[2], a1 = _c[3];
-    var _d = __read(_b, 4), h2 = _d[0], s2 = _d[1], l2 = _d[2], a2 = _d[3];
+    var h1 = _a[0], s1 = _a[1], l1 = _a[2], a1 = _a[3];
+    var h2 = _b[0], s2 = _b[1], l2 = _b[2], a2 = _b[3];
     var hueDif = h2 - h1;
     var absHueDif = Math.abs(hueDif);
     var resultHueDif = hueDif;
@@ -3502,7 +3500,7 @@ function hue2rgb(p, q, t) {
  */
 function hslaToRgba(_a) {
     "use strict";
-    var _b = __read(_a, 4), h = _b[0], s = _b[1], l = _b[2], a = _b[3];
+    var h = _a[0], s = _a[1], l = _a[2], a = _a[3];
     var r, g, b;
     if (s === 0) {
         r = g = b = l; // achromatic
@@ -3561,34 +3559,15 @@ exports.default = AddHue;
 /*!**************************************************************!*\
   !*** ./node_modules/@plix-effect/core/dist/effects/Chain.js ***!
   \**************************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/*! CommonJS bailout: this is used directly at 18:16-20 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/*! flagged exports */
+/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_exports__, __webpack_require__ */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spread = (this && this.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var parseTypes_1 = __webpack_require__(/*! ../parser/parseTypes */ "./node_modules/@plix-effect/core/dist/parser/parseTypes.js");
 Chain.meta = {
@@ -3601,19 +3580,26 @@ Chain.meta = {
     paramParse: [parseTypes_1.ARRAY_OF(parseTypes_1.EFFECT)]
 };
 function Chain(effects) {
-    return function () {
-        var effectArgs = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            effectArgs[_i] = arguments[_i];
+    return function (time, duration) {
+        var lineModifiers = []; //
+        for (var _i = 0, effects_1 = effects; _i < effects_1.length; _i++) {
+            var effect = effects_1[_i];
+            lineModifiers.push(effect(time, duration));
         }
-        var lineModifiers = effects.map(function (effect) { return effect.apply(void 0, __spread(effectArgs)); });
-        return function () {
-            var lineArgs = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                lineArgs[_i] = arguments[_i];
+        return function (index, length) {
+            var colorModifiers = []; //
+            for (var _i = 0, lineModifiers_1 = lineModifiers; _i < lineModifiers_1.length; _i++) {
+                var lineModifier = lineModifiers_1[_i];
+                colorModifiers.push(lineModifier(index, length));
             }
-            var colorModifiers = lineModifiers.map(function (line) { return line.apply(void 0, __spread(lineArgs)); });
-            return function (color) { return colorModifiers.reduce(function (color, mod) { return mod(color); }, color); };
+            return function (color) {
+                var currentColor = color;
+                for (var _i = 0, colorModifiers_1 = colorModifiers; _i < colorModifiers_1.length; _i++) {
+                    var colorModifier = colorModifiers_1[_i];
+                    currentColor = colorModifier(currentColor);
+                }
+                return currentColor;
+            };
         };
     };
 }
@@ -3764,31 +3750,17 @@ exports.default = Rainbow;
   \*****************************************************************/
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/*! CommonJS bailout: this is used directly at 18:16-20 */
+/*! CommonJS bailout: this is used directly at 2:22-26 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spread = (this && this.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var parseTypes_1 = __webpack_require__(/*! ../parser/parseTypes */ "./node_modules/@plix-effect/core/dist/parser/parseTypes.js");
@@ -3803,7 +3775,7 @@ Timeline.meta = {
     paramParse: [parseTypes_1.ARRAY_OF(parseTypes_1.TIME_EFFECT_RECORD)]
 };
 function Timeline(records) {
-    records = __spread(records).sort(function (recA, recB) {
+    records = __spreadArrays(records).sort(function (recA, recB) {
         if (recA.start > recB.start)
             return 1;
         if (recA.start < recB.start)
@@ -3977,10 +3949,15 @@ BlendFilters.meta = {
     paramDescriptions: ["list of filters"],
     defaultValues: [[]]
 };
+var blendNormal = Blend_1.default(1, color_blend_1.normal);
 function BlendFilters(filters) {
     return function (effect) {
-        var results = filters.map(function (filter) { return filter(effect); });
-        return Chain_1.default(results.map(function (e) { return Blend_1.default(1, color_blend_1.normal)(e); }));
+        var results = [];
+        for (var _i = 0, filters_1 = filters; _i < filters_1.length; _i++) {
+            var filter = filters_1[_i];
+            results.push(blendNormal(filter(effect)));
+        }
+        return Chain_1.default(results);
     };
 }
 exports.default = BlendFilters;
@@ -4013,7 +3990,14 @@ FChain.meta = {
     defaultValues: [[]]
 };
 function FChain(filters) {
-    return function (effect) { return filters.reduce(function (effect, filter) { return filter(effect); }, effect); };
+    return function (effect) {
+        var currentEffect = effect;
+        for (var _i = 0, filters_1 = filters; _i < filters_1.length; _i++) {
+            var filter = filters_1[_i];
+            currentEffect = filter(currentEffect);
+        }
+        return currentEffect;
+    };
 }
 exports.default = FChain;
 //# sourceMappingURL=FChain.js.map
@@ -4277,50 +4261,24 @@ Object.defineProperty(exports, "Zoom", ({ enumerable: true, get: function () { r
   \************************************************************************/
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/*! CommonJS bailout: this is used directly at 18:16-20 */
-/*! CommonJS bailout: this is used directly at 22:16-20 */
+/*! CommonJS bailout: this is used directly at 2:22-26 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spread = (this && this.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
-};
-var __values = (this && this.__values) || function(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LinearGradient = void 0;
 var utils_1 = __webpack_require__(/*! ../effects/utils */ "./node_modules/@plix-effect/core/dist/effects/utils.js");
 var Color_1 = __webpack_require__(/*! ../Color */ "./node_modules/@plix-effect/core/dist/Color.js");
 function LinearGradient(colorPositions) {
-    var lineColorPositions = __spread(__spread(colorPositions).sort(function (_a, _b) {
+    var lineColorPositions = __spreadArrays(__spreadArrays(colorPositions).sort(function (_a, _b) {
         var p1 = _a.position;
         var p2 = _b.position;
         if (p1 > p2)
@@ -4330,23 +4288,14 @@ function LinearGradient(colorPositions) {
         return 0;
     }), [null]);
     return function (t) {
-        var e_1, _a, _b;
+        var _a;
         var leftCP = null;
         var rightCP = null;
-        try {
-            for (var lineColorPositions_1 = __values(lineColorPositions), lineColorPositions_1_1 = lineColorPositions_1.next(); !lineColorPositions_1_1.done; lineColorPositions_1_1 = lineColorPositions_1.next()) {
-                var colorPos = lineColorPositions_1_1.value;
-                _b = __read([rightCP, colorPos], 2), leftCP = _b[0], rightCP = _b[1];
-                if (colorPos && colorPos.position >= t)
-                    break;
-            }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (lineColorPositions_1_1 && !lineColorPositions_1_1.done && (_a = lineColorPositions_1.return)) _a.call(lineColorPositions_1);
-            }
-            finally { if (e_1) throw e_1.error; }
+        for (var _i = 0, lineColorPositions_1 = lineColorPositions; _i < lineColorPositions_1.length; _i++) {
+            var colorPos = lineColorPositions_1[_i];
+            _a = [rightCP, colorPos], leftCP = _a[0], rightCP = _a[1];
+            if (colorPos && colorPos.position >= t)
+                break;
         }
         if (leftCP && rightCP) {
             var stage = (t - leftCP.position) / (rightCP.position - leftCP.position);
@@ -4515,36 +4464,22 @@ exports.default = parseBlender;
 /*!******************************************************************!*\
   !*** ./node_modules/@plix-effect/core/dist/parser/parseColor.js ***!
   \******************************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/*! flagged exports */
+/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_exports__, __webpack_require__ */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var Color_1 = __webpack_require__(/*! ../Color */ "./node_modules/@plix-effect/core/dist/Color.js");
 var parseColor = function (data) {
     if (typeof data === "number") {
         return Color_1.numberToColor(data);
     }
-    var _a = __read(data, 4), h = _a[0], s = _a[1], l = _a[2], a = _a[3];
+    var h = data[0], s = data[1], l = data[2], a = data[3];
     return [h, s, l, a !== null && a !== void 0 ? a : 1];
     // todo: add parse-string (name, hash-value)
 };
@@ -4557,41 +4492,22 @@ exports.default = parseColor;
 /*!*******************************************************************!*\
   !*** ./node_modules/@plix-effect/core/dist/parser/parseEffect.js ***!
   \*******************************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/*! CommonJS bailout: this is used directly at 18:16-20 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/*! flagged exports */
+/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_exports__, __webpack_require__ */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spread = (this && this.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var utils_1 = __webpack_require__(/*! ../effects/utils */ "./node_modules/@plix-effect/core/dist/effects/utils.js");
 var parseFilter_1 = __webpack_require__(/*! ./parseFilter */ "./node_modules/@plix-effect/core/dist/parser/parseFilter.js");
 var parseEffect = function (data, parserData) {
     if (data === null)
         return utils_1.EmptyEffect;
-    var _a = __read(data, 4), enabled = _a[0], id = _a[1], paramsJsonOrAliasName = _a[2], filtersJson = _a[3];
+    var enabled = data[0], id = data[1], paramsJsonOrAliasName = data[2], filtersJson = data[3];
     var effect;
     if (id === null) { // alias
         effect = parserData.parseEffectAlias(paramsJsonOrAliasName);
@@ -4612,7 +4528,7 @@ exports.default = parseEffect;
 function constructEffect(effectConstructor, jsonParams, parserData) {
     var parsers = effectConstructor.meta.paramParse;
     var params = parseEffectParameters(parsers, jsonParams, parserData);
-    return effectConstructor.apply(void 0, __spread(params));
+    return effectConstructor.apply(void 0, params);
 }
 function parseEffectParameters(parsers, jsonParams, parserData) {
     return parsers.map(function (parser, i) {
@@ -4628,40 +4544,21 @@ function parseEffectParameters(parsers, jsonParams, parserData) {
 /*!*******************************************************************!*\
   !*** ./node_modules/@plix-effect/core/dist/parser/parseFilter.js ***!
   \*******************************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/*! CommonJS bailout: this is used directly at 18:16-20 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/*! flagged exports */
+/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_exports__, __webpack_require__ */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spread = (this && this.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var utils_1 = __webpack_require__(/*! ../effects/utils */ "./node_modules/@plix-effect/core/dist/effects/utils.js");
 var parseFilter = function (data, parserData) {
     if (!data)
         return utils_1.EmptyFilter;
-    var _a = __read(data, 3), enabled = _a[0], id = _a[1], paramsOrAliasName = _a[2];
+    var enabled = data[0], id = data[1], paramsOrAliasName = data[2];
     var filter;
     if (id === null) {
         filter = parserData.parseFilterAlias(paramsOrAliasName);
@@ -4678,7 +4575,7 @@ exports.default = parseFilter;
 function constructFilter(filterConstructor, jsonParams, parserData) {
     var parsers = filterConstructor.meta.paramParse;
     var params = parseFilterParameters(parsers, jsonParams, parserData);
-    return filterConstructor.apply(void 0, __spread(params));
+    return filterConstructor.apply(void 0, params);
 }
 function parseFilterParameters(parsers, jsonParams, parserData) {
     return parsers.map(function (parser, i) {
@@ -4694,35 +4591,21 @@ function parseFilterParameters(parsers, jsonParams, parserData) {
 /*!*********************************************************************!*\
   !*** ./node_modules/@plix-effect/core/dist/parser/parseGradient.js ***!
   \*********************************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/*! flagged exports */
+/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_exports__, __webpack_require__ */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var parseColor_1 = __webpack_require__(/*! ./parseColor */ "./node_modules/@plix-effect/core/dist/parser/parseColor.js");
 var LinearGradient_1 = __webpack_require__(/*! ../gradient/LinearGradient */ "./node_modules/@plix-effect/core/dist/gradient/LinearGradient.js");
 var parsePosition = function (data, parserData) {
     var colorPositions = data.map(function (_a) {
-        var _b = __read(_a, 2), position = _b[0], colorData = _b[1];
+        var position = _a[0], colorData = _a[1];
         return ({
             position: position,
             color: parseColor_1.default(colorData, parserData)
@@ -4781,33 +4664,19 @@ exports.default = parsePosition;
 /*!*****************************************************************************!*\
   !*** ./node_modules/@plix-effect/core/dist/parser/parseTimeEffectRecord.js ***!
   \*****************************************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/*! flagged exports */
+/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_exports__, __webpack_require__ */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var utils_1 = __webpack_require__(/*! ../effects/utils */ "./node_modules/@plix-effect/core/dist/effects/utils.js");
 var parseTimeEffectRecord = function (_a, parserData) {
-    var _b = __read(_a, 4), enabled = _b[0], name = _b[1], start = _b[2], duration = _b[3];
+    var enabled = _a[0], name = _a[1], start = _a[2], duration = _a[3];
     var effect = parserData.parseEffectAlias(name); // parse alias before
     if (!enabled)
         effect = utils_1.EmptyEffect;
@@ -4822,34 +4691,15 @@ exports.default = parseTimeEffectRecord;
 /*!***************************************************************************!*\
   !*** ./node_modules/@plix-effect/core/dist/parser/parseTimingFunction.js ***!
   \***************************************************************************/
-/*! unknown exports (runtime-defined) */
-/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
-/*! CommonJS bailout: this is used directly at 2:14-18 */
-/*! CommonJS bailout: this is used directly at 18:16-20 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/*! flagged exports */
+/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_exports__, __webpack_require__ */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spread = (this && this.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var LinearTimingFunction_1 = __webpack_require__(/*! ../timing/LinearTimingFunction */ "./node_modules/@plix-effect/core/dist/timing/LinearTimingFunction.js");
 var ConstTimingFunction_1 = __webpack_require__(/*! ../timing/ConstTimingFunction */ "./node_modules/@plix-effect/core/dist/timing/ConstTimingFunction.js");
@@ -4866,9 +4716,9 @@ var parseTimingFunction = function (data) {
         return linear1;
     if (typeof data === "number")
         return ConstTimingFunction_1.ConstTimingFunction(data);
-    var _a = __read(data), type = _a[0], args = _a.slice(1);
+    var type = data[0], args = data.slice(1);
     var TFConstructor = TFConstructors[type];
-    return TFConstructor.apply(void 0, __spread(args));
+    return TFConstructor.apply(void 0, args);
 };
 exports.default = parseTimingFunction;
 //# sourceMappingURL=parseTimingFunction.js.map
@@ -66151,7 +66001,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const TreeBlock = ({ children, title, type = "default", dragValue, onClick, onDragOverItem }) => {
+const TreeBlock = ({ children, title, type = "default", dragValue, onClick, onDragOverItem, right }) => {
     const dragRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_DragContext__WEBPACK_IMPORTED_MODULE_3__.DragContext);
     const dragCount = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(0);
     const blockRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
@@ -66176,27 +66026,46 @@ const TreeBlock = ({ children, title, type = "default", dragValue, onClick, onDr
         dragCount.current++;
     }, []);
     const onDragLeave = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        var _a, _b, _c;
         dragCount.current--;
         if (dragCount.current === 0) {
             onDragOverItem === null || onDragOverItem === void 0 ? void 0 : onDragOverItem(event);
+            const classesToRemove = (_c = (_b = (_a = onDropActionRef.current) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.split(" ")) !== null && _c !== void 0 ? _c : [];
+            blockRef.current.classList.remove("_drop", ...classesToRemove);
         }
         if (dragRef.current)
             dragRef.current.dropEffect = null;
     }, [onDragOverItem]);
     const onDragOver = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        var _a, _b, _c;
         const handler = onDragOverItem === null || onDragOverItem === void 0 ? void 0 : onDragOverItem(event, dragRef.current);
+        const classesToRemove = (_c = (_b = (_a = onDropActionRef.current) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.split(" ")) !== null && _c !== void 0 ? _c : [];
+        blockRef.current.classList.remove("_drop", ...classesToRemove);
         if (!handler)
             return;
         event.dataTransfer.dropEffect = dragRef.current.dropEffect;
         event.preventDefault();
         onDropActionRef.current = handler;
+        blockRef.current.classList.add("_drop", ...handler[0].split(" "));
     }, [onDragOverItem]);
     const onDrop = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
-        var _a;
+        var _a, _b, _c, _d, _e;
         dragCount.current = 0;
-        return (_a = onDropActionRef.current) === null || _a === void 0 ? void 0 : _a.call(onDropActionRef, event);
+        if (!onDropActionRef.current)
+            return;
+        const classesToRemove = (_c = (_b = (_a = onDropActionRef.current) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.split(" ")) !== null && _c !== void 0 ? _c : [];
+        blockRef.current.classList.remove("_drop", ...classesToRemove);
+        return (_e = (_d = onDropActionRef.current) === null || _d === void 0 ? void 0 : _d[1]) === null || _e === void 0 ? void 0 : _e.call(_d, event);
     }, []);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { ref: blockRef, title: title, className: classnames__WEBPACK_IMPORTED_MODULE_1___default()("track-tree-block", `_${type}`), draggable: dragValue != null, onDragStart: onDragStart, onDragEnd: onDragEnd, onDrag: onDrag, onClick: onClick, onDragEnter: onDragEnter, onDragLeave: onDragLeave, onDragOver: onDragOver, onDrop: onDrop }, children));
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { ref: blockRef, title: title, className: classnames__WEBPACK_IMPORTED_MODULE_1___default()("track-tree-block", `_${type}`), draggable: dragValue != null, onDragStart: onDragStart, onDragEnd: onDragEnd, onDrag: onDrag, onClick: onClick, onDragEnter: onDragEnter, onDragLeave: onDragLeave, onDragOver: onDragOver, onDrop: onDrop },
+        children,
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-tree-block-space" }),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-tree-block-right" },
+            right,
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-tree-drop-icon-content" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-edit track-tree-icon track-tree-icon-replace" }),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-plus track-tree-icon track-tree-icon-add-item" }),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-plus-square track-tree-icon track-tree-icon-add-array" })))));
 };
 function createDefaultDragTypeBehavior(dataType, path, dispatch, onDragOverItem) {
     return (event, dragData) => {
@@ -66213,7 +66082,7 @@ function createDefaultDragTypeBehavior(dataType, path, dispatch, onDragOverItem)
         else if (event.shiftKey)
             mode = dragData.deleteAction ? "move" : "none";
         else
-            mode = dragData.deleteAction ? "move" : "copy";
+            mode = "copy";
         if (mode === "none")
             return void (dragData.dropEffect = "none");
         const typedValue = dragData === null || dragData === void 0 ? void 0 : dragData.typedValue;
@@ -66223,15 +66092,15 @@ function createDefaultDragTypeBehavior(dataType, path, dispatch, onDragOverItem)
         if (!valueColor)
             return void (dragData.dropEffect = "none");
         dragData.dropEffect = mode;
-        return () => {
-            const changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.EditValueAction)(path, valueColor);
-            if (mode === "move" && dragData.deleteAction) {
-                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.MultiAction)([changeAction, dragData.deleteAction]));
-            }
-            else {
-                dispatch(changeAction);
-            }
-        };
+        return ["_drop-replace", () => {
+                const changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.EditValueAction)(path, valueColor);
+                if (mode === "move" && dragData.deleteAction) {
+                    dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.MultiAction)([changeAction, dragData.deleteAction]));
+                }
+                else {
+                    dispatch(changeAction);
+                }
+            }];
     };
 }
 
@@ -66290,15 +66159,9 @@ const ArrayElementsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value,
 });
 const ArrayElementTrack = ({ type, value, path, parentPath, canDelete, index, canInsert }) => {
     const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_3__.TrackContext);
-    const dropTargetTopRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
-    const dropTargetBottomRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
-    const setDropTargetVisible = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((side) => {
-        dropTargetTopRef.current.classList.toggle("_drop-target", side === "top");
-        dropTargetBottomRef.current.classList.toggle("_drop-target", side === "bottom");
-    }, []);
     const onDragOverItemSelf = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, dragData) => {
         if (!canInsert || !dragData)
-            return setDropTargetVisible(null);
+            return;
         let side = null;
         const offsetY = event.nativeEvent.offsetY;
         if (offsetY < 10)
@@ -66309,7 +66172,7 @@ const ArrayElementTrack = ({ type, value, path, parentPath, canDelete, index, ca
                 side = "bottom";
         }
         if (!side)
-            return setDropTargetVisible(null);
+            return;
         let allowLink = dragData[type + "Link"] != null;
         let mode = allowLink ? "link" : "none";
         if (event.ctrlKey && event.shiftKey)
@@ -66331,43 +66194,40 @@ const ArrayElementTrack = ({ type, value, path, parentPath, canDelete, index, ca
         }
         const typedValue = dragData.typedValue;
         if (insertValue === undefined && !typedValue)
-            return setDropTargetVisible(null);
+            return;
         if (insertValue === undefined && typedValue.type === type)
             insertValue = typedValue.value;
         if (insertValue === undefined && typedValue.type === "array:" + type)
             insertValue = typedValue.value;
         if (insertValue === undefined)
-            return setDropTargetVisible(null);
+            return;
         if (!mode)
-            return setDropTargetVisible(null);
+            return;
         if (mode === "move" && insertValue !== value && (0,_utils_isObjectContains__WEBPACK_IMPORTED_MODULE_7__.isObjectEqualOrContains)(insertValue, value)) {
             dragData.dropEffect = "none";
-            return setDropTargetVisible(null);
+            return;
         }
         dragData.dropEffect = mode;
-        setDropTargetVisible(side);
-        return () => {
-            let insertAction;
-            let insertIndex = side === "top" ? index : index + 1;
-            if (typedValue.type === type)
-                insertAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.InsertValuesAction)(parentPath, insertIndex, [insertValue]);
-            else
-                insertAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.InsertValuesAction)(parentPath, insertIndex, insertValue);
-            if (mode === "move" && dragData.deleteAction) {
-                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.MultiAction)([insertAction, dragData.deleteAction]));
-            }
-            else {
-                dispatch(insertAction);
-            }
-            return setDropTargetVisible(null);
-        };
+        return [`_drop-insert _drop-insert-${side}`, () => {
+                let insertAction;
+                let insertIndex = side === "top" ? index : index + 1;
+                if (typedValue.type === type)
+                    insertAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.InsertValuesAction)(parentPath, insertIndex, [insertValue]);
+                else
+                    insertAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.InsertValuesAction)(parentPath, insertIndex, insertValue);
+                if (mode === "move" && dragData.deleteAction) {
+                    dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.MultiAction)([insertAction, dragData.deleteAction]));
+                }
+                else {
+                    dispatch(insertAction);
+                }
+                return;
+            }];
     }, [path, dispatch]);
     const deleteAction = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         return canDelete ? (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.DeleteAction)(path) : undefined;
     }, [canDelete, path]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_1__.ValueTrack, { type: type, value: value, path: path, deleteAction: deleteAction, onDragOverItem: onDragOverItemSelf },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "array-track-drop-target _top", ref: dropTargetTopRef }),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "array-track-drop-target _bottom", ref: dropTargetBottomRef }),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { title: "[Alt + Click] = delete" },
             "[",
             index,
@@ -66447,7 +66307,7 @@ const ArrayTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, type, c
         if (mode === "none")
             return void (dragData.dropEffect = "none");
         let dragOverValue;
-        let replaceArray = false;
+        let pushMode = "add-item";
         if (mode === "link" && allowLink) {
             dragOverValue = dragData[type + "Link"];
         }
@@ -66463,31 +66323,31 @@ const ArrayTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, type, c
             dragOverValue = typedValue.value;
         if (dragOverValue === undefined && typedValue.type === "array:" + type) {
             dragOverValue = typedValue.value;
-            replaceArray = true;
+            pushMode = event.altKey ? "add-array" : "replace";
         }
         if (dragOverValue === undefined)
             return;
-        if (value === dragOverValue)
+        if (value === dragOverValue && mode === "move" && pushMode === "replace")
             return;
         if (mode === "move" && (0,_utils_isObjectContains__WEBPACK_IMPORTED_MODULE_8__.isObjectEqualOrContains)(dragOverValue, value)) {
             return void (dragData.dropEffect = "none");
         }
         dragData.dropEffect = mode;
-        return () => {
-            let editAction;
-            if (replaceArray)
-                editAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.EditValueAction)(path, dragOverValue);
-            else
-                editAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.InsertValuesAction)(path, value.length, [dragOverValue]);
-            console.log("InsertValuesAction", editAction, dragData);
-            if (mode === "move" && dragData.deleteAction) {
-                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.MultiAction)([editAction, dragData.deleteAction]));
-            }
-            else {
-                dispatch(editAction);
-            }
-            return void (dragData.dropEffect = "none");
-        };
+        return [`_drop-${pushMode}`, () => {
+                let editAction;
+                if (pushMode === "replace")
+                    editAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.EditValueAction)(path, dragOverValue);
+                else if (pushMode === "add-array")
+                    editAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.InsertValuesAction)(path, value.length, dragOverValue);
+                else
+                    editAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.InsertValuesAction)(path, value.length, [dragOverValue]);
+                if (mode === "move" && dragData.deleteAction) {
+                    dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.MultiAction)([editAction, dragData.deleteAction]));
+                }
+                else {
+                    dispatch(editAction);
+                }
+            }];
     }, [path, dispatch, onDragOverItem]);
     const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         if (!event.ctrlKey && event.altKey && !event.shiftKey) {
@@ -66787,21 +66647,21 @@ const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path,
         }
         if (mode === "link" && valueEffect[2] === alias)
             return void (dragData.dropEffect = "none");
-        return () => {
-            let changeAction;
-            if (mode === "link" && effect !== null && valueEffect !== null) {
-                changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)(path, [true, null, valueEffect[2], effect[3]]);
-            }
-            else {
-                changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)(path, valueEffect);
-            }
-            if (mode === "move" && dragData.deleteAction) {
-                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.MultiAction)([changeAction, dragData.deleteAction]));
-            }
-            else {
-                dispatch(changeAction);
-            }
-        };
+        return ["_drop-replace", () => {
+                let changeAction;
+                if (mode === "link" && effect !== null && valueEffect !== null) {
+                    changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)(path, [true, null, valueEffect[2], effect[3]]);
+                }
+                else {
+                    changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)(path, valueEffect);
+                }
+                if (mode === "move" && dragData.deleteAction) {
+                    dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.MultiAction)([changeAction, dragData.deleteAction]));
+                }
+                else {
+                    dispatch(changeAction);
+                }
+            }];
     }, [onDragOverItem, path, dispatch]);
     const { effectConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_3__.TrackContext);
     const onChangeEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((type, value) => {
@@ -67030,15 +66890,15 @@ const FilterTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ baseExpanded,
         }
         if (mode === "link" && valueFilter[2] === alias)
             return void (dragData.dropEffect = "none");
-        return () => {
-            let changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.EditValueAction)(path, valueFilter);
-            if (mode === "move" && dragData.deleteAction) {
-                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.MultiAction)([changeAction, dragData.deleteAction]));
-            }
-            else {
-                dispatch(changeAction);
-            }
-        };
+        return ["_drop-replace", () => {
+                let changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.EditValueAction)(path, valueFilter);
+                if (mode === "move" && dragData.deleteAction) {
+                    dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.MultiAction)([changeAction, dragData.deleteAction]));
+                }
+                else {
+                    dispatch(changeAction);
+                }
+            }];
     }, [onDragOverItem, path, dispatch]);
     const { filterConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_3__.TrackContext);
     const onChangeFilter = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((type, value) => {
@@ -67261,9 +67121,9 @@ const GroupEffectsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effects
         if (valueEffect === undefined)
             return void (dragData.dropEffect = "none");
         dragData.dropEffect = mode;
-        return () => {
-            setEffect(valueEffect);
-        };
+        return ["_drop-insert", () => {
+                setEffect(valueEffect);
+            }];
     }, [path, dispatch]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         if (effect)
@@ -67272,7 +67132,7 @@ const GroupEffectsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effects
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_4__.TreeBlock, { type: "title", onClick: onClickTree, onDragOverItem: onDragOverItemSelf },
             expander,
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description", onClick: changeExpanded },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description" },
                 "Effects (",
                 count,
                 ")")),
@@ -67403,9 +67263,9 @@ const GroupFiltersTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ filters
         if (valueFilter === undefined)
             return void (dragData.dropEffect = "none");
         dragData.dropEffect = mode;
-        return () => {
-            setFilter(valueFilter);
-        };
+        return ["_drop-insert", () => {
+                setFilter(valueFilter);
+            }];
     }, [path, dispatch]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         if (filter)
@@ -67414,7 +67274,7 @@ const GroupFiltersTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ filters
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_4__.TreeBlock, { type: "title", onClick: onClickTree, onDragOverItem: onDragOverItemSelf },
             expander,
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description", onClick: changeExpanded },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description" },
                 "Filters (",
                 count,
                 ")")),
@@ -67427,13 +67287,7 @@ const GroupFiltersTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ filters
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { ref: inputRef, type: "text", placeholder: "prefab name", value: name, onChange: onEditName }),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { type: "submit", onClick: add, disabled: !name || name in filtersMap }, "add"),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { type: "reset" }, "cancel"))))),
-        aliasesList.map(alias => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(AliasFilterTrack, { name: alias.name, path: alias.path, key: alias.name, value: alias.value }))),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_4__.TreeBlock, { type: "description" }),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_5__.TimelineBlock, { fixed: true, type: "description" },
-                "Add new filter prefab:",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { autoFocus: true, type: "text", placeholder: "prefab name", value: name, onChange: onEditName }),
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { onClick: add, disabled: !name || name in filtersMap }, "add")))));
+        aliasesList.map(alias => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(AliasFilterTrack, { name: alias.name, path: alias.path, key: alias.name, value: alias.value })))));
 });
 const defaultFilter = null;
 const AliasFilterTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, path, name }) => {
@@ -68285,7 +68139,7 @@ const TreeBlockFilter = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ dragValue
 /*! namespace exports */
 /*! export InlineColorEditor [provided] [no usage info] [missing usage info prevents renaming] */
 /*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_require__, __webpack_require__.n, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
+/*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -68298,7 +68152,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _plix_effect_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @plix-effect/core */ "./node_modules/@plix-effect/core/dist/parser/index.js");
 /* harmony import */ var react_color__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-color */ "./node_modules/react-color/es/index.js");
 /* harmony import */ var _plix_effect_core_color__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @plix-effect/core/color */ "./node_modules/@plix-effect/core/dist/Color.js");
-/* harmony import */ var _plix_effect_core_color__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var reactjs_popup__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! reactjs-popup */ "./node_modules/reactjs-popup/dist/reactjs-popup.esm.js");
 
 
