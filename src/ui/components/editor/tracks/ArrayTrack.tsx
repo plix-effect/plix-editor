@@ -31,7 +31,7 @@ export interface ArrayTrackProps {
     type: string,
     children: [name: ReactNode,desc: ReactNode]
     path: EditorPath,
-    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler,
+    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler],
     deleteAction?: MultiActionType,
     clearAction?: MultiActionType,
 }
@@ -56,7 +56,7 @@ export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [na
         }
     }, [type, value, deleteAction]);
 
-    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | DragEventHandler => {
+    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | [string, DragEventHandler] => {
         const originDragHandler = onDragOverItem?.(event, dragData);
         if (originDragHandler) return originDragHandler;
         if (!dragData) return;
@@ -72,7 +72,7 @@ export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [na
         if (mode === "none") return void (dragData.dropEffect = "none");
 
         let dragOverValue;
-        let replaceArray = false;
+        let pushMode: "add-item"|"replace"|"add-array" = "add-item";
         if (mode === "link" && allowLink) {
             dragOverValue = dragData[type+"Link"]
         }
@@ -87,29 +87,28 @@ export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [na
         if (dragOverValue === undefined && typedValue.type === type) dragOverValue = typedValue.value;
         if (dragOverValue === undefined && typedValue.type === "array:"+type) {
             dragOverValue = typedValue.value;
-            replaceArray = true;
+            pushMode = event.altKey ? "add-array" : "replace";
         }
         if (dragOverValue === undefined) return;
 
-        if (value === dragOverValue) return;
+        if (value === dragOverValue && mode === "move" && pushMode === "replace") return;
         if (mode === "move" && isObjectEqualOrContains(dragOverValue, value)) {
             return void (dragData.dropEffect = "none");
         }
 
         dragData.dropEffect = mode;
 
-        return () => {
+        return [`_drop-${pushMode}`, () => {
             let editAction;
-            if (replaceArray) editAction = EditValueAction(path, dragOverValue);
+            if (pushMode === "replace") editAction = EditValueAction(path, dragOverValue);
+            else if (pushMode === "add-array") editAction = InsertValuesAction(path, value.length, dragOverValue);
             else editAction = InsertValuesAction(path, value.length, [dragOverValue]);
-            console.log("InsertValuesAction", editAction, dragData);
             if (mode === "move" && dragData.deleteAction) {
                 dispatch(MultiAction([editAction, dragData.deleteAction]))
             } else { // action === "copy" || action === "link"
                 dispatch(editAction);
             }
-            return void (dragData.dropEffect = "none");
-        };
+        }];
     }, [path, dispatch, onDragOverItem]);
 
 

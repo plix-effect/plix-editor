@@ -17,7 +17,7 @@ export interface ValueTrackProps {
     path: EditorPath,
     clearAction?: MultiActionType
     deleteAction?: MultiActionType
-    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler
+    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]
 }
 export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, children, path, deleteAction, clearAction, onDragOverItem}) => {
 

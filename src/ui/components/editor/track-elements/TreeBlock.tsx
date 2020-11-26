@@ -3,7 +3,7 @@ import React, {
     DragEvent,
     DragEventHandler,
     FC,
-    MouseEventHandler,
+    MouseEventHandler, ReactNode,
     useCallback,
     useContext,
     useMemo,
@@ -23,7 +23,8 @@ export interface TreeBlockProps {
     dragValue?: DragType,
     onClick?: MouseEventHandler<HTMLDivElement>,
     title?: string,
-    onDragOverItem?: (event: DragEvent<HTMLElement>, value?: DragType) => void | DragEventHandler
+    right?: ReactNode,
+    onDragOverItem?: (event: DragEvent<HTMLElement>, value?: DragType) => void | [string,DragEventHandler]
 }
 export const TreeBlock: FC<TreeBlockProps> = (
     {
@@ -32,13 +33,14 @@ export const TreeBlock: FC<TreeBlockProps> = (
         type = "default",
         dragValue,
         onClick,
-        onDragOverItem
+        onDragOverItem,
+        right
     }
 ) => {
     const dragRef = useContext(DragContext);
     const dragCount = useRef(0);
     const blockRef = useRef<HTMLDivElement>();
-    const onDropActionRef = useRef<DragEventHandler>();
+    const onDropActionRef = useRef<[string,DragEventHandler]>();
 
     const onDragStart: DragEventHandler<HTMLDivElement> = useCallback((event) => {
         dragRef.current = {
@@ -69,21 +71,29 @@ export const TreeBlock: FC<TreeBlockProps> = (
         dragCount.current--;
         if (dragCount.current === 0) {
             onDragOverItem?.(event);
+            const classesToRemove = onDropActionRef.current?.[0]?.split(" ") ?? []
+            blockRef.current.classList.remove("_drop", ...classesToRemove);
         }
         if (dragRef.current) dragRef.current.dropEffect = null;
     }, [onDragOverItem]);
 
     const onDragOver = useCallback((event: DragEvent<HTMLElement>) => {
         const handler = onDragOverItem?.(event, dragRef.current);
+        const classesToRemove = onDropActionRef.current?.[0]?.split(" ") ?? []
+        blockRef.current.classList.remove("_drop", ...classesToRemove);
         if (!handler) return;
         event.dataTransfer.dropEffect = dragRef.current.dropEffect;
         event.preventDefault();
         onDropActionRef.current = handler;
+        blockRef.current.classList.add("_drop", ...handler[0].split(" "));
     }, [onDragOverItem]);
 
     const onDrop = useCallback((event: DragEvent<HTMLElement>) => {
         dragCount.current = 0;
-        return onDropActionRef.current?.(event);
+        if (!onDropActionRef.current) return;
+        const classesToRemove = onDropActionRef.current?.[0]?.split(" ") ?? []
+        blockRef.current.classList.remove("_drop", ...classesToRemove);
+        return onDropActionRef.current?.[1]?.(event);
     }, []);
 
 
@@ -103,6 +113,16 @@ export const TreeBlock: FC<TreeBlockProps> = (
             onDrop={onDrop}
         >
             {children}
+            <div className="track-tree-block-space"/>
+            <div className="track-tree-block-right">
+                {right}
+                <div className="track-tree-drop-icon-content">
+                    <i className="fa fa-edit track-tree-icon track-tree-icon-replace"/>
+                    <i className="fa fa-plus track-tree-icon track-tree-icon-add-item"/>
+                    <i className="fa fa-plus-square track-tree-icon track-tree-icon-add-array"/>
+                </div>
+            </div>
+
         </div>
     )
 }
@@ -111,9 +131,9 @@ export function createDefaultDragTypeBehavior(
     dataType: string,
     path: EditorPath,
     dispatch: Dispatch<PlixEditorAction>,
-    onDragOverItem?: (event: DragEvent<HTMLElement>, value?: DragType) => void | DragEventHandler,
-): (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler{
-    return (event: DragEvent<HTMLElement>, dragData: DragType): void | DragEventHandler => {
+    onDragOverItem?: (event: DragEvent<HTMLElement>, value?: DragType) => void | [string, DragEventHandler],
+): (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]{
+    return (event: DragEvent<HTMLElement>, dragData: DragType): void | [string, DragEventHandler] => {
         const originDragHandler = onDragOverItem?.(event, dragData);
         if (originDragHandler) return originDragHandler;
         if (!dragData) return;
@@ -122,7 +142,7 @@ export function createDefaultDragTypeBehavior(
         if (event.ctrlKey && event.shiftKey) mode = "none";
         else if (event.ctrlKey) mode = "copy";
         else if (event.shiftKey) mode = dragData.deleteAction ? "move" : "none";
-        else mode = dragData.deleteAction ? "move" : "copy";
+        else mode = "copy";
         if (mode === "none") return void (dragData.dropEffect = "none");
 
         const typedValue = dragData?.typedValue;
@@ -131,13 +151,13 @@ export function createDefaultDragTypeBehavior(
         if (!valueColor) return void (dragData.dropEffect = "none");
 
         dragData.dropEffect = mode;
-        return () => {
+        return ["_drop-replace", () => {
             const changeAction = EditValueAction(path, valueColor);
             if (mode === "move" && dragData.deleteAction) {
                 dispatch(MultiAction([changeAction, dragData.deleteAction]))
             } else { // action === "copy" || action === "link"
                 dispatch(changeAction);
             }
-        };
+        }];
     }
 }

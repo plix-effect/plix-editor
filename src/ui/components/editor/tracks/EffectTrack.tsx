@@ -31,7 +31,7 @@ export interface EffectTrackProps {
     effect: PlixEffectJsonData,
     deleteAction?: MultiActionType,
     clearAction?: MultiActionType,
-    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler
+    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]
 }
 export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpanded, children, alias, deleteAction, clearAction, onDragOverItem}) => {
     const [expanded, expander, changeExpanded, setExpanded] = useExpander(baseExpanded);
@@ -47,7 +47,7 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
 
     const {dispatch} = useContext(TrackContext);
 
-    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | DragEventHandler => {
+    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | [string, DragEventHandler] => {
         const originDragHandler = onDragOverItem?.(event, dragData);
         if (originDragHandler) return originDragHandler;
         if (!dragData) return;
@@ -78,7 +78,8 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
             if (isObjectEqualOrContains(valueEffect, effect)) return void (dragData.dropEffect = "none");
         }
         if (mode === "link" && valueEffect[2] === alias) return void (dragData.dropEffect = "none");
-        return () => {
+
+        return ["_drop-replace", () => {
             let changeAction;
             if (mode === "link" && effect !== null && valueEffect !== null) { // save filters on paste as link
                 changeAction = EditValueAction(path, [true, null, valueEffect[2], effect[3]]);
@@ -90,7 +91,7 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
             } else { // action === "copy" || action === "link"
                 dispatch(changeAction);
             }
-        };
+        }];
     }, [onDragOverItem, path, dispatch]);
 
     const {effectConstructorMap} = useContext(TrackContext);

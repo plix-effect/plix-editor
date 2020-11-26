@@ -37,7 +37,7 @@ export interface FilterTrackProps {
     alias?: string,
     clearAction?: MultiActionType,
     deleteAction?: MultiActionType,
-    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler
+    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]
 }
 export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, filter, path, children, alias, deleteAction, onDragOverItem, clearAction}) => {
     const [expanded, expander, changeExpanded, setExpanded] = useExpander(baseExpanded);
@@ -52,7 +52,7 @@ export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, filter, pa
         }
     }, [filter, alias, deleteAction]);
 
-    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | DragEventHandler => {
+    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | [string, DragEventHandler] => {
         const originDragHandler = onDragOverItem?.(event, dragData);
         if (originDragHandler) return originDragHandler;
         if (!dragData) return;
@@ -83,14 +83,14 @@ export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, filter, pa
             if (isObjectEqualOrContains(valueFilter, filter)) return void (dragData.dropEffect = "none");
         }
         if (mode === "link" && valueFilter[2] === alias) return void (dragData.dropEffect = "none");
-        return () => {
+        return ["_drop-replace", () => {
             let changeAction = EditValueAction(path, valueFilter);
             if (mode === "move" && dragData.deleteAction) {
                 dispatch(MultiAction([changeAction, dragData.deleteAction]))
             } else { // action === "copy" || action === "link"
                 dispatch(changeAction);
             }
-        };
+        }];
     }, [onDragOverItem, path, dispatch]);
 
 

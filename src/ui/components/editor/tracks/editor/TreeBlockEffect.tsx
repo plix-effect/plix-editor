@@ -27,7 +27,7 @@ export interface TreeBlockEffectProps {
     setExpanded: Dispatch<SetStateAction<boolean>>,
     expander: ReactNode,
     changeExpanded: () => void,
-    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler
+    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]
 }
 export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effect, path, deleteAction, setExpanded, clearAction, expander, changeExpanded, children, onDragOverItem}) => {
     const {dispatch} = useContext(TrackContext);

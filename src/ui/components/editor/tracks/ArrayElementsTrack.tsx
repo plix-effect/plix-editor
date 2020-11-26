@@ -63,16 +63,9 @@ interface ArrayElementTrackProps {
 const ArrayElementTrack:FC<ArrayElementTrackProps> = ({type, value, path, parentPath, canDelete, index, canInsert}) => {
 
     const {dispatch} = useContext(TrackContext);
-    const dropTargetTopRef = useRef<HTMLDivElement>();
-    const dropTargetBottomRef = useRef<HTMLDivElement>();
 
-    const setDropTargetVisible = useCallback((side: "top"|"bottom"|null) => {
-        dropTargetTopRef.current.classList.toggle("_drop-target", side === "top");
-        dropTargetBottomRef.current.classList.toggle("_drop-target", side === "bottom");
-    }, []);
-
-    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | DragEventHandler => {
-        if (!canInsert || !dragData) return setDropTargetVisible(null);
+    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | [string, DragEventHandler] => {
+        if (!canInsert || !dragData) return;
         let side: "top"|"bottom"|null = null;
         const offsetY = event.nativeEvent.offsetY;
         if (offsetY < 10) side = "top";
@@ -80,7 +73,7 @@ const ArrayElementTrack:FC<ArrayElementTrackProps> = ({type, value, path, parent
             const {height} = event.currentTarget.getBoundingClientRect();
             if (offsetY > height - 10) side = "bottom";
         }
-        if (!side) return setDropTargetVisible(null);
+        if (!side) return;
         let allowLink = dragData[type+"Link"] != null;
 
         let mode: "copy"|"move"|"link"|"none" = allowLink ? "link" : "none";
@@ -99,21 +92,20 @@ const ArrayElementTrack:FC<ArrayElementTrackProps> = ({type, value, path, parent
         }
 
         const typedValue = dragData.typedValue;
-        if (insertValue === undefined && !typedValue) return setDropTargetVisible(null);
+        if (insertValue === undefined && !typedValue) return;
         if (insertValue === undefined && typedValue.type === type) insertValue = typedValue.value;
         if (insertValue === undefined && typedValue.type === "array:"+type) insertValue = typedValue.value;
-        if (insertValue === undefined) return setDropTargetVisible(null);
+        if (insertValue === undefined) return;
 
-        if (!mode) return setDropTargetVisible(null);
+        if (!mode) return;
         if (mode === "move" && insertValue !== value && isObjectEqualOrContains(insertValue, value)) {
             dragData.dropEffect = "none";
-            return setDropTargetVisible(null);
+            return;
         }
 
         dragData.dropEffect = mode;
-        setDropTargetVisible(side);
 
-        return () => {
+        return [`_drop-insert _drop-insert-${side}`, () => {
             let insertAction;
             let insertIndex = side === "top" ? index: index+1;
             if (typedValue.type === type) insertAction = InsertValuesAction(parentPath, insertIndex, [insertValue]);
@@ -123,8 +115,8 @@ const ArrayElementTrack:FC<ArrayElementTrackProps> = ({type, value, path, parent
             } else { // action === "copy" || action === "link"
                 dispatch(insertAction);
             }
-            return setDropTargetVisible(null);
-        };
+            return;
+        }];
     }, [path, dispatch]);
 
     const deleteAction = useMemo(() => {
@@ -133,8 +125,6 @@ const ArrayElementTrack:FC<ArrayElementTrackProps> = ({type, value, path, parent
 
     return (
         <ValueTrack type={type} value={value} path={path} deleteAction={deleteAction} onDragOverItem={onDragOverItemSelf}>
-            <span className="array-track-drop-target _top" ref={dropTargetTopRef}/>
-            <span className="array-track-drop-target _bottom" ref={dropTargetBottomRef}/>
             <span title="[Alt + Click] = delete">[{index}]</span>
         </ValueTrack>
     )

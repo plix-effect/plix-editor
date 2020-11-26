@@ -82,7 +82,7 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
         add();
     }, [add]);
 
-    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | DragEventHandler => {
+    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | [string, DragEventHandler] => {
         if (!dragData) return;
         let mode: "copy"|"move"|"link"|"none" = "none";
         if (event.ctrlKey && event.shiftKey) mode = "link";
@@ -105,9 +105,9 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
         if (valueFilter === undefined) return void (dragData.dropEffect = "none");
         dragData.dropEffect = mode;
 
-        return () => {
+        return ["_drop-insert", () => {
             setFilter(valueFilter);
-        }
+        }]
     }, [path, dispatch]);
 
 
@@ -120,7 +120,7 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
         <Track nested expanded={expanded}>
             <TreeBlock type="title" onClick={onClickTree} onDragOverItem={onDragOverItemSelf}>
                 {expander}
-                <span className="track-description" onClick={changeExpanded}>Filters ({count})</span>
+                <span className="track-description">Filters ({count})</span>
             </TreeBlock>
             <TimelineBlock type="title" fixed onClick={onClickTimeline}>
                 {filter === undefined && (
@@ -140,15 +140,6 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
             {aliasesList.map(alias => (
                 <AliasFilterTrack name={alias.name} path={alias.path} key={alias.name} value={alias.value}/>
             ))}
-            <Track>
-                <TreeBlock type="description">
-                </TreeBlock>
-                <TimelineBlock fixed type="description">
-                    Add new filter prefab:
-                    <input autoFocus type="text" placeholder="prefab name" value={name} onChange={onEditName} />
-                    <button onClick={add} disabled={!name || name in filtersMap}>add</button>
-                </TimelineBlock>
-            </Track>
         </Track>
     )
 });

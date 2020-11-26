@@ -25,7 +25,7 @@ export interface ValueUnknownTrackProps {
     path: EditorPath,
     clearAction?: MultiActionType,
     deleteAction?: MultiActionType,
-    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler
+    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]
 }
 export const NumberTrack: FC<ValueUnknownTrackProps> = memo(({value, children, path, deleteAction, clearAction, onDragOverItem}) => {
     const {dispatch} = useContext(TrackContext);

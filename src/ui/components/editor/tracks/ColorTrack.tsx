@@ -25,7 +25,7 @@ export interface ColorTrackProps {
     path: EditorPath,
     deleteAction?: MultiActionType,
     clearAction?: MultiActionType,
-    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler
+    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]
 }
 export const ColorTrack: FC<ColorTrackProps> = memo(({value, children, path, deleteAction, clearAction, onDragOverItem}) => {
     const color = parseColor(value, null);

@@ -84,7 +84,7 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
         add();
     }, [add]);
 
-    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | DragEventHandler => {
+    const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | [string, DragEventHandler] => {
         if (!dragData) return;
         let mode: "copy"|"move"|"link"|"none" = "none";
         if (event.ctrlKey && event.shiftKey) mode = "link";
@@ -107,9 +107,9 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
         if (valueEffect === undefined) return void (dragData.dropEffect = "none");
         dragData.dropEffect = mode;
 
-        return () => {
+        return ["_drop-insert", () => {
             setEffect(valueEffect);
-        }
+        }]
     }, [path, dispatch]);
 
 
@@ -121,7 +121,7 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
         <Track nested expanded={expanded}>
             <TreeBlock type="title" onClick={onClickTree} onDragOverItem={onDragOverItemSelf}>
                 {expander}
-                <span className="track-description" onClick={changeExpanded}>Effects ({count})</span>
+                <span className="track-description">Effects ({count})</span>
             </TreeBlock>
             <TimelineBlock type="title" fixed onClick={onClickTimeline}>
                 {effect === undefined && (
