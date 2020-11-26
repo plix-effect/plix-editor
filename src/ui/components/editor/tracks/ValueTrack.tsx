@@ -15,14 +15,15 @@ export interface ValueTrackProps {
     children?: ReactNode
     description?: ReactNode
     path: EditorPath,
+    clearAction?: MultiActionType
     deleteAction?: MultiActionType
     onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler
 }
-export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, children, path, deleteAction, onDragOverItem}) => {
+export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, children, path, deleteAction, clearAction, onDragOverItem}) => {
 
     if (type.startsWith("array:")) {
         return (
-            <ArrayTrack path={path} value={value} type={type.substring(6)} onDragOverItem={onDragOverItem} deleteAction={deleteAction}>
+            <ArrayTrack path={path} value={value} type={type.substring(6)} onDragOverItem={onDragOverItem} deleteAction={deleteAction} clearAction={clearAction}>
                 {children}
                 <span className="track-description _desc">{description}</span>
             </ArrayTrack>
@@ -30,33 +31,35 @@ export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, 
     }
     if (type === "filter") {
         return (
-            <FilterTrack filter={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction}>
+            <FilterTrack filter={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction} clearAction={clearAction}>
                 {children}
             </FilterTrack>
         )
     }
     if (type === "effect") {
         return (
-            <EffectTrack effect={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction}>
+            <EffectTrack effect={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction} clearAction={clearAction}>
                 {children}
             </EffectTrack>
         );
     }
     if (type === "color") {
         return (
-            <ColorTrack value={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction}>
+            <ColorTrack value={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction} clearAction={clearAction}>
                 {children}
             </ColorTrack>
         );
     }
     if (type === "number") {
         return (
-            <NumberTrack value={value} path={path}>
+            <NumberTrack value={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction} clearAction={clearAction}>
                 <span>{children}</span>
             </NumberTrack>
         )
     }
-    return <ValueUnknownTrack value={value} path={path} >
-        <span>{children}</span>
-    </ValueUnknownTrack>
+    return (
+        <ValueUnknownTrack type={type} value={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction} clearAction={clearAction}>
+            <span>{children}</span>
+        </ValueUnknownTrack>
+    )
 });

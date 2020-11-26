@@ -33,9 +33,10 @@ export interface ArrayTrackProps {
     path: EditorPath,
     onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler,
     deleteAction?: MultiActionType,
+    clearAction?: MultiActionType,
 }
-export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [name, desc], path, onDragOverItem, deleteAction}) => {
-    const [expanded, expander, changeExpanded] = useExpander(false);
+export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [name, desc], path, onDragOverItem, deleteAction, clearAction}) => {
+    const [expanded, expander, changeExpanded, setExpanded] = useExpander(false);
     const {dispatch} = useContext(TrackContext);
 
     const valueToPush = useMemo(() => {
@@ -45,7 +46,8 @@ export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [na
 
     const push = useCallback(() => {
         dispatch(PushValueAction(path, valueToPush));
-    }, [valueToPush]);
+        setExpanded(true);
+    }, [dispatch, path, valueToPush, setExpanded]);
 
     const dragValue: DragType = useMemo<DragType>(() => {
         return {
@@ -112,14 +114,23 @@ export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [na
 
 
     const onClick: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
-        if (event.altKey && deleteAction) dispatch(deleteAction);
-    }, [deleteAction, dispatch]);
+        if (!event.ctrlKey && event.altKey && !event.shiftKey) {
+            if (deleteAction || clearAction) dispatch(deleteAction ?? clearAction);
+        }
+        if (!event.ctrlKey && !event.altKey && event.shiftKey) {
+            if (valueToPush !== undefined) push();
+        }
+        if (event.ctrlKey && event.altKey && !event.shiftKey) {
+            if (clearAction) dispatch(clearAction);
+        }
+        if (!event.ctrlKey && !event.altKey && !event.shiftKey) changeExpanded();
+    }, [deleteAction, dispatch, valueToPush, push]);
 
     return (
         <Track nested expanded={expanded}>
             <TreeBlock onDragOverItem={onDragOverItemSelf} dragValue={dragValue} onClick={onClick}>
                 {expander}
-                <span className="track-description" onClick={changeExpanded}>{name}</span>
+                <span className="track-description">{name}</span>
                 <span>{" "}</span>
                 <span className="track-description _desc">({value.length})</span>
             </TreeBlock>

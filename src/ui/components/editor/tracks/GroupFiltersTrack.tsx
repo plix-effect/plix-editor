@@ -43,11 +43,11 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
     }, [name, filtersMap, path, dispatch]);
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock type="description">
+            <TreeBlock type="title">
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>===Filters===</span>
             </TreeBlock>
-            <TimelineBlock type="description" fixed>
+            <TimelineBlock type="title" fixed>
                 filter prefabs
             </TimelineBlock>
             {aliasesList.map(alias => (

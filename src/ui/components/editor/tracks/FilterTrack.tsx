@@ -7,29 +7,25 @@ import React, {
     useCallback,
     useContext,
     useMemo,
-    useState
 } from "react";
 import {Track} from "../../timeline/Track";
 import {
     PlixFilterJsonData,
     PlixFilterAliasJsonData,
-    PlixFilterConfigurableJsonData, PlixEffectJsonData
+    PlixFilterConfigurableJsonData,
 } from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
-import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 
 import {TrackContext} from "../TrackContext";
 import {ParseMeta} from "../../../types/ParseMeta";
 import {ValueTrack} from "./ValueTrack";
 import {useExpander} from "../track-elements/Expander";
-import {getArrayKey} from "../../../utils/KeyManager";
 import {EditValueAction, MultiAction, MultiActionType} from "../PlixEditorReducerActions";
 import {FilterTypeTrack} from "./FilterTypeTrack";
 import "./tracks.scss";
 import {InlineFilterTypeEditor} from "./editor/inline/InlineFilterTypeEditor";
 import {DragType} from "../DragContext";
-import {TreeBlockEffect} from "./editor/TreeBlockEffect";
 import {TreeBlockFilter} from "./editor/TreeBlockFilter";
 import {isObjectEqualOrContains} from "../../../utils/isObjectContains";
 
@@ -39,11 +35,12 @@ export interface FilterTrackProps {
     path: EditorPath,
     children: ReactNode,
     alias?: string,
+    clearAction?: MultiActionType,
     deleteAction?: MultiActionType,
     onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler
 }
-export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, filter, path, children, alias, deleteAction, onDragOverItem}) => {
-    const [expanded, expander, changeExpanded] = useExpander(baseExpanded);
+export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, filter, path, children, alias, deleteAction, onDragOverItem, clearAction}) => {
+    const [expanded, expander, changeExpanded, setExpanded] = useExpander(baseExpanded);
     const {dispatch} = useContext(TrackContext);
 
     const dragValue: DragType = useMemo<DragType>(() => {
@@ -64,8 +61,8 @@ export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, filter, pa
         if (event.ctrlKey && event.shiftKey) mode = "link";
         else if (event.ctrlKey) mode = "copy";
         else if (event.shiftKey) mode = dragData.deleteAction ? "move" : "none";
-        else if (dragData.filterLink) mode = "link";
-        else if (dragData.filter) mode = "copy";
+        else if (dragData.filterLink !== undefined) mode = "link";
+        else if (dragData.filter !== undefined) mode = "copy";
 
         if (mode === "none") return void (dragData.dropEffect = "none");
 
@@ -120,8 +117,10 @@ export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, filter, pa
         <TreeBlockFilter
             filter={filter}
             changeExpanded={changeExpanded}
+            setExpanded={setExpanded}
             expander={expander}
             path={path}
+            clearAction={clearAction}
             deleteAction={deleteAction}
             dragValue={dragValue}
             onDragOverItem={onDragOverItemSelf}
@@ -201,13 +200,18 @@ const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = memo(({filter,
     const filterData = useMemo(() => {
         const filterConstructor = filterConstructorMap[filterId];
         const meta: ParseMeta = filterConstructor['meta'];
-        const paramDescriptions = meta.paramNames.map((paramName, i) => ({
-            name: paramName,
-            type: meta.paramTypes[i],
-            description: meta.paramDescriptions[i],
-            value: params[i],
-            path: [...path, 2, {key: getArrayKey(params, i), array: params}] as EditorPath
-        }))
+        const paramDescriptions = meta.paramNames.map((paramName, i) => {
+            const defaultValue = meta.defaultValues[i];
+            const paramPath = [...path, 2, i];
+            return ({
+                name: paramName,
+                type: meta.paramTypes[i],
+                description: meta.paramDescriptions[i],
+                value: params[i],
+                clearAction: EditValueAction(paramPath,defaultValue),
+                path: paramPath as EditorPath
+            })
+        })
         return {
             name: meta.name,
             description: meta.description,
@@ -228,7 +232,7 @@ const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = memo(({filter,
             <FilterTypeTrack filter={filter} onChange={onChange}/>
 
             {filterData.paramDescriptions.map((paramDesc) => (
-                <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name}>
+                <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} clearAction={paramDesc.clearAction}>
                     {paramDesc.name}
                 </ValueTrack>
             ))}

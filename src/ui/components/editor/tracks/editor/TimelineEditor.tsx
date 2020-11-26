@@ -42,7 +42,7 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, cycle, grid, o
     const onDragLeave = useCallback(() => {
         dragCount.current--;
         if (dragCount.current === 0) clearDummy(dummyRef.current);
-        dragRef.current.dropEffect = null;
+        if (dragRef.current) dragRef.current.dropEffect = null;
     }, []);
 
     const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {

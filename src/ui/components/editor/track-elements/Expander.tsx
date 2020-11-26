@@ -1,4 +1,4 @@
-import React, {FC, ReactNode, useCallback, useState, DragEvent} from "react";
+import React, {FC, ReactNode, useCallback, useState, MouseEvent, Dispatch, SetStateAction} from "react";
 import cn from "classnames";
 import "./Expander.scss"
 
@@ -8,12 +8,17 @@ interface ExpanderProps {
     changeExpanded: () => void,
 }
 export const Expander: FC<ExpanderProps> = ({show = true, expanded, changeExpanded}) => {
+    const onClick = useCallback((event: MouseEvent<HTMLAnchorElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+        changeExpanded();
+    }, [changeExpanded])
     return (
-        <a onDragEnter={changeExpanded} className={cn("track-expander", show && (expanded ? "_expanded" : "_collapsed") )} onClick={changeExpanded} />
+        <a onDragEnter={changeExpanded} className={cn("track-expander", show && (expanded ? "_expanded" : "_collapsed") )} onClick={onClick} />
     );
 }
 
-export const useExpander = (baseExpanded = false, show: boolean = true): [boolean, ReactNode, () => void] => {
+export const useExpander = (baseExpanded = false, show: boolean = true): [boolean, ReactNode, () => void, Dispatch<SetStateAction<boolean>>] => {
     const [expanded, setExpanded] = useState(baseExpanded);
     const changeExpanded = useCallback(() => {
         setExpanded(v => !v);
@@ -21,6 +26,7 @@ export const useExpander = (baseExpanded = false, show: boolean = true): [boolea
     return [
         expanded,
         <Expander show={show} expanded={expanded} changeExpanded={changeExpanded}/>,
-        changeExpanded
+        changeExpanded,
+        setExpanded
     ]
 }

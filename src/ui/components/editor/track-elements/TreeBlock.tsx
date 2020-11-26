@@ -1,4 +1,5 @@
 import React, {
+    Dispatch,
     DragEvent,
     DragEventHandler,
     FC,
@@ -12,8 +13,11 @@ import React, {
 import cn from "classnames"
 import "./TreeBlock.scss"
 import {DragContext, DragType} from "../DragContext";
+import {EditValueAction, MultiAction} from "../PlixEditorReducerActions";
+import {EditorPath} from "../../../types/Editor";
+import {PlixEditorAction} from "../PlixEditorReducer";
 
-type TimelineBlockType = "default" | "description" | "timeline"
+type TimelineBlockType = "default" | "description" | "timeline" | "title"
 export interface TreeBlockProps {
     type?: TimelineBlockType
     dragValue?: DragType,
@@ -66,7 +70,7 @@ export const TreeBlock: FC<TreeBlockProps> = (
         if (dragCount.current === 0) {
             onDragOverItem?.(event);
         }
-        dragRef.current.dropEffect = null;
+        if (dragRef.current) dragRef.current.dropEffect = null;
     }, [onDragOverItem]);
 
     const onDragOver = useCallback((event: DragEvent<HTMLElement>) => {
@@ -101,4 +105,39 @@ export const TreeBlock: FC<TreeBlockProps> = (
             {children}
         </div>
     )
+}
+
+export function createDefaultDragTypeBehavior(
+    dataType: string,
+    path: EditorPath,
+    dispatch: Dispatch<PlixEditorAction>,
+    onDragOverItem?: (event: DragEvent<HTMLElement>, value?: DragType) => void | DragEventHandler,
+): (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler{
+    return (event: DragEvent<HTMLElement>, dragData: DragType): void | DragEventHandler => {
+        const originDragHandler = onDragOverItem?.(event, dragData);
+        if (originDragHandler) return originDragHandler;
+        if (!dragData) return;
+
+        let mode: "copy"|"move"|"link"|"none" =  "none";
+        if (event.ctrlKey && event.shiftKey) mode = "none";
+        else if (event.ctrlKey) mode = "copy";
+        else if (event.shiftKey) mode = dragData.deleteAction ? "move" : "none";
+        else mode = dragData.deleteAction ? "move" : "copy";
+        if (mode === "none") return void (dragData.dropEffect = "none");
+
+        const typedValue = dragData?.typedValue;
+        if (!typedValue || typedValue.type !== dataType) return void (dragData.dropEffect = "none");
+        const valueColor = typedValue?.value;
+        if (!valueColor) return void (dragData.dropEffect = "none");
+
+        dragData.dropEffect = mode;
+        return () => {
+            const changeAction = EditValueAction(path, valueColor);
+            if (mode === "move" && dragData.deleteAction) {
+                dispatch(MultiAction([changeAction, dragData.deleteAction]))
+            } else { // action === "copy" || action === "link"
+                dispatch(changeAction);
+            }
+        };
+    }
 }

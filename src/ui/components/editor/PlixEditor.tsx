@@ -6,52 +6,17 @@ import {TrackContextProps, TrackContext} from "./TrackContext";
 import * as effectConstructorMap from "@plix-effect/core/effects";
 import * as filterConstructorMap from "@plix-effect/core/filters";
 import {PlixJsonData} from "@plix-effect/core/types/parser";
-import {PlixEditorAction, PlixEditorReducer} from "./PlixEditorReducer";
-import {ScaleDisplayContext, ScaleDisplayContextProps} from "./ScaleDisplayContext";
+import {PlixEditorReducer} from "./PlixEditorReducer";
 import {DragContext, DragType} from "./DragContext";
-import {RedoAction, UndoAction} from "./PlixEditorReducerActions";
 
 const defaultTrack: PlixJsonData & {editor: any} = {
-    effects: {
-        paintSome: [true, "Paint", [[[0,1,0.5, 0.5], [0.33,1,0.5, 0.5], [0,1,0.5], [0.33,1,0.5], [0,1,0.5], [0.33,1,0.5]]]],
-        paintSomeLeft: [true, null, "paintSome", [[true, null, "posLeft"]]],
-        paintSomeRight: [true, null, "paintSome", [[true, null, "posRight"]]]
-    },
-    filters: {
-        posLeft: [true, "Position", [[0,1,2]]],
-        posRight: [true, "Position", [[9,8,7]]],
-        posCenter: [true, "Position", [[3,4,5,6]]]
-    },
+    effects: {},
+    filters: {},
     render: [true, "Chain", [[
-        [true, null, "paintSomeLeft"],
-        [true, null, "paintSomeRight"],
-        [
-            true,
-            "Timeline",
-            [
-                [
-                    [true, "paintSome", 0, 500],
-                    [true, "paintSomeRight", 1250, 250],
-                    [true, "paintSome", 1750, 250],
-                ],
-                1000, 8, 0
-            ],
-            [[true, null, "posCenter"]]
-        ],
-        [
-            true,
-            "Timeline",
-            [
-                [
-                    [true, "paintSome", 0, 500],
-                    [true, "paintSomeRight", 1250, 250],
-                    [true, "paintSome", 1500, 250],
-                ],
-                1347, 3, 5000
-            ],
-            [[true, null, "posCenter"]]
-        ],
-    ]], [[true, "OuterBorder", [[0,1,1], 1]]]],
+        [true, "Timeline", [[], 1000, 8, 0], [[true, "Blend", [1, "normal"]]]],
+        [true, "Timeline", [[], 1000, 8, 100], [[true, "Blend", [1, "normal"]]]],
+        [true, "Timeline", [[], 0, 8, 1000], [[true, "Blend", [1, "normal"]]]],
+    ]], []],
     editor: {duration: 10_000, count: 10}
 };
 
@@ -64,11 +29,18 @@ export const PlixEditor: FC = () => {
         return () => document.removeEventListener("dragend", onDragEnd);
     }, [dragRef]);
 
-    const [{track, history, historyPosition}, dispatch] = useReducer(PlixEditorReducer, defaultTrack, (track) => ({
-        track: track,
-        history: [],
-        historyPosition: 0
-    }));
+    const [{track, history, historyPosition}, dispatch] = useReducer(PlixEditorReducer, null, () => {
+        const savedTrack = localStorage.getItem("plix_editor_track");
+        return ({
+            track: (savedTrack ? JSON.parse(savedTrack) : defaultTrack) as PlixJsonData,
+            history: [],
+            historyPosition: 0
+        });
+    });
+
+    useEffect(() => {
+        localStorage.setItem("plix_editor_track", JSON.stringify(track));
+    }, [track])
 
     const trackContextValue: TrackContextProps = useMemo(() => ({
         undoCounts: historyPosition,

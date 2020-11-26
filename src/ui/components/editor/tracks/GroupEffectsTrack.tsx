@@ -55,11 +55,11 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
 
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock type="description">
+            <TreeBlock type="title">
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>===Effects===</span>
             </TreeBlock>
-            <TimelineBlock type="description" fixed>
+            <TimelineBlock type="title" fixed>
                 effect prefabs
             </TimelineBlock>
             {aliasesList.map(({value, path, name}) => (

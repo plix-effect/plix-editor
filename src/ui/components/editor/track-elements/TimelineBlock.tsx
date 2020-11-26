@@ -2,7 +2,7 @@ import React, {FC} from "react";
 import cn from "classnames"
 import "./TimelineBlock.scss"
 
-type TimelineBlockType = "default" | "description" | "timeline";
+type TimelineBlockType = "default" | "description" | "timeline" | "title";
 
 interface TimelineBlockProps {
     fixed?: boolean,

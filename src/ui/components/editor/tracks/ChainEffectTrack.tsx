@@ -77,21 +77,15 @@ export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo((
                     </>
                 )}
                 <EffectPreview effect={effect} />
-                {effectData.description}
+                &nbsp;
+                <a onClick={push}>[add effect]</a>
+                &nbsp;
+                <span className="track-description _desc">{effectData.description}</span>
             </TimelineBlock>
 
             <EffectTypeTrack onChange={onChange} effect={effect} />
 
             <ArrayElementsTrack value={paramEffects} type="effect" path={paramEffectsPath} canDelete/>
-
-            <Track>
-                <TreeBlock type="description">
-                    <a onClick={push}>[add effect]</a>
-                </TreeBlock>
-                <TimelineBlock fixed type="description">
-
-                </TimelineBlock>
-            </Track>
 
             {effectData.paramDescriptions.map((paramDesc) => (
                 <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description}>
@@ -99,7 +93,7 @@ export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo((
                 </ValueTrack>
             ))}
 
-            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" deleteAction={clearFilters}>
+            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters}>
                 Filters
             </ValueTrack>
         </Track>

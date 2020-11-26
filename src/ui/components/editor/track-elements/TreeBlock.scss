@@ -39,6 +39,16 @@
     height: 23px;
   }
 
+  &._title {
+    margin-top: 10px;
+    border-left: 1px solid #444;
+    border-top: 1px solid #444;
+    border-bottom: 1px solid #444;
+    background-color: #333;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+  }
+
   &._timeline {
     height: 40px;
     border-left: 1px solid #444;
@@ -59,5 +69,9 @@
     };
     background-color: transparent;
     color: transparent;
+  }
+
+  &._link {
+    outline: 2px dashed #888;
   }
 }

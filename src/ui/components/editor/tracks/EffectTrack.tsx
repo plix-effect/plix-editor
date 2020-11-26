@@ -13,7 +13,6 @@ import {ValueTrack} from "./ValueTrack";
 
 import "./tracks.scss"
 import {useExpander} from "../track-elements/Expander";
-import {getArrayKey} from "../../../utils/KeyManager";
 import {TimelineEffectTrack} from "./TimelineEffectTrack";
 import {ChainEffectTrack} from "./ChainEffectTrack";
 import {EditValueAction, MultiAction, MultiActionType} from "../PlixEditorReducerActions";
@@ -31,10 +30,11 @@ export interface EffectTrackProps {
     alias?: string,
     effect: PlixEffectJsonData,
     deleteAction?: MultiActionType,
+    clearAction?: MultiActionType,
     onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | DragEventHandler
 }
-export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpanded, children, alias, deleteAction, onDragOverItem}) => {
-    const [expanded, expander, changeExpanded] = useExpander(baseExpanded);
+export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpanded, children, alias, deleteAction, clearAction, onDragOverItem}) => {
+    const [expanded, expander, changeExpanded, setExpanded] = useExpander(baseExpanded);
 
     const dragValue: DragType = useMemo<DragType>(() => {
         return {
@@ -56,8 +56,8 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
         if (event.ctrlKey && event.shiftKey) mode = "link";
         else if (event.ctrlKey) mode = "copy";
         else if (event.shiftKey) mode = dragData.deleteAction ? "move" : "none";
-        else if (dragData.effectLink) mode = "link";
-        else if (dragData.effect) mode = "copy";
+        else if (dragData.effectLink !== undefined) mode = "link";
+        else if (dragData.effect !== undefined) mode = "copy";
 
         if (mode === "none") return void (dragData.dropEffect = "none");
 
@@ -115,9 +115,11 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
         <TreeBlockEffect
             effect={effect}
             changeExpanded={changeExpanded}
+            setExpanded={setExpanded}
             expander={expander}
             path={path}
             deleteAction={deleteAction}
+            clearAction={clearAction}
             dragValue={dragValue}
             onDragOverItem={onDragOverItemSelf}
         > {children} </TreeBlockEffect>
@@ -221,7 +223,7 @@ const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, leftBlock, effect:
 
             <EffectTypeTrack onChange={onChange} effect={effect} />
 
-            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" deleteAction={clearFilters}>
+            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters}>
                 Filters
             </ValueTrack>
         </Track>
@@ -242,13 +244,17 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, le
     const effectData = useMemo(() => {
         const effectConstructor = effectConstructorMap[effectId];
         const meta: ParseMeta = effectConstructor['meta'];
-        const paramDescriptions = meta.paramNames.map((paramName, i) => ({
-            name: paramName,
-            type: meta.paramTypes[i],
-            description: meta.paramDescriptions[i],
-            value: params[i],
-            path: [...path, 2, {key: getArrayKey(params, i), array: params}]
-        }))
+        const paramDescriptions = meta.paramNames.map((paramName, i) => {
+            const defaultValue = meta.defaultValues[i];
+            return ({
+                name: paramName,
+                type: meta.paramTypes[i],
+                description: meta.paramDescriptions[i],
+                value: params[i],
+                clearAction: EditValueAction([...path, 2, i], defaultValue),
+                path: [...path, 2, i],
+            })
+        })
         return {
             name: meta.name,
             description: meta.description,
@@ -281,11 +287,11 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, le
             <EffectTypeTrack onChange={onChange} effect={effect} />
 
             {effectData.paramDescriptions.map((paramDesc) => (
-                <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description}>
+                <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description} clearAction={paramDesc.clearAction}>
                     {paramDesc.name}
                 </ValueTrack>
             ))}
-            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" deleteAction={clearFilters}>
+            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters}>
                 Filters
             </ValueTrack>
         </Track>
