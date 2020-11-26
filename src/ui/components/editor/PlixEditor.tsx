@@ -1,4 +1,4 @@
-import {FC, default as React, useMemo, useReducer, useState, useRef, useEffect} from "react";
+import {FC, default as React, useMemo, useReducer, useState, useRef, useEffect, useCallback, DragEvent} from "react";
 import "./PlixEditor.scss";
 import {SplitTopBottom} from "../divider/SplitTopBottom";
 import {TrackEditor} from "./TrackEditor";
@@ -8,6 +8,7 @@ import * as filterConstructorMap from "@plix-effect/core/filters";
 import {PlixJsonData} from "@plix-effect/core/types/parser";
 import {PlixEditorReducer} from "./PlixEditorReducer";
 import {DragContext, DragType} from "./DragContext";
+import {OpenAction} from "./PlixEditorReducerActions";
 
 const defaultTrack: PlixJsonData & {editor: any} = {
     effects: {},
@@ -24,9 +25,13 @@ export const PlixEditor: FC = () => {
 
     const dragRef = useRef<DragType>(null);
     useEffect(() => {
-        const onDragEnd = () => dragRef.current = null;
-        document.addEventListener("dragend", onDragEnd);
-        return () => document.removeEventListener("dragend", onDragEnd);
+        const clearDragRef = () => dragRef.current = null;
+        document.addEventListener("dragend", clearDragRef);
+        document.addEventListener("drop", clearDragRef);
+        return () => {
+            document.removeEventListener("dragend", clearDragRef);
+            document.removeEventListener("drop", clearDragRef);
+        }
     }, [dragRef]);
 
     const [{track, history, historyPosition}, dispatch] = useReducer(PlixEditorReducer, null, () => {
@@ -51,8 +56,29 @@ export const PlixEditor: FC = () => {
         filterConstructorMap: filterConstructorMap as TrackContextProps["filterConstructorMap"],
     }), [track, dispatch, historyPosition, history]);
 
+    const onDragOver = useCallback((event: DragEvent<HTMLElement>) => {
+        const firstItem = event.dataTransfer?.items?.[0];
+        if (!firstItem) return;
+        if (firstItem.kind !== "file" || firstItem.type !== "application/json") return;
+        event.preventDefault();
+    }, []);
+
+    const onDrop = useCallback((event: DragEvent<HTMLElement>) => {
+        const firstItem = event.dataTransfer?.items?.[0];
+        if (!firstItem) return;
+        if (firstItem.kind !== "file" || firstItem.type !== "application/json") return;
+        const file = event.dataTransfer.files[0];
+        const reader = new FileReader();
+        reader.addEventListener("load", (event) => {
+            const track = JSON.parse(String(event.target.result));
+            dispatch(OpenAction(track));
+        })
+        reader.readAsBinaryString(file);
+        event.preventDefault();
+    }, []);
+
     return (
-        <div className="plix-editor">
+        <div className="plix-editor" onDragOver={onDragOver} onDrop={onDrop}>
             <DragContext.Provider value={dragRef}>
                 <TrackContext.Provider value={trackContextValue}>
                 <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">

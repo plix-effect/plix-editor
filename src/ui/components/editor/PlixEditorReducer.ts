@@ -28,6 +28,12 @@ export const PlixEditorReducer: Reducer<PlixEditorState, PlixEditorAction> = (st
     switch (action.type) {
         case "undo": return undoState(state);
         case "redo": return redoState(state);
+        case "open": return {
+            ...state,
+            track: action.track,
+            history: [],
+            historyPosition: 0
+        };
         case "edit": {
             const historyPath = toHistoryPath(state.track, action.path);
             const value = getWIthPath(state.track, historyPath);

@@ -1,4 +1,5 @@
 import type {EditorPath} from "../../types/Editor";
+import {PlixJsonData} from "@plix-effect/core/dist/types/parser";
 
 export const EditValueAction = (path: EditorPath, value: any) => {
     return {
@@ -66,6 +67,13 @@ export const UndoAction = () => {
 export const RedoAction = () => {
     return {
         type: "redo"
+    } as const;
+}
+
+export const OpenAction = (track: PlixJsonData) => {
+    return {
+        type: "open",
+        track
     } as const;
 }
 
