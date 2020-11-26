@@ -65263,46 +65263,13 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const defaultTrack = {
-    effects: {
-        paintSome: [true, "Paint", [[[0, 1, 0.5, 0.5], [0.33, 1, 0.5, 0.5], [0, 1, 0.5], [0.33, 1, 0.5], [0, 1, 0.5], [0.33, 1, 0.5]]]],
-        paintSomeLeft: [true, null, "paintSome", [[true, null, "posLeft"]]],
-        paintSomeRight: [true, null, "paintSome", [[true, null, "posRight"]]]
-    },
-    filters: {
-        posLeft: [true, "Position", [[0, 1, 2]]],
-        posRight: [true, "Position", [[9, 8, 7]]],
-        posCenter: [true, "Position", [[3, 4, 5, 6]]]
-    },
+    effects: {},
+    filters: {},
     render: [true, "Chain", [[
-                [true, null, "paintSomeLeft"],
-                [true, null, "paintSomeRight"],
-                [
-                    true,
-                    "Timeline",
-                    [
-                        [
-                            [true, "paintSome", 0, 500],
-                            [true, "paintSomeRight", 1250, 250],
-                            [true, "paintSome", 1750, 250],
-                        ],
-                        1000, 8, 0
-                    ],
-                    [[true, null, "posCenter"]]
-                ],
-                [
-                    true,
-                    "Timeline",
-                    [
-                        [
-                            [true, "paintSome", 0, 500],
-                            [true, "paintSomeRight", 1250, 250],
-                            [true, "paintSome", 1500, 250],
-                        ],
-                        1347, 3, 5000
-                    ],
-                    [[true, null, "posCenter"]]
-                ],
-            ]], [[true, "OuterBorder", [[0, 1, 1], 1]]]],
+                [true, "Timeline", [[], 1000, 8, 0], [[true, "Blend", [1, "normal"]]]],
+                [true, "Timeline", [[], 1000, 8, 100], [[true, "Blend", [1, "normal"]]]],
+                [true, "Timeline", [[], 0, 8, 1000], [[true, "Blend", [1, "normal"]]]],
+            ]], []],
     editor: { duration: 10000, count: 10 }
 };
 const PlixEditor = () => {
@@ -65312,11 +65279,17 @@ const PlixEditor = () => {
         document.addEventListener("dragend", onDragEnd);
         return () => document.removeEventListener("dragend", onDragEnd);
     }, [dragRef]);
-    const [{ track, history, historyPosition }, dispatch] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useReducer)(_PlixEditorReducer__WEBPACK_IMPORTED_MODULE_7__.PlixEditorReducer, defaultTrack, (track) => ({
-        track: track,
-        history: [],
-        historyPosition: 0
-    }));
+    const [{ track, history, historyPosition }, dispatch] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useReducer)(_PlixEditorReducer__WEBPACK_IMPORTED_MODULE_7__.PlixEditorReducer, null, () => {
+        const savedTrack = localStorage.getItem("plix_editor_track");
+        return ({
+            track: (savedTrack ? JSON.parse(savedTrack) : defaultTrack),
+            history: [],
+            historyPosition: 0
+        });
+    });
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        localStorage.setItem("plix_editor_track", JSON.stringify(track));
+    }, [track]);
     const trackContextValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
         undoCounts: historyPosition,
         redoCounts: history.length - historyPosition,
@@ -66097,7 +66070,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const Expander = ({ show = true, expanded, changeExpanded }) => {
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { onDragEnter: changeExpanded, className: classnames__WEBPACK_IMPORTED_MODULE_1___default()("track-expander", show && (expanded ? "_expanded" : "_collapsed")), onClick: changeExpanded }));
+    const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        changeExpanded();
+    }, [changeExpanded]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { onDragEnter: changeExpanded, className: classnames__WEBPACK_IMPORTED_MODULE_1___default()("track-expander", show && (expanded ? "_expanded" : "_collapsed")), onClick: onClick }));
 };
 const useExpander = (baseExpanded = false, show = true) => {
     const [expanded, setExpanded] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(baseExpanded);
@@ -66107,7 +66085,8 @@ const useExpander = (baseExpanded = false, show = true) => {
     return [
         expanded,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(Expander, { show: show, expanded: expanded, changeExpanded: changeExpanded }),
-        changeExpanded
+        changeExpanded,
+        setExpanded
     ];
 };
 
@@ -66150,6 +66129,7 @@ const TimelineBlock = ({ children, fixed = false, type = "default" }) => {
   \***************************************************************/
 /*! namespace exports */
 /*! export TreeBlock [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export createDefaultDragTypeBehavior [provided] [no usage info] [missing usage info prevents renaming] */
 /*! other exports [not provided] [no usage info] */
 /*! runtime requirements: __webpack_require__, __webpack_require__.n, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
@@ -66157,13 +66137,16 @@ const TimelineBlock = ({ children, fixed = false, type = "default" }) => {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "TreeBlock": () => /* binding */ TreeBlock
+/* harmony export */   "TreeBlock": () => /* binding */ TreeBlock,
+/* harmony export */   "createDefaultDragTypeBehavior": () => /* binding */ createDefaultDragTypeBehavior
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
 /* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _TreeBlock_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TreeBlock.scss */ "./src/ui/components/editor/track-elements/TreeBlock.scss");
 /* harmony import */ var _DragContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../DragContext */ "./src/ui/components/editor/DragContext.ts");
+/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+
 
 
 
@@ -66197,7 +66180,8 @@ const TreeBlock = ({ children, title, type = "default", dragValue, onClick, onDr
         if (dragCount.current === 0) {
             onDragOverItem === null || onDragOverItem === void 0 ? void 0 : onDragOverItem(event);
         }
-        dragRef.current.dropEffect = null;
+        if (dragRef.current)
+            dragRef.current.dropEffect = null;
     }, [onDragOverItem]);
     const onDragOver = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         const handler = onDragOverItem === null || onDragOverItem === void 0 ? void 0 : onDragOverItem(event, dragRef.current);
@@ -66214,6 +66198,42 @@ const TreeBlock = ({ children, title, type = "default", dragValue, onClick, onDr
     }, []);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { ref: blockRef, title: title, className: classnames__WEBPACK_IMPORTED_MODULE_1___default()("track-tree-block", `_${type}`), draggable: dragValue != null, onDragStart: onDragStart, onDragEnd: onDragEnd, onDrag: onDrag, onClick: onClick, onDragEnter: onDragEnter, onDragLeave: onDragLeave, onDragOver: onDragOver, onDrop: onDrop }, children));
 };
+function createDefaultDragTypeBehavior(dataType, path, dispatch, onDragOverItem) {
+    return (event, dragData) => {
+        const originDragHandler = onDragOverItem === null || onDragOverItem === void 0 ? void 0 : onDragOverItem(event, dragData);
+        if (originDragHandler)
+            return originDragHandler;
+        if (!dragData)
+            return;
+        let mode = "none";
+        if (event.ctrlKey && event.shiftKey)
+            mode = "none";
+        else if (event.ctrlKey)
+            mode = "copy";
+        else if (event.shiftKey)
+            mode = dragData.deleteAction ? "move" : "none";
+        else
+            mode = dragData.deleteAction ? "move" : "copy";
+        if (mode === "none")
+            return void (dragData.dropEffect = "none");
+        const typedValue = dragData === null || dragData === void 0 ? void 0 : dragData.typedValue;
+        if (!typedValue || typedValue.type !== dataType)
+            return void (dragData.dropEffect = "none");
+        const valueColor = typedValue === null || typedValue === void 0 ? void 0 : typedValue.value;
+        if (!valueColor)
+            return void (dragData.dropEffect = "none");
+        dragData.dropEffect = mode;
+        return () => {
+            const changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.EditValueAction)(path, valueColor);
+            if (mode === "move" && dragData.deleteAction) {
+                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.MultiAction)([changeAction, dragData.deleteAction]));
+            }
+            else {
+                dispatch(changeAction);
+            }
+        };
+    };
+}
 
 
 /***/ }),
@@ -66390,8 +66410,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const ArrayTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, type, children: [name, desc], path, onDragOverItem, deleteAction }) => {
-    const [expanded, expander, changeExpanded] = (0,_track_elements_Expander__WEBPACK_IMPORTED_MODULE_4__.useExpander)(false);
+const ArrayTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, type, children: [name, desc], path, onDragOverItem, deleteAction, clearAction }) => {
+    const [expanded, expander, changeExpanded, setExpanded] = (0,_track_elements_Expander__WEBPACK_IMPORTED_MODULE_4__.useExpander)(false);
     const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_5__.TrackContext);
     const valueToPush = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         if (type.startsWith("array:"))
@@ -66400,7 +66420,8 @@ const ArrayTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, type, c
     }, [type]);
     const push = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
         dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.PushValueAction)(path, valueToPush));
-    }, [valueToPush]);
+        setExpanded(true);
+    }, [dispatch, path, valueToPush, setExpanded]);
     const dragValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         return {
             typedValue: { type: "array:" + type, value: value },
@@ -66469,13 +66490,25 @@ const ArrayTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, type, c
         };
     }, [path, dispatch, onDragOverItem]);
     const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
-        if (event.altKey && deleteAction)
-            dispatch(deleteAction);
-    }, [deleteAction, dispatch]);
+        if (!event.ctrlKey && event.altKey && !event.shiftKey) {
+            if (deleteAction || clearAction)
+                dispatch(deleteAction !== null && deleteAction !== void 0 ? deleteAction : clearAction);
+        }
+        if (!event.ctrlKey && !event.altKey && event.shiftKey) {
+            if (valueToPush !== undefined)
+                push();
+        }
+        if (event.ctrlKey && event.altKey && !event.shiftKey) {
+            if (clearAction)
+                dispatch(clearAction);
+        }
+        if (!event.ctrlKey && !event.altKey && !event.shiftKey)
+            changeExpanded();
+    }, [deleteAction, dispatch, valueToPush, push]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, { onDragOverItem: onDragOverItemSelf, dragValue: dragValue, onClick: onClick },
             expander,
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description", onClick: changeExpanded }, name),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description" }, name),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null, " "),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" },
                 "(",
@@ -66521,17 +66554,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _timeline_Track__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../timeline/Track */ "./src/ui/components/timeline/Track.tsx");
-/* harmony import */ var _track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
-/* harmony import */ var _track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
-/* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
-/* harmony import */ var _ValueTrack__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ValueTrack */ "./src/ui/components/editor/tracks/ValueTrack.tsx");
-/* harmony import */ var _utils_KeyManager__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../utils/KeyManager */ "./src/ui/utils/KeyManager.ts");
-/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
-/* harmony import */ var _tracks_scss__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./tracks.scss */ "./src/ui/components/editor/tracks/tracks.scss");
-/* harmony import */ var _ArrayElementsTrack__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ArrayElementsTrack */ "./src/ui/components/editor/tracks/ArrayElementsTrack.tsx");
-/* harmony import */ var _EffectTypeTrack__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./EffectTypeTrack */ "./src/ui/components/editor/tracks/EffectTypeTrack.tsx");
-/* harmony import */ var _editor_EffectPreview__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./editor/EffectPreview */ "./src/ui/components/editor/tracks/editor/EffectPreview.tsx");
-
+/* harmony import */ var _track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
+/* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+/* harmony import */ var _ValueTrack__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ValueTrack */ "./src/ui/components/editor/tracks/ValueTrack.tsx");
+/* harmony import */ var _utils_KeyManager__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../utils/KeyManager */ "./src/ui/utils/KeyManager.ts");
+/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+/* harmony import */ var _tracks_scss__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./tracks.scss */ "./src/ui/components/editor/tracks/tracks.scss");
+/* harmony import */ var _ArrayElementsTrack__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ArrayElementsTrack */ "./src/ui/components/editor/tracks/ArrayElementsTrack.tsx");
+/* harmony import */ var _EffectTypeTrack__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./EffectTypeTrack */ "./src/ui/components/editor/tracks/EffectTypeTrack.tsx");
+/* harmony import */ var _editor_EffectPreview__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./editor/EffectPreview */ "./src/ui/components/editor/tracks/editor/EffectPreview.tsx");
 
 
 
@@ -66547,7 +66578,7 @@ const ChainEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ leftBloc
     const paramEffects = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => params[0] || [], [params]);
     const paramEffectsPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, 2, 0], [path]);
     const effectWithNoFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [enabled, effectId, params, []], [effect]);
-    const { effectConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_4__.TrackContext);
+    const { effectConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_3__.TrackContext);
     const effectData = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         const effectConstructor = effectConstructorMap[effectId];
         const meta = effectConstructor['meta'];
@@ -66556,7 +66587,7 @@ const ChainEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ leftBloc
             type: meta.paramTypes[i + 1],
             description: meta.paramDescriptions[i + 1],
             value: params[i + 1],
-            path: [...path, 2, { key: (0,_utils_KeyManager__WEBPACK_IMPORTED_MODULE_6__.getArrayKey)(params, i + 1), array: params }]
+            path: [...path, 2, { key: (0,_utils_KeyManager__WEBPACK_IMPORTED_MODULE_5__.getArrayKey)(params, i + 1), array: params }]
         }));
         return {
             name: meta.name,
@@ -66566,29 +66597,28 @@ const ChainEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ leftBloc
     }, [effectId, params, path, effectConstructorMap]);
     const filtersPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, 3], [path]);
     const valueFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => filters !== null && filters !== void 0 ? filters : [], [filters]);
-    const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_4__.TrackContext);
+    const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_3__.TrackContext);
     const push = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
-        dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.PushValueAction)([...path, 2, 0], null));
+        dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.PushValueAction)([...path, 2, 0], null));
     }, [path]);
     const clearFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
-        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.EditValueAction)([...path, 3], []);
+        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.EditValueAction)([...path, 3], []);
     }, [path]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         leftBlock,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_2__.TimelineBlock, { fixed: true },
             ((valueFilters === null || valueFilters === void 0 ? void 0 : valueFilters.length) > 0) && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_11__.EffectPreview, { effect: effectWithNoFilters }),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_10__.EffectPreview, { effect: effectWithNoFilters }),
                 "->")),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_11__.EffectPreview, { effect: effect }),
-            effectData.description),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_EffectTypeTrack__WEBPACK_IMPORTED_MODULE_10__.EffectTypeTrack, { onChange: onChange, effect: effect }),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ArrayElementsTrack__WEBPACK_IMPORTED_MODULE_9__.ArrayElementsTrack, { value: paramEffects, type: "effect", path: paramEffectsPath, canDelete: true }),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, { type: "description" },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { onClick: push }, "[add effect]")),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true, type: "description" })),
-        effectData.paramDescriptions.map((paramDesc) => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { value: paramDesc.value, type: paramDesc.type, path: paramDesc.path, key: paramDesc.name, description: paramDesc.description }, paramDesc.name))),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect", deleteAction: clearFilters }, "Filters")));
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_10__.EffectPreview, { effect: effect }),
+            "\u00A0",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { onClick: push }, "[add effect]"),
+            "\u00A0",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" }, effectData.description)),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_EffectTypeTrack__WEBPACK_IMPORTED_MODULE_9__.EffectTypeTrack, { onChange: onChange, effect: effect }),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ArrayElementsTrack__WEBPACK_IMPORTED_MODULE_8__.ArrayElementsTrack, { value: paramEffects, type: "effect", path: paramEffectsPath, canDelete: true }),
+        effectData.paramDescriptions.map((paramDesc) => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_4__.ValueTrack, { value: paramDesc.value, type: paramDesc.type, path: paramDesc.path, key: paramDesc.name, description: paramDesc.description }, paramDesc.name))),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_4__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect", clearAction: clearFilters }, "Filters")));
 });
 
 
@@ -66627,15 +66657,21 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const ColorTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, children, path, deleteAction, onDragOverItem }) => {
+const ColorTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, children, path, deleteAction, clearAction, onDragOverItem }) => {
     const color = (0,_plix_effect_core__WEBPACK_IMPORTED_MODULE_4__.parseColor)(value, null);
     const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_6__.TrackContext);
     const onChange = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
         dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.EditValueAction)(path, value));
     }, [dispatch, path]);
     const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
-        if (event.altKey && deleteAction)
-            dispatch(deleteAction);
+        if (!event.ctrlKey && event.altKey && !event.shiftKey) {
+            if (deleteAction || clearAction)
+                dispatch(deleteAction !== null && deleteAction !== void 0 ? deleteAction : clearAction);
+        }
+        if (event.ctrlKey && event.altKey && !event.shiftKey) {
+            if (clearAction)
+                dispatch(clearAction);
+        }
     }, [deleteAction, dispatch]);
     const dragValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         return {
@@ -66643,39 +66679,9 @@ const ColorTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, childre
             deleteAction: deleteAction
         };
     }, [value, deleteAction]);
-    const onDragOverItemSelf = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, dragData) => {
-        const originDragHandler = onDragOverItem === null || onDragOverItem === void 0 ? void 0 : onDragOverItem(event, dragData);
-        if (originDragHandler)
-            return originDragHandler;
-        if (!dragData)
-            return;
-        let mode = "none";
-        if (event.ctrlKey && event.shiftKey)
-            mode = "none";
-        else if (event.ctrlKey)
-            mode = "copy";
-        else if (event.shiftKey)
-            mode = dragData.deleteAction ? "move" : "none";
-        else
-            mode = dragData.deleteAction ? "move" : "copy";
-        if (mode === "none")
-            return void (dragData.dropEffect = "none");
-        const typedValue = dragData === null || dragData === void 0 ? void 0 : dragData.typedValue;
-        if (!typedValue || typedValue.type !== "color")
-            return void (dragData.dropEffect = "none");
-        const valueColor = typedValue === null || typedValue === void 0 ? void 0 : typedValue.value;
-        if (!valueColor)
-            return void (dragData.dropEffect = "none");
-        return () => {
-            const changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.EditValueAction)(path, valueColor);
-            if (mode === "move" && value.deleteAction) {
-                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.MultiAction)([changeAction, value.deleteAction]));
-            }
-            else {
-                dispatch(changeAction);
-            }
-        };
-    }, [onDragOverItem, path, dispatch]);
+    const onDragOverItemSelf = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return (0,_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.createDefaultDragTypeBehavior)("color", path, dispatch, onDragOverItem);
+    }, [path, dispatch, onDragOverItem]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, { onClick: onClick, onDragOverItem: onDragOverItemSelf, dragValue: dragValue },
             children,
@@ -66710,15 +66716,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ValueTrack__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ValueTrack */ "./src/ui/components/editor/tracks/ValueTrack.tsx");
 /* harmony import */ var _tracks_scss__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./tracks.scss */ "./src/ui/components/editor/tracks/tracks.scss");
 /* harmony import */ var _track_elements_Expander__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../track-elements/Expander */ "./src/ui/components/editor/track-elements/Expander.tsx");
-/* harmony import */ var _utils_KeyManager__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../../utils/KeyManager */ "./src/ui/utils/KeyManager.ts");
-/* harmony import */ var _TimelineEffectTrack__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./TimelineEffectTrack */ "./src/ui/components/editor/tracks/TimelineEffectTrack.tsx");
-/* harmony import */ var _ChainEffectTrack__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ChainEffectTrack */ "./src/ui/components/editor/tracks/ChainEffectTrack.tsx");
-/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
-/* harmony import */ var _EffectTypeTrack__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./EffectTypeTrack */ "./src/ui/components/editor/tracks/EffectTypeTrack.tsx");
-/* harmony import */ var _editor_EffectPreview__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./editor/EffectPreview */ "./src/ui/components/editor/tracks/editor/EffectPreview.tsx");
-/* harmony import */ var _editor_inline_InlineEffectTypeEditor__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./editor/inline/InlineEffectTypeEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineEffectTypeEditor.tsx");
-/* harmony import */ var _editor_TreeBlockEffect__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./editor/TreeBlockEffect */ "./src/ui/components/editor/tracks/editor/TreeBlockEffect.tsx");
-/* harmony import */ var _utils_isObjectContains__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../../../utils/isObjectContains */ "./src/ui/utils/isObjectContains.ts");
+/* harmony import */ var _TimelineEffectTrack__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./TimelineEffectTrack */ "./src/ui/components/editor/tracks/TimelineEffectTrack.tsx");
+/* harmony import */ var _ChainEffectTrack__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ChainEffectTrack */ "./src/ui/components/editor/tracks/ChainEffectTrack.tsx");
+/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+/* harmony import */ var _EffectTypeTrack__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./EffectTypeTrack */ "./src/ui/components/editor/tracks/EffectTypeTrack.tsx");
+/* harmony import */ var _editor_EffectPreview__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./editor/EffectPreview */ "./src/ui/components/editor/tracks/editor/EffectPreview.tsx");
+/* harmony import */ var _editor_inline_InlineEffectTypeEditor__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./editor/inline/InlineEffectTypeEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineEffectTypeEditor.tsx");
+/* harmony import */ var _editor_TreeBlockEffect__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./editor/TreeBlockEffect */ "./src/ui/components/editor/tracks/editor/TreeBlockEffect.tsx");
+/* harmony import */ var _utils_isObjectContains__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../../../utils/isObjectContains */ "./src/ui/utils/isObjectContains.ts");
 
 
 
@@ -66734,9 +66739,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path, baseExpanded, children, alias, deleteAction, onDragOverItem }) => {
-    const [expanded, expander, changeExpanded] = (0,_track_elements_Expander__WEBPACK_IMPORTED_MODULE_6__.useExpander)(baseExpanded);
+const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path, baseExpanded, children, alias, deleteAction, clearAction, onDragOverItem }) => {
+    const [expanded, expander, changeExpanded, setExpanded] = (0,_track_elements_Expander__WEBPACK_IMPORTED_MODULE_6__.useExpander)(baseExpanded);
     const dragValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         return {
             typedValue: { type: "effect", value: effect },
@@ -66759,9 +66763,9 @@ const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path,
             mode = "copy";
         else if (event.shiftKey)
             mode = dragData.deleteAction ? "move" : "none";
-        else if (dragData.effectLink)
+        else if (dragData.effectLink !== undefined)
             mode = "link";
-        else if (dragData.effect)
+        else if (dragData.effect !== undefined)
             mode = "copy";
         if (mode === "none")
             return void (dragData.dropEffect = "none");
@@ -66778,7 +66782,7 @@ const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path,
         if (effect === valueEffect)
             return void (dragData.dropEffect = "none");
         if (mode === "move") {
-            if ((0,_utils_isObjectContains__WEBPACK_IMPORTED_MODULE_15__.isObjectEqualOrContains)(valueEffect, effect))
+            if ((0,_utils_isObjectContains__WEBPACK_IMPORTED_MODULE_14__.isObjectEqualOrContains)(valueEffect, effect))
                 return void (dragData.dropEffect = "none");
         }
         if (mode === "link" && valueEffect[2] === alias)
@@ -66786,13 +66790,13 @@ const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path,
         return () => {
             let changeAction;
             if (mode === "link" && effect !== null && valueEffect !== null) {
-                changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.EditValueAction)(path, [true, null, valueEffect[2], effect[3]]);
+                changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)(path, [true, null, valueEffect[2], effect[3]]);
             }
             else {
-                changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.EditValueAction)(path, valueEffect);
+                changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)(path, valueEffect);
             }
             if (mode === "move" && dragData.deleteAction) {
-                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.MultiAction)([changeAction, dragData.deleteAction]));
+                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.MultiAction)([changeAction, dragData.deleteAction]));
             }
             else {
                 dispatch(changeAction);
@@ -66802,7 +66806,7 @@ const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path,
     const { effectConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_3__.TrackContext);
     const onChangeEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((type, value) => {
         if (!type) {
-            return dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.EditValueAction)(path, null));
+            return dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)(path, null));
         }
         const templateEffect = effect ? effect.slice(0) : [true, null, [], []];
         if (type === "alias") {
@@ -66815,9 +66819,9 @@ const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path,
             const meta = effectConstructor['meta'];
             templateEffect[2] = meta.defaultValues;
         }
-        return dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.EditValueAction)(path, templateEffect));
+        return dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)(path, templateEffect));
     }, [effect, dispatch]);
-    const leftBlock = (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_TreeBlockEffect__WEBPACK_IMPORTED_MODULE_14__.TreeBlockEffect, { effect: effect, changeExpanded: changeExpanded, expander: expander, path: path, deleteAction: deleteAction, dragValue: dragValue, onDragOverItem: onDragOverItemSelf },
+    const leftBlock = (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_TreeBlockEffect__WEBPACK_IMPORTED_MODULE_13__.TreeBlockEffect, { effect: effect, changeExpanded: changeExpanded, setExpanded: setExpanded, expander: expander, path: path, deleteAction: deleteAction, clearAction: clearAction, dragValue: dragValue, onDragOverItem: onDragOverItemSelf },
         " ",
         children,
         " "));
@@ -66826,36 +66830,36 @@ const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path,
     if (effect[1] === null)
         return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(AliasEffectTrack, { path: path, onChange: onChangeEffect, expanded: expanded, effect: effect, children: children, leftBlock: leftBlock }));
     if (effect[1] === "Timeline")
-        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TimelineEffectTrack__WEBPACK_IMPORTED_MODULE_8__.TimelineEffectTrack, { effect: effect, onChange: onChangeEffect, path: path, expanded: expanded, leftBlock: leftBlock }));
+        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TimelineEffectTrack__WEBPACK_IMPORTED_MODULE_7__.TimelineEffectTrack, { effect: effect, onChange: onChangeEffect, path: path, expanded: expanded, leftBlock: leftBlock }));
     if (effect[1] === "Chain")
-        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ChainEffectTrack__WEBPACK_IMPORTED_MODULE_9__.ChainEffectTrack, { effect: effect, path: path, expanded: expanded, onChange: onChangeEffect, leftBlock: leftBlock }));
+        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ChainEffectTrack__WEBPACK_IMPORTED_MODULE_8__.ChainEffectTrack, { effect: effect, path: path, expanded: expanded, onChange: onChangeEffect, leftBlock: leftBlock }));
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(ConfigurableEffectTrack, { path: path, onChange: onChangeEffect, expanded: expanded, effect: effect, children: children, leftBlock: leftBlock }));
 });
 const NoEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ onChange, expanded, leftBlock }) => {
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         leftBlock,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_2__.TimelineBlock, { fixed: true },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineEffectTypeEditor__WEBPACK_IMPORTED_MODULE_13__.InlineEffectTypeEditor, { onChange: onChange, effect: null }))));
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineEffectTypeEditor__WEBPACK_IMPORTED_MODULE_12__.InlineEffectTypeEditor, { onChange: onChange, effect: null }))));
 });
 const AliasEffectTrack = ({ effect, leftBlock, effect: [enabled, , link, filters], path, expanded, onChange }) => {
     const filtersPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, 3], [path]);
     const effectWithNoFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [enabled, null, link, []], [effect]);
     const valueFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => filters !== null && filters !== void 0 ? filters : [], [filters]);
     const clearFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
-        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.EditValueAction)([...path, 3], []);
+        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)([...path, 3], []);
     }, [path]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         leftBlock,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_2__.TimelineBlock, { fixed: true },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" },
                 (filters === null || filters === void 0 ? void 0 : filters.length) >= 0 && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_12__.EffectPreview, { effect: effectWithNoFilters }),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_11__.EffectPreview, { effect: effectWithNoFilters }),
                     "->")),
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_12__.EffectPreview, { effect: effect }),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_11__.EffectPreview, { effect: effect }),
                 " use alias ",
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _link" }, link))),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_EffectTypeTrack__WEBPACK_IMPORTED_MODULE_11__.EffectTypeTrack, { onChange: onChange, effect: effect }),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_4__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect", deleteAction: clearFilters }, "Filters")));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_EffectTypeTrack__WEBPACK_IMPORTED_MODULE_10__.EffectTypeTrack, { onChange: onChange, effect: effect }),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_4__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect", clearAction: clearFilters }, "Filters")));
 };
 const ConfigurableEffectTrack = ({ onChange, leftBlock, effect, effect: [enabled, effectId, params, filters], children, path, expanded }) => {
     const { effectConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_3__.TrackContext);
@@ -66863,13 +66867,17 @@ const ConfigurableEffectTrack = ({ onChange, leftBlock, effect, effect: [enabled
     const effectData = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         const effectConstructor = effectConstructorMap[effectId];
         const meta = effectConstructor['meta'];
-        const paramDescriptions = meta.paramNames.map((paramName, i) => ({
-            name: paramName,
-            type: meta.paramTypes[i],
-            description: meta.paramDescriptions[i],
-            value: params[i],
-            path: [...path, 2, { key: (0,_utils_KeyManager__WEBPACK_IMPORTED_MODULE_7__.getArrayKey)(params, i), array: params }]
-        }));
+        const paramDescriptions = meta.paramNames.map((paramName, i) => {
+            const defaultValue = meta.defaultValues[i];
+            return ({
+                name: paramName,
+                type: meta.paramTypes[i],
+                description: meta.paramDescriptions[i],
+                value: params[i],
+                clearAction: (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)([...path, 2, i], defaultValue),
+                path: [...path, 2, i],
+            });
+        });
         return {
             name: meta.name,
             description: meta.description,
@@ -66879,20 +66887,20 @@ const ConfigurableEffectTrack = ({ onChange, leftBlock, effect, effect: [enabled
     const filtersPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, 3], [path]);
     const valueFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => filters !== null && filters !== void 0 ? filters : [], [filters]);
     const clearFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
-        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.EditValueAction)([...path, 3], []);
+        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)([...path, 3], []);
     }, [path]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         leftBlock,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_2__.TimelineBlock, { fixed: true },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" },
                 (filters === null || filters === void 0 ? void 0 : filters.length) >= 0 && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_12__.EffectPreview, { effect: effectWithNoFilters }),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_11__.EffectPreview, { effect: effectWithNoFilters }),
                     "->")),
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_12__.EffectPreview, { effect: effect }),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_11__.EffectPreview, { effect: effect }),
                 effectData.description)),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_EffectTypeTrack__WEBPACK_IMPORTED_MODULE_11__.EffectTypeTrack, { onChange: onChange, effect: effect }),
-        effectData.paramDescriptions.map((paramDesc) => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_4__.ValueTrack, { value: paramDesc.value, type: paramDesc.type, path: paramDesc.path, key: paramDesc.name, description: paramDesc.description }, paramDesc.name))),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_4__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect", deleteAction: clearFilters }, "Filters")));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_EffectTypeTrack__WEBPACK_IMPORTED_MODULE_10__.EffectTypeTrack, { onChange: onChange, effect: effect }),
+        effectData.paramDescriptions.map((paramDesc) => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_4__.ValueTrack, { value: paramDesc.value, type: paramDesc.type, path: paramDesc.path, key: paramDesc.name, description: paramDesc.description, clearAction: paramDesc.clearAction }, paramDesc.name))),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_4__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect", clearAction: clearFilters }, "Filters")));
 };
 
 
@@ -66956,13 +66964,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
 /* harmony import */ var _ValueTrack__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ValueTrack */ "./src/ui/components/editor/tracks/ValueTrack.tsx");
 /* harmony import */ var _track_elements_Expander__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../track-elements/Expander */ "./src/ui/components/editor/track-elements/Expander.tsx");
-/* harmony import */ var _utils_KeyManager__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../utils/KeyManager */ "./src/ui/utils/KeyManager.ts");
-/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
-/* harmony import */ var _FilterTypeTrack__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./FilterTypeTrack */ "./src/ui/components/editor/tracks/FilterTypeTrack.tsx");
-/* harmony import */ var _tracks_scss__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./tracks.scss */ "./src/ui/components/editor/tracks/tracks.scss");
-/* harmony import */ var _editor_inline_InlineFilterTypeEditor__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./editor/inline/InlineFilterTypeEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineFilterTypeEditor.tsx");
-/* harmony import */ var _editor_TreeBlockFilter__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./editor/TreeBlockFilter */ "./src/ui/components/editor/tracks/editor/TreeBlockFilter.tsx");
-/* harmony import */ var _utils_isObjectContains__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../../../utils/isObjectContains */ "./src/ui/utils/isObjectContains.ts");
+/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+/* harmony import */ var _FilterTypeTrack__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./FilterTypeTrack */ "./src/ui/components/editor/tracks/FilterTypeTrack.tsx");
+/* harmony import */ var _tracks_scss__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./tracks.scss */ "./src/ui/components/editor/tracks/tracks.scss");
+/* harmony import */ var _editor_inline_InlineFilterTypeEditor__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./editor/inline/InlineFilterTypeEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineFilterTypeEditor.tsx");
+/* harmony import */ var _editor_TreeBlockFilter__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./editor/TreeBlockFilter */ "./src/ui/components/editor/tracks/editor/TreeBlockFilter.tsx");
+/* harmony import */ var _utils_isObjectContains__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../../utils/isObjectContains */ "./src/ui/utils/isObjectContains.ts");
 
 
 
@@ -66975,9 +66982,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-const FilterTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ baseExpanded, filter, path, children, alias, deleteAction, onDragOverItem }) => {
-    const [expanded, expander, changeExpanded] = (0,_track_elements_Expander__WEBPACK_IMPORTED_MODULE_5__.useExpander)(baseExpanded);
+const FilterTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ baseExpanded, filter, path, children, alias, deleteAction, onDragOverItem, clearAction }) => {
+    const [expanded, expander, changeExpanded, setExpanded] = (0,_track_elements_Expander__WEBPACK_IMPORTED_MODULE_5__.useExpander)(baseExpanded);
     const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_3__.TrackContext);
     const dragValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         return {
@@ -67000,9 +67006,9 @@ const FilterTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ baseExpanded,
             mode = "copy";
         else if (event.shiftKey)
             mode = dragData.deleteAction ? "move" : "none";
-        else if (dragData.filterLink)
+        else if (dragData.filterLink !== undefined)
             mode = "link";
-        else if (dragData.filter)
+        else if (dragData.filter !== undefined)
             mode = "copy";
         if (mode === "none")
             return void (dragData.dropEffect = "none");
@@ -67019,15 +67025,15 @@ const FilterTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ baseExpanded,
         if (filter === valueFilter)
             return void (dragData.dropEffect = "none");
         if (mode === "move") {
-            if ((0,_utils_isObjectContains__WEBPACK_IMPORTED_MODULE_12__.isObjectEqualOrContains)(valueFilter, filter))
+            if ((0,_utils_isObjectContains__WEBPACK_IMPORTED_MODULE_11__.isObjectEqualOrContains)(valueFilter, filter))
                 return void (dragData.dropEffect = "none");
         }
         if (mode === "link" && valueFilter[2] === alias)
             return void (dragData.dropEffect = "none");
         return () => {
-            let changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.EditValueAction)(path, valueFilter);
+            let changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.EditValueAction)(path, valueFilter);
             if (mode === "move" && dragData.deleteAction) {
-                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.MultiAction)([changeAction, dragData.deleteAction]));
+                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.MultiAction)([changeAction, dragData.deleteAction]));
             }
             else {
                 dispatch(changeAction);
@@ -67037,7 +67043,7 @@ const FilterTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ baseExpanded,
     const { filterConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_3__.TrackContext);
     const onChangeFilter = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((type, value) => {
         if (!type) {
-            return dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.EditValueAction)(path, null));
+            return dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.EditValueAction)(path, null));
         }
         const templateFilter = filter ? filter.slice(0) : [true, null, []];
         if (type === "alias") {
@@ -67050,9 +67056,9 @@ const FilterTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ baseExpanded,
             const meta = filterConstructor['meta'];
             templateFilter[2] = meta.defaultValues;
         }
-        return dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.EditValueAction)(path, templateFilter));
+        return dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.EditValueAction)(path, templateFilter));
     }, [filter, dispatch]);
-    const leftBlock = (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_TreeBlockFilter__WEBPACK_IMPORTED_MODULE_11__.TreeBlockFilter, { filter: filter, changeExpanded: changeExpanded, expander: expander, path: path, deleteAction: deleteAction, dragValue: dragValue, onDragOverItem: onDragOverItemSelf },
+    const leftBlock = (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_TreeBlockFilter__WEBPACK_IMPORTED_MODULE_10__.TreeBlockFilter, { filter: filter, changeExpanded: changeExpanded, setExpanded: setExpanded, expander: expander, path: path, clearAction: clearAction, deleteAction: deleteAction, dragValue: dragValue, onDragOverItem: onDragOverItemSelf },
         " ",
         children,
         " "));
@@ -67066,26 +67072,31 @@ const NoFilterTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ expanded, o
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         leftBlock,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_2__.TimelineBlock, { fixed: true },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineFilterTypeEditor__WEBPACK_IMPORTED_MODULE_10__.InlineFilterTypeEditor, { onChange: onChange, filter: null }))));
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineFilterTypeEditor__WEBPACK_IMPORTED_MODULE_9__.InlineFilterTypeEditor, { onChange: onChange, filter: null }))));
 });
 const AliasFilterTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ filter, leftBlock, expanded, onChange }) => {
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         leftBlock,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_2__.TimelineBlock, { fixed: true },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineFilterTypeEditor__WEBPACK_IMPORTED_MODULE_10__.InlineFilterTypeEditor, { onChange: onChange, filter: filter }))));
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineFilterTypeEditor__WEBPACK_IMPORTED_MODULE_9__.InlineFilterTypeEditor, { onChange: onChange, filter: filter }))));
 });
 const ConfigurableFilterTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ filter, filter: [enabled, filterId, params], onChange, path, expanded, leftBlock }) => {
     const { filterConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_3__.TrackContext);
     const filterData = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         const filterConstructor = filterConstructorMap[filterId];
         const meta = filterConstructor['meta'];
-        const paramDescriptions = meta.paramNames.map((paramName, i) => ({
-            name: paramName,
-            type: meta.paramTypes[i],
-            description: meta.paramDescriptions[i],
-            value: params[i],
-            path: [...path, 2, { key: (0,_utils_KeyManager__WEBPACK_IMPORTED_MODULE_6__.getArrayKey)(params, i), array: params }]
-        }));
+        const paramDescriptions = meta.paramNames.map((paramName, i) => {
+            const defaultValue = meta.defaultValues[i];
+            const paramPath = [...path, 2, i];
+            return ({
+                name: paramName,
+                type: meta.paramTypes[i],
+                description: meta.paramDescriptions[i],
+                value: params[i],
+                clearAction: (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.EditValueAction)(paramPath, defaultValue),
+                path: paramPath
+            });
+        });
         return {
             name: meta.name,
             description: meta.description,
@@ -67097,8 +67108,8 @@ const ConfigurableFilterTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ f
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_2__.TimelineBlock, { fixed: true },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description " },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" }, filterData.description))),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_FilterTypeTrack__WEBPACK_IMPORTED_MODULE_8__.FilterTypeTrack, { filter: filter, onChange: onChange }),
-        filterData.paramDescriptions.map((paramDesc) => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_4__.ValueTrack, { value: paramDesc.value, type: paramDesc.type, path: paramDesc.path, key: paramDesc.name }, paramDesc.name)))));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_FilterTypeTrack__WEBPACK_IMPORTED_MODULE_7__.FilterTypeTrack, { filter: filter, onChange: onChange }),
+        filterData.paramDescriptions.map((paramDesc) => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_4__.ValueTrack, { value: paramDesc.value, type: paramDesc.type, path: paramDesc.path, key: paramDesc.name, clearAction: paramDesc.clearAction }, paramDesc.name)))));
 });
 
 
@@ -67199,10 +67210,10 @@ const GroupEffectsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effects
         setName('');
     }, [name, effectsMap, path, dispatch]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_4__.TreeBlock, { type: "description" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_4__.TreeBlock, { type: "title" },
             expander,
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description", onClick: changeExpanded }, "===Effects===")),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_5__.TimelineBlock, { type: "description", fixed: true }, "effect prefabs"),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_5__.TimelineBlock, { type: "title", fixed: true }, "effect prefabs"),
         aliasesList.map(({ value, path, name }) => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(AliasEffectTrack, { path: path, value: value, name: name, key: name }))),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_4__.TreeBlock, { type: "description" }),
@@ -67276,10 +67287,10 @@ const GroupFiltersTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ filters
         setName('');
     }, [name, filtersMap, path, dispatch]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_4__.TreeBlock, { type: "description" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_4__.TreeBlock, { type: "title" },
             expander,
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description", onClick: changeExpanded }, "===Filters===")),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_5__.TimelineBlock, { type: "description", fixed: true }, "filter prefabs"),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_5__.TimelineBlock, { type: "title", fixed: true }, "filter prefabs"),
         aliasesList.map(alias => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(AliasFilterTrack, { name: alias.name, path: alias.path, key: alias.name, value: alias.value }))),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_4__.TreeBlock, { type: "description" }),
@@ -67330,10 +67341,10 @@ const GroupOptionsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ options
     const durationPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, "duration"], [path]);
     const countPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, "count"], [path]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_3__.TreeBlock, { type: "description" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_3__.TreeBlock, { type: "title" },
             expander,
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description", onClick: changeExpanded }, "===Options===")),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_4__.TimelineBlock, { type: "description", fixed: true }, "options"),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_4__.TimelineBlock, { type: "title", fixed: true }, "options"),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { path: durationPath, value: (_a = options === null || options === void 0 ? void 0 : options['duration']) !== null && _a !== void 0 ? _a : null, type: "number", description: "duration in milliseconds" }, "Track duration"),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { path: countPath, value: (_b = options === null || options === void 0 ? void 0 : options['count']) !== null && _b !== void 0 ? _b : null, type: "number", description: "number of pixels" }, "Pixels")));
 });
@@ -67371,13 +67382,32 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const NumberTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, children, path }) => {
+const NumberTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, children, path, deleteAction, clearAction, onDragOverItem }) => {
     const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_5__.TrackContext);
     const onChange = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
         dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.EditValueAction)(path, value));
     }, [dispatch, path]);
+    const dragValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return {
+            typedValue: { type: "number", value: value },
+            deleteAction: deleteAction
+        };
+    }, [value, deleteAction]);
+    const onDragOverItemSelf = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return (0,_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.createDefaultDragTypeBehavior)("number", path, dispatch, onDragOverItem);
+    }, [path, dispatch, onDragOverItem]);
+    const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        if (!event.ctrlKey && event.altKey && !event.shiftKey) {
+            if (deleteAction || clearAction)
+                dispatch(deleteAction !== null && deleteAction !== void 0 ? deleteAction : clearAction);
+        }
+        if (event.ctrlKey && event.altKey && !event.shiftKey) {
+            if (clearAction)
+                dispatch(clearAction);
+        }
+    }, [deleteAction, dispatch]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, null, children),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, { onDragOverItem: onDragOverItemSelf, onClick: onClick, dragValue: dragValue }, children),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_6__.InlineNumberEditor, { value: value, onChange: onChange }))));
 });
@@ -67483,7 +67513,7 @@ const TimelineEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ leftB
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description" }, "Offset")),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_10__.InlineNumberEditor, { value: params[3], onChange: onChangeOffset }))),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_6__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect", deleteAction: clearFilters }, "Filters")));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_6__.ValueTrack, { value: valueFilters, type: "array:filter", path: filtersPath, description: "filters applied to effect", clearAction: clearFilters }, "Filters")));
 });
 
 
@@ -67518,27 +67548,27 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const ValueTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ type, value, description, children, path, deleteAction, onDragOverItem }) => {
+const ValueTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ type, value, description, children, path, deleteAction, clearAction, onDragOverItem }) => {
     if (type.startsWith("array:")) {
-        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ArrayTrack__WEBPACK_IMPORTED_MODULE_3__.ArrayTrack, { path: path, value: value, type: type.substring(6), onDragOverItem: onDragOverItem, deleteAction: deleteAction },
+        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ArrayTrack__WEBPACK_IMPORTED_MODULE_3__.ArrayTrack, { path: path, value: value, type: type.substring(6), onDragOverItem: onDragOverItem, deleteAction: deleteAction, clearAction: clearAction },
             children,
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" }, description)));
     }
     if (type === "filter") {
-        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_FilterTrack__WEBPACK_IMPORTED_MODULE_1__.FilterTrack, { filter: value, path: path, onDragOverItem: onDragOverItem, deleteAction: deleteAction }, children));
+        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_FilterTrack__WEBPACK_IMPORTED_MODULE_1__.FilterTrack, { filter: value, path: path, onDragOverItem: onDragOverItem, deleteAction: deleteAction, clearAction: clearAction }, children));
     }
     if (type === "effect") {
-        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_EffectTrack__WEBPACK_IMPORTED_MODULE_4__.EffectTrack, { effect: value, path: path, onDragOverItem: onDragOverItem, deleteAction: deleteAction }, children));
+        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_EffectTrack__WEBPACK_IMPORTED_MODULE_4__.EffectTrack, { effect: value, path: path, onDragOverItem: onDragOverItem, deleteAction: deleteAction, clearAction: clearAction }, children));
     }
     if (type === "color") {
-        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ColorTrack__WEBPACK_IMPORTED_MODULE_5__.ColorTrack, { value: value, path: path, onDragOverItem: onDragOverItem, deleteAction: deleteAction }, children));
+        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ColorTrack__WEBPACK_IMPORTED_MODULE_5__.ColorTrack, { value: value, path: path, onDragOverItem: onDragOverItem, deleteAction: deleteAction, clearAction: clearAction }, children));
     }
     if (type === "number") {
-        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_NumberTrack__WEBPACK_IMPORTED_MODULE_6__.NumberTrack, { value: value, path: path },
+        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_NumberTrack__WEBPACK_IMPORTED_MODULE_6__.NumberTrack, { value: value, path: path, onDragOverItem: onDragOverItem, deleteAction: deleteAction, clearAction: clearAction },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null, children)));
     }
-    return react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueUnknownTrack__WEBPACK_IMPORTED_MODULE_2__.ValueUnknownTrack, { value: value, path: path },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null, children));
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueUnknownTrack__WEBPACK_IMPORTED_MODULE_2__.ValueUnknownTrack, { type: type, value: value, path: path, onDragOverItem: onDragOverItem, deleteAction: deleteAction, clearAction: clearAction },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null, children)));
 });
 
 
@@ -67573,13 +67603,32 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const ValueUnknownTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, children, path }) => {
+const ValueUnknownTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ type, value, children, path, deleteAction, clearAction, onDragOverItem }) => {
     const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_5__.TrackContext);
     const onChange = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
         dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.EditValueAction)(path, value));
     }, [dispatch, path]);
+    const dragValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return {
+            typedValue: { type: type, value: value },
+            deleteAction: deleteAction
+        };
+    }, [type, value, deleteAction]);
+    const onDragOverItemSelf = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return (0,_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.createDefaultDragTypeBehavior)(type, path, dispatch, onDragOverItem);
+    }, [type, path, dispatch, onDragOverItem]);
+    const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        if (!event.ctrlKey && event.altKey && !event.shiftKey) {
+            if (deleteAction || clearAction)
+                dispatch(deleteAction !== null && deleteAction !== void 0 ? deleteAction : clearAction);
+        }
+        if (event.ctrlKey && event.altKey && !event.shiftKey) {
+            if (clearAction)
+                dispatch(clearAction);
+        }
+    }, [deleteAction, dispatch]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, null, children),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, { onDragOverItem: onDragOverItemSelf, onClick: onClick, dragValue: dragValue }, children),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_inline_InlineJsonEditor__WEBPACK_IMPORTED_MODULE_6__.InlineJsonEditor, { value: value, onChange: onChange }))));
 });
@@ -67604,39 +67653,40 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
-/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
-/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
-/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_2__);
 
 
 
-
-const DisplayEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path }) => {
-    const { effectConstructorMap, dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_1__.TrackContext);
-    const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
-        if (!effect)
-            return;
-        if (event.ctrlKey)
-            dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_2__.EditValueAction)([...path, 0], !effect[0]));
-    }, [effect, path]);
+const DisplayEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect }) => {
+    var _a, _b;
+    const { effectConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_1__.TrackContext);
     if (!effect) {
         return react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _empty" }, "empty");
     }
-    const [enabled, id, params] = effect;
+    const [enabled, id, params = [], filters = []] = effect;
     if (id) {
         const effectConstructor = effectConstructorMap[id];
         const meta = effectConstructor['meta'];
-        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: classnames__WEBPACK_IMPORTED_MODULE_3___default()("track-description _type", { "_disabled": !enabled }), onClick: onClick, title: getEffectTitle(enabled) }, meta.name));
+        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: classnames__WEBPACK_IMPORTED_MODULE_2___default()("track-description _type", { "_disabled": !enabled }) },
+            meta.name,
+            id === "Chain" && react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+                " (", (_a = params[0]) === null || _a === void 0 ? void 0 :
+                _a.length,
+                ")"),
+            id === "Timeline" && react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+                " (", (_b = params[0]) === null || _b === void 0 ? void 0 :
+                _b.length,
+                ")"),
+            filters && filters.length > 0 && react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+                " +",
+                filters.length,
+                " filters")));
     }
     else {
-        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: classnames__WEBPACK_IMPORTED_MODULE_3___default()("track-description _link", { "_disabled": !enabled }), onClick: onClick, title: getEffectTitle(enabled) }, params));
+        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: classnames__WEBPACK_IMPORTED_MODULE_2___default()("track-description _link", { "_disabled": !enabled }) }, params));
     }
 });
-function getEffectTitle(enabled) {
-    return '' +
-        `[Ctrl + click] = ${enabled ? 'disable' : 'enable'}\n` +
-        `[Drag] = move and copy effect`;
-}
 
 
 /***/ }),
@@ -67658,21 +67708,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
-/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
-/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
-/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_2__);
 
 
 
-
-const DisplayFilter = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ filter, path }) => {
-    const { filterConstructorMap, dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_1__.TrackContext);
-    const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
-        if (!filter)
-            return;
-        if (event.ctrlKey)
-            dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_2__.EditValueAction)([...path, 0], !filter[0]));
-    }, [filter, path]);
+const DisplayFilter = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ filter }) => {
+    const { filterConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_1__.TrackContext);
     if (!filter) {
         return react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _empty" }, "empty");
     }
@@ -67680,10 +67722,10 @@ const DisplayFilter = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ filter, pat
     if (id) {
         const filterConstructor = filterConstructorMap[id];
         const meta = filterConstructor['meta'];
-        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: classnames__WEBPACK_IMPORTED_MODULE_3___default()("track-description _type", { "_disabled": !enabled }), onClick: onClick }, meta.name));
+        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: classnames__WEBPACK_IMPORTED_MODULE_2___default()("track-description _type", { "_disabled": !enabled }) }, meta.name));
     }
     else {
-        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: classnames__WEBPACK_IMPORTED_MODULE_3___default()("track-description _link", { "_disabled": !enabled }), onClick: onClick, draggable: true }, params));
+        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: classnames__WEBPACK_IMPORTED_MODULE_2___default()("track-description _link", { "_disabled": !enabled }) }, params));
     }
 });
 
@@ -67779,7 +67821,8 @@ const TimelineEditor = ({ records, cycle, grid, offset, path }) => {
         dragCount.current--;
         if (dragCount.current === 0)
             clearDummy(dummyRef.current);
-        dragRef.current.dropEffect = null;
+        if (dragRef.current)
+            dragRef.current.dropEffect = null;
     }, []);
     const onDragOver = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         var _a, _b, _c;
@@ -67966,35 +68009,54 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "TreeBlockEffect": () => /* binding */ TreeBlockEffect
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
-/* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
-/* harmony import */ var _DisplayEffect__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DisplayEffect */ "./src/ui/components/editor/tracks/editor/DisplayEffect.tsx");
+/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+/* harmony import */ var _track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
+/* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+/* harmony import */ var _DisplayEffect__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./DisplayEffect */ "./src/ui/components/editor/tracks/editor/DisplayEffect.tsx");
 
 
 
 
-const TreeBlockEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ dragValue, effect, path, deleteAction, expander, changeExpanded, children, onDragOverItem }) => {
-    const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
+
+const TreeBlockEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ dragValue, effect, path, deleteAction, setExpanded, clearAction, expander, changeExpanded, children, onDragOverItem }) => {
+    const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_3__.TrackContext);
+    const effectIsChain = effect && effect[1] === "Chain";
     const title = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         if (!deleteAction && !dragValue)
             return undefined;
-        let title = "";
+        let title = "Ctrl + Click = disable\n";
         if (deleteAction)
             title += "Alt + Click = delete\n";
+        if (effectIsChain)
+            title += "Shift + Click = add effect\n";
         if (dragValue) {
-            title += "Draggable";
+            title += "Draggable\n";
         }
         return title;
     }, [deleteAction, dragValue]);
     const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
-        if (event.altKey && deleteAction)
-            dispatch(deleteAction);
-    }, [deleteAction, dispatch]);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_1__.TreeBlock, { dragValue: dragValue, onClick: onClick, title: title, onDragOverItem: onDragOverItem },
+        if (!event.ctrlKey && event.altKey && !event.shiftKey) {
+            if (deleteAction || clearAction)
+                dispatch(deleteAction !== null && deleteAction !== void 0 ? deleteAction : clearAction);
+        }
+        if (event.ctrlKey && !event.altKey && !event.shiftKey) {
+            if (effect)
+                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_1__.EditValueAction)([...path, 0], !effect[0]));
+        }
+        if (!event.ctrlKey && !event.altKey && event.shiftKey) {
+            if (effectIsChain) {
+                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_1__.PushValueAction)([...path, 2, 0], null));
+                setExpanded(true);
+            }
+        }
+        if (!event.ctrlKey && !event.altKey && !event.shiftKey)
+            changeExpanded();
+    }, [deleteAction, dispatch, effect, setExpanded, changeExpanded]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, { dragValue: dragValue, onClick: onClick, title: title, onDragOverItem: onDragOverItem },
         expander,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description", onClick: changeExpanded }, children),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description" }, children),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null, " "),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_DisplayEffect__WEBPACK_IMPORTED_MODULE_3__.DisplayEffect, { effect: effect, path: path })));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_DisplayEffect__WEBPACK_IMPORTED_MODULE_4__.DisplayEffect, { effect: effect })));
 });
 
 
@@ -68016,35 +68078,54 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "TreeBlockFilter": () => /* binding */ TreeBlockFilter
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
-/* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
-/* harmony import */ var _DisplayFilter__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DisplayFilter */ "./src/ui/components/editor/tracks/editor/DisplayFilter.tsx");
+/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+/* harmony import */ var _track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
+/* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+/* harmony import */ var _DisplayFilter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./DisplayFilter */ "./src/ui/components/editor/tracks/editor/DisplayFilter.tsx");
 
 
 
 
-const TreeBlockFilter = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ dragValue, filter, path, deleteAction, expander, changeExpanded, children, onDragOverItem }) => {
-    const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
+
+const TreeBlockFilter = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ dragValue, setExpanded, filter, path, deleteAction, clearAction, expander, changeExpanded, children, onDragOverItem }) => {
+    const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_3__.TrackContext);
+    const filterIsChain = filter && filter[1] === "FChain";
     const title = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         if (!deleteAction && !dragValue)
             return undefined;
-        let title = "";
+        let title = "Ctrl + Click = disable\n";
         if (deleteAction)
             title += "Alt + Click = delete\n";
+        if (filterIsChain)
+            title += "Shift + Click = add filter\n";
         if (dragValue) {
-            title += "Draggable";
+            title += "Draggable\n";
         }
         return title;
     }, [deleteAction, dragValue]);
     const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
-        if (event.altKey && deleteAction)
-            dispatch(deleteAction);
-    }, [deleteAction, dispatch]);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_1__.TreeBlock, { dragValue: dragValue, onClick: onClick, title: title, onDragOverItem: onDragOverItem },
+        if (!event.ctrlKey && event.altKey && !event.shiftKey) {
+            if (deleteAction || clearAction)
+                dispatch(deleteAction !== null && deleteAction !== void 0 ? deleteAction : clearAction);
+        }
+        if (event.ctrlKey && !event.altKey && !event.shiftKey) {
+            if (filter)
+                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_1__.EditValueAction)([...path, 0], !filter[0]));
+        }
+        if (!event.ctrlKey && !event.altKey && event.shiftKey) {
+            if (filterIsChain) {
+                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_1__.PushValueAction)([...path, 2, 0], null));
+                setExpanded(true);
+            }
+        }
+        if (!event.ctrlKey && !event.altKey && !event.shiftKey)
+            changeExpanded();
+    }, [deleteAction, dispatch, filter, setExpanded, changeExpanded]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, { dragValue: dragValue, onClick: onClick, title: title, onDragOverItem: onDragOverItem },
         expander,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description", onClick: changeExpanded }, children),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description" }, children),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null, " "),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_DisplayFilter__WEBPACK_IMPORTED_MODULE_3__.DisplayFilter, { filter: filter, path: path })));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_DisplayFilter__WEBPACK_IMPORTED_MODULE_4__.DisplayFilter, { filter: filter })));
 });
 
 

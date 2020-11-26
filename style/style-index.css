@@ -153,6 +153,11 @@ button.btn.track-header-icon-button {
     background-color: #222; }
   .track-timeline-block._description {
     height: 23px; }
+  .track-timeline-block._title {
+    margin-top: 10px;
+    border-top: 1px solid #444;
+    border-bottom: 1px solid #444;
+    background-color: #333; }
   .track-timeline-block._timeline {
     height: 40px;
     border-top: 1px solid #444;
@@ -207,6 +212,14 @@ button.btn.track-header-icon-button {
       border-bottom: 1px solid #884; }
   .track-tree-block._description {
     height: 23px; }
+  .track-tree-block._title {
+    margin-top: 10px;
+    border-left: 1px solid #444;
+    border-top: 1px solid #444;
+    border-bottom: 1px solid #444;
+    background-color: #333;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px; }
   .track-tree-block._timeline {
     height: 40px;
     border-left: 1px solid #444;
@@ -222,6 +235,8 @@ button.btn.track-header-icon-button {
     color: transparent; }
     .track-tree-block._move > * {
       opacity: 0; }
+  .track-tree-block._link {
+    outline: 2px dashed #888; }
 
 .track-description {
   user-select: none; }
