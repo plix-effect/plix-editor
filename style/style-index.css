@@ -163,6 +163,19 @@ button.btn.track-header-icon-button {
     .track-timeline-block._timeline .track-timeline-block-content {
       padding-left: 0; }
 
+.track-expander {
+  width: 20px;
+  display: inline-flex;
+  justify-content: center;
+  user-select: none; }
+  .track-expander::before {
+    content: "";
+    pointer-events: none; }
+  .track-expander._expanded::before {
+    content: "-"; }
+  .track-expander._collapsed::before {
+    content: "+"; }
+
 .track-tree-block {
   box-sizing: border-box;
   padding-left: 5px;
@@ -209,19 +222,6 @@ button.btn.track-header-icon-button {
     color: transparent; }
     .track-tree-block._move > * {
       opacity: 0; }
-
-.track-expander {
-  width: 20px;
-  display: inline-flex;
-  justify-content: center;
-  user-select: none; }
-  .track-expander::before {
-    content: "";
-    pointer-events: none; }
-  .track-expander._expanded::before {
-    content: "-"; }
-  .track-expander._collapsed::before {
-    content: "+"; }
 
 .track-description {
   user-select: none; }
