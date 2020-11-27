@@ -57,23 +57,22 @@ export const PlixEditor: FC = () => {
     }), [track, dispatch, historyPosition, history]);
 
     const onDragOver = useCallback((event: DragEvent<HTMLElement>) => {
-        const firstItem = event.dataTransfer?.items?.[0];
-        if (!firstItem) return;
-        if (firstItem.kind !== "file" || firstItem.type !== "application/json") return;
+        const items = Array.from(event.dataTransfer.items);
+        let jsonItem = items.find(item => item.kind === "file" && item.type === "application/json");
+        if (!jsonItem) return;
         event.preventDefault();
     }, []);
 
     const onDrop = useCallback((event: DragEvent<HTMLElement>) => {
-        const firstItem = event.dataTransfer?.items?.[0];
-        if (!firstItem) return;
-        if (firstItem.kind !== "file" || firstItem.type !== "application/json") return;
-        const file = event.dataTransfer.files[0];
+        const files = Array.from(event.dataTransfer.files);
+        let jsonFile = files.find(file => file.type === "application/json");
+        if (!jsonFile) return;
         const reader = new FileReader();
         reader.addEventListener("load", (event) => {
             const track = JSON.parse(String(event.target.result));
             dispatch(OpenAction(track));
         })
-        reader.readAsBinaryString(file);
+        reader.readAsBinaryString(jsonFile);
         event.preventDefault();
     }, []);
 
