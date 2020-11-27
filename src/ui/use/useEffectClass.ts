@@ -12,7 +12,7 @@ export function useEffectClass(effect: PlixEffectJsonData): null|"container"|"ti
         const effectConstructor = effectConstructorMap[effectId];
         const meta: ParseMeta = effectConstructor['meta'];
         if (meta.paramTypes[0] === "array:effect") return "container";
-        if (meta.paramTypes[0] === "array:track") return "timeline";
+        if (meta.paramTypes[0] === "array:record") return "timeline";
         return null;
     }, [effect, effectConstructorMap]);
 }
