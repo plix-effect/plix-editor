@@ -65155,28 +65155,23 @@ const PlixEditor = () => {
         filterConstructorMap: _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_6__,
     }), [track, dispatch, historyPosition, history]);
     const onDragOver = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
-        var _a, _b;
-        const firstItem = (_b = (_a = event.dataTransfer) === null || _a === void 0 ? void 0 : _a.items) === null || _b === void 0 ? void 0 : _b[0];
-        if (!firstItem)
-            return;
-        if (firstItem.kind !== "file" || firstItem.type !== "application/json")
+        const items = Array.from(event.dataTransfer.items);
+        let jsonItem = items.find(item => item.kind === "file" && item.type === "application/json");
+        if (!jsonItem)
             return;
         event.preventDefault();
     }, []);
     const onDrop = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
-        var _a, _b;
-        const firstItem = (_b = (_a = event.dataTransfer) === null || _a === void 0 ? void 0 : _a.items) === null || _b === void 0 ? void 0 : _b[0];
-        if (!firstItem)
+        const files = Array.from(event.dataTransfer.files);
+        let jsonFile = files.find(file => file.type === "application/json");
+        if (!jsonFile)
             return;
-        if (firstItem.kind !== "file" || firstItem.type !== "application/json")
-            return;
-        const file = event.dataTransfer.files[0];
         const reader = new FileReader();
         reader.addEventListener("load", (event) => {
             const track = JSON.parse(String(event.target.result));
             dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.OpenAction)(track));
         });
-        reader.readAsBinaryString(file);
+        reader.readAsBinaryString(jsonFile);
         event.preventDefault();
     }, []);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-editor", onDragOver: onDragOver, onDrop: onDrop },
