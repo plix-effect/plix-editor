@@ -12,6 +12,7 @@ import {
 import {PlixEffectAliasJsonData, PlixEffectJsonData} from "@plix-effect/core/dist/types/parser";
 import {ParseMeta} from "../../../../../types/ParseMeta";
 import {TrackContext} from "../../../TrackContext";
+import {ConstructorContext} from "../../../ConstructorContext";
 
 interface EffectInlineSelectOptionValue extends InlineSelectOptionValue {
     effectType: null|"ALIAS"|"CONSTRUCTOR"
@@ -45,7 +46,8 @@ export const InlineEffectTypeEditor: FC<InlineSelectEditorProps> = ({effect, onC
         if (type === "CONSTRUCTOR") return onChange("constructor", value);
     }, []);
 
-    const {effectConstructorMap, track: { effects: effectAliasMap }} = useContext(TrackContext);
+    const {effectConstructorMap} = useContext(ConstructorContext);
+    const {track: { effects: effectAliasMap }} = useContext(TrackContext);
 
     const effectConstructorsData = useMemo(() => {
         return Object.keys(effectConstructorMap).sort(/*a-z*/).map((id) => {

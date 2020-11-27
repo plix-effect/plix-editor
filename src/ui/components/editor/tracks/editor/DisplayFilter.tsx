@@ -4,12 +4,13 @@ import {ParseMeta} from "../../../../types/ParseMeta";
 import {EditorPath} from "../../../../types/Editor";
 import cn from "classnames";
 import {PlixFilterJsonData} from "@plix-effect/core/types/parser";
+import {ConstructorContext} from "../../ConstructorContext";
 
 export interface DisplayFilterProps {
     filter: PlixFilterJsonData,
 }
 export const DisplayFilter: FC<DisplayFilterProps> = memo(({filter}) => {
-    const {filterConstructorMap} = useContext(TrackContext);
+    const {filterConstructorMap} = useContext(ConstructorContext);
 
     if (!filter) {
         return <span className="track-description _empty">empty</span>

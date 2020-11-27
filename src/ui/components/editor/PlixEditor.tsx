@@ -3,6 +3,7 @@ import "./PlixEditor.scss";
 import {SplitTopBottom} from "../divider/SplitTopBottom";
 import {TrackEditor} from "./TrackEditor";
 import {TrackContextProps, TrackContext} from "./TrackContext";
+import {ConstructorContextProps, ConstructorContext} from "./ConstructorContext";
 import * as effectConstructorMap from "@plix-effect/core/effects";
 import * as filterConstructorMap from "@plix-effect/core/filters";
 import {PlixJsonData} from "@plix-effect/core/types/parser";
@@ -52,9 +53,13 @@ export const PlixEditor: FC = () => {
         redoCounts: history.length - historyPosition,
         track,
         dispatch,
-        effectConstructorMap: effectConstructorMap as TrackContextProps["effectConstructorMap"],
-        filterConstructorMap: filterConstructorMap as TrackContextProps["filterConstructorMap"],
+
     }), [track, dispatch, historyPosition, history]);
+
+    const constructorContextValue: ConstructorContextProps = useMemo(() => ({
+        effectConstructorMap: effectConstructorMap as ConstructorContextProps["effectConstructorMap"],
+        filterConstructorMap: filterConstructorMap as ConstructorContextProps["filterConstructorMap"],
+    }), []);
 
     const onDragOver = useCallback((event: DragEvent<HTMLElement>) => {
         const items = Array.from(event.dataTransfer.items);
@@ -63,27 +68,26 @@ export const PlixEditor: FC = () => {
         event.preventDefault();
     }, []);
 
-    const onDrop = useCallback((event: DragEvent<HTMLElement>) => {
-        const files = Array.from(event.dataTransfer.files);
-        let jsonFile = files.find(file => file.type === "application/json");
-        if (!jsonFile) return;
-        const reader = new FileReader();
-        reader.addEventListener("load", (event) => {
-            const track = JSON.parse(String(event.target.result));
-            dispatch(OpenAction(track));
-        })
-        reader.readAsBinaryString(jsonFile);
+    const onDrop = useCallback(async (event: DragEvent<HTMLElement>) => {
+        const items = Array.from(event.dataTransfer.items);
+        let jsonItem = items.find(item => item.kind === "file" && item.type === "application/json");
+        if (!jsonItem) return;
         event.preventDefault();
+        const text = await jsonItem.getAsFile().text();
+        const track = JSON.parse(text);
+        dispatch(OpenAction(track));
     }, []);
 
     return (
         <div className="plix-editor" onDragOver={onDragOver} onDrop={onDrop}>
             <DragContext.Provider value={dragRef}>
                 <TrackContext.Provider value={trackContextValue}>
-                <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
-                        <TrackEditor />
-                    <div>LIBS AND CANVAS</div>
-                </SplitTopBottom>
+                    <ConstructorContext.Provider value={constructorContextValue}>
+                        <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
+                                <TrackEditor />
+                            <div>LIBS AND CANVAS</div>
+                        </SplitTopBottom>
+                    </ConstructorContext.Provider>
                 </TrackContext.Provider>
             </DragContext.Provider>
         </div>

@@ -28,6 +28,7 @@ import {InlineFilterTypeEditor} from "./editor/inline/InlineFilterTypeEditor";
 import {DragType} from "../DragContext";
 import {TreeBlockFilter} from "./editor/TreeBlockFilter";
 import {isObjectEqualOrContains} from "../../../utils/isObjectContains";
+import {ConstructorContext} from "../ConstructorContext";
 
 export interface FilterTrackProps {
     baseExpanded?: boolean,
@@ -94,7 +95,7 @@ export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, filter, pa
     }, [onDragOverItem, path, dispatch]);
 
 
-    const {filterConstructorMap} = useContext(TrackContext);
+    const {filterConstructorMap} = useContext(ConstructorContext);
     const onChangeFilter = useCallback((type: null|"alias"|"constructor", value?: string) => {
         if (!type) {
             return dispatch(EditValueAction(path, null));
@@ -196,7 +197,7 @@ interface ConfigurableFilterTrackProps {
     onChange: (type: null|"alias"|"constructor", value?: string) => void,
 }
 const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = memo(({filter, filter: [enabled, filterId, params], onChange, path, expanded, leftBlock}) => {
-    const {filterConstructorMap} = useContext(TrackContext);
+    const {filterConstructorMap} = useContext(ConstructorContext);
     const filterData = useMemo(() => {
         const filterConstructor = filterConstructorMap[filterId];
         const meta: ParseMeta = filterConstructor['meta'];

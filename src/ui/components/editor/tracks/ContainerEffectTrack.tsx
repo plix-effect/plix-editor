@@ -14,15 +14,16 @@ import "./tracks.scss"
 import {ArrayElementsTrack} from "./ArrayElementsTrack";
 import {EffectTypeTrack} from "./EffectTypeTrack";
 import {EffectPreview} from "./editor/EffectPreview";
+import {ConstructorContext} from "../ConstructorContext";
 
-export interface ChainEffectTrackProps {
+export interface ContainerEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
     path: EditorPath,
     expanded: boolean,
     onChange: (type: null|"alias"|"constructor", value?: string) => void,
     leftBlock?: ReactNode,
 }
-export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo((
+export const ContainerEffectTrack: FC<ContainerEffectTrackProps> = memo((
     {
         leftBlock,
         effect,
@@ -36,7 +37,7 @@ export const ChainEffectTrack: FC<ChainEffectTrackProps> = memo((
     const paramEffectsPath = useMemo(() => [...path, 2, 0], [path]);
     const effectWithNoFilters: PlixEffectConfigurableJsonData = useMemo(() => [enabled, effectId, params, []], [effect])
 
-    const {effectConstructorMap} = useContext(TrackContext);
+    const {effectConstructorMap} = useContext(ConstructorContext);
     const effectData = useMemo(() => {
         const effectConstructor = effectConstructorMap[effectId];
         const meta: ParseMeta = effectConstructor['meta'];

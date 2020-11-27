@@ -15,6 +15,7 @@ import {
 } from "@plix-effect/core/dist/types/parser";
 import {ParseMeta} from "../../../../../types/ParseMeta";
 import {TrackContext} from "../../../TrackContext";
+import {ConstructorContext} from "../../../ConstructorContext";
 
 interface FilterInlineSelectOptionValue extends InlineSelectOptionValue {
     filterType: null|"ALIAS"|"CONSTRUCTOR"
@@ -48,7 +49,8 @@ export const InlineFilterTypeEditor: FC<InlineSelectEditorProps> = ({filter, onC
         if (type === "CONSTRUCTOR") return onChange("constructor", value);
     }, []);
 
-    const {filterConstructorMap, track: { filters: filterAliasMap }} = useContext(TrackContext);
+    const {track: { filters: filterAliasMap }} = useContext(TrackContext);
+    const {filterConstructorMap} = useContext(ConstructorContext);
 
     const filterConstructorsData = useMemo(() => {
         return Object.keys(filterConstructorMap).sort(/*a-z*/).map((id) => {

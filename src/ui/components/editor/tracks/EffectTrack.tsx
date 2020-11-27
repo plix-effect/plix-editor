@@ -14,14 +14,17 @@ import {ValueTrack} from "./ValueTrack";
 import "./tracks.scss"
 import {useExpander} from "../track-elements/Expander";
 import {TimelineEffectTrack} from "./TimelineEffectTrack";
-import {ChainEffectTrack} from "./ChainEffectTrack";
-import {EditValueAction, MultiAction, MultiActionType} from "../PlixEditorReducerActions";
+import {ContainerEffectTrack} from "./ContainerEffectTrack";
+import {EditValueAction, MultiAction, MultiActionType, PushValueAction} from "../PlixEditorReducerActions";
 import {EffectTypeTrack} from "./EffectTypeTrack";
 import {EffectPreview} from "./editor/EffectPreview";
 import {InlineEffectTypeEditor} from "./editor/inline/InlineEffectTypeEditor";
 import {DragType} from "../DragContext";
 import {TreeBlockEffect} from "./editor/TreeBlockEffect";
 import {isObjectEqualOrContains} from "../../../utils/isObjectContains";
+import {ConstructorContext} from "../ConstructorContext";
+import {useEffectClass} from "../../../use/useEffectClass";
+import {PlixFilterJsonData} from "@plix-effect/core/dist/types/parser";
 
 export interface EffectTrackProps {
     path: EditorPath,
@@ -47,10 +50,15 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
 
     const {dispatch} = useContext(TrackContext);
 
+    const {effectConstructorMap} = useContext(ConstructorContext);
+    const effectClass = useEffectClass(effect);
+
     const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | [string, DragEventHandler] => {
         const originDragHandler = onDragOverItem?.(event, dragData);
         if (originDragHandler) return originDragHandler;
         if (!dragData) return;
+
+        const allowFilters = effect !== null;
 
         let mode: "copy"|"move"|"link"|"none" = "none";
         if (event.ctrlKey && event.shiftKey) mode = "link";
@@ -58,30 +66,43 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
         else if (event.shiftKey) mode = dragData.deleteAction ? "move" : "none";
         else if (dragData.effectLink !== undefined) mode = "link";
         else if (dragData.effect !== undefined) mode = "copy";
+        else if (allowFilters && dragData.filterLink !== undefined) mode = "link";
+        else if (allowFilters && dragData.filter !== undefined) mode = "copy";
 
-        if (mode === "none") return void (dragData.dropEffect = "none");
+        if (mode === "none") return;
 
         let valueEffect: PlixEffectJsonData;
+        let valueFilter: PlixFilterJsonData;
 
-        if (dragData.effect && mode !== "link") {
-            valueEffect = dragData.effect;
+        if (mode !== "link"){
+            if (dragData.effect !== undefined) valueEffect = dragData.effect;
+            if (allowFilters && dragData.filter !== undefined) valueFilter = dragData.filter;
+        } else {
+            if (dragData.effectLink !== undefined) valueEffect = dragData.effectLink;
+            if (allowFilters && dragData.filterLink !== undefined) valueFilter = dragData.filterLink;
         }
+        if (valueEffect === undefined && valueFilter === undefined) return;
 
-        if (valueEffect === undefined && dragData.effectLink && mode === "link") {
-            valueEffect = dragData.effectLink;
-        }
-        if (valueEffect === undefined) return void (dragData.dropEffect = "none");
         dragData.dropEffect = mode;
 
-        if (effect === valueEffect) return void (dragData.dropEffect = "none");
+        if (effect === valueEffect) return;
         if (mode === "move") {
-            if (isObjectEqualOrContains(valueEffect, effect)) return void (dragData.dropEffect = "none");
+            if (isObjectEqualOrContains(valueEffect, effect)) return;
         }
-        if (mode === "link" && valueEffect[2] === alias) return void (dragData.dropEffect = "none");
+        if (mode === "link" && valueEffect && valueEffect[2] === alias) return;
 
-        return ["_drop-replace", () => {
+        const addEffect = valueEffect !== undefined && effectClass === "container" && !event.altKey;
+        const changeEffect = !addEffect && valueEffect !== undefined;
+        const addFilter = !addEffect && !changeEffect && valueFilter !== undefined;
+
+
+        return [(addEffect || addFilter) ? "_drop-add-item" : "_drop-replace", () => {
             let changeAction;
-            if (mode === "link" && effect !== null && valueEffect !== null) { // save filters on paste as link
+            if (addEffect) {
+                changeAction = PushValueAction([...path, 2, 0], valueEffect);
+            } else if (addFilter) {
+                changeAction = PushValueAction([...path, 3], valueFilter);
+            } else if (mode === "link" && effect !== null && valueEffect !== null) { // save filters on drop effect as link
                 changeAction = EditValueAction(path, [true, null, valueEffect[2], effect[3]]);
             } else {
                 changeAction = EditValueAction(path, valueEffect);
@@ -89,12 +110,12 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
             if (mode === "move" && dragData.deleteAction) {
                 dispatch(MultiAction([changeAction, dragData.deleteAction]))
             } else { // action === "copy" || action === "link"
+                console.log("DISPATCH", changeAction);
                 dispatch(changeAction);
             }
         }];
     }, [onDragOverItem, path, dispatch]);
 
-    const {effectConstructorMap} = useContext(TrackContext);
     const onChangeEffect = useCallback((type: null|"alias"|"constructor", value?: string) => {
         if (!type) {
             return dispatch(EditValueAction(path, null));
@@ -143,7 +164,7 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
             leftBlock={leftBlock}
         />
     );
-    if (effect[1] === "Timeline") return (
+    if (effectClass === "timeline") return (
         <TimelineEffectTrack
             effect={effect as PlixEffectConfigurableJsonData}
             onChange={onChangeEffect}
@@ -151,16 +172,16 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
             expanded={expanded}
             leftBlock={leftBlock}
         />
-    )
-    if (effect[1] === "Chain") return (
-        <ChainEffectTrack
+    );
+    if (effectClass === "container") return (
+        <ContainerEffectTrack
             effect={effect as PlixEffectConfigurableJsonData}
             path={path}
             expanded={expanded}
             onChange={onChangeEffect}
             leftBlock={leftBlock}
         />
-    )
+    );
     return (
         <ConfigurableEffectTrack
             path={path}
@@ -240,7 +261,7 @@ interface ConfigurableEffectTrackProps {
     leftBlock?: ReactNode
 }
 const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, leftBlock, effect, effect: [enabled, effectId, params, filters], children, path, expanded}) => {
-    const {effectConstructorMap} = useContext(TrackContext);
+    const {effectConstructorMap} = useContext(ConstructorContext);
     const effectWithNoFilters: PlixEffectConfigurableJsonData = useMemo(() => [enabled, effectId, params, []], [effect])
     const effectData = useMemo(() => {
         const effectConstructor = effectConstructorMap[effectId];

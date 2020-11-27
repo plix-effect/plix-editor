@@ -5,8 +5,6 @@ import type {PlixEditorAction} from "./PlixEditorReducer";
 export interface TrackContextProps {
     track: PlixJsonData
     dispatch: Dispatch<PlixEditorAction>
-    effectConstructorMap?: EffectConstructorMap
-    filterConstructorMap?: FilterConstructorMap
     undoCounts?: number
     redoCounts?: number
 }

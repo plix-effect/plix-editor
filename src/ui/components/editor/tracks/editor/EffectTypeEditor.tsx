@@ -3,6 +3,7 @@ import "../../track-elements/ColorView.scss";
 import {TrackContext} from "../../TrackContext";
 import {ParseMeta} from "../../../../types/ParseMeta";
 import {PlixEffectJsonData} from "@plix-effect/core/dist/types/parser";
+import {ConstructorContext} from "../../ConstructorContext";
 
 export interface EffectTypeEditorProps {
     effect: PlixEffectJsonData
@@ -10,7 +11,8 @@ export interface EffectTypeEditorProps {
 }
 export const EffectTypeEditor: FC<EffectTypeEditorProps> = ({onChange, effect}) => {
 
-    const {effectConstructorMap, track: { effects: effectAliasMap }} = useContext(TrackContext);
+    const {track: { effects: effectAliasMap }} = useContext(TrackContext);
+    const {effectConstructorMap} = useContext(ConstructorContext);
 
     const handleChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
         const selectedValue = event.target.value;
