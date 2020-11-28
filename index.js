@@ -64646,126 +64646,6 @@ else {}
 
 /***/ }),
 
-/***/ "./PlaybackContext.tsx":
-/*!*****************************!*\
-  !*** ./PlaybackContext.tsx ***!
-  \*****************************/
-/*! namespace exports */
-/*! export CreatePlayback [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export usePlaybackControl [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export usePlaybackData [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export usePlaybackStatus [provided] [no usage info] [missing usage info prevents renaming] */
-/*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "CreatePlayback": () => /* binding */ CreatePlayback,
-/* harmony export */   "usePlaybackStatus": () => /* binding */ usePlaybackStatus,
-/* harmony export */   "usePlaybackData": () => /* binding */ usePlaybackData,
-/* harmony export */   "usePlaybackControl": () => /* binding */ usePlaybackControl
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _src_ui_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./src/ui/use/useLatestCallback */ "./src/ui/use/useLatestCallback.ts");
-
-
-const PlaybackDataContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
-const PlaybackStatusContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)("stop");
-const PlaybackControlContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
-const CreatePlayback = ({ children, duration }) => {
-    const [playData, setPlayData] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
-        status: "stop",
-        playFromStamp: null,
-        pauseTime: null,
-        repeat: false,
-        repeatStart: null,
-        repeatEnd: null,
-    });
-    const lastTimeoutRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
-    const getPlayTime = (0,_src_ui_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__.default)(() => {
-        if (playData.status === "pause")
-            return playData.pauseTime;
-        if (playData.status === "stop")
-            return null;
-        if (playData.status === "play")
-            return performance.now() - Number(playData.playFromStamp);
-    });
-    const stop = (0,_src_ui_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__.default)(() => {
-        if (lastTimeoutRef.current !== null)
-            clearTimeout(lastTimeoutRef.current);
-        setPlayData({
-            status: "stop",
-            pauseTime: null,
-            playFromStamp: null,
-            repeat: false,
-            repeatStart: null,
-            repeatEnd: null,
-        });
-    });
-    const pause = (0,_src_ui_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__.default)((pauseTime) => {
-        if (lastTimeoutRef.current !== null)
-            clearTimeout(lastTimeoutRef.current);
-        setPlayData(playData => (Object.assign(Object.assign({}, playData), { status: "pause", playFromStamp: null, pauseTime: pauseTime == null ? (getPlayTime() || 0) : pauseTime })));
-    });
-    const play = (0,_src_ui_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__.default)((from, repeat = false, repeatStart = 0, repeatEnd) => {
-        if (lastTimeoutRef.current !== null)
-            clearTimeout(lastTimeoutRef.current);
-        if (repeatEnd <= repeatStart)
-            return pause(Math.min(repeatEnd, duration));
-        if (repeatEnd == null)
-            repeatEnd = duration;
-        if (from == null)
-            from = getPlayTime();
-        if (from >= duration)
-            return pause(duration);
-        if (from >= repeatEnd)
-            from = repeatStart;
-        const playFromStamp = performance.now() - from;
-        const segmentDuration = repeatEnd - from;
-        setPlayData({
-            playFromStamp: playFromStamp,
-            repeat: false,
-            pauseTime: null,
-            repeatEnd: repeatEnd,
-            repeatStart: repeatStart,
-            status: "play",
-        });
-        lastTimeoutRef.current = +setTimeout(() => {
-            if (!repeat)
-                return pause(repeatStart);
-            return play(repeatStart, repeat, repeatStart, repeatEnd);
-        }, segmentDuration);
-    });
-    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(stop, [duration]);
-    const playbackControlValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
-        getPlayTime, pause, play, stop
-    }), [getPlayTime, pause, play, stop]);
-    const playbackStatusValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
-        playFromStamp: playData.playFromStamp,
-        repeatStart: playData.repeatStart,
-        repeatEnd: playData.repeatEnd,
-        pauseTime: playData.pauseTime,
-        repeat: playData.repeat,
-    }), [playData.playFromStamp, playData.repeatEnd, playData.repeatStart, playData.pauseTime, playData.repeat]);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackControlContext.Provider, { value: playbackControlValue },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackDataContext.Provider, { value: playbackStatusValue },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackStatusContext.Provider, { value: playData.status }, children))));
-};
-function usePlaybackStatus() {
-    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(PlaybackStatusContext);
-}
-function usePlaybackData() {
-    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(PlaybackDataContext);
-}
-function usePlaybackControl() {
-    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(PlaybackControlContext);
-}
-
-
-/***/ }),
-
 /***/ "./src/index.tsx":
 /*!***********************!*\
   !*** ./src/index.tsx ***!
@@ -65221,6 +65101,126 @@ const DragContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)({ curre
 
 /***/ }),
 
+/***/ "./src/ui/components/editor/PlaybackContext.tsx":
+/*!******************************************************!*\
+  !*** ./src/ui/components/editor/PlaybackContext.tsx ***!
+  \******************************************************/
+/*! namespace exports */
+/*! export CreatePlayback [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export usePlaybackControl [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export usePlaybackData [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export usePlaybackStatus [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "CreatePlayback": () => /* binding */ CreatePlayback,
+/* harmony export */   "usePlaybackStatus": () => /* binding */ usePlaybackStatus,
+/* harmony export */   "usePlaybackData": () => /* binding */ usePlaybackData,
+/* harmony export */   "usePlaybackControl": () => /* binding */ usePlaybackControl
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../use/useLatestCallback */ "./src/ui/use/useLatestCallback.ts");
+
+
+const PlaybackDataContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
+const PlaybackStatusContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)("stop");
+const PlaybackControlContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
+const CreatePlayback = ({ children, duration }) => {
+    const [playData, setPlayData] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
+        status: "stop",
+        playFromStamp: null,
+        pauseTime: null,
+        repeat: false,
+        repeatStart: null,
+        repeatEnd: null,
+    });
+    const lastTimeoutRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
+    const getPlayTime = (0,_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__.default)(() => {
+        if (playData.status === "pause")
+            return playData.pauseTime;
+        if (playData.status === "stop")
+            return null;
+        if (playData.status === "play")
+            return performance.now() - Number(playData.playFromStamp);
+    });
+    const stop = (0,_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__.default)(() => {
+        if (lastTimeoutRef.current !== null)
+            clearTimeout(lastTimeoutRef.current);
+        setPlayData({
+            status: "stop",
+            pauseTime: null,
+            playFromStamp: null,
+            repeat: false,
+            repeatStart: null,
+            repeatEnd: null,
+        });
+    });
+    const pause = (0,_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__.default)((pauseTime) => {
+        if (lastTimeoutRef.current !== null)
+            clearTimeout(lastTimeoutRef.current);
+        setPlayData(playData => (Object.assign(Object.assign({}, playData), { status: "pause", playFromStamp: null, pauseTime: pauseTime == null ? (getPlayTime() || 0) : pauseTime })));
+    });
+    const play = (0,_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__.default)((from, repeat = false, repeatStart = 0, repeatEnd) => {
+        if (lastTimeoutRef.current !== null)
+            clearTimeout(lastTimeoutRef.current);
+        if (repeatEnd <= repeatStart)
+            return pause(Math.min(repeatEnd, duration));
+        if (repeatEnd == null)
+            repeatEnd = duration;
+        if (from == null)
+            from = getPlayTime();
+        if (from >= duration)
+            return pause(duration);
+        if (from >= repeatEnd)
+            from = repeatStart;
+        const playFromStamp = performance.now() - from;
+        const segmentDuration = repeatEnd - from;
+        setPlayData({
+            playFromStamp: playFromStamp,
+            repeat: false,
+            pauseTime: null,
+            repeatEnd: repeatEnd,
+            repeatStart: repeatStart,
+            status: "play",
+        });
+        lastTimeoutRef.current = +setTimeout(() => {
+            if (!repeat)
+                return pause(repeatStart);
+            return play(repeatStart, repeat, repeatStart, repeatEnd);
+        }, segmentDuration);
+    });
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(stop, [duration]);
+    const playbackControlValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
+        getPlayTime, pause, play, stop
+    }), [getPlayTime, pause, play, stop]);
+    const playbackStatusValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
+        playFromStamp: playData.playFromStamp,
+        repeatStart: playData.repeatStart,
+        repeatEnd: playData.repeatEnd,
+        pauseTime: playData.pauseTime,
+        repeat: playData.repeat,
+    }), [playData.playFromStamp, playData.repeatEnd, playData.repeatStart, playData.pauseTime, playData.repeat]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackControlContext.Provider, { value: playbackControlValue },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackDataContext.Provider, { value: playbackStatusValue },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackStatusContext.Provider, { value: playData.status }, children))));
+};
+function usePlaybackStatus() {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(PlaybackStatusContext);
+}
+function usePlaybackData() {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(PlaybackDataContext);
+}
+function usePlaybackControl() {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(PlaybackControlContext);
+}
+
+
+/***/ }),
+
 /***/ "./src/ui/components/editor/PlixEditor.tsx":
 /*!*************************************************!*\
   !*** ./src/ui/components/editor/PlixEditor.tsx ***!
@@ -65247,7 +65247,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PlixEditorReducer__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./PlixEditorReducer */ "./src/ui/components/editor/PlixEditorReducer.ts");
 /* harmony import */ var _DragContext__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./DragContext */ "./src/ui/components/editor/DragContext.ts");
 /* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
-/* harmony import */ var _PlaybackContext__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../../../PlaybackContext */ "./PlaybackContext.tsx");
+/* harmony import */ var _PlaybackContext__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./PlaybackContext */ "./src/ui/components/editor/PlaybackContext.tsx");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -65869,7 +65869,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _timeline_Track__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../timeline/Track */ "./src/ui/components/timeline/Track.tsx");
 /* harmony import */ var _ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
 /* harmony import */ var _tracks_GroupOptionsTrack__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./tracks/GroupOptionsTrack */ "./src/ui/components/editor/tracks/GroupOptionsTrack.tsx");
-/* harmony import */ var _PlaybackContext__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../../../../PlaybackContext */ "./PlaybackContext.tsx");
+/* harmony import */ var _PlaybackContext__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./PlaybackContext */ "./src/ui/components/editor/PlaybackContext.tsx");
 /* harmony import */ var _tracks_editor_TrackPlayPosition__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./tracks/editor/TrackPlayPosition */ "./src/ui/components/editor/tracks/editor/TrackPlayPosition.tsx");
 
 
@@ -68252,7 +68252,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "TrackPlayPosition": () => /* binding */ TrackPlayPosition
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _PlaybackContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../../../../PlaybackContext */ "./PlaybackContext.tsx");
+/* harmony import */ var _PlaybackContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../PlaybackContext */ "./src/ui/components/editor/PlaybackContext.tsx");
 /* harmony import */ var _ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
 
 
