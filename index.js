@@ -19497,6 +19497,22 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/ui/components/divider/SplitLeftRight.scss":
+/*!*******************************************************!*\
+  !*** ./src/ui/components/divider/SplitLeftRight.scss ***!
+  \*******************************************************/
+/*! namespace exports */
+/*! exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./src/ui/components/divider/SplitTimeline.scss":
 /*!******************************************************!*\
   !*** ./src/ui/components/divider/SplitTimeline.scss ***!
@@ -64817,6 +64833,104 @@ const EffectGraphView = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ duration,
 
 /***/ }),
 
+/***/ "./src/ui/components/divider/SplitLeftRight.tsx":
+/*!******************************************************!*\
+  !*** ./src/ui/components/divider/SplitLeftRight.tsx ***!
+  \******************************************************/
+/*! namespace exports */
+/*! export SplitLeftRight [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "SplitLeftRight": () => /* binding */ SplitLeftRight
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _SplitLeftRight_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./SplitLeftRight.scss */ "./src/ui/components/divider/SplitLeftRight.scss");
+
+
+const emptyImage = new Image();
+const SplitLeftRight = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ children: [leftElement, rightElement], storageKey, minLeft, minRight }) => {
+    const innerRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const leftRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const rightRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const dragRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const dragOffset = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(0);
+    const saveValueToStorage = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
+        if (!storageKey)
+            return;
+        localStorage.setItem("SplitLeftRight:" + storageKey, String(value));
+    }, [storageKey]);
+    const applyDragValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((dragValue) => {
+        const containerBcr = innerRef.current.getBoundingClientRect();
+        const dividerBcr = dragRef.current.getBoundingClientRect();
+        let leftWidth = dragValue;
+        const rightPartWidth = containerBcr.width - dragValue - dividerBcr.width;
+        if (rightPartWidth < minLeft)
+            leftWidth = containerBcr.width - minRight - dividerBcr.width;
+        if (dragValue < minLeft)
+            leftWidth = minLeft;
+        leftRef.current.style.width = leftWidth + "px";
+        dragRef.current.style.left = leftWidth + "px";
+        saveValueToStorage(leftWidth);
+        return true;
+    }, []);
+    const onDragStart = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        dragOffset.current = event.nativeEvent.offsetX;
+        event.dataTransfer.setDragImage(emptyImage, 0, 0);
+    }, []);
+    const onDrag = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(({ clientX }) => {
+        if (clientX === 0)
+            return;
+        const containerBcr = innerRef.current.getBoundingClientRect();
+        const dragValue = clientX - containerBcr.left - dragOffset.current;
+        applyDragValue(dragValue);
+        localStorage.setItem("RowsDivider:" + storageKey, String(dragValue));
+    }, []);
+    const onTouchMove = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(({ changedTouches }) => {
+        var _a;
+        const containerBcr = innerRef.current.getBoundingClientRect();
+        const dragBcr = dragRef.current.getBoundingClientRect();
+        const x = ((_a = changedTouches.item(0)) === null || _a === void 0 ? void 0 : _a.clientX) - containerBcr.left - dragBcr.width / 2;
+        applyDragValue(x);
+    }, []);
+    const applyStorageValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        if (!storageKey)
+            return;
+        const storageValue = localStorage.getItem("RowsDivider:" + storageKey);
+        if (storageValue == null)
+            return;
+        const value = Number(storageValue);
+        if (isNaN(value))
+            return;
+        applyDragValue(value);
+    }, [storageKey, applyDragValue]);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        applyStorageValue();
+    }, []);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        function onResize() {
+            const value = leftRef.current.getBoundingClientRect().width;
+            applyDragValue(value);
+        }
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
+    }, []);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "split-lr" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "split-lr-scroll-box", ref: innerRef },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "split-lr-left", ref: leftRef },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "split-lr-left-content" }, leftElement)),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "split-lr-cnt", ref: rightRef },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "split-lr-timeline" }, rightElement))),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { className: "split-lr-drag", draggable: "true", ref: dragRef, onDragStart: onDragStart, onDrag: onDrag, onTouchMove: onTouchMove })));
+});
+
+
+/***/ }),
+
 /***/ "./src/ui/components/divider/SplitTimeline.tsx":
 /*!*****************************************************!*\
   !*** ./src/ui/components/divider/SplitTimeline.tsx ***!
@@ -65248,6 +65362,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DragContext__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./DragContext */ "./src/ui/components/editor/DragContext.ts");
 /* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
 /* harmony import */ var _PlaybackContext__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./PlaybackContext */ "./src/ui/components/editor/PlaybackContext.tsx");
+/* harmony import */ var _divider_SplitLeftRight__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../divider/SplitLeftRight */ "./src/ui/components/divider/SplitLeftRight.tsx");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -65257,6 +65372,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
 
 
 
@@ -65336,7 +65452,9 @@ const PlixEditor = () => {
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ConstructorContext__WEBPACK_IMPORTED_MODULE_5__.ConstructorContext.Provider, { value: constructorContextValue },
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_divider_SplitTopBottom__WEBPACK_IMPORTED_MODULE_2__.SplitTopBottom, { minTop: 100, minBottom: 200, storageKey: "s1" },
                             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackEditor__WEBPACK_IMPORTED_MODULE_3__.TrackEditor, null),
-                            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, "LIBS AND CANVAS"))))))));
+                            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_divider_SplitLeftRight__WEBPACK_IMPORTED_MODULE_12__.SplitLeftRight, { minLeft: 100, minRight: 200, storageKey: "btm" },
+                                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: { flexGrow: 1, backgroundColor: "green" } }, "libs"),
+                                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, "canvas")))))))));
 };
 
 
