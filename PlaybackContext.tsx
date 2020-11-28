@@ -1,21 +1,24 @@
-import React, {createContext, FC, useEffect, useMemo, useRef, useState} from "react";
+import React, {createContext, FC, useContext, useEffect, useMemo, useRef, useState} from "react";
 import useLatestCallback from "./src/ui/use/useLatestCallback";
-export interface PlaybackStatusContextProps {
-    status: "play"|"stop"|"pause",
+
+
+interface PlaybackDataContextProps {
     playFromStamp: number|null;
     endTime: number|null;
     pauseTime: number|null;
     repeat: boolean;
 }
-export const PlaybackStatusContext = createContext<PlaybackStatusContextProps|null>(null);
+const PlaybackDataContext = createContext<PlaybackDataContextProps|null>(null);
+type PlaybackStatus = "play"|"stop"|"pause"
+const PlaybackStatusContext = createContext<PlaybackStatus>("stop");
 
-export interface PlaybackControlContextProps {
+interface PlaybackControlContextProps {
     getPlayTime: () => number|null
     play: (startTime?: number, repeat?: boolean, endTime?: number|null) => void
     pause: (time?: number) => void
     stop: () => void
 }
-export const PlaybackControlContext = createContext<PlaybackControlContextProps|null>(null);
+const PlaybackControlContext = createContext<PlaybackControlContextProps|null>(null);
 
 export interface CreatePlaybackProps {
     duration: number;
@@ -26,7 +29,7 @@ export const CreatePlayback: FC<CreatePlaybackProps> = ({children, duration}) =>
         pauseTime: number|null,
         endTime: number|null,
         repeat: boolean,
-        status: "play"|"stop"|"pause",
+        status: PlaybackStatus,
     }
     const [playData, setPlayData] = useState<PlayData>({
         playFromStamp: null,
@@ -90,14 +93,32 @@ export const CreatePlayback: FC<CreatePlaybackProps> = ({children, duration}) =>
         getPlayTime, pause, play, stop
     }), [getPlayTime, pause, play, stop]);
 
-    const playbackStatusValue = useMemo<PlaybackStatusContextProps>(() => playData, [playData]);
+    const playbackStatusValue = useMemo<PlaybackDataContextProps>(() => ({
+        playFromStamp: playData.playFromStamp,
+        endTime: playData.endTime,
+        pauseTime: playData.pauseTime,
+        repeat: playData.repeat,
+    }), [playData.playFromStamp, playData.endTime, playData.pauseTime, playData.repeat]);
 
     return (
         <PlaybackControlContext.Provider value={playbackControlValue}>
-            <PlaybackStatusContext.Provider value={playbackStatusValue}>
-                {children}
-            </PlaybackStatusContext.Provider>
+            <PlaybackDataContext.Provider value={playbackStatusValue}>
+                <PlaybackStatusContext.Provider value={playData.status}>
+                    {children}
+                </PlaybackStatusContext.Provider>
+            </PlaybackDataContext.Provider>
         </PlaybackControlContext.Provider>
     );
+}
 
+export function usePlaybackStatus(): PlaybackStatus{
+    return useContext(PlaybackStatusContext);
+}
+
+export function usePlaybackData(): PlaybackDataContextProps{
+    return useContext(PlaybackDataContext);
+}
+
+export function usePlaybackControl(): PlaybackControlContextProps{
+    return useContext(PlaybackControlContext);
 }
