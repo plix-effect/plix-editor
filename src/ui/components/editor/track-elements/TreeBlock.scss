@@ -2,7 +2,6 @@
 
 .track-tree-block {
   box-sizing: border-box;
-  //display: block;
   padding-left: 5px;
   width: max-content;
   min-width: 100%;
@@ -14,6 +13,10 @@
   justify-content: flex-start;
   align-items: center;
   white-space:pre;
+
+  &._selected {
+    outline: solid 1px #888844;
+  }
 
   &._default {
     border-left: 1px solid #444;

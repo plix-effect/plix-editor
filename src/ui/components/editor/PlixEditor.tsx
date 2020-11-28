@@ -1,4 +1,15 @@
-import {FC, default as React, useMemo, useReducer, useState, useRef, useEffect, useCallback, DragEvent} from "react";
+import {
+    FC,
+    default as React,
+    useMemo,
+    useReducer,
+    useState,
+    useRef,
+    useEffect,
+    useCallback,
+    DragEvent,
+    memo
+} from "react";
 import "./PlixEditor.scss";
 import {SplitTopBottom} from "../divider/SplitTopBottom";
 import {TrackEditor} from "./TrackEditor";
@@ -12,6 +23,7 @@ import {DragContext, DragType} from "./DragContext";
 import {OpenAction} from "./PlixEditorReducerActions";
 import {CreatePlayback} from "./PlaybackContext";
 import {SplitLeftRight} from "../divider/SplitLeftRight";
+import {CreateSelectionData, useSelectionItem, useSelectionPath} from "./SelectionContext";
 
 const defaultTrack: PlixJsonData & {editor: any} = {
     effects: {},
@@ -82,21 +94,39 @@ export const PlixEditor: FC = () => {
 
     return (
         <div className="plix-editor" onDragOver={onDragOver} onDrop={onDrop}>
-            <CreatePlayback duration={track?.['editor']?.['duration'] ?? 60*1000}>
-                <DragContext.Provider value={dragRef}>
-                    <TrackContext.Provider value={trackContextValue}>
-                        <ConstructorContext.Provider value={constructorContextValue}>
-                            <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
-                                <TrackEditor />
-                                <SplitLeftRight minLeft={100} minRight={200} storageKey={"btm"}>
-                                    <div style={{flexGrow: 1, backgroundColor: "green"}}>libs</div>
-                                    <div>canvas</div>
-                                </SplitLeftRight>
-                            </SplitTopBottom>
-                        </ConstructorContext.Provider>
-                    </TrackContext.Provider>
-                </DragContext.Provider>
-            </CreatePlayback>
+            <ConstructorContext.Provider value={constructorContextValue}>
+                <CreatePlayback duration={track?.['editor']?.['duration'] ?? 60*1000}>
+                    <CreateSelectionData track={track}>
+                        <DragContext.Provider value={dragRef}>
+                            <TrackContext.Provider value={trackContextValue}>
+                                <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
+                                    <TrackEditor />
+                                    <SplitLeftRight minLeft={100} minRight={200} storageKey={"btm"}>
+                                        <div style={{flexGrow: 1, backgroundColor: "green"}}>libs</div>
+                                        <div>
+                                            canvas or
+                                            <ShowSelectedElement/>
+                                        </div>
+                                    </SplitLeftRight>
+                                </SplitTopBottom>
+                            </TrackContext.Provider>
+                        </DragContext.Provider>
+                    </CreateSelectionData>
+                </CreatePlayback>
+            </ConstructorContext.Provider>
         </div>
     );
 }
+
+const ShowSelectedElement = memo(() => {
+    const path = useSelectionPath();
+    const {selectedType, selectedItem} = useSelectionItem() ?? {};
+    return (
+        <div>
+            <div>Render time: {performance.now()}</div>
+            <div>Path: {JSON.stringify(path)}</div>
+            <div>Selected type: {selectedType}</div>
+            <div>Selected item: {JSON.stringify(selectedItem)}</div>
+        </div>
+    )
+})
