@@ -205,6 +205,8 @@ button.btn.track-header-icon-button {
   justify-content: flex-start;
   align-items: center;
   white-space: pre; }
+  .track-tree-block._selected {
+    outline: solid 1px #888844; }
   .track-tree-block._default {
     border-left: 1px solid #444;
     border-top: 1px solid #444;

@@ -65363,6 +65363,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
 /* harmony import */ var _PlaybackContext__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./PlaybackContext */ "./src/ui/components/editor/PlaybackContext.tsx");
 /* harmony import */ var _divider_SplitLeftRight__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../divider/SplitLeftRight */ "./src/ui/components/divider/SplitLeftRight.tsx");
+/* harmony import */ var _SelectionContext__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./SelectionContext */ "./src/ui/components/editor/SelectionContext.tsx");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -65372,6 +65373,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
 
 
 
@@ -65446,16 +65448,37 @@ const PlixEditor = () => {
         dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.OpenAction)(track));
     }), []);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-editor", onDragOver: onDragOver, onDrop: onDrop },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PlaybackContext__WEBPACK_IMPORTED_MODULE_11__.CreatePlayback, { duration: (_b = (_a = track === null || track === void 0 ? void 0 : track['editor']) === null || _a === void 0 ? void 0 : _a['duration']) !== null && _b !== void 0 ? _b : 60 * 1000 },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_DragContext__WEBPACK_IMPORTED_MODULE_9__.DragContext.Provider, { value: dragRef },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackContext__WEBPACK_IMPORTED_MODULE_4__.TrackContext.Provider, { value: trackContextValue },
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ConstructorContext__WEBPACK_IMPORTED_MODULE_5__.ConstructorContext.Provider, { value: constructorContextValue },
-                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_divider_SplitTopBottom__WEBPACK_IMPORTED_MODULE_2__.SplitTopBottom, { minTop: 100, minBottom: 200, storageKey: "s1" },
-                            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackEditor__WEBPACK_IMPORTED_MODULE_3__.TrackEditor, null),
-                            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_divider_SplitLeftRight__WEBPACK_IMPORTED_MODULE_12__.SplitLeftRight, { minLeft: 100, minRight: 200, storageKey: "btm" },
-                                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: { flexGrow: 1, backgroundColor: "green" } }, "libs"),
-                                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, "canvas")))))))));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ConstructorContext__WEBPACK_IMPORTED_MODULE_5__.ConstructorContext.Provider, { value: constructorContextValue },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PlaybackContext__WEBPACK_IMPORTED_MODULE_11__.CreatePlayback, { duration: (_b = (_a = track === null || track === void 0 ? void 0 : track['editor']) === null || _a === void 0 ? void 0 : _a['duration']) !== null && _b !== void 0 ? _b : 60 * 1000 },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_SelectionContext__WEBPACK_IMPORTED_MODULE_13__.CreateSelectionData, { track: track },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_DragContext__WEBPACK_IMPORTED_MODULE_9__.DragContext.Provider, { value: dragRef },
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackContext__WEBPACK_IMPORTED_MODULE_4__.TrackContext.Provider, { value: trackContextValue },
+                            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_divider_SplitTopBottom__WEBPACK_IMPORTED_MODULE_2__.SplitTopBottom, { minTop: 100, minBottom: 200, storageKey: "s1" },
+                                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackEditor__WEBPACK_IMPORTED_MODULE_3__.TrackEditor, null),
+                                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_divider_SplitLeftRight__WEBPACK_IMPORTED_MODULE_12__.SplitLeftRight, { minLeft: 100, minRight: 200, storageKey: "btm" },
+                                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: { flexGrow: 1, backgroundColor: "green" } }, "libs"),
+                                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
+                                        "canvas or",
+                                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(ShowSelectedElement, null)))))))))));
 };
+const ShowSelectedElement = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(() => {
+    var _a;
+    const path = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_13__.useSelectionPath)();
+    const { selectedType, selectedItem } = (_a = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_13__.useSelectionItem)()) !== null && _a !== void 0 ? _a : {};
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
+            "Render time: ",
+            performance.now()),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
+            "Path: ",
+            JSON.stringify(path)),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
+            "Selected type: ",
+            selectedType),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
+            "Selected item: ",
+            JSON.stringify(selectedItem))));
+});
 
 
 /***/ }),
@@ -65938,6 +65961,169 @@ const ScaleDisplayContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)
 
 /***/ }),
 
+/***/ "./src/ui/components/editor/SelectionContext.tsx":
+/*!*******************************************************!*\
+  !*** ./src/ui/components/editor/SelectionContext.tsx ***!
+  \*******************************************************/
+/*! namespace exports */
+/*! export CreateSelectionData [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export useSelectionControl [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export useSelectionItem [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export useSelectionPath [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "CreateSelectionData": () => /* binding */ CreateSelectionData,
+/* harmony export */   "useSelectionPath": () => /* binding */ useSelectionPath,
+/* harmony export */   "useSelectionItem": () => /* binding */ useSelectionItem,
+/* harmony export */   "useSelectionControl": () => /* binding */ useSelectionControl
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../use/useLatestCallback */ "./src/ui/use/useLatestCallback.ts");
+/* harmony import */ var _ConstructorContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ConstructorContext */ "./src/ui/components/editor/ConstructorContext.ts");
+/* harmony import */ var _utils_KeyManager__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../utils/KeyManager */ "./src/ui/utils/KeyManager.ts");
+
+
+
+
+const SelectionItemContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)({ selectedItem: null, selectedType: null });
+const SelectionPathContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
+const SelectionControlContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
+const CreateSelectionData = ({ children, track }) => {
+    const [selectionData, setSelectionData] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
+        selectedItem: null,
+        selectedType: null,
+        selectedPath: null,
+    });
+    const { effectConstructorMap, filterConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ConstructorContext__WEBPACK_IMPORTED_MODULE_2__.ConstructorContext);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        if (selectionData.selectedPath)
+            select(selectionData.selectedPath);
+    }, [track]);
+    const select = (0,_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__.default)((path) => {
+        if (!path)
+            return setSelectionData({
+                selectedPath: null,
+                selectedItem: null,
+                selectedType: null,
+            });
+        const selectionInfo = selectItem("track", track, effectConstructorMap, filterConstructorMap, path);
+        if (!selectionInfo)
+            return select(null);
+        setSelectionData({
+            selectedPath: path,
+            selectedItem: selectionInfo.item,
+            selectedType: selectionInfo.type,
+        });
+    });
+    const deselect = (0,_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__.default)((path) => {
+        if (selectionData.selectedPath === path)
+            select(null);
+    });
+    const isSelectedPath = (0,_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__.default)((path) => {
+        const selectedPath = selectionData.selectedPath;
+        if (selectedPath == path)
+            return true;
+        if (!selectedPath || !path)
+            return false;
+        const length = path.length;
+        if (selectedPath.length !== length)
+            return false;
+        for (let i = 0; i < length; i++) {
+            const a = selectedPath[i];
+            const b = path[i];
+            if (a === b)
+                continue;
+            if (typeof a === "object" && typeof b === "object") {
+                if (a.key === b.key)
+                    continue;
+            }
+            return false;
+        }
+        return true;
+    });
+    const toggleSelect = (0,_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__.default)((path) => {
+        return select(isSelectedPath(path) ? null : path);
+    });
+    const selectionControlValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
+        select, toggleSelect, deselect, isSelectedPath
+    }), [select, toggleSelect, deselect, isSelectedPath]);
+    const selectionItemValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
+        selectedItem: selectionData.selectedItem,
+        selectedType: selectionData.selectedType
+    }), [selectionData.selectedItem, selectionData.selectedType]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(SelectionControlContext.Provider, { value: selectionControlValue },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(SelectionPathContext.Provider, { value: selectionData.selectedPath },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(SelectionItemContext.Provider, { value: selectionItemValue }, children))));
+};
+function useSelectionPath() {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(SelectionPathContext);
+}
+function useSelectionItem() {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(SelectionItemContext);
+}
+function useSelectionControl() {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(SelectionControlContext);
+}
+const staticSelectTypes = {
+    track: {
+        render: "effect",
+        effects: "array:effect",
+        filters: "array:filter",
+        options: "trackOptions",
+    },
+    trackOptions: {
+        duration: "number",
+        count: "number",
+    }
+};
+function selectItem(type, item, effectConstructorMap, filterConstructorMap, [pathEl, ...path]) {
+    if (pathEl === undefined)
+        return { item, type };
+    let key;
+    if (typeof pathEl === "string" || typeof pathEl === "number")
+        key = pathEl;
+    else
+        key = (0,_utils_KeyManager__WEBPACK_IMPORTED_MODULE_3__.getArrayKeyIndex)(item, pathEl.key);
+    let nextType;
+    if (type in staticSelectTypes) {
+        nextType = staticSelectTypes[type][key];
+    }
+    else if (type.startsWith("array:") && typeof key === "number") {
+        nextType = type.substring(6);
+    }
+    else if (type === "effect") {
+        const effectId = item[1];
+        nextType = ["boolean", "effectId", `effectParams:${effectId}`, "array:filter"][key];
+    }
+    else if (type === "filter") {
+        const filterId = item[1];
+        nextType = ["boolean", "filterId", `filterParams:${filterId}`][key];
+    }
+    else if (type.startsWith("effectParams:")) {
+        const effectId = type.substring(13);
+        const effectConstructor = effectConstructorMap[effectId];
+        const meta = effectConstructor['meta'];
+        nextType = meta.paramTypes[key];
+    }
+    else if (type.startsWith("filterParams:")) {
+        const effectId = type.substring(13);
+        const filterConstructor = filterConstructorMap[effectId];
+        const meta = filterConstructor['meta'];
+        nextType = meta.paramTypes[key];
+    }
+    if (!nextType)
+        return null;
+    return selectItem(nextType, item[key], effectConstructorMap, filterConstructorMap, path);
+}
+
+
+/***/ }),
+
 /***/ "./src/ui/components/editor/TrackContext.ts":
 /*!**************************************************!*\
   !*** ./src/ui/components/editor/TrackContext.ts ***!
@@ -66328,7 +66514,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const TreeBlock = ({ children, title, type = "default", dragValue, onClick, onDragOverItem, right }) => {
+const TreeBlock = ({ children, selected = false, title, type = "default", dragValue, onClick, onDragOverItem, right }) => {
     const dragRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_DragContext__WEBPACK_IMPORTED_MODULE_3__.DragContext);
     const dragCount = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(0);
     const blockRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
@@ -66384,7 +66570,7 @@ const TreeBlock = ({ children, title, type = "default", dragValue, onClick, onDr
         blockRef.current.classList.remove("_drop", ...classesToRemove);
         return (_e = (_d = onDropActionRef.current) === null || _d === void 0 ? void 0 : _d[1]) === null || _e === void 0 ? void 0 : _e.call(_d, event);
     }, []);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { ref: blockRef, title: title, className: classnames__WEBPACK_IMPORTED_MODULE_1___default()("track-tree-block", `_${type}`), draggable: dragValue != null, onDragStart: onDragStart, onDragEnd: onDragEnd, onDrag: onDrag, onClick: onClick, onDragEnter: onDragEnter, onDragLeave: onDragLeave, onDragOver: onDragOver, onDrop: onDrop },
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { ref: blockRef, title: title, className: classnames__WEBPACK_IMPORTED_MODULE_1___default()("track-tree-block", `_${type}`, { "_selected": selected }), draggable: dragValue != null, onDragStart: onDragStart, onDragEnd: onDragEnd, onDrag: onDrag, onClick: onClick, onDragEnter: onDragEnter, onDragLeave: onDragLeave, onDragOver: onDragOver, onDrop: onDrop },
         children,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-tree-block-space" }),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-tree-block-right" },
@@ -68424,6 +68610,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
 /* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
 /* harmony import */ var _DisplayEffect__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./DisplayEffect */ "./src/ui/components/editor/tracks/editor/DisplayEffect.tsx");
+/* harmony import */ var _SelectionContext__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../SelectionContext */ "./src/ui/components/editor/SelectionContext.tsx");
+
 
 
 
@@ -68432,6 +68620,11 @@ __webpack_require__.r(__webpack_exports__);
 const TreeBlockEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ dragValue, effect, path, deleteAction, setExpanded, clearAction, expander, changeExpanded, children, onDragOverItem }) => {
     const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_3__.TrackContext);
     const effectIsChain = effect && effect[1] === "Chain";
+    const { toggleSelect, isSelectedPath } = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_5__.useSelectionControl)();
+    const selectionPath = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_5__.useSelectionPath)();
+    const selected = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return isSelectedPath(path);
+    }, [selectionPath]);
     const title = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         if (!deleteAction && !dragValue)
             return undefined;
@@ -68462,8 +68655,11 @@ const TreeBlockEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ dragValue
         }
         if (!event.ctrlKey && !event.altKey && !event.shiftKey)
             changeExpanded();
+        if (event.ctrlKey && !event.altKey && event.shiftKey) {
+            toggleSelect(path);
+        }
     }, [deleteAction, dispatch, effect, setExpanded, changeExpanded]);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, { dragValue: dragValue, onClick: onClick, title: title, onDragOverItem: onDragOverItem },
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, { dragValue: dragValue, onClick: onClick, title: title, onDragOverItem: onDragOverItem, selected: selected },
         expander,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description" }, children),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null, " "),
