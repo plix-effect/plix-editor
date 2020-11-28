@@ -64652,8 +64652,9 @@ else {}
   \*****************************/
 /*! namespace exports */
 /*! export CreatePlayback [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export PlaybackControlContext [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export PlaybackStatusContext [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export usePlaybackControl [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export usePlaybackData [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export usePlaybackStatus [provided] [no usage info] [missing usage info prevents renaming] */
 /*! other exports [not provided] [no usage info] */
 /*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
@@ -64661,15 +64662,17 @@ else {}
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "PlaybackStatusContext": () => /* binding */ PlaybackStatusContext,
-/* harmony export */   "PlaybackControlContext": () => /* binding */ PlaybackControlContext,
-/* harmony export */   "CreatePlayback": () => /* binding */ CreatePlayback
+/* harmony export */   "CreatePlayback": () => /* binding */ CreatePlayback,
+/* harmony export */   "usePlaybackStatus": () => /* binding */ usePlaybackStatus,
+/* harmony export */   "usePlaybackData": () => /* binding */ usePlaybackData,
+/* harmony export */   "usePlaybackControl": () => /* binding */ usePlaybackControl
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _src_ui_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./src/ui/use/useLatestCallback */ "./src/ui/use/useLatestCallback.ts");
 
 
-const PlaybackStatusContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
+const PlaybackDataContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
+const PlaybackStatusContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)("stop");
 const PlaybackControlContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
 const CreatePlayback = ({ children, duration }) => {
     const [playData, setPlayData] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
@@ -64736,10 +64739,25 @@ const CreatePlayback = ({ children, duration }) => {
     const playbackControlValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
         getPlayTime, pause, play, stop
     }), [getPlayTime, pause, play, stop]);
-    const playbackStatusValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => playData, [playData]);
+    const playbackStatusValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
+        playFromStamp: playData.playFromStamp,
+        endTime: playData.endTime,
+        pauseTime: playData.pauseTime,
+        repeat: playData.repeat,
+    }), [playData.playFromStamp, playData.endTime, playData.pauseTime, playData.repeat]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackControlContext.Provider, { value: playbackControlValue },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackStatusContext.Provider, { value: playbackStatusValue }, children)));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackDataContext.Provider, { value: playbackStatusValue },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackStatusContext.Provider, { value: playData.status }, children))));
 };
+function usePlaybackStatus() {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(PlaybackStatusContext);
+}
+function usePlaybackData() {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(PlaybackDataContext);
+}
+function usePlaybackControl() {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(PlaybackControlContext);
+}
 
 
 /***/ }),
