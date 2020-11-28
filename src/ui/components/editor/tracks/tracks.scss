@@ -20,6 +20,11 @@
   &._desc {
     color: #888;
     cursor: auto;
+
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    white-space: pre;
   }
 
   &._disabled {

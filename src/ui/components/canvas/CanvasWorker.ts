@@ -8,35 +8,58 @@ import {PlixJsonData} from "@plix-effect/core/types/parser";
 
 declare const self: Worker;
 
+let canvas: OffscreenCanvas;
+let canvasCtx: OffscreenCanvasRenderingContext2D;
+
 onmessage = (event) => {
-    const {width, height, render, track, duration, count} = event.data as CanvasWorkerInputMessage;
+    const msg = event.data as CanvasWorkerInputMessage;
+    if (msg.type === "init") {
+        canvas = msg.canvas;
+        canvasCtx = canvas.getContext("2d");
+    } else if (msg.type === "effect") {
+        const {width, height, render, track, duration, count} = msg;
 
-    const parseData = parseRender(render, track.effects, track.filters, effectConstructorMap, filterConstructorMap );
-    const effectKeys = Object.keys(parseData.effectsMap).sort();
-    const filterKeys = Object.keys(parseData.filtersMap).sort();
+        canvas.width = width;
+        canvas.height = height;
 
-    self.postMessage([effectKeys, filterKeys], []);
+        const parseData = parseRender(render, track.effects, track.filters, effectConstructorMap, filterConstructorMap );
+        const effectKeys = Object.keys(parseData.effectsMap).sort();
+        const filterKeys = Object.keys(parseData.filtersMap).sort();
 
-    const effect: Effect = parseData.effect;
-    const colorMap = new Uint8ClampedArray(width*height*4);
-    for (let h=0; h<height; h++){
-        const line = effect(h/height*duration, duration);
-        for (let w=0; w<width; w++){
-            const mod = line(w/width*count, count);
-            const color = mod([0,0,0,0]);
-            const {r,g,b,a} = hslaToRgba(color);
-            const index = ((h*width) + w) * 4;
-            colorMap[index] = r;
-            colorMap[index+1] = g;
-            colorMap[index+2] = b;
-            colorMap[index+3] = (a*255)|0;
+        self.postMessage([effectKeys, filterKeys], []);
+
+        const effect: Effect = parseData.effect;
+        const colorMap = new Uint8ClampedArray(width*height*4);
+        for (let h=0; h<height; h++){
+            const line = effect(h/height*duration, duration);
+            for (let w=0; w<width; w++){
+                const mod = line(w/width*count, count);
+                const color = mod([0,0,0,0]);
+                const {r,g,b,a} = hslaToRgba(color);
+                const index = ((h*width) + w) * 4;
+                colorMap[index] = r;
+                colorMap[index+1] = g;
+                colorMap[index+2] = b;
+                colorMap[index+3] = (a*255)|0;
+            }
         }
+        const imageData = canvasCtx.createImageData(width, height);
+        imageData.data.set(colorMap);
+        canvasCtx.putImageData(imageData, 0, 0);
     }
-    self.postMessage(colorMap.buffer, [colorMap.buffer]);
-    close();
 }
 
-export interface CanvasWorkerInputMessage {
+export type CanvasWorkerInputMessage =
+    | CanvasWorkerInputMessageInit
+    | CanvasWorkerInputMessageEffect
+
+export interface CanvasWorkerInputMessageInit {
+    type: "init"
+    canvas: OffscreenCanvas
+}
+
+export interface CanvasWorkerInputMessageEffect {
+    type: "effect"
     width: number,
     height: number,
     render: PlixEffectJsonData,
@@ -45,4 +68,4 @@ export interface CanvasWorkerInputMessage {
     count: number,
 }
 
-export type CanvasWorkerOutputMessage = [string[], string[]] | Uint8ClampedArray["buffer"]
+export type CanvasWorkerOutputMessage = [string[], string[]]

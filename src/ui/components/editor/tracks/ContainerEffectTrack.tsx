@@ -74,7 +74,7 @@ export const ContainerEffectTrack: FC<ContainerEffectTrackProps> = memo((
                 {(valueFilters?.length > 0) && (
                     <>
                         <EffectPreview effect={effectWithNoFilters} />
-                        -&gt;
+                        <i className="fas fa-long-arrow-alt-right" style={{marginLeft: 5, marginRight: 5}}/>
                     </>
                 )}
                 <EffectPreview effect={effect} />

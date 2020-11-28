@@ -236,7 +236,7 @@ const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, leftBlock, effect:
                     {filters?.length >= 0 && (
                         <>
                             <EffectPreview effect={effectWithNoFilters} />
-                            -&gt;
+                            <i className="fas fa-long-arrow-alt-right" style={{marginLeft: 5, marginRight: 5}}/>
                         </>
                     )}
                     <EffectPreview effect={effect} /> use alias <span className="track-description _link">{link}</span>
@@ -298,7 +298,7 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, le
                     {filters?.length >= 0 && (
                         <>
                             <EffectPreview effect={effectWithNoFilters} />
-                            -&gt;
+                            <i className="fas fa-long-arrow-alt-right" style={{marginLeft: 5, marginRight: 5}}/>
                         </>
                     )}
                     <EffectPreview effect={effect} />
