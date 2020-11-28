@@ -11,6 +11,7 @@ import {PlixEditorReducer} from "./PlixEditorReducer";
 import {DragContext, DragType} from "./DragContext";
 import {OpenAction} from "./PlixEditorReducerActions";
 import {CreatePlayback} from "./PlaybackContext";
+import {SplitLeftRight} from "../divider/SplitLeftRight";
 
 const defaultTrack: PlixJsonData & {editor: any} = {
     effects: {},
@@ -87,7 +88,10 @@ export const PlixEditor: FC = () => {
                         <ConstructorContext.Provider value={constructorContextValue}>
                             <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
                                 <TrackEditor />
-                                <div>LIBS AND CANVAS</div>
+                                <SplitLeftRight minLeft={100} minRight={200} storageKey={"btm"}>
+                                    <div style={{flexGrow: 1, backgroundColor: "green"}}>libs</div>
+                                    <div>canvas</div>
+                                </SplitLeftRight>
                             </SplitTopBottom>
                         </ConstructorContext.Provider>
                     </TrackContext.Provider>

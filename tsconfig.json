@@ -20,11 +20,6 @@
     "esModuleInterop": true,
     "jsx": "react",
     "allowJs": true,
-    "baseUrl": "./",
-    "paths": {
-      "components/*": [
-        "src/components/*"
-      ]
-    }
+    "baseUrl": "./"
   }
 }
