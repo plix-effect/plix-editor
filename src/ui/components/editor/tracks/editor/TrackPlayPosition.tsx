@@ -1,5 +1,5 @@
 import React, {FC, useContext, useEffect, useRef} from "react";
-import {usePlaybackControl, usePlaybackStatus} from "../../../../../../PlaybackContext";
+import {usePlaybackControl, usePlaybackStatus} from "../../PlaybackContext";
 import {ScaleDisplayContext} from "../../ScaleDisplayContext";
 
 export const TrackPlayPosition: FC = () => {

@@ -1,6 +1,5 @@
 import React, {
     FC,
-    UIEventHandler,
     useCallback,
     useContext,
     useEffect,
@@ -24,7 +23,7 @@ import {GroupOptionsTrack} from "./tracks/GroupOptionsTrack";
 import {IconZoomIn} from "../icon/IconZoomIn";
 import {IconZoomOut} from "../icon/IconZoomOut";
 import {DragType} from "./DragContext";
-import {usePlaybackControl, usePlaybackStatus} from "../../../../PlaybackContext";
+import {usePlaybackControl, usePlaybackStatus} from "./PlaybackContext";
 import {TrackPlayPosition} from "./tracks/editor/TrackPlayPosition";
 
 

@@ -10,7 +10,7 @@ import {PlixJsonData} from "@plix-effect/core/types/parser";
 import {PlixEditorReducer} from "./PlixEditorReducer";
 import {DragContext, DragType} from "./DragContext";
 import {OpenAction} from "./PlixEditorReducerActions";
-import {CreatePlayback} from "../../../../PlaybackContext";
+import {CreatePlayback} from "./PlaybackContext";
 
 const defaultTrack: PlixJsonData & {editor: any} = {
     effects: {},

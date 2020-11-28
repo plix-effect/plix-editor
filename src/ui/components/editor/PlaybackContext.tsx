@@ -1,5 +1,5 @@
 import React, {createContext, FC, useContext, useEffect, useMemo, useRef, useState} from "react";
-import useLatestCallback from "./src/ui/use/useLatestCallback";
+import useLatestCallback from "../../use/useLatestCallback";
 
 
 interface PlaybackDataContextProps {
@@ -10,7 +10,7 @@ interface PlaybackDataContextProps {
     repeat: boolean;
 }
 const PlaybackDataContext = createContext<PlaybackDataContextProps|null>(null);
-type PlaybackStatus = "play"|"stop"|"pause"
+type PlaybackStatus = "play"|"stop"|"pause";
 const PlaybackStatusContext = createContext<PlaybackStatus>("stop");
 
 interface PlaybackControlContextProps {
