@@ -20,29 +20,41 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+let canvas;
+let canvasCtx;
 onmessage = (event) => {
-    const { width, height, render, track, duration, count } = event.data;
-    const parseData = (0,_plix_effect_core__WEBPACK_IMPORTED_MODULE_0__.default)(render, track.effects, track.filters, _plix_effect_core_effects__WEBPACK_IMPORTED_MODULE_2__, _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_3__);
-    const effectKeys = Object.keys(parseData.effectsMap).sort();
-    const filterKeys = Object.keys(parseData.filtersMap).sort();
-    self.postMessage([effectKeys, filterKeys], []);
-    const effect = parseData.effect;
-    const colorMap = new Uint8ClampedArray(width * height * 4);
-    for (let h = 0; h < height; h++) {
-        const line = effect(h / height * duration, duration);
-        for (let w = 0; w < width; w++) {
-            const mod = line(w / width * count, count);
-            const color = mod([0, 0, 0, 0]);
-            const { r, g, b, a } = (0,_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_1__.hslaToRgba)(color);
-            const index = ((h * width) + w) * 4;
-            colorMap[index] = r;
-            colorMap[index + 1] = g;
-            colorMap[index + 2] = b;
-            colorMap[index + 3] = (a * 255) | 0;
-        }
+    const msg = event.data;
+    if (msg.type === "init") {
+        canvas = msg.canvas;
+        canvasCtx = canvas.getContext("2d");
     }
-    self.postMessage(colorMap.buffer, [colorMap.buffer]);
-    close();
+    else if (msg.type === "effect") {
+        const { width, height, render, track, duration, count } = msg;
+        canvas.width = width;
+        canvas.height = height;
+        const parseData = (0,_plix_effect_core__WEBPACK_IMPORTED_MODULE_0__.default)(render, track.effects, track.filters, _plix_effect_core_effects__WEBPACK_IMPORTED_MODULE_2__, _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_3__);
+        const effectKeys = Object.keys(parseData.effectsMap).sort();
+        const filterKeys = Object.keys(parseData.filtersMap).sort();
+        self.postMessage([effectKeys, filterKeys], []);
+        const effect = parseData.effect;
+        const colorMap = new Uint8ClampedArray(width * height * 4);
+        for (let h = 0; h < height; h++) {
+            const line = effect(h / height * duration, duration);
+            for (let w = 0; w < width; w++) {
+                const mod = line(w / width * count, count);
+                const color = mod([0, 0, 0, 0]);
+                const { r, g, b, a } = (0,_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_1__.hslaToRgba)(color);
+                const index = ((h * width) + w) * 4;
+                colorMap[index] = r;
+                colorMap[index + 1] = g;
+                colorMap[index + 2] = b;
+                colorMap[index + 3] = (a * 255) | 0;
+            }
+        }
+        const imageData = canvasCtx.createImageData(width, height);
+        imageData.data.set(colorMap);
+        canvasCtx.putImageData(imageData, 0, 0);
+    }
 };
 
 

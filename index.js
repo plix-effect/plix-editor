@@ -64736,6 +64736,7 @@ __webpack_require__.r(__webpack_exports__);
 const createCanvasWorker = () => new Worker(new URL(/* worker import */ __webpack_require__.p + __webpack_require__.u("src_ui_components_canvas_CanvasWorker_ts"), __webpack_require__.b));
 const EffectGraphView = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ duration, count, width, height, render, track }) => {
     const [canvas, setCanvas] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
+    const workerRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const lastUsedSize = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)([]);
     const lastUsedEffectRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const lastUsedEffectNames = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
@@ -64744,6 +64745,27 @@ const EffectGraphView = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ duration,
     const lastUsedFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         if (!canvas)
+            return;
+        workerRef.current = createCanvasWorker();
+        const msg = {
+            type: "init",
+            canvas: canvas.transferControlToOffscreen()
+        };
+        workerRef.current.addEventListener("message", (event) => {
+            const data = event.data;
+            const [usedEffectNames, usedFilterNames] = data;
+            lastUsedEffectNames.current = usedEffectNames;
+            lastUsedFilterNames.current = usedFilterNames;
+            lastUsedEffects.current = usedEffectNames.map(name => track.effects[name]);
+            lastUsedFilters.current = usedFilterNames.map(name => track.filters[name]);
+        });
+        workerRef.current.postMessage(msg, [msg.canvas]);
+        return () => {
+            workerRef.current.terminate();
+        };
+    }, [canvas]);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        if (!workerRef.current)
             return;
         function isRerenderRequired() {
             if (!(0,_utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_1__.isArraysEqual)(lastUsedSize.current, [duration, count, width, height])) {
@@ -64764,70 +64786,15 @@ const EffectGraphView = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ duration,
         }
         if (!isRerenderRequired())
             return;
-        canvas.width = width;
-        canvas.height = height;
         lastUsedSize.current = [duration, count, width, height];
         lastUsedEffectRef.current = render;
         lastUsedEffectNames.current = null;
         lastUsedFilterNames.current = null;
-        const worker = createCanvasWorker();
-        let lastHashMessage;
-        worker.addEventListener("message", (event) => {
-            const data = event.data;
-            if (Array.isArray(data)) {
-                lastHashMessage = data;
-                return;
-            }
-            const ctx = canvas.getContext("2d");
-            const imageData = ctx.createImageData(width, height);
-            imageData.data.set(new Uint8ClampedArray(data));
-            ctx.putImageData(imageData, 0, 0);
-            const [usedEffectNames, usedFilterNames] = lastHashMessage;
-            lastUsedEffectNames.current = usedEffectNames;
-            lastUsedFilterNames.current = usedFilterNames;
-            lastUsedEffects.current = usedEffectNames.map(name => track.effects[name]);
-            lastUsedFilters.current = usedFilterNames.map(name => track.filters[name]);
-            worker.terminate();
-        });
-        const message = { width, height, render, track, duration, count };
-        worker.postMessage(message);
-        return () => worker.terminate();
+        const message = { type: "effect", width, height, render, track, duration, count };
+        workerRef.current.postMessage(message);
     }, [canvas, width, height, duration, count, render, track.filters, track.effects]);
-    const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
-        const { width, height } = document.body.getBoundingClientRect();
-        const box = document.createElement("span");
-        box.classList.add("effect-graph-view-bg");
-        box.style.position = "absolute";
-        box.style.width = "100%";
-        box.style.height = "100%";
-        box.style.zIndex = "999999";
-        const fullCanvas = document.createElement("canvas");
-        fullCanvas.width = width;
-        fullCanvas.height = height;
-        fullCanvas.style.cursor = "wait";
-        box.appendChild(fullCanvas);
-        document.body.prepend(box);
-        const worker = createCanvasWorker();
-        box.addEventListener("click", () => {
-            document.body.removeChild(box);
-            worker.terminate();
-        });
-        worker.addEventListener("message", (event) => {
-            const data = event.data;
-            if (Array.isArray(data))
-                return;
-            const ctx = fullCanvas.getContext("2d");
-            const imageData = ctx.createImageData(width, height);
-            imageData.data.set(new Uint8ClampedArray(data));
-            ctx.putImageData(imageData, 0, 0);
-            fullCanvas.style.cursor = "";
-            worker.terminate();
-        });
-        const message = { width, height, render, track, duration, count };
-        worker.postMessage(message);
-    }, [width, height, duration, count, render, track.filters, track.effects]);
-    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "effect-graph-view-bg", onClick: onClick },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas }))), [onClick]);
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "effect-graph-view-bg" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas }))), []);
 });
 
 
@@ -67054,7 +67021,7 @@ const ContainerEffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ left
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_2__.TimelineBlock, { fixed: true },
             ((valueFilters === null || valueFilters === void 0 ? void 0 : valueFilters.length) > 0) && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_10__.EffectPreview, { effect: effectWithNoFilters }),
-                "->")),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-long-arrow-alt-right", style: { marginLeft: 5, marginRight: 5 } }))),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_10__.EffectPreview, { effect: effect }),
             "\u00A0",
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { onClick: push }, "[add effect]"),
@@ -67256,7 +67223,7 @@ const AliasEffectTrack = ({ effect, leftBlock, effect: [enabled, , link, filters
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" },
                 (filters === null || filters === void 0 ? void 0 : filters.length) >= 0 && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_11__.EffectPreview, { effect: effectWithNoFilters }),
-                    "->")),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-long-arrow-alt-right", style: { marginLeft: 5, marginRight: 5 } }))),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_11__.EffectPreview, { effect: effect }),
                 " use alias ",
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _link" }, link))),
@@ -67297,7 +67264,7 @@ const ConfigurableEffectTrack = ({ onChange, leftBlock, effect, effect: [enabled
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" },
                 (filters === null || filters === void 0 ? void 0 : filters.length) >= 0 && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_11__.EffectPreview, { effect: effectWithNoFilters }),
-                    "->")),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-long-arrow-alt-right", style: { marginLeft: 5, marginRight: 5 } }))),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_EffectPreview__WEBPACK_IMPORTED_MODULE_11__.EffectPreview, { effect: effect }),
                 effectData.description)),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_EffectTypeTrack__WEBPACK_IMPORTED_MODULE_10__.EffectTypeTrack, { onChange: onChange, effect: effect }),

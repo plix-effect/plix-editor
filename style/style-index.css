@@ -298,7 +298,11 @@ button.btn.track-header-icon-button {
     cursor: auto; }
   .track-description._desc {
     color: #888;
-    cursor: auto; }
+    cursor: auto;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    white-space: pre; }
   .track-description._disabled {
     text-decoration: line-through; }
 
