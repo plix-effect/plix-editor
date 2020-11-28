@@ -20,6 +20,7 @@ import {PlixEditorAction} from "../PlixEditorReducer";
 type TimelineBlockType = "default" | "description" | "timeline" | "title"
 export interface TreeBlockProps {
     type?: TimelineBlockType
+    selected?: boolean,
     dragValue?: DragType,
     onClick?: MouseEventHandler<HTMLDivElement>,
     title?: string,
@@ -29,6 +30,7 @@ export interface TreeBlockProps {
 export const TreeBlock: FC<TreeBlockProps> = (
     {
         children,
+        selected = false,
         title,
         type = "default",
         dragValue,
@@ -101,7 +103,7 @@ export const TreeBlock: FC<TreeBlockProps> = (
         <div
             ref={blockRef}
             title={title}
-            className={cn("track-tree-block", `_${type}`)}
+            className={cn("track-tree-block", `_${type}`, {"_selected": selected})}
             draggable={dragValue != null}
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}

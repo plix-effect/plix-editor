@@ -17,6 +17,7 @@ import {DragType} from "../../DragContext";
 import {TrackContext} from "../../TrackContext";
 import {EditorPath} from "../../../../types/Editor";
 import {DisplayEffect} from "./DisplayEffect";
+import {useSelectionControl, useSelectionPath} from "../../SelectionContext";
 
 export interface TreeBlockEffectProps {
     effect: PlixEffectJsonData,
@@ -33,6 +34,12 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
     const {dispatch} = useContext(TrackContext);
 
     const effectIsChain = effect && effect[1] === "Chain";
+    const {toggleSelect, isSelectedPath} = useSelectionControl();
+    const selectionPath = useSelectionPath();
+
+    const selected = useMemo(() => {
+        return isSelectedPath(path);
+    }, [selectionPath])
 
     const title: string|undefined = useMemo(() => {
         if (!deleteAction && !dragValue) return undefined;
@@ -59,10 +66,13 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
             }
         }
         if (!event.ctrlKey && !event.altKey  && !event.shiftKey) changeExpanded();
+        if (event.ctrlKey && !event.altKey  && event.shiftKey) {
+            toggleSelect(path);
+        }
     }, [deleteAction, dispatch, effect, setExpanded, changeExpanded]);
 
     return (
-        <TreeBlock dragValue={dragValue} onClick={onClick} title={title} onDragOverItem={onDragOverItem}>
+        <TreeBlock dragValue={dragValue} onClick={onClick} title={title} onDragOverItem={onDragOverItem} selected={selected}>
             {expander}
             <span className="track-description">{children}</span>
             <span>{" "}</span>
