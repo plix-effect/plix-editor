@@ -10,6 +10,7 @@ import {PlixJsonData} from "@plix-effect/core/types/parser";
 import {PlixEditorReducer} from "./PlixEditorReducer";
 import {DragContext, DragType} from "./DragContext";
 import {OpenAction} from "./PlixEditorReducerActions";
+import {CreatePlayback} from "../../../../PlaybackContext";
 
 const defaultTrack: PlixJsonData & {editor: any} = {
     effects: {},
@@ -80,16 +81,18 @@ export const PlixEditor: FC = () => {
 
     return (
         <div className="plix-editor" onDragOver={onDragOver} onDrop={onDrop}>
-            <DragContext.Provider value={dragRef}>
-                <TrackContext.Provider value={trackContextValue}>
-                    <ConstructorContext.Provider value={constructorContextValue}>
-                        <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
+            <CreatePlayback duration={track?.['editor']?.['duration'] ?? 60*1000}>
+                <DragContext.Provider value={dragRef}>
+                    <TrackContext.Provider value={trackContextValue}>
+                        <ConstructorContext.Provider value={constructorContextValue}>
+                            <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
                                 <TrackEditor />
-                            <div>LIBS AND CANVAS</div>
-                        </SplitTopBottom>
-                    </ConstructorContext.Provider>
-                </TrackContext.Provider>
-            </DragContext.Provider>
+                                <div>LIBS AND CANVAS</div>
+                            </SplitTopBottom>
+                        </ConstructorContext.Provider>
+                    </TrackContext.Provider>
+                </DragContext.Provider>
+            </CreatePlayback>
         </div>
-    )
+    );
 }
