@@ -15,7 +15,7 @@ const PlaybackStatusContext = createContext<PlaybackStatus>("stop");
 
 interface PlaybackControlContextProps {
     getPlayTime: () => number|null
-    play: (from?: number, repeat?: boolean, repeatStart?: number, repeatEnd?: number|null) => void
+    play: (time?: number, repeat?: boolean, repeatStart?: number, repeatEnd?: number) => void
     pause: (time?: number) => void
     stop: () => void
 }
