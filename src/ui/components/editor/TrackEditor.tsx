@@ -24,6 +24,8 @@ import {GroupOptionsTrack} from "./tracks/GroupOptionsTrack";
 import {IconZoomIn} from "../icon/IconZoomIn";
 import {IconZoomOut} from "../icon/IconZoomOut";
 import {DragType} from "./DragContext";
+import {usePlaybackControl, usePlaybackStatus} from "../../../../PlaybackContext";
+import {TrackPlayPosition} from "./tracks/editor/TrackPlayPosition";
 
 
 const ZOOM_FACTOR = Math.sqrt(2);
@@ -101,7 +103,15 @@ export const TrackEditor: FC = () => {
     }, [setZoom, duration, timelineEl, mouseLeftRef]);
 
     const zoomIn = useCallback(() => multiplyZoom(ZOOM_FACTOR), [multiplyZoom])
-    const zoomOut = useCallback(() => multiplyZoom(1/ZOOM_FACTOR), [multiplyZoom])
+    const zoomOut = useCallback(() => multiplyZoom(1/ZOOM_FACTOR), [multiplyZoom]);
+
+    const playbackStatus = usePlaybackStatus();
+    const {play, pause, stop} = usePlaybackControl();
+
+    const playPause = useCallback(() => {
+        if (playbackStatus === "play") return pause();
+        return play();
+    }, [playbackStatus]);
 
     useEffect(() => {
         const onKeydown = ({ctrlKey, shiftKey, altKey, code}: DocumentEventMap["keydown"]) => {
@@ -112,10 +122,11 @@ export const TrackEditor: FC = () => {
             if (active && ctrlKey && !shiftKey && !altKey && code === "KeyY") return dispatch(RedoAction());
             if (active && !ctrlKey && !shiftKey && !altKey && code === "Minus") return zoomOut();
             if (active && !ctrlKey && !shiftKey && !altKey && code === "Equal") return zoomIn();
+            if (active && !ctrlKey && !shiftKey && !altKey && code === "Space") return playPause();
         }
         document.addEventListener("keydown", onKeydown);
         return () => document.removeEventListener("keydown", onKeydown);
-    }, [dispatch, zoomIn, zoomOut]);
+    }, [dispatch, zoomIn, zoomOut, playPause]);
 
     const onWheel = useCallback((event: WheelEvent<any>) => {
         if (!event.ctrlKey && !event.metaKey) return;
@@ -145,6 +156,16 @@ export const TrackEditor: FC = () => {
                     <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={zoomIn} title={"Zoom in"}>
                         <i className="fa fa-search-plus"/>
                     </button>
+                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={playPause} title={playbackStatus === "play" ? "Pause" : "Play"}>
+                        {playbackStatus === "play" ? (
+                            <i className="fa fa-pause"/>
+                        ) : (
+                            <i className="fa fa-play"/>
+                        )}
+                    </button>
+                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={stop} title={"Stop"}>
+                       <i className="fa fa-stop"/>
+                    </button>
                 </div>
                 <div className="track-header track-header-timeline" onWheelCapture={onWheel}>
                     <TrackScale />
@@ -161,7 +182,9 @@ export const TrackEditor: FC = () => {
                         </Track>
                     </PortalContext.Provider>
                 </div>
-                <div className="track-timeline" ref={setRightRenderEl} />
+                <div className="track-timeline" ref={setRightRenderEl}>
+                    <TrackPlayPosition />
+                </div>
             </SplitTimeline>
         </ScaleDisplayContext.Provider>
     );

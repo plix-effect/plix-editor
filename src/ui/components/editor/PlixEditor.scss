@@ -11,6 +11,7 @@ $track-header-height: 20px;
 
 .track-timeline {
   width: 100%;
+  position: relative;
 }
 
 .track-header {
@@ -31,4 +32,15 @@ button.btn.track-header-icon-button {
   &>.badge {
     margin-left: 5px;
   }
+}
+
+.track-timeline-time-col {
+  position: absolute;
+  top: -10px;
+  bottom: 0;
+  width: 4px;
+  opacity: 50%;
+  pointer-events: none;
+  background-color: yellow;
+  z-index: 1;
 }
