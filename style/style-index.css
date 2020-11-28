@@ -41,7 +41,8 @@ body .btn-primary:focus {
   width: 100%; }
 
 .track-timeline {
-  width: 100%; }
+  width: 100%;
+  position: relative; }
 
 .track-header-tree {
   margin: 5px; }
@@ -55,6 +56,16 @@ button.btn.track-header-icon-button {
     font-size: 21px; }
   button.btn.track-header-icon-button > .badge {
     margin-left: 5px; }
+
+.track-timeline-time-col {
+  position: absolute;
+  top: -10px;
+  bottom: 0;
+  width: 4px;
+  opacity: 50%;
+  pointer-events: none;
+  background-color: yellow;
+  z-index: 1; }
 
 .split-top-bottom-container {
   display: flex;

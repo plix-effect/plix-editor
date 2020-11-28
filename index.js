@@ -64676,11 +64676,12 @@ const PlaybackStatusContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContex
 const PlaybackControlContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
 const CreatePlayback = ({ children, duration }) => {
     const [playData, setPlayData] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
-        playFromStamp: null,
-        repeat: false,
-        pauseTime: null,
-        endTime: null,
         status: "stop",
+        playFromStamp: null,
+        pauseTime: null,
+        repeat: false,
+        repeatStart: null,
+        repeatEnd: null,
     });
     const lastTimeoutRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
     const getPlayTime = (0,_src_ui_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__.default)(() => {
@@ -64695,44 +64696,46 @@ const CreatePlayback = ({ children, duration }) => {
         if (lastTimeoutRef.current !== null)
             clearTimeout(lastTimeoutRef.current);
         setPlayData({
+            status: "stop",
+            pauseTime: null,
             playFromStamp: null,
             repeat: false,
-            pauseTime: null,
-            endTime: null,
-            status: "stop",
+            repeatStart: null,
+            repeatEnd: null,
         });
     });
     const pause = (0,_src_ui_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__.default)((pauseTime) => {
         if (lastTimeoutRef.current !== null)
             clearTimeout(lastTimeoutRef.current);
-        setPlayData({
-            playFromStamp: null,
-            repeat: false,
-            pauseTime: pauseTime == null ? (getPlayTime() || 0) : pauseTime,
-            endTime: null,
-            status: "stop",
-        });
+        setPlayData(playData => (Object.assign(Object.assign({}, playData), { status: "pause", playFromStamp: null, pauseTime: pauseTime == null ? (getPlayTime() || 0) : pauseTime })));
     });
-    const play = (0,_src_ui_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__.default)((startTime = 0, repeat = false, endTime) => {
+    const play = (0,_src_ui_use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__.default)((from, repeat = false, repeatStart = 0, repeatEnd) => {
         if (lastTimeoutRef.current !== null)
             clearTimeout(lastTimeoutRef.current);
-        if (endTime == null)
-            endTime = duration;
-        if (startTime >= duration)
+        if (repeatEnd <= repeatStart)
+            return pause(Math.min(repeatEnd, duration));
+        if (repeatEnd == null)
+            repeatEnd = duration;
+        if (from == null)
+            from = getPlayTime();
+        if (from >= duration)
             return pause(duration);
-        const playFromStamp = performance.now() - startTime;
-        const segmentDuration = endTime - startTime;
+        if (from >= repeatEnd)
+            from = repeatStart;
+        const playFromStamp = performance.now() - from;
+        const segmentDuration = repeatEnd - from;
         setPlayData({
             playFromStamp: playFromStamp,
             repeat: false,
             pauseTime: null,
-            endTime: endTime,
+            repeatEnd: repeatEnd,
+            repeatStart: repeatStart,
             status: "play",
         });
         lastTimeoutRef.current = +setTimeout(() => {
             if (!repeat)
-                return pause(endTime);
-            return play(startTime, repeat, endTime);
+                return pause(repeatStart);
+            return play(repeatStart, repeat, repeatStart, repeatEnd);
         }, segmentDuration);
     });
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(stop, [duration]);
@@ -64741,10 +64744,11 @@ const CreatePlayback = ({ children, duration }) => {
     }), [getPlayTime, pause, play, stop]);
     const playbackStatusValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
         playFromStamp: playData.playFromStamp,
-        endTime: playData.endTime,
+        repeatStart: playData.repeatStart,
+        repeatEnd: playData.repeatEnd,
         pauseTime: playData.pauseTime,
         repeat: playData.repeat,
-    }), [playData.playFromStamp, playData.endTime, playData.pauseTime, playData.repeat]);
+    }), [playData.playFromStamp, playData.repeatEnd, playData.repeatStart, playData.pauseTime, playData.repeat]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackControlContext.Provider, { value: playbackControlValue },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackDataContext.Provider, { value: playbackStatusValue },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackStatusContext.Provider, { value: playData.status }, children))));
@@ -65865,6 +65869,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _timeline_Track__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../timeline/Track */ "./src/ui/components/timeline/Track.tsx");
 /* harmony import */ var _ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
 /* harmony import */ var _tracks_GroupOptionsTrack__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./tracks/GroupOptionsTrack */ "./src/ui/components/editor/tracks/GroupOptionsTrack.tsx");
+/* harmony import */ var _PlaybackContext__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../../../../PlaybackContext */ "./PlaybackContext.tsx");
+/* harmony import */ var _tracks_editor_TrackPlayPosition__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./tracks/editor/TrackPlayPosition */ "./src/ui/components/editor/tracks/editor/TrackPlayPosition.tsx");
+
+
 
 
 
@@ -65942,6 +65950,13 @@ const TrackEditor = () => {
     }, [setZoom, duration, timelineEl, mouseLeftRef]);
     const zoomIn = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => multiplyZoom(ZOOM_FACTOR), [multiplyZoom]);
     const zoomOut = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => multiplyZoom(1 / ZOOM_FACTOR), [multiplyZoom]);
+    const playbackStatus = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_12__.usePlaybackStatus)();
+    const { play, pause, stop } = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_12__.usePlaybackControl)();
+    const playPause = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        if (playbackStatus === "play")
+            return pause();
+        return play();
+    }, [playbackStatus]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         const onKeydown = ({ ctrlKey, shiftKey, altKey, code }) => {
             const focusedNode = document.querySelectorAll(":focus:not(body)");
@@ -65956,10 +65971,12 @@ const TrackEditor = () => {
                 return zoomOut();
             if (active && !ctrlKey && !shiftKey && !altKey && code === "Equal")
                 return zoomIn();
+            if (active && !ctrlKey && !shiftKey && !altKey && code === "Space")
+                return playPause();
         };
         document.addEventListener("keydown", onKeydown);
         return () => document.removeEventListener("keydown", onKeydown);
-    }, [dispatch, zoomIn, zoomOut]);
+    }, [dispatch, zoomIn, zoomOut, playPause]);
     const onWheel = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         if (!event.ctrlKey && !event.metaKey)
             return;
@@ -65982,7 +65999,10 @@ const TrackEditor = () => {
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: zoomOut, title: "Zoom out" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-search-minus" })),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: zoomIn, title: "Zoom in" },
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-search-plus" }))),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-search-plus" })),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: playPause, title: playbackStatus === "play" ? "Pause" : "Play" }, playbackStatus === "play" ? (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-pause" })) : (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-play" }))),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: stop, title: "Stop" },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-stop" }))),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header track-header-timeline", onWheelCapture: onWheel },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackScale__WEBPACK_IMPORTED_MODULE_8__.TrackScale, null)),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-tree", onWheelCapture: onWheel },
@@ -65994,7 +66014,8 @@ const TrackEditor = () => {
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupEffectsTrack__WEBPACK_IMPORTED_MODULE_4__.GroupEffectsTrack, { effectsMap: track.effects, path: paths.effects }),
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupFiltersTrack__WEBPACK_IMPORTED_MODULE_5__.GroupFiltersTrack, { filtersMap: track.filters, path: paths.filters }),
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupOptionsTrack__WEBPACK_IMPORTED_MODULE_11__.GroupOptionsTrack, { options: track === null || track === void 0 ? void 0 : track['editor'], path: paths.editor })))),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-timeline", ref: setRightRenderEl }))));
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-timeline", ref: setRightRenderEl },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_editor_TrackPlayPosition__WEBPACK_IMPORTED_MODULE_13__.TrackPlayPosition, null)))));
 };
 function download(filename, text) {
     const pom = document.createElement('a');
@@ -68211,6 +68232,56 @@ function canMoveRecord(record, records, [start, duration], effect) {
     }
     return true;
 }
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/tracks/editor/TrackPlayPosition.tsx":
+/*!**********************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/editor/TrackPlayPosition.tsx ***!
+  \**********************************************************************/
+/*! namespace exports */
+/*! export TrackPlayPosition [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "TrackPlayPosition": () => /* binding */ TrackPlayPosition
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _PlaybackContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../../../../PlaybackContext */ "./PlaybackContext.tsx");
+/* harmony import */ var _ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
+
+
+
+const TrackPlayPosition = () => {
+    const ref = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const status = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_1__.usePlaybackStatus)();
+    const { getPlayTime } = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_1__.usePlaybackControl)();
+    const { zoom } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_2__.ScaleDisplayContext);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        function updateTimePos() {
+            const time = getPlayTime();
+            ref.current.style.display = (time === null) ? "none" : "";
+            if (time !== null)
+                ref.current.style.left = `${time * zoom}px`;
+        }
+        if (status !== "play")
+            return updateTimePos();
+        let updateTrigger = true;
+        function raf() {
+            updateTimePos();
+            if (updateTrigger)
+                window.requestAnimationFrame(raf);
+        }
+        raf();
+        return () => updateTrigger = false;
+    }, [status, zoom]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-timeline-time-col", ref: ref }));
+};
 
 
 /***/ }),
