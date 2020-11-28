@@ -66093,7 +66093,7 @@ function selectItem(type, item, effectConstructorMap, filterConstructorMap, [pat
     if (type in staticSelectTypes) {
         nextType = staticSelectTypes[type][key];
     }
-    else if (type.startsWith("array:") && typeof key === "number") {
+    else if (type.startsWith("array:")) {
         nextType = type.substring(6);
     }
     else if (type === "effect") {
