@@ -80144,6 +80144,9 @@ const TrackEditor = () => {
             return pause();
         return play();
     }, [playbackStatus]);
+    const repeat = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        return play(null, true);
+    }, [playbackStatus]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         const onKeydown = ({ ctrlKey, shiftKey, altKey, code }) => {
             const focusedNode = document.querySelectorAll(":focus:not(body)");
@@ -80194,6 +80197,8 @@ const TrackEditor = () => {
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: zoomIn, title: "Zoom in" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-search-plus" })),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: playPause, title: playbackStatus === "play" ? "Pause" : "Play" }, playbackStatus === "play" ? (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-pause" })) : (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-play" }))),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: repeat, title: "Repeat" },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-sync-alt" })),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: stop, title: "Stop" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-stop" }))),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header track-header-timeline", onWheelCapture: onWheel },
@@ -82616,7 +82621,7 @@ const TrackPlayPosition = () => {
 /*! namespace exports */
 /*! export TreeBlockEffect [provided] [no usage info] [missing usage info prevents renaming] */
 /*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
+/*! runtime requirements: __webpack_require__, __webpack_require__.n, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -82631,6 +82636,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DisplayEffect__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./DisplayEffect */ "./src/ui/components/editor/tracks/editor/DisplayEffect.tsx");
 /* harmony import */ var _SelectionContext__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../SelectionContext */ "./src/ui/components/editor/SelectionContext.tsx");
 /* harmony import */ var _use_useEffectClass__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../../use/useEffectClass */ "./src/ui/use/useEffectClass.ts");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_7__);
+
 
 
 
@@ -82688,7 +82696,13 @@ const TreeBlockEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ dragValue
         if (deleteAction || clearAction)
             dispatch(deleteAction !== null && deleteAction !== void 0 ? deleteAction : clearAction);
     }, [deleteAction, clearAction, dispatch]);
+    const onClickEye = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        event.stopPropagation();
+        if (effect)
+            dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_1__.EditValueAction)([...path, 0], !effect[0]));
+    }, [dispatch, effect]);
     const rightIcons = (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+        (effect) && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: classnames__WEBPACK_IMPORTED_MODULE_7___default()("far track-tree-icon track-tree-icon-action", effect[0] ? "fa-eye" : "fa-eye-slash"), onClick: onClickEye, title: effect[0] ? "hide" : "show" })),
         effectClass === "container" && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-plus track-tree-icon track-tree-icon-action", onClick: onClickAdd, title: "add effect" })),
         (deleteAction || clearAction) && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "far fa-trash-alt track-tree-icon track-tree-icon-action", onClick: onClickDelete, title: "delete" }))));
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, { dragValue: dragValue, onClick: onClick, onDragOverItem: onDragOverItem, selected: selected, right: rightIcons },
@@ -82708,7 +82722,7 @@ const TreeBlockEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ dragValue
 /*! namespace exports */
 /*! export TreeBlockFilter [provided] [no usage info] [missing usage info prevents renaming] */
 /*! other exports [not provided] [no usage info] */
-/*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
+/*! runtime requirements: __webpack_require__, __webpack_require__.n, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -82722,6 +82736,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
 /* harmony import */ var _DisplayFilter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./DisplayFilter */ "./src/ui/components/editor/tracks/editor/DisplayFilter.tsx");
 /* harmony import */ var _use_useFilterClass__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../../use/useFilterClass */ "./src/ui/use/useFilterClass.ts");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_6__);
+
 
 
 
@@ -82776,7 +82793,13 @@ const TreeBlockFilter = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ dragValue
         if (deleteAction || clearAction)
             dispatch(deleteAction !== null && deleteAction !== void 0 ? deleteAction : clearAction);
     }, [deleteAction, clearAction, dispatch]);
+    const onClickEye = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        event.stopPropagation();
+        if (filter)
+            dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_1__.EditValueAction)([...path, 0], !filter[0]));
+    }, [dispatch, filter]);
     const rightIcons = (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+        (filter) && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: classnames__WEBPACK_IMPORTED_MODULE_6___default()("far track-tree-icon track-tree-icon-action", filter[0] ? "fa-eye" : "fa-eye-slash"), onClick: onClickEye, title: filter[0] ? "hide" : "show" })),
         filterClass === "container" && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-plus track-tree-icon track-tree-icon-action", onClick: onClickAdd, title: "add filter" })),
         (deleteAction || clearAction) && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "far fa-trash-alt track-tree-icon track-tree-icon-action", onClick: onClickDelete, title: "delete" }))));
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, { dragValue: dragValue, onClick: onClick, title: title, onDragOverItem: onDragOverItem, right: rightIcons },
