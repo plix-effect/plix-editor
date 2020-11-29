@@ -15,7 +15,7 @@ import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {parseColor} from "@plix-effect/core";
 import {ColorView} from "../track-elements/ColorView";
 import {TrackContext} from "../TrackContext";
-import {EditValueAction, MultiAction, MultiActionType} from "../PlixEditorReducerActions";
+import {EditValueAction, MultiActionType} from "../PlixEditorReducerActions";
 import {InlineColorEditor} from "./editor/inline/InlineColorEditor";
 import {DragType} from "../DragContext";
 

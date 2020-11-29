@@ -18,6 +18,7 @@ import {TrackContext} from "../../TrackContext";
 import {EditorPath} from "../../../../types/Editor";
 import {DisplayEffect} from "./DisplayEffect";
 import {useSelectionControl, useSelectionPath} from "../../SelectionContext";
+import {useEffectClass} from "../../../../use/useEffectClass";
 
 export interface TreeBlockEffectProps {
     effect: PlixEffectJsonData,
@@ -37,6 +38,8 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
     const {toggleSelect, isSelectedPath} = useSelectionControl();
     const selectionPath = useSelectionPath();
 
+    const effectClass = useEffectClass(effect);
+
     const selected = useMemo(() => {
         return isSelectedPath(path);
     }, [selectionPath])
@@ -53,20 +56,25 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
     }, [deleteAction, dragValue])
 
     const onClick: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
-        if (!event.ctrlKey && event.altKey  && !event.shiftKey) {
+        if (!event.ctrlKey && event.altKey && !event.shiftKey) { // Alt
             if (deleteAction || clearAction) dispatch(deleteAction ?? clearAction);
         }
-        if (event.ctrlKey && !event.altKey  && !event.shiftKey) {
-            if (effect) dispatch(EditValueAction([...path, 0], !effect[0]));
+        if (event.ctrlKey && event.altKey && !event.shiftKey) { // Ctrl+Alt
+            if (clearAction) dispatch(clearAction);
         }
-        if (!event.ctrlKey && !event.altKey  && event.shiftKey) {
+        if (!event.ctrlKey && event.altKey && event.shiftKey) { // Shift+Alt
+            if (effectClass === "timeline" || effectClass === "container") {
+                dispatch(EditValueAction([...path, 2, 0], []));
+            }
+        }
+        if (!event.ctrlKey && !event.altKey && event.shiftKey) { // Shift
             if (effectIsChain) {
                 dispatch(PushValueAction([...path, 2, 0], null));
                 setExpanded(true);
             }
         }
-        if (!event.ctrlKey && !event.altKey  && !event.shiftKey) changeExpanded();
-        if (event.ctrlKey && !event.altKey  && event.shiftKey) {
+        if (!event.ctrlKey && !event.altKey && !event.shiftKey) changeExpanded(); // Click
+        if (event.ctrlKey && !event.altKey && event.shiftKey) { // Ctrl+Shift
             toggleSelect(path);
         }
     }, [deleteAction, dispatch, effect, setExpanded, changeExpanded]);

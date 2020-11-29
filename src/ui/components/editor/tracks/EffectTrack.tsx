@@ -253,7 +253,6 @@ const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, leftBlock, effect:
 }
 
 interface ConfigurableEffectTrackProps {
-
     effect: PlixEffectConfigurableJsonData
     path: EditorPath,
     expanded: boolean,

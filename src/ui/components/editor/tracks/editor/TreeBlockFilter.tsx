@@ -47,19 +47,19 @@ export const TreeBlockFilter: FC<TreeBlockFilterProps> = memo(({dragValue, setEx
     }, [deleteAction, dragValue])
 
     const onClick: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
-        if (!event.ctrlKey && event.altKey  && !event.shiftKey) {
+        if (!event.ctrlKey && event.altKey && !event.shiftKey) {
             if (deleteAction || clearAction) dispatch(deleteAction ?? clearAction);
         }
-        if (event.ctrlKey && !event.altKey  && !event.shiftKey) {
+        if (event.ctrlKey && !event.altKey && !event.shiftKey) {
             if (filter) dispatch(EditValueAction([...path, 0], !filter[0]));
         }
-        if (!event.ctrlKey && !event.altKey  && event.shiftKey) {
+        if (!event.ctrlKey && !event.altKey && event.shiftKey) {
             if (filterIsContainer) {
                 dispatch(PushValueAction([...path, 2, 0], null));
                 setExpanded(true);
             }
         }
-        if (!event.ctrlKey && !event.altKey  && !event.shiftKey) changeExpanded();
+        if (!event.ctrlKey && !event.altKey && !event.shiftKey) changeExpanded();
     }, [deleteAction, dispatch, filter, setExpanded, changeExpanded]);
 
     return (
