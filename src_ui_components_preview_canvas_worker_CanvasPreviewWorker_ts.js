@@ -44,6 +44,10 @@ const handlePlaybackStatusMsg = (msg) => {
         startRendering();
         return;
     }
+    if (parsedData != null && status === "pause") {
+        renderTime(msg.pauseTime);
+        return;
+    }
     if (status === "stop" && renderData != null) {
         renderEmptyPixels();
         return;

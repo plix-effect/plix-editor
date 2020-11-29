@@ -79308,27 +79308,8 @@ const PlixEditor = () => {
                                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_divider_SplitLeftRight__WEBPACK_IMPORTED_MODULE_13__.SplitLeftRight, { minLeft: 100, minRight: 200, storageKey: "btm" },
                                         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: { flexGrow: 1, backgroundColor: "green" } }, "libs"),
                                         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: { flexGrow: 1, backgroundColor: "green", display: "flex", flexDirection: "column" } },
-                                            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_preview_PreviewContainer__WEBPACK_IMPORTED_MODULE_17__.PreviewContainer, null),
-                                            react__WEBPACK_IMPORTED_MODULE_0__.createElement(ShowSelectedElement, null))))))))))));
+                                            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_preview_PreviewContainer__WEBPACK_IMPORTED_MODULE_17__.PreviewContainer, null))))))))))));
 };
-const ShowSelectedElement = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(() => {
-    var _a;
-    const path = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_14__.useSelectionPath)();
-    const { selectedType, selectedItem } = (_a = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_14__.useSelectionItem)()) !== null && _a !== void 0 ? _a : {};
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
-            "Render time: ",
-            performance.now()),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
-            "Path: ",
-            JSON.stringify(path)),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
-            "Selected type: ",
-            selectedType),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
-            "Selected item: ",
-            JSON.stringify(selectedItem))));
-});
 function openPlixDB() {
     return __awaiter(this, void 0, void 0, function* () {
         const dbRequest = indexedDB.open("plix-effect", 1.0);
@@ -83668,7 +83649,7 @@ const CanvasPreview = ({ duration, width, count, height, render, track }) => {
     const lastUsedEffects = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const lastUsedFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const playbackStatus = (0,_editor_PlaybackContext__WEBPACK_IMPORTED_MODULE_2__.usePlaybackStatus)();
-    const { playFromStamp } = (0,_editor_PlaybackContext__WEBPACK_IMPORTED_MODULE_2__.usePlaybackData)();
+    const { playFromStamp, pauseTime } = (0,_editor_PlaybackContext__WEBPACK_IMPORTED_MODULE_2__.usePlaybackData)();
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         if (!canvas)
             return;
@@ -83727,7 +83708,8 @@ const CanvasPreview = ({ duration, width, count, height, render, track }) => {
             return;
         const msg = {
             type: "playback_status",
-            status: playbackStatus
+            status: playbackStatus,
+            pauseTime: pauseTime,
         };
         workerRef.current.postMessage(msg, []);
         const msgSync = {
@@ -83735,7 +83717,7 @@ const CanvasPreview = ({ duration, width, count, height, render, track }) => {
             value: performance.now()
         };
         workerRef.current.postMessage(msgSync, []);
-    }, [playbackStatus, workerRef.current]);
+    }, [playbackStatus, workerRef.current, pauseTime]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         if (!workerRef.current || playFromStamp === null)
             return;
