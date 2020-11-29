@@ -15,7 +15,13 @@ import "./tracks.scss"
 import {useExpander} from "../track-elements/Expander";
 import {TimelineEffectTrack} from "./TimelineEffectTrack";
 import {ContainerEffectTrack} from "./ContainerEffectTrack";
-import {EditValueAction, MultiAction, MultiActionType, PushValueAction} from "../PlixEditorReducerActions";
+import {
+    EditValueAction,
+    InsertValuesAction,
+    MultiAction,
+    MultiActionType,
+    PushValueAction
+} from "../PlixEditorReducerActions";
 import {EffectTypeTrack} from "./EffectTypeTrack";
 import {EffectPreview} from "./editor/EffectPreview";
 import {InlineEffectTypeEditor} from "./editor/inline/InlineEffectTypeEditor";
@@ -60,7 +66,7 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
 
         const allowFilters = effect !== null;
 
-        let mode: "copy"|"move"|"link"|"none" = "none";
+        let mode: "copy"|"move"|"link"|"none" = "copy";
         if (event.ctrlKey && event.shiftKey) mode = "link";
         else if (event.ctrlKey) mode = "copy";
         else if (event.shiftKey) mode = dragData.deleteAction ? "move" : "none";
@@ -71,50 +77,80 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
 
         if (mode === "none") return;
 
-        let valueEffect: PlixEffectJsonData;
-        let valueFilter: PlixFilterJsonData;
+        let valueEffects: PlixEffectJsonData[];
+        let valueFilters: PlixFilterJsonData[];
 
         if (mode !== "link"){
-            if (dragData.effect !== undefined) valueEffect = dragData.effect;
-            if (allowFilters && dragData.filter !== undefined) valueFilter = dragData.filter;
+            const typedValue = dragData.typedValue;
+            if (dragData.effect !== undefined) valueEffects = [dragData.effect];
+            if (allowFilters && dragData.filter !== undefined) valueFilters = [dragData.filter];
+            if (!valueEffects) {
+                if (typedValue && typedValue.type === "array:effect" && typedValue.value.length > 0) {
+                    valueEffects = typedValue.value;
+                }
+            }
+            if (allowFilters && !valueFilters) {
+                if (typedValue && typedValue.type === "array:filter" && typedValue.value.length > 0) {
+                    valueFilters = typedValue.value;
+                }
+            }
         } else {
-            if (dragData.effectLink !== undefined) valueEffect = dragData.effectLink;
-            if (allowFilters && dragData.filterLink !== undefined) valueFilter = dragData.filterLink;
+            if (dragData.effectLink !== undefined) valueEffects = [dragData.effectLink];
+            if (allowFilters && dragData.filterLink !== undefined) valueFilters = [dragData.filterLink];
         }
-        if (valueEffect === undefined && valueFilter === undefined) return;
+        if (valueEffects === undefined && valueFilters === undefined) return;
+
+        let action: "add-effects"|"add-filters"|"change"|"change-filters";
+        if (valueEffects) {
+            if (effectClass === "container") {
+                action = (event.altKey && valueEffects.length === 1) ? "change" : "add-effects";
+            } else {
+                action = "change"
+            }
+        } else if (valueFilters) {
+            action = event.altKey ? "change-filters" : "add-filters";
+        }
+        if (!action) return;
 
         dragData.dropEffect = mode;
 
-        if (effect === valueEffect) return;
+        if (action === "change" && effect === valueEffects[0]) return;
         if (mode === "move") {
-            if (isObjectEqualOrContains(valueEffect, effect)) return;
+            if (isObjectEqualOrContains(valueEffects, effect)) return;
         }
-        if (mode === "link" && valueEffect && valueEffect[2] === alias) return;
+        if (action === "change" && mode === "link" && valueEffects && valueEffects[0]?.[2] === alias) return;
 
-        const addEffect = valueEffect !== undefined && effectClass === "container" && !event.altKey;
-        const changeEffect = !addEffect && valueEffect !== undefined;
-        const addFilter = !addEffect && !changeEffect && valueFilter !== undefined;
+        const dropClass = (action === "change" || action === "change-filters") ? "_drop-replace" : "_drop-add-item";
 
-
-        return [(addEffect || addFilter) ? "_drop-add-item" : "_drop-replace", () => {
+        return [dropClass, () => {
             let changeAction;
-            if (addEffect) {
-                changeAction = PushValueAction([...path, 2, 0], valueEffect);
-            } else if (addFilter) {
-                changeAction = PushValueAction([...path, 3], valueFilter);
-            } else if (mode === "link" && effect !== null && valueEffect !== null) { // save filters on drop effect as link
-                changeAction = EditValueAction(path, [true, null, valueEffect[2], effect[3]]);
+            if (action === "add-effects") {
+                const innerEffects = effect?.[2]?.[0] ?? [];
+                changeAction = InsertValuesAction([...path, 2, 0], innerEffects.length, valueEffects);
+            } else if (action === "add-filters") {
+                const innerFilters = effect?.[3] ?? [];
+                changeAction = InsertValuesAction([...path, 3], innerFilters.length, valueFilters);
+            } else if (action === "change-filters") {
+                changeAction = EditValueAction([...path, 3], valueFilters);
+            } else if (action === "change") {
+                const valueEffect = valueEffects[0];
+                if (mode === "link" && effect !== null && valueEffect !== null) { // save filters on drop effect as link
+                    const innerFilters = effect?.[3] ?? [];
+                    const enabled = !effect || effect[0];
+                    changeAction = EditValueAction(path, [enabled, null, valueEffect[2], innerFilters]);
+                } else {
+                    changeAction = EditValueAction(path, valueEffect);
+                }
             } else {
-                changeAction = EditValueAction(path, valueEffect);
+                return;
             }
             if (mode === "move" && dragData.deleteAction) {
                 dispatch(MultiAction([changeAction, dragData.deleteAction]))
             } else { // action === "copy" || action === "link"
-                console.log("DISPATCH", changeAction);
                 dispatch(changeAction);
             }
         }];
-    }, [onDragOverItem, path, dispatch]);
+    }, [onDragOverItem, path, dispatch, effect]);
 
     const onChangeEffect = useCallback((type: null|"alias"|"constructor", value?: string) => {
         if (!type) {
