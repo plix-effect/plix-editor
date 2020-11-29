@@ -82588,8 +82588,20 @@ __webpack_require__.r(__webpack_exports__);
 const TrackPlayPosition = () => {
     const ref = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const status = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_1__.usePlaybackStatus)();
-    const { getPlayTime } = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_1__.usePlaybackControl)();
-    const { zoom } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_2__.ScaleDisplayContext);
+    const { pauseTime } = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_1__.usePlaybackData)();
+    const { getPlayTime, pause } = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_1__.usePlaybackControl)();
+    const { zoom, timelineEl } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_2__.ScaleDisplayContext);
+    const onDragStart = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        event.dataTransfer.setDragImage(new Image(), 0, 0);
+    }, []);
+    const onDrag = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        if (event.pageX === 0)
+            return;
+        const timelineBcr = timelineEl.getBoundingClientRect();
+        const pos = event.pageX - timelineBcr.left + timelineEl.scrollLeft;
+        const time = pos / zoom;
+        pause(time);
+    }, [status, zoom, timelineEl]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         function updateTimePos() {
             const time = getPlayTime();
@@ -82607,8 +82619,8 @@ const TrackPlayPosition = () => {
         }
         raf();
         return () => updateTrigger = false;
-    }, [status, zoom]);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-timeline-time-col", ref: ref }));
+    }, [status, zoom, pauseTime]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-timeline-time-col", draggable: true, onDrag: onDrag, onDragStart: onDragStart, ref: ref }));
 };
 
 
