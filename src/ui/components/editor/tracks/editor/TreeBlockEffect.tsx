@@ -43,17 +43,6 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
         return isSelectedPath(path);
     }, [selectionPath]);
 
-    const title: string|undefined = useMemo(() => {
-        if (!deleteAction && !dragValue) return undefined;
-        let title = "Ctrl + Click = disable\n"
-        if (deleteAction) title += "Alt + Click = delete\n";
-        if (effectClass === "container") title += "Shift + Click = add effect\n";
-        if (dragValue) {
-            title += "Draggable\n"
-        }
-        return title;
-    }, [deleteAction, dragValue])
-
     const onClick: MouseEventHandler<HTMLDivElement> = useCallback(({ctrlKey, altKey, shiftKey}) => {
         if (!ctrlKey && altKey && !shiftKey) { // Alt
             if (deleteAction || clearAction) dispatch(deleteAction ?? clearAction);
@@ -65,6 +54,9 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
             if (effectClass === "timeline" || effectClass === "container") {
                 dispatch(EditValueAction([...path, 2, 0], []));
             }
+        }
+        if (ctrlKey && !altKey  && !shiftKey) {
+            if (effect) dispatch(EditValueAction([...path, 0], !effect[0]));
         }
         if (!ctrlKey && !altKey && shiftKey) { // Shift
             if (effectClass === "container") {
@@ -101,7 +93,7 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
     </>)
 
     return (
-        <TreeBlock dragValue={dragValue} onClick={onClick} title={title} onDragOverItem={onDragOverItem} selected={selected} right={rightIcons}>
+        <TreeBlock dragValue={dragValue} onClick={onClick} onDragOverItem={onDragOverItem} selected={selected} right={rightIcons}>
             {expander}
             <span className="track-description">{children}</span>
             <span>{" "}</span>
