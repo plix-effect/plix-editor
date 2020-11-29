@@ -78992,7 +78992,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 
-const AudioFileContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
+const AudioFileContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)({ audioFile: null, setAudioFile: () => { } });
 
 
 /***/ }),
@@ -79020,7 +79020,7 @@ __webpack_require__.r(__webpack_exports__);
 
 const AudioPlayer = () => {
     const lastUrlRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)("");
-    const file = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_AudioFileContext__WEBPACK_IMPORTED_MODULE_2__.AudioFileContext);
+    const { audioFile } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_AudioFileContext__WEBPACK_IMPORTED_MODULE_2__.AudioFileContext);
     const audioRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const { getPlayTime, stop } = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_1__.usePlaybackControl)();
     const { playFromStamp } = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_1__.usePlaybackData)();
@@ -79029,8 +79029,8 @@ const AudioPlayer = () => {
         if (lastUrlRef.current) {
             URL.revokeObjectURL(lastUrlRef.current);
         }
-        if (file) {
-            const url = URL.createObjectURL(file);
+        if (audioFile) {
+            const url = URL.createObjectURL(audioFile);
             lastUrlRef.current = url;
             audioRef.current.src = url;
             audioRef.current.play().then(() => {
@@ -79039,10 +79039,11 @@ const AudioPlayer = () => {
             });
         }
         else {
+            lastUrlRef.current = "";
             audioRef.current.src = "";
             stop();
         }
-    }, [file]);
+    }, [audioFile]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         void playFromStamp;
         if (status !== "play") {
@@ -79051,7 +79052,7 @@ const AudioPlayer = () => {
         else {
             const time = getPlayTime();
             audioRef.current.currentTime = time / 1000;
-            if (audioRef.current.currentSrc)
+            if (lastUrlRef.current)
                 audioRef.current.play();
         }
     }, [status, playFromStamp]);
@@ -79315,13 +79316,7 @@ const PlixEditor = () => {
     });
     const [audioFile, setAudioFile] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => void (() => __awaiter(void 0, void 0, void 0, function* () {
-        const dbRequest = indexedDB.open("plix-effect", 1.0);
-        dbRequest.onupgradeneeded = function () {
-            const db = dbRequest.result;
-            db.objectStoreNames.contains("audio") || db.createObjectStore("audio");
-        };
-        yield new Promise(resolve => dbRequest.onsuccess = resolve);
-        const db = dbRequest.result;
+        const db = yield openPlixDB();
         const transaction = db.transaction("audio", "readonly");
         transaction.objectStore("audio").get("audio").onsuccess = (event) => {
             const file = event.target['result'];
@@ -79342,6 +79337,17 @@ const PlixEditor = () => {
         effectConstructorMap: _plix_effect_core_effects__WEBPACK_IMPORTED_MODULE_6__,
         filterConstructorMap: _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_7__,
     }), []);
+    const storeAudioFile = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((file) => __awaiter(void 0, void 0, void 0, function* () {
+        setAudioFile(file);
+        const db = yield openPlixDB();
+        const transaction = db.transaction("audio", "readwrite");
+        if (!file) {
+            transaction.objectStore("audio").clear();
+        }
+        else {
+            transaction.objectStore("audio").put(file, "audio");
+        }
+    }), [setAudioFile]);
     const onDragOver = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         const items = Array.from(event.dataTransfer.items);
         let jsonItem = items.find(item => item.kind === "file" && item.type === "application/json");
@@ -79354,24 +79360,12 @@ const PlixEditor = () => {
         let audioItem = items.find(item => item.kind === "file" && item.type === "audio/mpeg");
         if (audioItem) {
             const audioFile = audioItem.getAsFile();
-            setAudioFile(audioFile);
             event.preventDefault();
+            void storeAudioFile(audioFile);
             const buffer = yield audioFile.arrayBuffer();
             const track = (0,_utils_Mp3Meta__WEBPACK_IMPORTED_MODULE_16__.readMp3Json)(buffer);
             if (track)
                 dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.OpenAction)(track));
-            const dbRequest = indexedDB.open("plix-effect", 1.0);
-            dbRequest.onupgradeneeded = function () {
-                const db = dbRequest.result;
-                db.objectStoreNames.contains("audio") || db.createObjectStore("audio");
-            };
-            yield new Promise(resolve => dbRequest.onsuccess = resolve);
-            const db = dbRequest.result;
-            db.objectStoreNames.contains("audio") || db.createObjectStore("audio");
-            const transaction = db.transaction("audio", "readwrite");
-            transaction.objectStore("audio").put(audioFile, "audio");
-            transaction.oncomplete = console.log;
-            transaction.onerror = console.error;
             return;
         }
         let jsonItem = items.find(item => item.kind === "file" && item.type === "application/json");
@@ -79383,9 +79377,13 @@ const PlixEditor = () => {
             return;
         }
     }), []);
+    const audioFileContextValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
+        audioFile,
+        setAudioFile: storeAudioFile
+    }), [audioFile, setAudioFile]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-editor", onDragOver: onDragOver, onDrop: onDrop },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ConstructorContext__WEBPACK_IMPORTED_MODULE_5__.ConstructorContext.Provider, { value: constructorContextValue },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_AudioFileContext__WEBPACK_IMPORTED_MODULE_11__.AudioFileContext.Provider, { value: audioFile },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_AudioFileContext__WEBPACK_IMPORTED_MODULE_11__.AudioFileContext.Provider, { value: audioFileContextValue },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PlaybackContext__WEBPACK_IMPORTED_MODULE_12__.CreatePlayback, { duration: (_b = (_a = track === null || track === void 0 ? void 0 : track['editor']) === null || _a === void 0 ? void 0 : _a['duration']) !== null && _b !== void 0 ? _b : 60 * 1000 },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_SelectionContext__WEBPACK_IMPORTED_MODULE_14__.CreateSelectionData, { track: track },
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_DragContext__WEBPACK_IMPORTED_MODULE_9__.DragContext.Provider, { value: dragRef },
@@ -79417,6 +79415,17 @@ const ShowSelectedElement = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(() => {
             "Selected item: ",
             JSON.stringify(selectedItem))));
 });
+function openPlixDB() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const dbRequest = indexedDB.open("plix-effect", 1.0);
+        dbRequest.onupgradeneeded = function () {
+            const db = dbRequest.result;
+            db.objectStoreNames.contains("audio") || db.createObjectStore("audio");
+        };
+        yield new Promise(resolve => dbRequest.onsuccess = resolve);
+        return dbRequest.result;
+    });
+}
 
 
 /***/ }),
@@ -80144,7 +80153,7 @@ const ZOOM_FACTOR = Math.sqrt(2);
 const ZOOM_FACTOR_WHEEL = Math.pow(2, 0.01);
 const TrackEditor = () => {
     var _a, _b, _c, _d;
-    const audioFile = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_AudioFileContext__WEBPACK_IMPORTED_MODULE_14__.AudioFileContext);
+    const { audioFile, setAudioFile } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_AudioFileContext__WEBPACK_IMPORTED_MODULE_14__.AudioFileContext);
     const { track, dispatch, undoCounts, redoCounts } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
     const [zoom, setZoom] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0.2);
     const [position, setPosition] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0.01);
@@ -80247,9 +80256,13 @@ const TrackEditor = () => {
         const zoomIndex = Math.pow(ZOOM_FACTOR_WHEEL, event.deltaY);
         multiplyZoom(zoomIndex);
     }, [multiplyZoom]);
+    const deleteFile = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        setAudioFile(null);
+    }, [setAudioFile]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_10__.ScaleDisplayContext.Provider, { value: scaleDisplayContextValue },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_divider_SplitTimeline__WEBPACK_IMPORTED_MODULE_6__.SplitTimeline, { minLeft: 100, minRight: 200, storageKey: "timeline", ref: setTimelineEl },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header track-header-tree" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header-filename" }, audioFile !== null ? (audioFile.name) : ("no audio file")),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: undo, disabled: undoCounts <= 0, title: "Undo" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-undo" }),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "badge badge-secondary" }, undoCounts)),
@@ -80258,6 +80271,8 @@ const TrackEditor = () => {
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "badge badge-secondary" }, redoCounts)),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: save, title: "Save" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-save" })),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: deleteFile, title: "Delete audio" },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "far fa-trash-alt" })),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: zoomOut, title: "Zoom out" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-search-minus" })),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: zoomIn, title: "Zoom in" },
