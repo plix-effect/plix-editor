@@ -10,7 +10,7 @@ interface PlaybackDataContextProps {
     repeat: boolean;
 }
 const PlaybackDataContext = createContext<PlaybackDataContextProps|null>(null);
-type PlaybackStatus = "play"|"stop"|"pause";
+export type PlaybackStatus = "play"|"stop"|"pause";
 const PlaybackStatusContext = createContext<PlaybackStatus>("stop");
 
 interface PlaybackControlContextProps {

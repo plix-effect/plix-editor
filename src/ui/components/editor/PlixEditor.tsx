@@ -27,6 +27,7 @@ import {SplitLeftRight} from "../divider/SplitLeftRight";
 import {CreateSelectionData, useSelectionItem, useSelectionPath} from "./SelectionContext";
 import {AudioPlayer} from "./AudioPlayer";
 import {readMp3Json} from "../../utils/Mp3Meta";
+import {PreviewContainer} from "../preview/PreviewContainer";
 
 const defaultTrack: PlixJsonData & {editor: any} = {
     effects: {},
@@ -149,8 +150,8 @@ export const PlixEditor: FC = () => {
                                         <TrackEditor />
                                         <SplitLeftRight minLeft={100} minRight={200} storageKey={"btm"}>
                                             <div style={{flexGrow: 1, backgroundColor: "green"}}>libs</div>
-                                            <div>
-                                                canvas or
+                                            <div style={{flexGrow: 1, backgroundColor: "green", display: "flex", flexDirection: "column"}}>
+                                                <PreviewContainer/>
                                                 <ShowSelectedElement/>
                                             </div>
                                         </SplitLeftRight>
