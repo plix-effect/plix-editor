@@ -63,6 +63,21 @@ export const PlixEditor: FC = () => {
 
     const [audioFile, setAudioFile] = useState<File|null>(null);
 
+    useEffect(() => void (async () => {
+        const dbRequest = indexedDB.open("plix-effect", 1.0);
+        dbRequest.onupgradeneeded = function() {
+            const db = dbRequest.result;
+            db.objectStoreNames.contains("audio") || db.createObjectStore("audio");
+        };
+        await new Promise(resolve => dbRequest.onsuccess = resolve);
+        const db = dbRequest.result;
+        const transaction = db.transaction("audio", "readonly");
+        transaction.objectStore("audio").get("audio").onsuccess = (event) => {
+            const file = event.target['result'];
+            if (file) setAudioFile(file);
+        };
+    })(), []);
+
     useEffect(() => {
         localStorage.setItem("plix_editor_track", JSON.stringify(track));
     }, [track])
@@ -97,6 +112,20 @@ export const PlixEditor: FC = () => {
             const buffer = await audioFile.arrayBuffer();
             const track = readMp3Json(buffer);
             if (track) dispatch(OpenAction(track as PlixJsonData));
+            // save to db
+            const dbRequest = indexedDB.open("plix-effect", 1.0);
+            dbRequest.onupgradeneeded = function() {
+                const db = dbRequest.result;
+                db.objectStoreNames.contains("audio") || db.createObjectStore("audio");
+            };
+            await new Promise(resolve => dbRequest.onsuccess = resolve);
+            const db = dbRequest.result;
+            db.objectStoreNames.contains("audio") || db.createObjectStore("audio");
+            const transaction = db.transaction("audio", "readwrite");
+            transaction.objectStore("audio").put(audioFile, "audio");
+            transaction.oncomplete = console.log;
+            transaction.onerror = console.error;
+
             return;
         }
         let jsonItem = items.find(item => item.kind === "file" && item.type === "application/json");
