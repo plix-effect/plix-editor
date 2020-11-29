@@ -116,6 +116,10 @@ export const TrackEditor: FC = () => {
         return play();
     }, [playbackStatus]);
 
+    const repeat = useCallback(() => {
+        return play(null, true);
+    }, [playbackStatus]);
+
     useEffect(() => {
         const onKeydown = ({ctrlKey, shiftKey, altKey, code}: DocumentEventMap["keydown"]) => {
             const focusedNode = document.querySelectorAll(":focus:not(body)");
@@ -180,6 +184,9 @@ export const TrackEditor: FC = () => {
                         ) : (
                             <i className="fa fa-play"/>
                         )}
+                    </button>
+                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={repeat} title={"Repeat"}>
+                        <i className="fas fa-sync-alt"/>
                     </button>
                     <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={stop} title={"Stop"}>
                        <i className="fa fa-stop"/>

@@ -19,6 +19,7 @@ import {EditorPath} from "../../../../types/Editor";
 import {DisplayEffect} from "./DisplayEffect";
 import {useSelectionControl, useSelectionPath} from "../../SelectionContext";
 import {useEffectClass} from "../../../../use/useEffectClass";
+import cn from "classnames";
 
 export interface TreeBlockEffectProps {
     effect: PlixEffectJsonData,
@@ -83,7 +84,19 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
         if (deleteAction || clearAction) dispatch(deleteAction ?? clearAction);
     }, [deleteAction, clearAction, dispatch]);
 
+    const onClickEye: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        if (effect) dispatch(EditValueAction([...path, 0], !effect[0]));
+    }, [dispatch, effect]);
+
     const rightIcons = (<>
+        {(effect) && (
+            <i
+                className={cn("far track-tree-icon track-tree-icon-action", effect[0] ? "fa-eye" : "fa-eye-slash")}
+                onClick={onClickEye}
+                title={effect[0] ? "hide" : "show"}
+            />
+        )}
         {effectClass === "container" && (
             <i className="fa fa-plus track-tree-icon track-tree-icon-action" onClick={onClickAdd} title="add effect"/>
         )}

@@ -18,6 +18,7 @@ import {EditorPath} from "../../../../types/Editor";
 import {PlixFilterJsonData} from "@plix-effect/core/types/parser";
 import {DisplayFilter} from "./DisplayFilter";
 import {useFilterClass} from "../../../../use/useFilterClass";
+import cn from "classnames";
 
 export interface TreeBlockFilterProps {
     filter: PlixFilterJsonData,
@@ -77,7 +78,19 @@ export const TreeBlockFilter: FC<TreeBlockFilterProps> = memo(({dragValue, setEx
         if (deleteAction || clearAction) dispatch(deleteAction ?? clearAction);
     }, [deleteAction, clearAction, dispatch]);
 
+    const onClickEye: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        if (filter) dispatch(EditValueAction([...path, 0], !filter[0]));
+    }, [dispatch, filter]);
+
     const rightIcons = (<>
+        {(filter) && (
+            <i
+                className={cn("far track-tree-icon track-tree-icon-action", filter[0] ? "fa-eye" : "fa-eye-slash")}
+                onClick={onClickEye}
+                title={filter[0] ? "hide" : "show"}
+            />
+        )}
         {filterClass === "container" && (
             <i className="fa fa-plus track-tree-icon track-tree-icon-action" onClick={onClickAdd} title="add filter"/>
         )}
