@@ -117,11 +117,13 @@ export const TreeBlock: FC<TreeBlockProps> = (
             {children}
             <div className="track-tree-block-space"/>
             <div className="track-tree-block-right">
-                {right}
+                <div className="track-tree-block-right-content">
+                    {right}
+                </div>
                 <div className="track-tree-drop-icon-content">
                     <i className="fa fa-edit track-tree-icon track-tree-icon-replace"/>
                     <i className="fa fa-plus track-tree-icon track-tree-icon-add-item"/>
-                    <i className="fa fa-plus-square track-tree-icon track-tree-icon-add-array"/>
+                    <i className="fa fa-plus track-tree-icon track-tree-icon-add-array"/>
                 </div>
             </div>
 

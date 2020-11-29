@@ -1,4 +1,14 @@
-import React, {ChangeEvent, FC, memo, MouseEvent, useCallback, useContext, useMemo, useState} from "react";
+import React, {
+    ChangeEvent,
+    FC,
+    memo,
+    MouseEvent,
+    MouseEventHandler,
+    useCallback,
+    useContext,
+    useMemo,
+    useState
+} from "react";
 import {Track} from "../../timeline/Track";
 import {EditorPath} from "../../../types/Editor";
 import {useExpander} from "../track-elements/Expander";
@@ -14,12 +24,16 @@ export interface GroupOptionsTrackProps {
 export const GroupOptionsTrack: FC<GroupOptionsTrackProps> = memo(({options = {}, path}) => {
     const [expanded, expander, changeExpanded] = useExpander(false);
 
-    const durationPath = useMemo(() => [...path, "duration"] ,[path])
-    const countPath = useMemo(() => [...path, "count"] ,[path])
+    const durationPath = useMemo(() => [...path, "duration"] ,[path]);
+    const countPath = useMemo(() => [...path, "count"] ,[path]);
+
+    const onClickTree: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        if (!event.ctrlKey && !event.altKey && !event.shiftKey) changeExpanded();
+    }, [changeExpanded]);
 
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock type="title">
+            <TreeBlock type="title" onClick={onClickTree}>
                 {expander}
                 <span className="track-description" onClick={changeExpanded}>===Options===</span>
             </TreeBlock>

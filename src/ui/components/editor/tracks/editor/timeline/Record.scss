@@ -44,6 +44,9 @@
     &._disabled {
         border-color: rgba(255, 255, 255, 0.5);
     }
+    &._selected {
+        outline: solid 1px #888844;
+    }
 }
 
 .timeline-record-scaling {

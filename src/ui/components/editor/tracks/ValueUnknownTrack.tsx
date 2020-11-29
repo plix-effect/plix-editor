@@ -54,9 +54,28 @@ export const ValueUnknownTrack: FC<ValueUnknownTrackProps> = memo(({type, value,
         }
     }, [deleteAction, dispatch]);
 
+    const onClickDelete: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        if (deleteAction) dispatch(deleteAction);
+    }, [deleteAction, clearAction, dispatch]);
+
+    const onClickClear: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        if (clearAction) dispatch(clearAction);
+    }, [deleteAction, clearAction, dispatch]);
+
+    const rightIcons = (<>
+        {(deleteAction) && (
+            <i className="far fa-trash-alt track-tree-icon track-tree-icon-action" onClick={onClickDelete} title="delete"/>
+        )}
+        {(clearAction) && (
+            <i className="fa fa-times track-tree-icon track-tree-icon-action" onClick={onClickClear} title="clear"/>
+        )}
+    </>)
+
     return (
         <Track>
-            <TreeBlock onDragOverItem={onDragOverItemSelf} onClick={onClick} dragValue={dragValue}>
+            <TreeBlock onDragOverItem={onDragOverItemSelf} onClick={onClick} dragValue={dragValue} right={rightIcons}>
                 {children}
             </TreeBlock>
             <TimelineBlock fixed>

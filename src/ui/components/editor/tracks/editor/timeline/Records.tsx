@@ -16,7 +16,7 @@ export const Records: FC<RecordsProps> = memo(({records, path}) => {
             <Fragment>
                 {records.map((record, i) => {
                     const key = getArrayKey(records, i);
-                    const valPath: EditorPath = [...path, {key: String(key), array: records}]
+                    const valPath: EditorPath = [...path, {key: String(key)}]
                     return (
                         <Record record={record} key={key} path={valPath} />
                     );

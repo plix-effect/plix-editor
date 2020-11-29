@@ -105,7 +105,7 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
         if (valueFilter === undefined) return void (dragData.dropEffect = "none");
         dragData.dropEffect = mode;
 
-        return ["_drop-insert", () => {
+        return ["_drop-add-item", () => {
             setFilter(valueFilter);
         }]
     }, [path, dispatch]);
@@ -115,10 +115,28 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
         if (filter) inputRef.current.focus();
     }, [filter]);
 
+    const onClickAdd: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        setEmptyFilter();
+    }, [setEmptyFilter]);
+
+    const onClickClear: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        clearFilter();
+    }, [clearFilter]);
+
+    const rightIcons = (<>
+        {filter === undefined && (
+            <i className="fa fa-plus track-tree-icon track-tree-icon-action" onClick={onClickAdd} title="add filter"/>
+        )}
+        {(filter !== undefined) && (
+            <i className="fa fa-times track-tree-icon track-tree-icon-action" onClick={onClickClear} title="clear"/>
+        )}
+    </>)
 
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock type="title" onClick={onClickTree} onDragOverItem={onDragOverItemSelf}>
+            <TreeBlock type="title" onClick={onClickTree} onDragOverItem={onDragOverItemSelf} right={rightIcons}>
                 {expander}
                 <span className="track-description">Filters ({count})</span>
             </TreeBlock>

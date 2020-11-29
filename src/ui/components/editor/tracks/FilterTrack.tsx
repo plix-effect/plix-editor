@@ -22,7 +22,6 @@ import {ParseMeta} from "../../../types/ParseMeta";
 import {ValueTrack} from "./ValueTrack";
 import {useExpander} from "../track-elements/Expander";
 import {EditValueAction, MultiAction, MultiActionType} from "../PlixEditorReducerActions";
-import {FilterTypeTrack} from "./FilterTypeTrack";
 import "./tracks.scss";
 import {InlineFilterTypeEditor} from "./editor/inline/InlineFilterTypeEditor";
 import {DragType} from "../DragContext";
@@ -224,14 +223,9 @@ const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = memo(({filter,
             {leftBlock}
             <TimelineBlock fixed>
                 <span className="track-description ">
-                    <span className="track-description _desc">
-                        {filterData.description}
-                    </span>
+                    <InlineFilterTypeEditor onChange={onChange} filter={filter} />
                 </span>
             </TimelineBlock>
-
-            <FilterTypeTrack filter={filter} onChange={onChange}/>
-
             {filterData.paramDescriptions.map((paramDesc) => (
                 <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} clearAction={paramDesc.clearAction}>
                     {paramDesc.name}

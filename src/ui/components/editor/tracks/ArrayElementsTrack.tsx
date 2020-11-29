@@ -30,7 +30,7 @@ export const ArrayElementsTrack: FC<ArrayElementsTrackProps> = memo(({value, typ
     const valuesData = useMemo(() => {
         return value.map((val, i) => {
             const key = getArrayKey(value, i);
-            const valPath: EditorPath = [...path, {key: String(key), array: value}]
+            const valPath: EditorPath = [...path, {key: String(key)}]
             return {
                 elementPath: valPath,
                 key: key,

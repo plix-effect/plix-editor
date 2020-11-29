@@ -15,6 +15,7 @@ import {ArrayElementsTrack} from "./ArrayElementsTrack";
 import {EffectTypeTrack} from "./EffectTypeTrack";
 import {EffectPreview} from "./editor/EffectPreview";
 import {ConstructorContext} from "../ConstructorContext";
+import {InlineEffectTypeEditor} from "./editor/inline/InlineEffectTypeEditor";
 
 export interface ContainerEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
@@ -35,8 +36,6 @@ export const ContainerEffectTrack: FC<ContainerEffectTrackProps> = memo((
 ) => {
     const paramEffects = useMemo(() => params[0] || [], [params]);
     const paramEffectsPath = useMemo(() => [...path, 2, 0], [path]);
-    const effectWithNoFilters: PlixEffectConfigurableJsonData = useMemo(() => [enabled, effectId, params, []], [effect])
-
     const {effectConstructorMap} = useContext(ConstructorContext);
     const effectData = useMemo(() => {
         const effectConstructor = effectConstructorMap[effectId];
@@ -46,7 +45,7 @@ export const ContainerEffectTrack: FC<ContainerEffectTrackProps> = memo((
             type: meta.paramTypes[i+1],
             description: meta.paramDescriptions[i+1],
             value: params[i+1],
-            path: [...path, 2, {key: getArrayKey(params, i+1), array: params}]
+            path: [...path, 2, {key: getArrayKey(params, i+1)}]
         }))
         return {
             name: meta.name,
@@ -58,11 +57,6 @@ export const ContainerEffectTrack: FC<ContainerEffectTrackProps> = memo((
     const filtersPath = useMemo(() => [...path, 3], [path]);
     const valueFilters = useMemo(() => filters ?? [], [filters]);
 
-    const {dispatch} = useContext(TrackContext);
-    const push = useCallback(() => {
-        dispatch(PushValueAction([...path, 2, 0], null));
-    }, [path]);
-
     const clearFilters = useMemo(() => {
         return EditValueAction([...path, 3], []);
     }, [path]);
@@ -71,20 +65,8 @@ export const ContainerEffectTrack: FC<ContainerEffectTrackProps> = memo((
         <Track nested expanded={expanded}>
             {leftBlock}
             <TimelineBlock fixed>
-                {(valueFilters?.length > 0) && (
-                    <>
-                        <EffectPreview effect={effectWithNoFilters} />
-                        <i className="fas fa-long-arrow-alt-right" style={{marginLeft: 5, marginRight: 5}}/>
-                    </>
-                )}
-                <EffectPreview effect={effect} />
-                &nbsp;
-                <a onClick={push}>[add effect]</a>
-                &nbsp;
-                <span className="track-description _desc">{effectData.description}</span>
+                <InlineEffectTypeEditor onChange={onChange} effect={effect} />
             </TimelineBlock>
-
-            <EffectTypeTrack onChange={onChange} effect={effect} />
 
             <ArrayElementsTrack value={paramEffects} type="effect" path={paramEffectsPath} canDelete/>
 

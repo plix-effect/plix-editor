@@ -25,6 +25,9 @@
     background-color: #222;
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px;
+    .track-tree-block-right-content, .track-tree-drop-icon-content {
+      background-color: #222;
+    }
     &::before {
       content: "";
       position: absolute;
@@ -79,6 +82,10 @@
   }
 
   &._drop {
+    .track-tree-block-right-content {
+      display: none;
+    }
+
     &._drop-replace {
       .track-tree-icon-replace {
         display: block;
@@ -125,18 +132,40 @@
   }
   .track-tree-block-right {
     position: sticky;
-    pointer-events: none;
-    right: 0;
+    right: 5px;
+    display: inline-flex;
   }
   .track-tree-block-right-icon {
     position: absolute;
     pointer-events: none;
   }
   .track-tree-drop-icon-content {
-    margin-right: 5px;
-    background-color: black;
+    color: #88f;
+    pointer-events: none;
+    .track-tree-icon {
+      display: none;
+    }
   }
+
   .track-tree-icon {
+    width: 20px;
+    margin: 0 0 0 5px;
+  }
+
+  .track-tree-block-right-content {
     display: none;
+    .track-tree-icon {
+      cursor: pointer;
+      &._disabled {
+        cursor: none;
+      }
+      &:hover {
+        color: #88f;
+      }
+    }
+
+  }
+  &:hover .track-tree-block-right-content {
+    display: inline-flex;
   }
 }

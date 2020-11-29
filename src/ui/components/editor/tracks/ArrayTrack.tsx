@@ -125,23 +125,48 @@ export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [na
         if (!event.ctrlKey && !event.altKey && !event.shiftKey) changeExpanded();
     }, [deleteAction, dispatch, valueToPush, push]);
 
+    const onClickDelete: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        if (deleteAction) dispatch(deleteAction);
+    }, [deleteAction, clearAction, dispatch]);
+
+    const onClickAdd: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        if (valueToPush !== undefined) push();
+    }, [deleteAction, clearAction, dispatch]);
+
+    const onClickClear: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        if (clearAction) dispatch(clearAction);
+    }, [deleteAction, clearAction, dispatch]);
+
+    const rightIcons = (<>
+        {valueToPush !== undefined && (
+            <i className="fa fa-plus track-tree-icon track-tree-icon-action" onClick={onClickAdd} title={`add ${type}`}/>
+        )}
+        {(deleteAction) && (
+            <i className="far fa-trash-alt track-tree-icon track-tree-icon-action" onClick={onClickDelete} title="delete"/>
+        )}
+        {(clearAction) && (
+            <i className="fa fa-times track-tree-icon track-tree-icon-action" onClick={onClickClear} title="clear"/>
+        )}
+    </>)
+
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock onDragOverItem={onDragOverItemSelf} dragValue={dragValue} onClick={onClick}>
+            <TreeBlock onDragOverItem={onDragOverItemSelf} dragValue={dragValue} onClick={onClick} right={rightIcons}>
                 {expander}
                 <span className="track-description">{name}</span>
                 <span>{" "}</span>
                 <span className="track-description _desc">({value.length})</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                { valueToPush !== undefined && (<a onClick={push}>[add {type}]</a>)}
-                &nbsp;
                 <span className="track-description _desc">{desc}</span>
             </TimelineBlock>
             <ArrayElementsTrack value={value} type={type} path={path} canDelete/>
         </Track>
     );
-})
+});
 
 const defaultValuesMap = {
     color: 0xFF00FF80,
