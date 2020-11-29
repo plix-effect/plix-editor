@@ -114,11 +114,12 @@ const renderPixel = (pixelIndex, color) => {
     canvasCtx.beginPath();
     canvasCtx.setLineDash([5, 15]);
     canvasCtx.arc(x, y, maxPixelRadius + 1, 0, TwoPI);
-    canvasCtx.strokeStyle = "white";
+    canvasCtx.strokeStyle = "#444";
     canvasCtx.stroke();
     if (!color)
         return;
-    const radius = Math.round(Math.sqrt(color[2]) * maxPixelRadius);
+    const sizeGain = Math.min(color[2] * 2, 1);
+    const radius = Math.round(Math.sqrt(sizeGain) * maxPixelRadius);
     const { r, g, b, a } = (0,_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_3__.hslaToRgba)(color);
     canvasCtx.beginPath();
     canvasCtx.arc(x, y, radius, 0, TwoPI);

@@ -78929,9 +78929,10 @@ const AudioPlayer = () => {
             const url = URL.createObjectURL(audioFile);
             lastUrlRef.current = url;
             audioRef.current.src = url;
+            audioRef.current.load();
             audioRef.current.play().then(() => {
-                stop();
                 audioRef.current.pause();
+                stop();
             });
         }
         else {
@@ -78949,7 +78950,12 @@ const AudioPlayer = () => {
             const time = getPlayTime();
             audioRef.current.currentTime = time / 1000;
             if (lastUrlRef.current)
-                audioRef.current.play();
+                audioRef.current.play().then(() => {
+                    let time = getPlayTime();
+                    console.log("fixing time:", audioRef.current.currentTime - time / 1000);
+                    if (time !== null)
+                        audioRef.current.currentTime = time / 1000;
+                });
         }
     }, [status, playFromStamp]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("audio", { ref: audioRef, preload: "auto" }));
