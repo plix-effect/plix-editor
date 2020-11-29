@@ -1,13 +1,24 @@
-import React, {FC, useContext, useEffect, useRef} from "react";
-import {usePlaybackControl, usePlaybackStatus} from "../../PlaybackContext";
+import React, {DragEvent, FC, useCallback, useContext, useEffect, useRef} from "react";
+import {usePlaybackControl, usePlaybackData, usePlaybackStatus} from "../../PlaybackContext";
 import {ScaleDisplayContext} from "../../ScaleDisplayContext";
 
 export const TrackPlayPosition: FC = () => {
     const ref = useRef<HTMLDivElement>();
     const status = usePlaybackStatus();
-    const {getPlayTime} = usePlaybackControl();
-    const {zoom} = useContext(ScaleDisplayContext);
+    const {pauseTime} = usePlaybackData();
+    const {getPlayTime, pause} = usePlaybackControl();
+    const {zoom, timelineEl} = useContext(ScaleDisplayContext);
 
+    const onDragStart = useCallback((event: DragEvent<HTMLDivElement>) => {
+        event.dataTransfer.setDragImage(new Image(), 0, 0)
+    }, [])
+    const onDrag = useCallback((event: DragEvent<HTMLDivElement>) => {
+        if (event.pageX === 0) return;
+        const timelineBcr = timelineEl.getBoundingClientRect();
+        const pos = event.pageX - timelineBcr.left + timelineEl.scrollLeft;
+        const time = pos / zoom;
+        pause(time);
+    }, [status, zoom, timelineEl]);
 
     useEffect(() => {
         function updateTimePos(){
@@ -26,9 +37,9 @@ export const TrackPlayPosition: FC = () => {
         raf();
         return () => updateTrigger = false;
 
-    }, [status, zoom])
+    }, [status, zoom, pauseTime])
 
     return (
-        <div className="track-timeline-time-col" ref={ref}/>
+        <div className="track-timeline-time-col" draggable onDrag={onDrag} onDragStart={onDragStart} ref={ref}/>
     )
 }
