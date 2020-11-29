@@ -83610,7 +83610,7 @@ const PreviewContainer = () => {
         }
     }, [selectedItem, selectedType]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: { flexGrow: 1 } },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_canvas_CanvasPreview__WEBPACK_IMPORTED_MODULE_1__.CanvasPreview, { width: 1000, height: 50, duration: duration, count: 20, render: selectedItem, track: track })));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_canvas_CanvasPreview__WEBPACK_IMPORTED_MODULE_1__.CanvasPreview, { width: 1000, height: 50, duration: duration, count: 20, render: selectedItem !== null && selectedItem !== void 0 ? selectedItem : track.render, track: track })));
 };
 
 
