@@ -82638,6 +82638,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
 /* harmony import */ var _DisplayEffect__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./DisplayEffect */ "./src/ui/components/editor/tracks/editor/DisplayEffect.tsx");
 /* harmony import */ var _SelectionContext__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../SelectionContext */ "./src/ui/components/editor/SelectionContext.tsx");
+/* harmony import */ var _use_useEffectClass__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../../use/useEffectClass */ "./src/ui/use/useEffectClass.ts");
+
 
 
 
@@ -82649,6 +82651,7 @@ const TreeBlockEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ dragValue
     const effectIsChain = effect && effect[1] === "Chain";
     const { toggleSelect, isSelectedPath } = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_5__.useSelectionControl)();
     const selectionPath = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_5__.useSelectionPath)();
+    const effectClass = (0,_use_useEffectClass__WEBPACK_IMPORTED_MODULE_6__.useEffectClass)(effect);
     const selected = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         return isSelectedPath(path);
     }, [selectionPath]);
@@ -82670,9 +82673,14 @@ const TreeBlockEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ dragValue
             if (deleteAction || clearAction)
                 dispatch(deleteAction !== null && deleteAction !== void 0 ? deleteAction : clearAction);
         }
-        if (event.ctrlKey && !event.altKey && !event.shiftKey) {
-            if (effect)
-                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_1__.EditValueAction)([...path, 0], !effect[0]));
+        if (event.ctrlKey && event.altKey && !event.shiftKey) {
+            if (clearAction)
+                dispatch(clearAction);
+        }
+        if (!event.ctrlKey && event.altKey && event.shiftKey) {
+            if (effectClass === "timeline" || effectClass === "container") {
+                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_1__.EditValueAction)([...path, 2, 0], []));
+            }
         }
         if (!event.ctrlKey && !event.altKey && event.shiftKey) {
             if (effectIsChain) {
