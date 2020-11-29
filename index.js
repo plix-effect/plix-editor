@@ -80713,15 +80713,13 @@ const ArrayTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, type, c
         if (!dragData)
             return;
         let allowLink = dragData[type + "Link"] != null;
-        let mode = allowLink ? "link" : "none";
+        let mode = "copy";
         if (event.ctrlKey && event.shiftKey)
             mode = allowLink ? "link" : "none";
         else if (event.ctrlKey)
             mode = "copy";
         else if (event.shiftKey)
             mode = dragData.deleteAction ? "move" : "none";
-        else if (!allowLink)
-            mode = dragData.deleteAction ? "move" : "copy";
         if (mode === "none")
             return void (dragData.dropEffect = "none");
         let dragOverValue;
@@ -81043,13 +81041,14 @@ const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path,
     const { effectConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ConstructorContext__WEBPACK_IMPORTED_MODULE_13__.ConstructorContext);
     const effectClass = (0,_use_useEffectClass__WEBPACK_IMPORTED_MODULE_14__.useEffectClass)(effect);
     const onDragOverItemSelf = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, dragData) => {
+        var _a;
         const originDragHandler = onDragOverItem === null || onDragOverItem === void 0 ? void 0 : onDragOverItem(event, dragData);
         if (originDragHandler)
             return originDragHandler;
         if (!dragData)
             return;
         const allowFilters = effect !== null;
-        let mode = "none";
+        let mode = "copy";
         if (event.ctrlKey && event.shiftKey)
             mode = "link";
         else if (event.ctrlKey)
@@ -81066,57 +81065,93 @@ const EffectTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect, path,
             mode = "copy";
         if (mode === "none")
             return;
-        let valueEffect;
-        let valueFilter;
+        let valueEffects;
+        let valueFilters;
         if (mode !== "link") {
+            const typedValue = dragData.typedValue;
             if (dragData.effect !== undefined)
-                valueEffect = dragData.effect;
+                valueEffects = [dragData.effect];
             if (allowFilters && dragData.filter !== undefined)
-                valueFilter = dragData.filter;
+                valueFilters = [dragData.filter];
+            if (!valueEffects) {
+                if (typedValue && typedValue.type === "array:effect" && typedValue.value.length > 0) {
+                    valueEffects = typedValue.value;
+                }
+            }
+            if (allowFilters && !valueFilters) {
+                if (typedValue && typedValue.type === "array:filter" && typedValue.value.length > 0) {
+                    valueFilters = typedValue.value;
+                }
+            }
         }
         else {
             if (dragData.effectLink !== undefined)
-                valueEffect = dragData.effectLink;
+                valueEffects = [dragData.effectLink];
             if (allowFilters && dragData.filterLink !== undefined)
-                valueFilter = dragData.filterLink;
+                valueFilters = [dragData.filterLink];
         }
-        if (valueEffect === undefined && valueFilter === undefined)
+        if (valueEffects === undefined && valueFilters === undefined)
+            return;
+        let action;
+        if (valueEffects) {
+            if (effectClass === "container") {
+                action = (event.altKey && valueEffects.length === 1) ? "change" : "add-effects";
+            }
+            else {
+                action = "change";
+            }
+        }
+        else if (valueFilters) {
+            action = event.altKey ? "change-filters" : "add-filters";
+        }
+        if (!action)
             return;
         dragData.dropEffect = mode;
-        if (effect === valueEffect)
+        if (action === "change" && effect === valueEffects[0])
             return;
         if (mode === "move") {
-            if ((0,_utils_isObjectContains__WEBPACK_IMPORTED_MODULE_12__.isObjectEqualOrContains)(valueEffect, effect))
+            if ((0,_utils_isObjectContains__WEBPACK_IMPORTED_MODULE_12__.isObjectEqualOrContains)(valueEffects, effect))
                 return;
         }
-        if (mode === "link" && valueEffect && valueEffect[2] === alias)
+        if (action === "change" && mode === "link" && valueEffects && ((_a = valueEffects[0]) === null || _a === void 0 ? void 0 : _a[2]) === alias)
             return;
-        const addEffect = valueEffect !== undefined && effectClass === "container" && !event.altKey;
-        const changeEffect = !addEffect && valueEffect !== undefined;
-        const addFilter = !addEffect && !changeEffect && valueFilter !== undefined;
-        return [(addEffect || addFilter) ? "_drop-add-item" : "_drop-replace", () => {
+        const dropClass = (action === "change" || action === "change-filters") ? "_drop-replace" : "_drop-add-item";
+        return [dropClass, () => {
+                var _a, _b, _c, _d;
                 let changeAction;
-                if (addEffect) {
-                    changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.PushValueAction)([...path, 2, 0], valueEffect);
+                if (action === "add-effects") {
+                    const innerEffects = (_b = (_a = effect === null || effect === void 0 ? void 0 : effect[2]) === null || _a === void 0 ? void 0 : _a[0]) !== null && _b !== void 0 ? _b : [];
+                    changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.InsertValuesAction)([...path, 2, 0], innerEffects.length, valueEffects);
                 }
-                else if (addFilter) {
-                    changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.PushValueAction)([...path, 3], valueFilter);
+                else if (action === "add-filters") {
+                    const innerFilters = (_c = effect === null || effect === void 0 ? void 0 : effect[3]) !== null && _c !== void 0 ? _c : [];
+                    changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.InsertValuesAction)([...path, 3], innerFilters.length, valueFilters);
                 }
-                else if (mode === "link" && effect !== null && valueEffect !== null) {
-                    changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)(path, [true, null, valueEffect[2], effect[3]]);
+                else if (action === "change-filters") {
+                    changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)([...path, 3], valueFilters);
+                }
+                else if (action === "change") {
+                    const valueEffect = valueEffects[0];
+                    if (mode === "link" && effect !== null && valueEffect !== null) {
+                        const innerFilters = (_d = effect === null || effect === void 0 ? void 0 : effect[3]) !== null && _d !== void 0 ? _d : [];
+                        const enabled = !effect || effect[0];
+                        changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)(path, [enabled, null, valueEffect[2], innerFilters]);
+                    }
+                    else {
+                        changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)(path, valueEffect);
+                    }
                 }
                 else {
-                    changeAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)(path, valueEffect);
+                    return;
                 }
                 if (mode === "move" && dragData.deleteAction) {
                     dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.MultiAction)([changeAction, dragData.deleteAction]));
                 }
                 else {
-                    console.log("DISPATCH", changeAction);
                     dispatch(changeAction);
                 }
             }];
-    }, [onDragOverItem, path, dispatch]);
+    }, [onDragOverItem, path, dispatch, effect]);
     const onChangeEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((type, value) => {
         if (!type) {
             return dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_9__.EditValueAction)(path, null));
