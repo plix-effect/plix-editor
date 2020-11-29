@@ -8,7 +8,7 @@ import {
     useEffect,
     useCallback,
     DragEvent,
-    memo, ComponentType
+    memo
 } from "react";
 import "./PlixEditor.scss";
 import {SplitTopBottom} from "../divider/SplitTopBottom";
@@ -102,10 +102,25 @@ export const PlixEditor: FC = () => {
 
     const onDragOver = useCallback((event: DragEvent<HTMLElement>) => {
         const items = Array.from(event.dataTransfer.items);
+
+        let plixItem = items.find(item => item.kind === "string" && item.type === "plix/localstorage");
+        if (plixItem) {
+            if (dragRef.current) return;
+            const storageValue = localStorage.getItem("plix_editor_drag");
+            if (!storageValue) return;
+            const dragValue = JSON.parse(storageValue);
+            delete dragValue.offsetX;
+            delete dragValue.offsetY;
+            delete dragValue.deleteAction;
+            delete dragValue.filterLink;
+            delete dragValue.effectLink;
+            dragRef.current = dragValue;
+            return;
+        }
         let jsonItem = items.find(item => item.kind === "file" && item.type === "application/json");
         let audioItem = items.find(item => item.kind === "file" && item.type === "audio/mpeg");
         if (jsonItem || audioItem) event.preventDefault();
-    }, []);
+    }, [dragRef]);
 
     const onDrop = useCallback(async (event: DragEvent<HTMLElement>) => {
         const items = Array.from(event.dataTransfer.items);

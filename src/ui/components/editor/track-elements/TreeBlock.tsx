@@ -50,6 +50,8 @@ export const TreeBlock: FC<TreeBlockProps> = (
             offsetX: event.nativeEvent.offsetX,
             offsetY: event.nativeEvent.offsetY,
         }
+        localStorage.setItem("plix_editor_drag", JSON.stringify(dragRef.current));
+        event.dataTransfer.setData("plix/localstorage", "");
         blockRef.current.classList.add("_drag");
         event.stopPropagation();
         event.dataTransfer.setDragImage(new Image(), 0, 0);
