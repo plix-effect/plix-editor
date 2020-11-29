@@ -19,10 +19,12 @@ export const AudioPlayer: FC = () => {
             const url = URL.createObjectURL(audioFile);
             lastUrlRef.current = url;
             audioRef.current.src = url;
+            audioRef.current.load();
+
             // preload audio
             audioRef.current.play().then(() => {
-                stop();
                 audioRef.current.pause();
+                stop();
             });
         } else {
             lastUrlRef.current = "";
@@ -39,7 +41,12 @@ export const AudioPlayer: FC = () => {
         } else {
             const time = getPlayTime();
             audioRef.current.currentTime = time/1000;
-            if (lastUrlRef.current) audioRef.current.play();
+            if (lastUrlRef.current) audioRef.current.play().then(() => {
+                // fix loading time
+                let time = getPlayTime();
+                console.log("fixing time:", audioRef.current.currentTime-time/1000);
+                if (time !== null) audioRef.current.currentTime = time/1000;
+            });
         }
     }, [status, playFromStamp])
 
