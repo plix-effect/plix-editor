@@ -63,11 +63,10 @@ export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [na
 
         let allowLink = dragData[type+"Link"] != null;
 
-        let mode: "copy"|"move"|"link"|"none" = allowLink ? "link" : "none";
+        let mode: "copy"|"move"|"link"|"none" = "copy";
         if (event.ctrlKey && event.shiftKey) mode = allowLink ? "link" : "none";
         else if (event.ctrlKey) mode = "copy";
         else if (event.shiftKey) mode = dragData.deleteAction ? "move" : "none";
-        else if (!allowLink) mode = dragData.deleteAction ? "move" : "copy";
 
         if (mode === "none") return void (dragData.dropEffect = "none");
 
