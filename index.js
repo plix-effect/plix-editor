@@ -79246,11 +79246,27 @@ const PlixEditor = () => {
     }), [setAudioFile]);
     const onDragOver = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         const items = Array.from(event.dataTransfer.items);
+        let plixItem = items.find(item => item.kind === "string" && item.type === "plix/localstorage");
+        if (plixItem) {
+            if (dragRef.current)
+                return;
+            const storageValue = localStorage.getItem("plix_editor_drag");
+            if (!storageValue)
+                return;
+            const dragValue = JSON.parse(storageValue);
+            delete dragValue.offsetX;
+            delete dragValue.offsetY;
+            delete dragValue.deleteAction;
+            delete dragValue.filterLink;
+            delete dragValue.effectLink;
+            dragRef.current = dragValue;
+            return;
+        }
         let jsonItem = items.find(item => item.kind === "file" && item.type === "application/json");
         let audioItem = items.find(item => item.kind === "file" && item.type === "audio/mpeg");
         if (jsonItem || audioItem)
             event.preventDefault();
-    }, []);
+    }, [dragRef]);
     const onDrop = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => __awaiter(void 0, void 0, void 0, function* () {
         const items = Array.from(event.dataTransfer.items);
         let audioItem = items.find(item => item.kind === "file" && item.type === "audio/mpeg");
@@ -80408,6 +80424,8 @@ const TreeBlock = ({ children, selected = false, title, type = "default", dragVa
     const onDropActionRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const onDragStart = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         dragRef.current = Object.assign(Object.assign({}, dragValue), { offsetX: event.nativeEvent.offsetX, offsetY: event.nativeEvent.offsetY });
+        localStorage.setItem("plix_editor_drag", JSON.stringify(dragRef.current));
+        event.dataTransfer.setData("plix/localstorage", "");
         blockRef.current.classList.add("_drag");
         event.stopPropagation();
         event.dataTransfer.setDragImage(new Image(), 0, 0);
