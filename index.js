@@ -82646,19 +82646,6 @@ const TreeBlockEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ dragValue
     const selected = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         return isSelectedPath(path);
     }, [selectionPath]);
-    const title = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
-        if (!deleteAction && !dragValue)
-            return undefined;
-        let title = "Ctrl + Click = disable\n";
-        if (deleteAction)
-            title += "Alt + Click = delete\n";
-        if (effectClass === "container")
-            title += "Shift + Click = add effect\n";
-        if (dragValue) {
-            title += "Draggable\n";
-        }
-        return title;
-    }, [deleteAction, dragValue]);
     const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(({ ctrlKey, altKey, shiftKey }) => {
         if (!ctrlKey && altKey && !shiftKey) {
             if (deleteAction || clearAction)
@@ -82672,6 +82659,10 @@ const TreeBlockEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ dragValue
             if (effectClass === "timeline" || effectClass === "container") {
                 dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_1__.EditValueAction)([...path, 2, 0], []));
             }
+        }
+        if (ctrlKey && !altKey && !shiftKey) {
+            if (effect)
+                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_1__.EditValueAction)([...path, 0], !effect[0]));
         }
         if (!ctrlKey && !altKey && shiftKey) {
             if (effectClass === "container") {
@@ -82700,7 +82691,7 @@ const TreeBlockEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ dragValue
     const rightIcons = (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
         effectClass === "container" && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-plus track-tree-icon track-tree-icon-action", onClick: onClickAdd, title: "add effect" })),
         (deleteAction || clearAction) && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "far fa-trash-alt track-tree-icon track-tree-icon-action", onClick: onClickDelete, title: "delete" }))));
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, { dragValue: dragValue, onClick: onClick, title: title, onDragOverItem: onDragOverItem, selected: selected, right: rightIcons },
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, { dragValue: dragValue, onClick: onClick, onDragOverItem: onDragOverItem, selected: selected, right: rightIcons },
         expander,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description" }, children),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null, " "),
