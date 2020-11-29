@@ -86,9 +86,9 @@ const renderEmptyPixels = () => {
 const renderTime = (time) => {
     clearCanvas();
     const count = renderData.count;
+    const line = parsedData.effect(time, renderData.duration);
     for (let i = 0; i < count; i++) {
-        const line = parsedData.effect(time, renderData.duration);
-        const mod = line(i, 10);
+        const mod = line(i, count);
         const color = mod([0, 0, 0, 0]);
         renderPixel(i, color);
     }
