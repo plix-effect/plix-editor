@@ -79154,6 +79154,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _SelectionContext__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./SelectionContext */ "./src/ui/components/editor/SelectionContext.tsx");
 /* harmony import */ var _AudioPlayer__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./AudioPlayer */ "./src/ui/components/editor/AudioPlayer.tsx");
 /* harmony import */ var _utils_Mp3Meta__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../../utils/Mp3Meta */ "./src/ui/utils/Mp3Meta.ts");
+/* harmony import */ var _preview_PreviewContainer__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../preview/PreviewContainer */ "./src/ui/components/preview/PreviewContainer.tsx");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -79163,6 +79164,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
 
 
 
@@ -79305,8 +79307,8 @@ const PlixEditor = () => {
                                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackEditor__WEBPACK_IMPORTED_MODULE_3__.TrackEditor, null),
                                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_divider_SplitLeftRight__WEBPACK_IMPORTED_MODULE_13__.SplitLeftRight, { minLeft: 100, minRight: 200, storageKey: "btm" },
                                         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: { flexGrow: 1, backgroundColor: "green" } }, "libs"),
-                                        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
-                                            "canvas or",
+                                        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: { flexGrow: 1, backgroundColor: "green", display: "flex", flexDirection: "column" } },
+                                            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_preview_PreviewContainer__WEBPACK_IMPORTED_MODULE_17__.PreviewContainer, null),
                                             react__WEBPACK_IMPORTED_MODULE_0__.createElement(ShowSelectedElement, null))))))))))));
 };
 const ShowSelectedElement = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(() => {
@@ -82828,12 +82830,10 @@ const InlineColorEditor = ({ color, onChange }) => {
     const styleColor = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => getStyleColor(hslaColor), [hslaColor]);
     const [colorPickerValue, setColorPickerValue] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)((0,_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_4__.hslaToRgba)(hslaColor));
     const handleChange = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((changedColor) => {
-        console.log("change", changedColor.rgb);
         setColorPickerValue(changedColor.rgb);
     }, [onChange]);
     const submit = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
         const newColor = toSaveColor(colorPickerValue);
-        console.log("NEW COLOR", newColor, colorPickerValue);
         onChange(newColor);
     }, [colorPickerValue, onChange]);
     const trigger = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
@@ -83562,6 +83562,170 @@ function hatchRect(ctx, x1, y1, dx, dy, delta, color) {
 
 /***/ }),
 
+/***/ "./src/ui/components/preview/PreviewContainer.tsx":
+/*!********************************************************!*\
+  !*** ./src/ui/components/preview/PreviewContainer.tsx ***!
+  \********************************************************/
+/*! namespace exports */
+/*! export PreviewContainer [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "PreviewContainer": () => /* binding */ PreviewContainer
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _canvas_CanvasPreview__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./canvas/CanvasPreview */ "./src/ui/components/preview/canvas/CanvasPreview.tsx");
+/* harmony import */ var _editor_SelectionContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../editor/SelectionContext */ "./src/ui/components/editor/SelectionContext.tsx");
+/* harmony import */ var _editor_TrackContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../editor/TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+
+
+
+
+
+const PreviewContainer = () => {
+    var _a, _b, _c;
+    const path = (0,_editor_SelectionContext__WEBPACK_IMPORTED_MODULE_2__.useSelectionPath)();
+    const { selectedType, selectedItem } = (_a = (0,_editor_SelectionContext__WEBPACK_IMPORTED_MODULE_2__.useSelectionItem)()) !== null && _a !== void 0 ? _a : {};
+    const { track } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_editor_TrackContext__WEBPACK_IMPORTED_MODULE_3__.TrackContext);
+    const trackDuration = (_c = (_b = track === null || track === void 0 ? void 0 : track['editor']) === null || _b === void 0 ? void 0 : _b['duration']) !== null && _c !== void 0 ? _c : 60 * 1000;
+    const duration = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        if (!selectedItem)
+            return -1;
+        if (selectedType === "effect" && path.length === 1 && path[0] === "render") {
+            return trackDuration;
+        }
+        else {
+            return 3000;
+        }
+    }, [selectedItem, selectedType]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: { flexGrow: 1 } },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_canvas_CanvasPreview__WEBPACK_IMPORTED_MODULE_1__.CanvasPreview, { width: 1000, height: 50, duration: duration, count: 20, render: selectedItem, track: track })));
+};
+
+
+/***/ }),
+
+/***/ "./src/ui/components/preview/canvas/CanvasPreview.tsx":
+/*!************************************************************!*\
+  !*** ./src/ui/components/preview/canvas/CanvasPreview.tsx ***!
+  \************************************************************/
+/*! namespace exports */
+/*! export CanvasPreview [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.p, __webpack_require__.b, __webpack_require__.u, __webpack_require__.d, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "CanvasPreview": () => /* binding */ CanvasPreview
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../utils/isArraysEqual */ "./src/ui/utils/isArraysEqual.ts");
+/* harmony import */ var _editor_PlaybackContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../editor/PlaybackContext */ "./src/ui/components/editor/PlaybackContext.tsx");
+
+
+
+
+const createPreviewCanvasWorker = () => new Worker(new URL(/* worker import */ __webpack_require__.p + __webpack_require__.u("src_ui_components_preview_canvas_worker_CanvasPreviewWorker_ts"), __webpack_require__.b));
+const CanvasPreview = ({ duration, width, count, height, render, track }) => {
+    const [canvas, setCanvas] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
+    const workerRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const lastUsedSize = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)([]);
+    const lastUsedEffectRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const lastUsedEffectNames = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const lastUsedFilterNames = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const lastUsedEffects = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const lastUsedFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const playbackStatus = (0,_editor_PlaybackContext__WEBPACK_IMPORTED_MODULE_2__.usePlaybackStatus)();
+    const { playFromStamp } = (0,_editor_PlaybackContext__WEBPACK_IMPORTED_MODULE_2__.usePlaybackData)();
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        if (!canvas)
+            return;
+        workerRef.current = createPreviewCanvasWorker();
+        const msg = {
+            type: "init",
+            canvas: canvas.transferControlToOffscreen(),
+            performanceValue: performance.now()
+        };
+        workerRef.current.addEventListener("message", (event) => {
+            const data = event.data;
+            if (data.type !== "deps")
+                return;
+            const [usedEffectNames, usedFilterNames] = data.deps;
+            lastUsedEffectNames.current = usedEffectNames;
+            lastUsedFilterNames.current = usedFilterNames;
+            lastUsedEffects.current = usedEffectNames.map(name => track.effects[name]);
+            lastUsedFilters.current = usedFilterNames.map(name => track.filters[name]);
+        });
+        workerRef.current.postMessage(msg, [msg.canvas]);
+        return () => {
+            workerRef.current.terminate();
+        };
+    }, [canvas]);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        if (!workerRef.current)
+            return;
+        function isRerenderRequired() {
+            if (!(0,_utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_1__.isArraysEqual)(lastUsedSize.current, [duration, count, width, height])) {
+                return true;
+            }
+            if (lastUsedEffectRef.current !== render) {
+                return true;
+            }
+            if (!lastUsedEffectNames.current || !lastUsedFilterNames.current) {
+                return true;
+            }
+            const usedEffects = lastUsedEffectNames.current.map(name => track.effects[name]);
+            if (!(0,_utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_1__.isArraysEqual)(lastUsedEffects.current, usedEffects)) {
+                return true;
+            }
+            const usedFilters = lastUsedFilterNames.current.map(name => track.filters[name]);
+            return !(0,_utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_1__.isArraysEqual)(lastUsedFilters.current, usedFilters);
+        }
+        if (!isRerenderRequired())
+            return;
+        lastUsedSize.current = [duration, count, width, height];
+        lastUsedEffectRef.current = render;
+        lastUsedEffectNames.current = null;
+        lastUsedFilterNames.current = null;
+        const message = { type: "render", data: { width, height, render, track, duration, count } };
+        workerRef.current.postMessage(message, []);
+    }, [canvas, width, height, duration, count, render, track.filters, track.effects]);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        if (!workerRef.current)
+            return;
+        const msg = {
+            type: "playback_status",
+            status: playbackStatus
+        };
+        workerRef.current.postMessage(msg, []);
+        const msgSync = {
+            type: "sync_performance",
+            value: performance.now()
+        };
+        workerRef.current.postMessage(msgSync, []);
+    }, [playbackStatus, workerRef.current]);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        if (!workerRef.current || playFromStamp === null)
+            return;
+        const msg = {
+            type: "playback_data",
+            playFromStamp: playFromStamp
+        };
+        workerRef.current.postMessage(msg, []);
+    }, [playFromStamp, workerRef.current]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas })));
+};
+
+
+/***/ }),
+
 /***/ "./src/ui/components/timeline/PortalContext.ts":
 /*!*****************************************************!*\
   !*** ./src/ui/components/timeline/PortalContext.ts ***!
@@ -84019,6 +84183,38 @@ function generateColorByText(value, s = 1, l = 0.5, a = 1) {
 
 /***/ }),
 
+/***/ "./src/ui/utils/isArraysEqual.ts":
+/*!***************************************!*\
+  !*** ./src/ui/utils/isArraysEqual.ts ***!
+  \***************************************/
+/*! namespace exports */
+/*! export isArraysEqual [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "isArraysEqual": () => /* binding */ isArraysEqual
+/* harmony export */ });
+function isArraysEqual(arrA, arrB) {
+    if (arrA === arrB)
+        return true;
+    if (!arrA || !arrB)
+        return false;
+    if (arrA.length !== arrB.length)
+        return false;
+    for (let i = 0; i < arrA.length; i++) {
+        if (!Object.is(arrA[i], arrB[i]))
+            return false;
+    }
+    return true;
+}
+
+
+/***/ }),
+
 /***/ "./src/ui/utils/isObjectContains.ts":
 /*!******************************************!*\
   !*** ./src/ui/utils/isObjectContains.ts ***!
@@ -84080,6 +84276,9 @@ function isObjectEqualOrContains(target, value) {
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = __webpack_modules__;
+/******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat get default export */
 /******/ 	(() => {
@@ -84102,6 +84301,15 @@ function isObjectEqualOrContains(target, value) {
 /******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
 /******/ 				}
 /******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/get javascript chunk filename */
+/******/ 	(() => {
+/******/ 		// This function allow to reference async chunks
+/******/ 		__webpack_require__.u = (chunkId) => {
+/******/ 			// return url for filenames based on template
+/******/ 			return "" + chunkId + ".js";
 /******/ 		};
 /******/ 	})();
 /******/ 	
@@ -84155,6 +84363,53 @@ function isObjectEqualOrContains(target, value) {
 /******/ 			if (!module.children) module.children = [];
 /******/ 			return module;
 /******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/publicPath */
+/******/ 	(() => {
+/******/ 		var scriptUrl;
+/******/ 		if (__webpack_require__.g.importScripts) scriptUrl = __webpack_require__.g.location + "";
+/******/ 		var document = __webpack_require__.g.document;
+/******/ 		if (!scriptUrl && document) {
+/******/ 			if (document.currentScript)
+/******/ 				scriptUrl = document.currentScript.src
+/******/ 			if (!scriptUrl) {
+/******/ 				var scripts = document.getElementsByTagName("script");
+/******/ 				if(scripts.length) scriptUrl = scripts[scripts.length - 1].src
+/******/ 			}
+/******/ 		}
+/******/ 		// When supporting browsers where an automatic publicPath is not supported you must specify an output.publicPath manually via configuration
+/******/ 		// or pass an empty string ("") and set the __webpack_public_path__ variable from your code to use your own logic.
+/******/ 		if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
+/******/ 		scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\?.*$/, "").replace(/\/[^\/]+$/, "/");
+/******/ 		__webpack_require__.p = scriptUrl;
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/jsonp chunk loading */
+/******/ 	(() => {
+/******/ 		__webpack_require__.b = document.baseURI || self.location.href;
+/******/ 		
+/******/ 		// object to store loaded and loading chunks
+/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
+/******/ 		// Promise = chunk loading, 0 = chunk loaded
+/******/ 		var installedChunks = {
+/******/ 			"index": 0
+/******/ 		};
+/******/ 		
+/******/ 		
+/******/ 		// no chunk on demand loading
+/******/ 		
+/******/ 		// no prefetching
+/******/ 		
+/******/ 		// no preloaded
+/******/ 		
+/******/ 		// no HMR
+/******/ 		
+/******/ 		// no HMR manifest
+/******/ 		
+/******/ 		// no deferred startup
+/******/ 		
+/******/ 		// no jsonp function
 /******/ 	})();
 /******/ 	
 /************************************************************************/
