@@ -39,37 +39,60 @@ const handleSyncPerformanceMsg = (msg: CanvasPreviewWkInMsgSyncPerformance) => {
     performanceOffset = msg.value - performance.now();
 }
 const handlePlaybackStatusMsg = (msg: CanvasPreviewWkInMsgPlaybackStatus) => {
-    status = msg.status
+    status = msg.status;
+    if (parsedData != null && status === "play") {
+        startRendering();
+        return;
+    }
+    if (status === "stop" && renderData != null) {
+        renderEmptyPixels();
+        return;
+    }
 }
 const handlePlaybackData = (msg: CanvasPreviewWkInMsgPlaybackData) => {
-    playFromTimestamp = msg.playFromTimestamp - performanceOffset;
+    playFromTimestamp = msg.playFromStamp - performanceOffset;
 }
 const handleRenderMsg = (msg: CanvasPreviewWkInMsgRender) => {
     renderData = msg.data;
     const effectData = renderData.render;
     const track = renderData.track;
-    parsedData = parseRender(effectData, track.effects, track.filters, effectConstructorMap, filterConstructorMap );
-    const effectKeys = Object.keys(parsedData.effectsMap).sort();
-    const filterKeys = Object.keys(parsedData.filtersMap).sort();
-    self.postMessage([effectKeys, filterKeys], []);
+    parsedData = null;
+    if (effectData != null) {
+        parsedData = parseRender(effectData, track.effects, track.filters, effectConstructorMap, filterConstructorMap);
+        const effectKeys = Object.keys(parsedData.effectsMap).sort();
+        const filterKeys = Object.keys(parsedData.filtersMap).sort();
+        self.postMessage([effectKeys, filterKeys], []);
+    }
 
     canvas.width = msg.data.width;
     canvas.height = msg.data.height;
 
-    // ToDo start rendering;
-    console.log("try render")
-    renderTime(1000);
+    if (status === "play") {
+        startRendering();
+    } else {
+        renderEmptyPixels();
+    }
+}
+
+const clearCanvas = () => {
+    canvasCtx.fillStyle = "black";
+    canvasCtx.fillRect(0,0, ...getCanvasSize());
+}
+
+const renderEmptyPixels = () => {
+    clearCanvas();
+    const count = renderData.count;
+    for (let i = 0; i < count; i++) {
+        renderPixel(i);
+    }
 }
 
 const renderTime = (time: number) => {
-    // canvasCtx.clearRect(0,0, ...getCanvasSize());
-    canvasCtx.fillStyle = "black";
-    canvasCtx.fillRect(0,0, ...getCanvasSize());
+    clearCanvas();
     const count = renderData.count;
-    console.log("RENDER",time,renderData.duration)
     for (let i = 0; i < count; i++) {
         const line = parsedData.effect(time, renderData.duration);
-        const mod = line(i, 1);
+        const mod = line(i, 10);
         const color = mod([0,0,0,0]);
         renderPixel(i, color);
     }
@@ -77,9 +100,9 @@ const renderTime = (time: number) => {
 
 const startPixelCoord = [25,25];
 const maxPixelRadius = 15;
-const distanceBetweenPixels = 40;
+const distanceBetweenPixels = 42;
 const TwoPI = 2 * Math.PI;
-const renderPixel = (pixelIndex: number, color: HSLAColor) => {
+const renderPixel = (pixelIndex: number, color?: HSLAColor) => {
     let [x,y] = startPixelCoord;
     x = x+(pixelIndex*distanceBetweenPixels);
     canvasCtx.beginPath();
@@ -87,12 +110,26 @@ const renderPixel = (pixelIndex: number, color: HSLAColor) => {
     canvasCtx.arc(x, y, maxPixelRadius+1, 0, TwoPI);
     canvasCtx.strokeStyle = "white";
     canvasCtx.stroke();
+    if (!color) return;
     const radius = Math.round(Math.sqrt(color[2])*maxPixelRadius); // L
     const {r,g,b,a} = hslaToRgba(color);
     canvasCtx.beginPath();
     canvasCtx.arc(x, y, radius, 0, TwoPI);
     canvasCtx.fillStyle = `rgba(${r},${g},${b},${a})`;
     canvasCtx.fill();
+}
+
+let rafRenderProcessId: Symbol
+const startRendering = () => {
+    const currentRafProcessId = rafRenderProcessId = Symbol();
+
+    function doRender() {
+        if (currentRafProcessId !== rafRenderProcessId || status !== "play") return;
+        requestAnimationFrame(doRender);
+        const time = performance.now() - playFromTimestamp;
+        renderTime(time);
+    }
+    doRender();
 }
 
 onmessage = (event) => {
@@ -131,7 +168,7 @@ export interface CanvasPreviewWkInMsgSyncPerformance {
 
 export interface CanvasPreviewWkInMsgPlaybackData {
     type: "playback_data",
-    playFromTimestamp: number
+    playFromStamp: number
 }
 export interface CanvasPreviewWkInMsgPlaybackStatus {
     type: "playback_status",
@@ -149,4 +186,4 @@ export type CanvasPreviewWkOutMsg =
 export interface CanvasPreviewWkOutMsgDeps {
     type: "deps"
     deps: [string[], string[]]
-}
+};

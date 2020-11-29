@@ -19,13 +19,11 @@ export const InlineColorEditor: FC<InlineColorEditorProps> = ({color, onChange})
     const [colorPickerValue, setColorPickerValue] = useState(hslaToRgba(hslaColor))
 
     const handleChange = useCallback((changedColor) => {
-        console.log("change",changedColor.rgb)
         setColorPickerValue(changedColor.rgb);
     }, [onChange]);
 
     const submit = useCallback(() => {
         const newColor = toSaveColor(colorPickerValue);
-        console.log("NEW COLOR",newColor,colorPickerValue)
         onChange(newColor);
     }, [colorPickerValue, onChange])
 

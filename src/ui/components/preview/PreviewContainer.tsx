@@ -12,7 +12,6 @@ export const PreviewContainer: FC = () => {
     const {track} = useContext(TrackContext);
     const trackDuration = track?.['editor']?.['duration'] ?? 60*1000;
 
-    console.log("TRACKDUR",trackDuration)
     const duration = useMemo(() => {
         if (!selectedItem) return -1;
         if (selectedType === "effect" && path.length === 1 && path[0] === "render") {
@@ -24,7 +23,7 @@ export const PreviewContainer: FC = () => {
 
     return (
         <div style={{flexGrow: 1}}>
-            <CanvasPreview width={500} height={100} duration={duration} count={10} render={selectedItem} track={track}/>
+            <CanvasPreview width={1000} height={50} duration={duration} count={20} render={selectedItem} track={track}/>
         </div>
     )
 }

@@ -2,8 +2,8 @@ import * as React from "react";
 import {FC, useEffect, useRef, useState} from "react";
 import {PlixEffectJsonData, PlixJsonData} from "@plix-effect/core/dist/types/parser";
 import type {
-    CanvasPreviewWkInMsgInit,
-    CanvasPreviewWkInMsgRender,
+    CanvasPreviewWkInMsgInit, CanvasPreviewWkInMsgPlaybackData, CanvasPreviewWkInMsgPlaybackStatus,
+    CanvasPreviewWkInMsgRender, CanvasPreviewWkInMsgSyncPerformance,
     CanvasPreviewWkOutMsg
 } from "./worker/CanvasPreviewWorker";
 import {isArraysEqual} from "../../../utils/isArraysEqual";
@@ -30,7 +30,7 @@ export const CanvasPreview:FC<CanvasPreviewProps> = ({duration, width, count, he
     const lastUsedEffects = useRef<any[]>();
     const lastUsedFilters = useRef<any[]>();
 
-    const status = usePlaybackStatus();
+    const playbackStatus = usePlaybackStatus();
     const {playFromStamp} = usePlaybackData()
 
     useEffect(() => {
@@ -88,8 +88,32 @@ export const CanvasPreview:FC<CanvasPreviewProps> = ({duration, width, count, he
 
         const message: CanvasPreviewWkInMsgRender = {type: "render", data: {width, height, render, track, duration, count}};
 
-        workerRef.current.postMessage(message);
+        workerRef.current.postMessage(message, []);
     }, [canvas, width, height, duration, count, render, track.filters, track.effects]);
+
+    useEffect(() => {
+        if (!workerRef.current) return;
+        const msg: CanvasPreviewWkInMsgPlaybackStatus = {
+            type:"playback_status",
+            status: playbackStatus
+        }
+        workerRef.current.postMessage(msg, [])
+        const msgSync: CanvasPreviewWkInMsgSyncPerformance = {
+            type:"sync_performance",
+            value: performance.now()
+        }
+        workerRef.current.postMessage(msgSync, [])
+    }, [playbackStatus, workerRef.current])
+
+
+    useEffect(() => {
+        if (!workerRef.current || playFromStamp === null) return;
+        const msg: CanvasPreviewWkInMsgPlaybackData = {
+            type:"playback_data",
+            playFromStamp: playFromStamp
+        }
+        workerRef.current.postMessage(msg, [])
+    }, [playFromStamp, workerRef.current])
 
     return (
         <div>
