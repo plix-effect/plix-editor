@@ -24,6 +24,7 @@ let canvas;
 let canvasCtx;
 let performanceOffset;
 let status;
+let lastPauseTime;
 let playFromTimestamp;
 let renderData;
 let parsedData;
@@ -45,7 +46,8 @@ const handlePlaybackStatusMsg = (msg) => {
         return;
     }
     if (parsedData != null && status === "pause") {
-        renderTime(msg.pauseTime);
+        lastPauseTime = msg.pauseTime;
+        renderTime(lastPauseTime);
         return;
     }
     if (status === "stop" && renderData != null) {
@@ -72,6 +74,9 @@ const handleRenderMsg = (msg) => {
     if (status === "play") {
         startRendering();
     }
+    else if (status === "pause") {
+        renderTime(lastPauseTime);
+    }
     else {
         renderEmptyPixels();
     }
@@ -89,6 +94,8 @@ const renderEmptyPixels = () => {
 };
 const renderTime = (time) => {
     clearCanvas();
+    if (!parsedData)
+        return;
     const count = renderData.count;
     const line = parsedData.effect(time, renderData.duration);
     for (let i = 0; i < count; i++) {
