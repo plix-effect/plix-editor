@@ -81468,6 +81468,10 @@ const GroupEffectsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effects
     const onClickTree = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         if (!event.ctrlKey && event.altKey && !event.shiftKey)
             clearEffect();
+        if (!event.ctrlKey && !event.altKey && event.shiftKey) {
+            if (effect === undefined)
+                setEmptyEffect();
+        }
         if (!event.ctrlKey && !event.altKey && !event.shiftKey)
             changeExpanded();
     }, [dispatch]);
@@ -81524,6 +81528,10 @@ const GroupEffectsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effects
     const rightIcons = (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
         effect === undefined && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-plus track-tree-icon track-tree-icon-action", onClick: onClickAdd, title: "add effect" })),
         (effect !== undefined) && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-times track-tree-icon track-tree-icon-action", onClick: onClickClear, title: "clear" }))));
+    const onKeyDown = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        if (event.nativeEvent.code === "Escape")
+            clearEffect();
+    }, []);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_4__.TreeBlock, { type: "title", onClick: onClickTree, onDragOverItem: onDragOverItemSelf, right: rightIcons },
             expander,
@@ -81532,11 +81540,14 @@ const GroupEffectsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effects
                 count,
                 ")")),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_5__.TimelineBlock, { type: "title", fixed: true, onClick: onClickTimeline },
-            effect === undefined && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { onClick: setEmptyEffect }, "[add]")),
+            effect === undefined && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" }, "Effect prefabs"),
+                "\u00A0",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { onClick: setEmptyEffect }, "[add]"))),
             effect !== undefined && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_DisplayEffect__WEBPACK_IMPORTED_MODULE_9__.DisplayEffect, { effect: effect }),
                 "\u00A0",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", { style: { margin: 0 }, onSubmit: onSubmit, onReset: clearEffect },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", { style: { margin: 0 }, onSubmit: onSubmit, onReset: clearEffect, onKeyDown: onKeyDown },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { autoFocus: true, ref: inputRef, type: "text", placeholder: "prefab name", value: name, onChange: onEditName }),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { type: "submit", onClick: add, disabled: !name || name in effectsMap }, "add"),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { type: "reset" }, "cancel"))))),
@@ -81621,6 +81632,10 @@ const GroupFiltersTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ filters
     const onClickTree = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         if (!event.ctrlKey && event.altKey && !event.shiftKey)
             clearFilter();
+        if (!event.ctrlKey && !event.altKey && event.shiftKey) {
+            if (filter === undefined)
+                setEmptyFilter();
+        }
         if (!event.ctrlKey && !event.altKey && !event.shiftKey)
             changeExpanded();
     }, [dispatch]);
@@ -81632,6 +81647,10 @@ const GroupFiltersTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ filters
         event.preventDefault();
         add();
     }, [add]);
+    const onKeyDown = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        if (event.nativeEvent.code === "Escape")
+            clearFilter();
+    }, []);
     const onDragOverItemSelf = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, dragData) => {
         if (!dragData)
             return;
@@ -81677,6 +81696,10 @@ const GroupFiltersTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ filters
     const rightIcons = (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
         filter === undefined && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-plus track-tree-icon track-tree-icon-action", onClick: onClickAdd, title: "add filter" })),
         (filter !== undefined) && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-times track-tree-icon track-tree-icon-action", onClick: onClickClear, title: "clear" }))));
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        if (filter)
+            inputRef.current.focus();
+    }, [filter]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_4__.TreeBlock, { type: "title", onClick: onClickTree, onDragOverItem: onDragOverItemSelf, right: rightIcons },
             expander,
@@ -81685,12 +81708,15 @@ const GroupFiltersTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ filters
                 count,
                 ")")),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_5__.TimelineBlock, { type: "title", fixed: true, onClick: onClickTimeline },
-            filter === undefined && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { onClick: setEmptyFilter }, "[add]")),
+            filter === undefined && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" }, "Filter prefabs"),
+                "\u00A0",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { onClick: setEmptyFilter }, "[add]"))),
             filter !== undefined && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_DisplayFilter__WEBPACK_IMPORTED_MODULE_8__.DisplayFilter, { filter: filter }),
                 "\u00A0",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", { style: { margin: 0 }, onSubmit: onSubmit, onReset: clearFilter },
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { ref: inputRef, type: "text", placeholder: "prefab name", value: name, onChange: onEditName }),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", { style: { margin: 0 }, onSubmit: onSubmit, onReset: clearFilter, onKeyDown: onKeyDown },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { autoFocus: true, ref: inputRef, type: "text", placeholder: "prefab name", value: name, onChange: onEditName }),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { type: "submit", onClick: add, disabled: !name || name in filtersMap }, "add"),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { type: "reset" }, "cancel"))))),
         aliasesList.map(alias => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(AliasFilterTrack, { name: alias.name, path: alias.path, key: alias.name, value: alias.value })))));
@@ -81743,8 +81769,9 @@ const GroupOptionsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ options
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_3__.TreeBlock, { type: "title", onClick: onClickTree },
             expander,
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description", onClick: changeExpanded }, "===Options===")),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_4__.TimelineBlock, { type: "title", fixed: true }, "options"),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description", onClick: changeExpanded }, "Options")),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_4__.TimelineBlock, { type: "title", fixed: true },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" }, "track options")),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { path: durationPath, value: (_a = options === null || options === void 0 ? void 0 : options['duration']) !== null && _a !== void 0 ? _a : null, type: "number", description: "duration in milliseconds" }, "Track duration"),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { path: countPath, value: (_b = options === null || options === void 0 ? void 0 : options['count']) !== null && _b !== void 0 ? _b : null, type: "number", description: "number of pixels" }, "Pixels")));
 });
@@ -82096,11 +82123,11 @@ __webpack_require__.r(__webpack_exports__);
 const DisplayEffect = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ effect }) => {
     var _a, _b;
     const { effectConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ConstructorContext__WEBPACK_IMPORTED_MODULE_2__.ConstructorContext);
+    const effectClass = (0,_use_useEffectClass__WEBPACK_IMPORTED_MODULE_3__.useEffectClass)(effect);
     if (!effect) {
         return react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _empty" }, "empty");
     }
     const [enabled, id, params = [], filters = []] = effect;
-    const effectClass = (0,_use_useEffectClass__WEBPACK_IMPORTED_MODULE_3__.useEffectClass)(effect);
     if (id) {
         const effectConstructor = effectConstructorMap[id];
         const meta = effectConstructor['meta'];
