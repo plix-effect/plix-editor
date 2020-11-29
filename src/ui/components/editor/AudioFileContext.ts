@@ -1,3 +1,6 @@
 import {createContext} from "react";
-
-export const AudioFileContext = createContext<File|null>(null)
+export interface AudioFileContextProps {
+    audioFile: File|null,
+    setAudioFile: (file: File|null) => void
+}
+export const AudioFileContext = createContext<AudioFileContextProps>({audioFile: null, setAudioFile: () => {}})

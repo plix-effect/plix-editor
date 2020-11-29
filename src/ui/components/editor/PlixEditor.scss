@@ -21,6 +21,10 @@ $track-header-height: 20px;
   margin: 5px;
 }
 
+.track-header-filename {
+  white-space: pre;
+}
+
 button.btn.track-header-icon-button {
   display: inline-flex;
   flex-direction: row;

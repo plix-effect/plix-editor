@@ -30,7 +30,7 @@ const ZOOM_FACTOR_WHEEL = Math.pow(2, 0.01);
 
 export const TrackEditor: FC = () => {
 
-    const audioFile = useContext(AudioFileContext);
+    const {audioFile, setAudioFile} = useContext(AudioFileContext);
     const {track, dispatch, undoCounts, redoCounts} = useContext(TrackContext);
     const [zoom, setZoom] = useState(0.2);
     const [position, setPosition] = useState(0.01);
@@ -138,10 +138,22 @@ export const TrackEditor: FC = () => {
         multiplyZoom(zoomIndex);
     }, [multiplyZoom]);
 
+    const deleteFile = useCallback(() => {
+        setAudioFile(null);
+    }, [setAudioFile]);
+
     return (
         <ScaleDisplayContext.Provider value={scaleDisplayContextValue}>
             <SplitTimeline minLeft={100} minRight={200} storageKey="timeline" ref={setTimelineEl}>
                 <div className="track-header track-header-tree">
+                    <div className="track-header-filename">
+                        {audioFile !== null ? (
+                            audioFile.name
+                        ) : (
+                            "no audio file"
+                        )}
+                    </div>
+
                     <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={undo} disabled={undoCounts<=0} title={"Undo"}>
                         <i className="fa fa-undo"/>
                         <span className="badge badge-secondary">{undoCounts}</span>
@@ -152,6 +164,9 @@ export const TrackEditor: FC = () => {
                     </button>
                     <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={save} title={"Save"}>
                         <i className="fa fa-save"/>
+                    </button>
+                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={deleteFile} title={"Delete audio"}>
+                        <i className="far fa-trash-alt"/>
                     </button>
                     <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={zoomOut} title={"Zoom out"}>
                         <i className="fa fa-search-minus"/>

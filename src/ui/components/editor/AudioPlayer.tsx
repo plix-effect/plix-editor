@@ -4,7 +4,7 @@ import {AudioFileContext} from "./AudioFileContext";
 
 export const AudioPlayer: FC = () => {
     const lastUrlRef = useRef<string>("");
-    const file = useContext(AudioFileContext);
+    const {audioFile} = useContext(AudioFileContext);
     const audioRef = useRef<HTMLAudioElement>();
     const {getPlayTime, stop} = usePlaybackControl();
     const {playFromStamp} = usePlaybackData();
@@ -15,8 +15,8 @@ export const AudioPlayer: FC = () => {
         if (lastUrlRef.current) {
             URL.revokeObjectURL(lastUrlRef.current);
         }
-        if (file) {
-            const url = URL.createObjectURL(file);
+        if (audioFile) {
+            const url = URL.createObjectURL(audioFile);
             lastUrlRef.current = url;
             audioRef.current.src = url;
             // preload audio
@@ -25,11 +25,12 @@ export const AudioPlayer: FC = () => {
                 audioRef.current.pause();
             });
         } else {
+            lastUrlRef.current = "";
             audioRef.current.src = "";
             stop();
         }
 
-    }, [file]);
+    }, [audioFile]);
 
     useEffect(() => {
         void playFromStamp;
@@ -38,7 +39,7 @@ export const AudioPlayer: FC = () => {
         } else {
             const time = getPlayTime();
             audioRef.current.currentTime = time/1000;
-            if (audioRef.current.currentSrc) audioRef.current.play();
+            if (lastUrlRef.current) audioRef.current.play();
         }
     }, [status, playFromStamp])
 

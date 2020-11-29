@@ -64,13 +64,7 @@ export const PlixEditor: FC = () => {
     const [audioFile, setAudioFile] = useState<File|null>(null);
 
     useEffect(() => void (async () => {
-        const dbRequest = indexedDB.open("plix-effect", 1.0);
-        dbRequest.onupgradeneeded = function() {
-            const db = dbRequest.result;
-            db.objectStoreNames.contains("audio") || db.createObjectStore("audio");
-        };
-        await new Promise(resolve => dbRequest.onsuccess = resolve);
-        const db = dbRequest.result;
+        const db = await openPlixDB();
         const transaction = db.transaction("audio", "readonly");
         transaction.objectStore("audio").get("audio").onsuccess = (event) => {
             const file = event.target['result'];
@@ -95,6 +89,17 @@ export const PlixEditor: FC = () => {
         filterConstructorMap: filterConstructorMap as ConstructorContextProps["filterConstructorMap"],
     }), []);
 
+    const storeAudioFile = useCallback(async (file: File|null) => {
+        setAudioFile(file);
+        const db = await openPlixDB();
+        const transaction = db.transaction("audio", "readwrite");
+        if (!file) {
+            transaction.objectStore("audio").clear();
+        } else {
+            transaction.objectStore("audio").put(file, "audio")
+        }
+    }, [setAudioFile]);
+
     const onDragOver = useCallback((event: DragEvent<HTMLElement>) => {
         const items = Array.from(event.dataTransfer.items);
         let jsonItem = items.find(item => item.kind === "file" && item.type === "application/json");
@@ -107,25 +112,11 @@ export const PlixEditor: FC = () => {
         let audioItem = items.find(item => item.kind === "file" && item.type === "audio/mpeg");
         if (audioItem) {
             const audioFile = audioItem.getAsFile();
-            setAudioFile(audioFile);
             event.preventDefault();
+            void storeAudioFile(audioFile); // save to db;
             const buffer = await audioFile.arrayBuffer();
             const track = readMp3Json(buffer);
             if (track) dispatch(OpenAction(track as PlixJsonData));
-            // save to db
-            const dbRequest = indexedDB.open("plix-effect", 1.0);
-            dbRequest.onupgradeneeded = function() {
-                const db = dbRequest.result;
-                db.objectStoreNames.contains("audio") || db.createObjectStore("audio");
-            };
-            await new Promise(resolve => dbRequest.onsuccess = resolve);
-            const db = dbRequest.result;
-            db.objectStoreNames.contains("audio") || db.createObjectStore("audio");
-            const transaction = db.transaction("audio", "readwrite");
-            transaction.objectStore("audio").put(audioFile, "audio");
-            transaction.oncomplete = console.log;
-            transaction.onerror = console.error;
-
             return;
         }
         let jsonItem = items.find(item => item.kind === "file" && item.type === "application/json");
@@ -138,10 +129,17 @@ export const PlixEditor: FC = () => {
         }
     }, []);
 
+
+
+    const audioFileContextValue = useMemo(() => ({
+        audioFile,
+        setAudioFile: storeAudioFile
+    }), [audioFile, setAudioFile])
+
     return (
         <div className="plix-editor" onDragOver={onDragOver} onDrop={onDrop}>
             <ConstructorContext.Provider value={constructorContextValue}>
-                <AudioFileContext.Provider value={audioFile}>
+                <AudioFileContext.Provider value={audioFileContextValue}>
                     <CreatePlayback duration={track?.['editor']?.['duration'] ?? 60*1000}>
                         <CreateSelectionData track={track}>
                             <DragContext.Provider value={dragRef}>
@@ -178,4 +176,14 @@ const ShowSelectedElement = memo(() => {
             <div>Selected item: {JSON.stringify(selectedItem)}</div>
         </div>
     )
-})
+});
+
+async function openPlixDB(){
+    const dbRequest = indexedDB.open("plix-effect", 1.0);
+    dbRequest.onupgradeneeded = function() {
+        const db = dbRequest.result;
+        db.objectStoreNames.contains("audio") || db.createObjectStore("audio");
+    };
+    await new Promise(resolve => dbRequest.onsuccess = resolve);
+    return dbRequest.result;
+}
