@@ -35,10 +35,10 @@ export const GroupOptionsTrack: FC<GroupOptionsTrackProps> = memo(({options = {}
         <Track nested expanded={expanded}>
             <TreeBlock type="title" onClick={onClickTree}>
                 {expander}
-                <span className="track-description" onClick={changeExpanded}>===Options===</span>
+                <span className="track-description" onClick={changeExpanded}>Options</span>
             </TreeBlock>
             <TimelineBlock type="title" fixed>
-                options
+                <span className="track-description _desc">track options</span>
             </TimelineBlock>
 
             <ValueTrack path={durationPath} value={options?.['duration'] ?? null} type="number" description="duration in milliseconds">
