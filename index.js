@@ -79314,6 +79314,21 @@ const PlixEditor = () => {
         });
     });
     const [audioFile, setAudioFile] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => void (() => __awaiter(void 0, void 0, void 0, function* () {
+        const dbRequest = indexedDB.open("plix-effect", 1.0);
+        dbRequest.onupgradeneeded = function () {
+            const db = dbRequest.result;
+            db.objectStoreNames.contains("audio") || db.createObjectStore("audio");
+        };
+        yield new Promise(resolve => dbRequest.onsuccess = resolve);
+        const db = dbRequest.result;
+        const transaction = db.transaction("audio", "readonly");
+        transaction.objectStore("audio").get("audio").onsuccess = (event) => {
+            const file = event.target['result'];
+            if (file)
+                setAudioFile(file);
+        };
+    }))(), []);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         localStorage.setItem("plix_editor_track", JSON.stringify(track));
     }, [track]);
@@ -79345,6 +79360,18 @@ const PlixEditor = () => {
             const track = (0,_utils_Mp3Meta__WEBPACK_IMPORTED_MODULE_16__.readMp3Json)(buffer);
             if (track)
                 dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.OpenAction)(track));
+            const dbRequest = indexedDB.open("plix-effect", 1.0);
+            dbRequest.onupgradeneeded = function () {
+                const db = dbRequest.result;
+                db.objectStoreNames.contains("audio") || db.createObjectStore("audio");
+            };
+            yield new Promise(resolve => dbRequest.onsuccess = resolve);
+            const db = dbRequest.result;
+            db.objectStoreNames.contains("audio") || db.createObjectStore("audio");
+            const transaction = db.transaction("audio", "readwrite");
+            transaction.objectStore("audio").put(audioFile, "audio");
+            transaction.oncomplete = console.log;
+            transaction.onerror = console.error;
             return;
         }
         let jsonItem = items.find(item => item.kind === "file" && item.type === "application/json");
