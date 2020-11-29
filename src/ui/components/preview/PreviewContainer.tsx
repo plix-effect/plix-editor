@@ -3,7 +3,6 @@ import {FC, useContext, useMemo} from "react";
 import {CanvasPreview} from "./canvas/CanvasPreview";
 import {useSelectionItem, useSelectionPath} from "../editor/SelectionContext";
 import {TrackContext} from "../editor/TrackContext";
-import {ScaleDisplayContext} from "../editor/ScaleDisplayContext";
 
 export const PreviewContainer: FC = () => {
 

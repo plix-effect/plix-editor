@@ -21,6 +21,7 @@ let canvas: OffscreenCanvas;
 let canvasCtx: OffscreenCanvasRenderingContext2D
 let performanceOffset: number
 let status: PlaybackStatus;
+let lastPauseTime: number|null;
 let playFromTimestamp: number
 let renderData: RenderMsgData;
 let parsedData: ReturnType<typeof parseRender>
@@ -45,7 +46,8 @@ const handlePlaybackStatusMsg = (msg: CanvasPreviewWkInMsgPlaybackStatus) => {
         return;
     }
     if (parsedData != null && status === "pause") {
-        renderTime(msg.pauseTime);
+        lastPauseTime = msg.pauseTime
+        renderTime(lastPauseTime);
         return;
     }
     if (status === "stop" && renderData != null) {
@@ -73,6 +75,8 @@ const handleRenderMsg = (msg: CanvasPreviewWkInMsgRender) => {
 
     if (status === "play") {
         startRendering();
+    } else if (status === "pause") {
+        renderTime(lastPauseTime);
     } else {
         renderEmptyPixels();
     }
@@ -93,6 +97,7 @@ const renderEmptyPixels = () => {
 
 const renderTime = (time: number) => {
     clearCanvas();
+    if (!parsedData) return;
     const count = renderData.count;
     const line = parsedData.effect(time, renderData.duration);
     for (let i = 0; i < count; i++) {
