@@ -22,7 +22,7 @@ export const PreviewContainer: FC = () => {
 
     return (
         <div style={{flexGrow: 1}}>
-            <CanvasPreview width={1000} height={50} duration={duration} count={20} render={selectedItem} track={track}/>
+            <CanvasPreview width={1000} height={50} duration={duration} count={20} render={selectedItem ?? track.render} track={track}/>
         </div>
     )
 }
