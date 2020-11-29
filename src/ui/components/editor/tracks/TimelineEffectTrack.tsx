@@ -13,6 +13,7 @@ import "./tracks.scss"
 import {EditValueAction} from "../PlixEditorReducerActions";
 import {InlineJsonEditor} from "./editor/inline/InlineJsonEditor";
 import {InlineNumberEditor} from "./editor/inline/InlineNumberEditor";
+import {TimelineBlinkPreview} from "./editor/TimelineBlinkPreview";
 
 export interface TimelineEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
@@ -106,6 +107,20 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({leftBloc
                     <InlineNumberEditor value={params[3]} onChange={onChangeOffset}/>
                 </TimelineBlock>
             </Track>
+
+            {params[1] > 0 && (
+                <Track>
+                    <TreeBlock>
+                    <span className="track-description">
+                        Blink preview
+                    </span>
+                    </TreeBlock>
+                    <TimelineBlock fixed>
+                        <TimelineBlinkPreview cycle={params[1]} offset={params[3]} />
+                    </TimelineBlock>
+                </Track>
+
+            )}
 
 
             <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters}>

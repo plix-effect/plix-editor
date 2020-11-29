@@ -1,15 +1,17 @@
-import React, {FC, useCallback, useContext, useMemo, useState} from "react";
+import React, {FC, useContext} from "react";
 import "./TrackScale.scss";
 import {ScaleDisplayContext} from "./ScaleDisplayContext";
+import {TrackPlayPosition} from "./tracks/editor/TrackPlayPosition";
 
 export const TrackScale: FC = () => {
     const seprataion = 1000;
-    const {trackWidth, zoom, duration} = useContext(ScaleDisplayContext);
+    const {trackWidth, duration} = useContext(ScaleDisplayContext);
     const offsetD = seprataion / duration;
     const count = Math.ceil(duration/seprataion);
 
     return (
-        <div className="track-scale" style={{height: 41}}>
+        <div className="track-scale">
+            <TrackPlayPosition/>
             <div className={"timeline-editor"} style={{width: trackWidth}}>
                 <div className={"timeline-editor-grid"}>
                     {

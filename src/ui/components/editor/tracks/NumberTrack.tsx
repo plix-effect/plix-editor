@@ -15,7 +15,6 @@ import {createDefaultDragTypeBehavior, TreeBlock} from "../track-elements/TreeBl
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {EditValueAction, MultiActionType} from "../PlixEditorReducerActions";
 import {TrackContext} from "../TrackContext";
-import {InlineJsonEditor} from "./editor/inline/InlineJsonEditor";
 import {DragType} from "../DragContext";
 import {InlineNumberEditor} from "./editor/inline/InlineNumberEditor";
 

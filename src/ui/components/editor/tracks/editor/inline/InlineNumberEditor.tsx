@@ -1,4 +1,4 @@
-import React, {FC, useCallback, useMemo} from "react";
+import React, {FC, useCallback} from "react";
 import "./InlineEditor.scss"
 import {InlineInputEditor} from "./InlineInputEditor";
 
@@ -9,7 +9,12 @@ export interface InlineNumberEditorProps {
 }
 export const InlineNumberEditor: FC<InlineNumberEditorProps> = ({value, onChange, step="any"}) => {
 
+    const onChangeAsNumber = useCallback((value) => {
+        const numberValue = value !== undefined ? Number(value) : undefined;
+        return onChange(numberValue)
+    }, [onChange])
+
     return (
-        <InlineInputEditor value={value} onChange={onChange} inputParams={{type: "number", step: step}}/>
+        <InlineInputEditor value={value} onChange={onChangeAsNumber} inputParams={{type: "number", step: step}}/>
     )
 }

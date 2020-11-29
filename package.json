@@ -8,6 +8,8 @@
     "@plix-effect/core": "^1.0.23",
     "@types/react-dom": "^16.9.9",
     "bootstrap": "^4.5.3",
+    "mp3tag.js": "^3.0.0",
+    "pako": "^2.0.2",
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.0",
     "react-color": "^2.19.3",

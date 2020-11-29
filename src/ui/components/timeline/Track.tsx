@@ -1,9 +1,11 @@
-import React, {FC, memo, ReactNode, useMemo, useRef, Fragment, useContext, useState, useCallback} from "react";
+import React, {FC, memo, ReactNode, useMemo, useRef, Fragment, useContext, useState, useCallback, createContext} from "react";
 import {createPortal} from "react-dom";
 import cn from "classnames";
 import {PortalContext} from "./PortalContext";
 import "./Track.scss";
 
+
+export const TrackCollapsedContext = createContext<boolean>(false);
 
 export interface TrackProps {
     children: [ReactNode, ReactNode, ...ReactNode[]],
@@ -18,6 +20,7 @@ export const Track: FC<TrackProps> = memo((
     }
 ) => {
     const lastChild = useRef<ReactNode[]>([]);
+    const trackCollapsedCtxValue = useContext(TrackCollapsedContext);
 
     const child = useMemo<ReactNode[]>(() => {
         const flatChildren = settleKeys(childList, "k-");
@@ -26,14 +29,18 @@ export const Track: FC<TrackProps> = memo((
         return lastChild.current;
     }, [childList]);
 
+    const collapsed = trackCollapsedCtxValue || (nested && !expanded);
+
     return (
-        <TrackBasic
-            leftChild={leftChild}
-            rightChild={rightChild}
-            child={child}
-            collapsed={!expanded}
-            nested={nested}
-        />
+        <TrackCollapsedContext.Provider value={collapsed}>
+            <TrackBasic
+                leftChild={trackCollapsedCtxValue ? null : leftChild}
+                rightChild={trackCollapsedCtxValue ? null : rightChild}
+                child={child}
+                collapsed={collapsed}
+                nested={nested}
+            />
+        </TrackCollapsedContext.Provider>
     );
 });
 

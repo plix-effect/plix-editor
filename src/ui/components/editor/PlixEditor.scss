@@ -39,8 +39,10 @@ button.btn.track-header-icon-button {
   top: -10px;
   bottom: 0;
   width: 4px;
-  opacity: 50%;
+  opacity: 0.9;
   pointer-events: none;
-  background-color: yellow;
+  background-color: white;
   z-index: 1;
+  transform: translate(-2px, 0);
+  mix-blend-mode: difference;
 }

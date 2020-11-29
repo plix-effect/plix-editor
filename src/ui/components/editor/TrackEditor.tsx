@@ -18,13 +18,11 @@ import {RedoAction, UndoAction} from "./PlixEditorReducerActions";
 import {TrackScale} from "./TrackScale";
 import {Track} from "../timeline/Track";
 import {ScaleDisplayContext, ScaleDisplayContextProps} from "./ScaleDisplayContext";
-import {PlixEditorAction} from "./PlixEditorReducer";
 import {GroupOptionsTrack} from "./tracks/GroupOptionsTrack";
-import {IconZoomIn} from "../icon/IconZoomIn";
-import {IconZoomOut} from "../icon/IconZoomOut";
-import {DragType} from "./DragContext";
 import {usePlaybackControl, usePlaybackStatus} from "./PlaybackContext";
 import {TrackPlayPosition} from "./tracks/editor/TrackPlayPosition";
+import {AudioFileContext} from "./AudioFileContext";
+import {setMp3Json} from "../../utils/Mp3Meta";
 
 
 const ZOOM_FACTOR = Math.sqrt(2);
@@ -32,7 +30,7 @@ const ZOOM_FACTOR_WHEEL = Math.pow(2, 0.01);
 
 export const TrackEditor: FC = () => {
 
-
+    const audioFile = useContext(AudioFileContext);
     const {track, dispatch, undoCounts, redoCounts} = useContext(TrackContext);
     const [zoom, setZoom] = useState(0.2);
     const [position, setPosition] = useState(0.01);
@@ -66,9 +64,15 @@ export const TrackEditor: FC = () => {
         dispatch(RedoAction())
     }, [dispatch])
 
-    const save = useCallback(() => {
+    const save = useCallback(async () => {
+        if (audioFile) {
+            const buffer = await audioFile.arrayBuffer()
+            const settledBuffer = await setMp3Json(buffer, track);
+            saveByteArray(settledBuffer, audioFile.name);
+            return;
+        }
         download('plix-track.json', JSON.stringify(track));
-    }, [track]);
+    }, [track, audioFile]);
 
     const mouseLeftRef = useRef(0);
     useEffect(() => {
@@ -203,3 +207,17 @@ function download(filename, text) {
         pom.click();
     }
 }
+
+const saveByteArray: (data: ArrayBuffer, name: string) => void = (function () {
+    const a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style.display = "none";
+    return function (data, name) {
+        const blob = new Blob([data], {type: "octet/stream"});
+        const url = window.URL.createObjectURL(blob);
+        a.href = url;
+        a.download = name;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    };
+}());

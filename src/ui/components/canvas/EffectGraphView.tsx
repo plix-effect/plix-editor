@@ -122,7 +122,7 @@ export const EffectGraphView = memo<EffectGraphViewProps>(({duration, count, wid
 
     return useMemo(() => (
         <span className="effect-graph-view-bg">
-            <canvas ref={setCanvas} />
+            <canvas ref={setCanvas} width={width} height={height} />
         </span>
     ), []);
 });

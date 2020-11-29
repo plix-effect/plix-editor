@@ -8,7 +8,7 @@ import {
     useEffect,
     useCallback,
     DragEvent,
-    memo
+    memo, ComponentType
 } from "react";
 import "./PlixEditor.scss";
 import {SplitTopBottom} from "../divider/SplitTopBottom";
@@ -21,9 +21,12 @@ import {PlixJsonData} from "@plix-effect/core/types/parser";
 import {PlixEditorReducer} from "./PlixEditorReducer";
 import {DragContext, DragType} from "./DragContext";
 import {OpenAction} from "./PlixEditorReducerActions";
+import {AudioFileContext} from "./AudioFileContext";
 import {CreatePlayback} from "./PlaybackContext";
 import {SplitLeftRight} from "../divider/SplitLeftRight";
 import {CreateSelectionData, useSelectionItem, useSelectionPath} from "./SelectionContext";
+import {AudioPlayer} from "./AudioPlayer";
+import {readMp3Json} from "../../utils/Mp3Meta";
 
 const defaultTrack: PlixJsonData & {editor: any} = {
     effects: {},
@@ -58,6 +61,8 @@ export const PlixEditor: FC = () => {
         });
     });
 
+    const [audioFile, setAudioFile] = useState<File|null>(null);
+
     useEffect(() => {
         localStorage.setItem("plix_editor_track", JSON.stringify(track));
     }, [track])
@@ -78,41 +83,56 @@ export const PlixEditor: FC = () => {
     const onDragOver = useCallback((event: DragEvent<HTMLElement>) => {
         const items = Array.from(event.dataTransfer.items);
         let jsonItem = items.find(item => item.kind === "file" && item.type === "application/json");
-        if (!jsonItem) return;
-        event.preventDefault();
+        let audioItem = items.find(item => item.kind === "file" && item.type === "audio/mpeg");
+        if (jsonItem || audioItem) event.preventDefault();
     }, []);
 
     const onDrop = useCallback(async (event: DragEvent<HTMLElement>) => {
         const items = Array.from(event.dataTransfer.items);
+        let audioItem = items.find(item => item.kind === "file" && item.type === "audio/mpeg");
+        if (audioItem) {
+            const audioFile = audioItem.getAsFile();
+            setAudioFile(audioFile);
+            event.preventDefault();
+            const buffer = await audioFile.arrayBuffer();
+            const track = readMp3Json(buffer);
+            if (track) dispatch(OpenAction(track as PlixJsonData));
+            return;
+        }
         let jsonItem = items.find(item => item.kind === "file" && item.type === "application/json");
-        if (!jsonItem) return;
-        event.preventDefault();
-        const text = await jsonItem.getAsFile().text();
-        const track = JSON.parse(text);
-        dispatch(OpenAction(track));
+        if (jsonItem) {
+            event.preventDefault();
+            const text = await jsonItem.getAsFile().text();
+            const track = JSON.parse(text);
+            dispatch(OpenAction(track));
+            return;
+        }
     }, []);
 
     return (
         <div className="plix-editor" onDragOver={onDragOver} onDrop={onDrop}>
             <ConstructorContext.Provider value={constructorContextValue}>
-                <CreatePlayback duration={track?.['editor']?.['duration'] ?? 60*1000}>
-                    <CreateSelectionData track={track}>
-                        <DragContext.Provider value={dragRef}>
-                            <TrackContext.Provider value={trackContextValue}>
-                                <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
-                                    <TrackEditor />
-                                    <SplitLeftRight minLeft={100} minRight={200} storageKey={"btm"}>
-                                        <div style={{flexGrow: 1, backgroundColor: "green"}}>libs</div>
-                                        <div>
-                                            canvas or
-                                            <ShowSelectedElement/>
-                                        </div>
-                                    </SplitLeftRight>
-                                </SplitTopBottom>
-                            </TrackContext.Provider>
-                        </DragContext.Provider>
-                    </CreateSelectionData>
-                </CreatePlayback>
+                <AudioFileContext.Provider value={audioFile}>
+                    <CreatePlayback duration={track?.['editor']?.['duration'] ?? 60*1000}>
+                        <CreateSelectionData track={track}>
+                            <DragContext.Provider value={dragRef}>
+                                <TrackContext.Provider value={trackContextValue}>
+                                    <AudioPlayer/>
+                                    <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
+                                        <TrackEditor />
+                                        <SplitLeftRight minLeft={100} minRight={200} storageKey={"btm"}>
+                                            <div style={{flexGrow: 1, backgroundColor: "green"}}>libs</div>
+                                            <div>
+                                                canvas or
+                                                <ShowSelectedElement/>
+                                            </div>
+                                        </SplitLeftRight>
+                                    </SplitTopBottom>
+                                </TrackContext.Provider>
+                            </DragContext.Provider>
+                        </CreateSelectionData>
+                    </CreatePlayback>
+                </AudioFileContext.Provider>
             </ConstructorContext.Provider>
         </div>
     );
