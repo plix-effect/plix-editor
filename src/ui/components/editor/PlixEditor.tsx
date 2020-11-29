@@ -167,7 +167,6 @@ export const PlixEditor: FC = () => {
                                             <div style={{flexGrow: 1, backgroundColor: "green"}}>libs</div>
                                             <div style={{flexGrow: 1, backgroundColor: "green", display: "flex", flexDirection: "column"}}>
                                                 <PreviewContainer/>
-                                                <ShowSelectedElement/>
                                             </div>
                                         </SplitLeftRight>
                                     </SplitTopBottom>
@@ -180,19 +179,6 @@ export const PlixEditor: FC = () => {
         </div>
     );
 }
-
-const ShowSelectedElement = memo(() => {
-    const path = useSelectionPath();
-    const {selectedType, selectedItem} = useSelectionItem() ?? {};
-    return (
-        <div>
-            <div>Render time: {performance.now()}</div>
-            <div>Path: {JSON.stringify(path)}</div>
-            <div>Selected type: {selectedType}</div>
-            <div>Selected item: {JSON.stringify(selectedItem)}</div>
-        </div>
-    )
-});
 
 async function openPlixDB(){
     const dbRequest = indexedDB.open("plix-effect", 1.0);

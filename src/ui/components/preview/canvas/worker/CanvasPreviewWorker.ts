@@ -44,6 +44,10 @@ const handlePlaybackStatusMsg = (msg: CanvasPreviewWkInMsgPlaybackStatus) => {
         startRendering();
         return;
     }
+    if (parsedData != null && status === "pause") {
+        renderTime(msg.pauseTime);
+        return;
+    }
     if (status === "stop" && renderData != null) {
         renderEmptyPixels();
         return;
@@ -172,7 +176,8 @@ export interface CanvasPreviewWkInMsgPlaybackData {
 }
 export interface CanvasPreviewWkInMsgPlaybackStatus {
     type: "playback_status",
-    status: PlaybackStatus
+    status: PlaybackStatus,
+    pauseTime: number | null
 }
 export interface CanvasPreviewWkInMsgRender {
     type: "render",
