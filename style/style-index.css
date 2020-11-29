@@ -197,99 +197,6 @@ button.btn.track-header-icon-button {
   .track-expander._collapsed::before {
     content: "+"; }
 
-.track-tree-block {
-  box-sizing: border-box;
-  padding-left: 5px;
-  width: max-content;
-  min-width: 100%;
-  margin: 1px 0 1px 0;
-  position: relative;
-  height: 40px;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  white-space: pre; }
-  .track-tree-block._selected {
-    outline: solid 1px #888844; }
-  .track-tree-block._default {
-    border-left: 1px solid #444;
-    border-top: 1px solid #444;
-    border-bottom: 1px solid #444;
-    background-color: #222;
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px; }
-    .track-tree-block._default::before {
-      content: "";
-      position: absolute;
-      height: calc( 50% - 1px);
-      left: -15px;
-      width: 14px;
-      border-bottom: 1px solid #444; }
-    .track-tree-block._default:hover::before {
-      border-bottom: 1px solid #884; }
-  .track-tree-block._description {
-    height: 23px; }
-  .track-tree-block._title {
-    margin-top: 10px;
-    border-left: 1px solid #444;
-    border-top: 1px solid #444;
-    border-bottom: 1px solid #444;
-    background-color: #333;
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px; }
-  .track-tree-block._timeline {
-    height: 40px;
-    border-left: 1px solid #444;
-    border-top: 1px solid #444;
-    border-bottom: 1px solid #444;
-    background-color: #222;
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px; }
-  .track-tree-block._drag {
-    outline: 2px solid #888; }
-  .track-tree-block._move {
-    background-color: transparent;
-    color: transparent; }
-    .track-tree-block._move > * {
-      opacity: 0; }
-  .track-tree-block._link {
-    outline: 2px dashed #888; }
-  .track-tree-block._drop._drop-replace .track-tree-icon-replace {
-    display: block; }
-  .track-tree-block._drop._drop-add-item .track-tree-icon-add-item {
-    display: block; }
-  .track-tree-block._drop._drop-add-array .track-tree-icon-add-array {
-    display: block; }
-  .track-tree-block._drop._drop-insert::before {
-    content: "";
-    height: 20px;
-    width: 100%;
-    left: 0;
-    right: 0;
-    background-color: rgba(255, 255, 255, 0.5);
-    pointer-events: none;
-    position: absolute;
-    z-index: 99; }
-  .track-tree-block._drop._drop-insert._drop-insert-top::before {
-    top: -10px; }
-  .track-tree-block._drop._drop-insert._drop-insert-bottom::before {
-    bottom: -10px; }
-  .track-tree-block .track-tree-block-space {
-    flex-grow: 1; }
-  .track-tree-block .track-tree-block-right {
-    position: sticky;
-    pointer-events: none;
-    right: 0; }
-  .track-tree-block .track-tree-block-right-icon {
-    position: absolute;
-    pointer-events: none; }
-  .track-tree-block .track-tree-drop-icon-content {
-    margin-right: 5px;
-    background-color: black; }
-  .track-tree-block .track-tree-icon {
-    display: none; }
-
 .track-description {
   user-select: none; }
   .track-description._empty {
@@ -355,6 +262,116 @@ button.btn.track-header-icon-button {
   background-color: white;
   background-size: 10px 10px;
   background-position: 0 0, 0 5px, 5px -5px, -5px 0px; }
+
+.track-tree-block {
+  box-sizing: border-box;
+  padding-left: 5px;
+  width: max-content;
+  min-width: 100%;
+  margin: 1px 0 1px 0;
+  position: relative;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  white-space: pre; }
+  .track-tree-block._selected {
+    outline: solid 1px #888844; }
+  .track-tree-block._default {
+    border-left: 1px solid #444;
+    border-top: 1px solid #444;
+    border-bottom: 1px solid #444;
+    background-color: #222;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px; }
+    .track-tree-block._default .track-tree-block-right-content, .track-tree-block._default .track-tree-drop-icon-content {
+      background-color: #222; }
+    .track-tree-block._default::before {
+      content: "";
+      position: absolute;
+      height: calc( 50% - 1px);
+      left: -15px;
+      width: 14px;
+      border-bottom: 1px solid #444; }
+    .track-tree-block._default:hover::before {
+      border-bottom: 1px solid #884; }
+  .track-tree-block._description {
+    height: 23px; }
+  .track-tree-block._title {
+    margin-top: 10px;
+    border-left: 1px solid #444;
+    border-top: 1px solid #444;
+    border-bottom: 1px solid #444;
+    background-color: #333;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px; }
+  .track-tree-block._timeline {
+    height: 40px;
+    border-left: 1px solid #444;
+    border-top: 1px solid #444;
+    border-bottom: 1px solid #444;
+    background-color: #222;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px; }
+  .track-tree-block._drag {
+    outline: 2px solid #888; }
+  .track-tree-block._move {
+    background-color: transparent;
+    color: transparent; }
+    .track-tree-block._move > * {
+      opacity: 0; }
+  .track-tree-block._link {
+    outline: 2px dashed #888; }
+  .track-tree-block._drop .track-tree-block-right-content {
+    display: none; }
+  .track-tree-block._drop._drop-replace .track-tree-icon-replace {
+    display: block; }
+  .track-tree-block._drop._drop-add-item .track-tree-icon-add-item {
+    display: block; }
+  .track-tree-block._drop._drop-add-array .track-tree-icon-add-array {
+    display: block; }
+  .track-tree-block._drop._drop-insert::before {
+    content: "";
+    height: 20px;
+    width: 100%;
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+    position: absolute;
+    z-index: 99; }
+  .track-tree-block._drop._drop-insert._drop-insert-top::before {
+    top: -10px; }
+  .track-tree-block._drop._drop-insert._drop-insert-bottom::before {
+    bottom: -10px; }
+  .track-tree-block .track-tree-block-space {
+    flex-grow: 1; }
+  .track-tree-block .track-tree-block-right {
+    position: sticky;
+    right: 5px;
+    display: inline-flex; }
+  .track-tree-block .track-tree-block-right-icon {
+    position: absolute;
+    pointer-events: none; }
+  .track-tree-block .track-tree-drop-icon-content {
+    color: #88f;
+    pointer-events: none; }
+    .track-tree-block .track-tree-drop-icon-content .track-tree-icon {
+      display: none; }
+  .track-tree-block .track-tree-icon {
+    width: 20px;
+    margin: 0 0 0 5px; }
+  .track-tree-block .track-tree-block-right-content {
+    display: none; }
+    .track-tree-block .track-tree-block-right-content .track-tree-icon {
+      cursor: pointer; }
+      .track-tree-block .track-tree-block-right-content .track-tree-icon._disabled {
+        cursor: none; }
+      .track-tree-block .track-tree-block-right-content .track-tree-icon:hover {
+        color: #88f; }
+  .track-tree-block:hover .track-tree-block-right-content {
+    display: inline-flex; }
 
 .array-track-drop-target {
   position: absolute;
@@ -468,6 +485,8 @@ input[type="color"].full-size-color-picker {
   cursor: grab; }
   .timeline-record-name._disabled {
     border-color: rgba(255, 255, 255, 0.5); }
+  .timeline-record-name._selected {
+    outline: solid 1px #888844; }
 
 .timeline-record-scaling {
   position: absolute;
@@ -505,29 +524,6 @@ input[type="color"].full-size-color-picker {
     .timeline-blink-img._animate._animate-active {
       background-color: transparent;
       transform: scale(0); }
-
-.effect-graph-view-bg {
-  display: inline-block;
-  position: relative; }
-  .effect-graph-view-bg::before {
-    content: "";
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    z-index: -1;
-    background-color: white;
-    background-image: linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%);
-    background-size: 10px 10px;
-    animation: .7s linear 0s infinite effect-graph-view-bg-move;
-    animation-play-state: paused; }
-  .effect-graph-view-bg:hover::before {
-    animation-play-state: running; }
-
-@keyframes effect-graph-view-bg-move {
-  from {
-    background-position: 0 0, 0 5px, 5px -5px, -5px 0px; }
-  to {
-    background-position: -15px -5px, -15px 0px, -10px -10px, -20px -5px; } }
 
 .effect-group-alias {
   box-sizing: border-box;
