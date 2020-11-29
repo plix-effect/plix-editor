@@ -221,7 +221,6 @@ interface AliasEffectTrackProps {
 }
 const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, leftBlock, effect: [enabled ,, link, filters], path,  expanded, onChange}) => {
     const filtersPath = useMemo(() => [...path, 3], [path]);
-    const effectWithNoFilters: PlixEffectAliasJsonData = useMemo(() => [enabled, null, link, []], [effect])
     const valueFilters = useMemo(() => filters ?? [], [filters]);
 
     const clearFilters = useMemo(() => {
@@ -233,17 +232,9 @@ const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, leftBlock, effect:
             {leftBlock}
             <TimelineBlock fixed>
                 <span className="track-description _desc">
-                    {filters?.length >= 0 && (
-                        <>
-                            <EffectPreview effect={effectWithNoFilters} />
-                            <i className="fas fa-long-arrow-alt-right" style={{marginLeft: 5, marginRight: 5}}/>
-                        </>
-                    )}
-                    <EffectPreview effect={effect} /> use alias <span className="track-description _link">{link}</span>
+                    <InlineEffectTypeEditor onChange={onChange} effect={effect} />
                 </span>
             </TimelineBlock>
-
-            <EffectTypeTrack onChange={onChange} effect={effect} />
 
             <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters}>
                 Filters
@@ -261,7 +252,6 @@ interface ConfigurableEffectTrackProps {
 }
 const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, leftBlock, effect, effect: [enabled, effectId, params, filters], children, path, expanded}) => {
     const {effectConstructorMap} = useContext(ConstructorContext);
-    const effectWithNoFilters: PlixEffectConfigurableJsonData = useMemo(() => [enabled, effectId, params, []], [effect])
     const effectData = useMemo(() => {
         const effectConstructor = effectConstructorMap[effectId];
         const meta: ParseMeta = effectConstructor['meta'];
@@ -294,18 +284,9 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, le
             {leftBlock}
             <TimelineBlock fixed>
                 <span className="track-description _desc">
-                    {filters?.length >= 0 && (
-                        <>
-                            <EffectPreview effect={effectWithNoFilters} />
-                            <i className="fas fa-long-arrow-alt-right" style={{marginLeft: 5, marginRight: 5}}/>
-                        </>
-                    )}
-                    <EffectPreview effect={effect} />
-                    {effectData.description}
+                    <InlineEffectTypeEditor onChange={onChange} effect={effect} />
                 </span>
             </TimelineBlock>
-
-            <EffectTypeTrack onChange={onChange} effect={effect} />
 
             {effectData.paramDescriptions.map((paramDesc) => (
                 <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description} clearAction={paramDesc.clearAction}>

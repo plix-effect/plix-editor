@@ -34,7 +34,6 @@ export interface TreeBlockEffectProps {
 export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effect, path, deleteAction, setExpanded, clearAction, expander, changeExpanded, children, onDragOverItem}) => {
     const {dispatch} = useContext(TrackContext);
 
-    const effectIsChain = effect && effect[1] === "Chain";
     const {toggleSelect, isSelectedPath} = useSelectionControl();
     const selectionPath = useSelectionPath();
 
@@ -42,45 +41,67 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
 
     const selected = useMemo(() => {
         return isSelectedPath(path);
-    }, [selectionPath])
+    }, [selectionPath]);
 
     const title: string|undefined = useMemo(() => {
         if (!deleteAction && !dragValue) return undefined;
         let title = "Ctrl + Click = disable\n"
         if (deleteAction) title += "Alt + Click = delete\n";
-        if (effectIsChain) title += "Shift + Click = add effect\n";
+        if (effectClass === "container") title += "Shift + Click = add effect\n";
         if (dragValue) {
             title += "Draggable\n"
         }
         return title;
     }, [deleteAction, dragValue])
 
-    const onClick: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
-        if (!event.ctrlKey && event.altKey && !event.shiftKey) { // Alt
+    const onClick: MouseEventHandler<HTMLDivElement> = useCallback(({ctrlKey, altKey, shiftKey}) => {
+        if (!ctrlKey && altKey && !shiftKey) { // Alt
             if (deleteAction || clearAction) dispatch(deleteAction ?? clearAction);
         }
-        if (event.ctrlKey && event.altKey && !event.shiftKey) { // Ctrl+Alt
+        if (ctrlKey && altKey && !shiftKey) { // Ctrl+Alt
             if (clearAction) dispatch(clearAction);
         }
-        if (!event.ctrlKey && event.altKey && event.shiftKey) { // Shift+Alt
+        if (!ctrlKey && altKey && shiftKey) { // Shift+Alt
             if (effectClass === "timeline" || effectClass === "container") {
                 dispatch(EditValueAction([...path, 2, 0], []));
             }
         }
-        if (!event.ctrlKey && !event.altKey && event.shiftKey) { // Shift
-            if (effectIsChain) {
+        if (!ctrlKey && !altKey && shiftKey) { // Shift
+            if (effectClass === "container") {
                 dispatch(PushValueAction([...path, 2, 0], null));
                 setExpanded(true);
             }
         }
-        if (!event.ctrlKey && !event.altKey && !event.shiftKey) changeExpanded(); // Click
-        if (event.ctrlKey && !event.altKey && event.shiftKey) { // Ctrl+Shift
+        if (!ctrlKey && !altKey && !shiftKey) changeExpanded(); // Click
+        if (ctrlKey && !altKey && shiftKey) { // Ctrl+Shift
             toggleSelect(path);
         }
     }, [deleteAction, dispatch, effect, setExpanded, changeExpanded]);
 
+    const onClickAdd: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        if (effectClass === "container") {
+            dispatch(PushValueAction([...path, 2, 0], null));
+            setExpanded(true);
+        }
+    }, [effectClass, dispatch]);
+
+    const onClickDelete: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        if (deleteAction || clearAction) dispatch(deleteAction ?? clearAction);
+    }, [deleteAction, clearAction, dispatch]);
+
+    const rightIcons = (<>
+        {effectClass === "container" && (
+            <i className="fa fa-plus track-tree-icon track-tree-icon-action" onClick={onClickAdd} title="add effect"/>
+        )}
+        {(deleteAction || clearAction) && (
+            <i className="far fa-trash-alt track-tree-icon track-tree-icon-action" onClick={onClickDelete} title="delete"/>
+        )}
+    </>)
+
     return (
-        <TreeBlock dragValue={dragValue} onClick={onClick} title={title} onDragOverItem={onDragOverItem} selected={selected}>
+        <TreeBlock dragValue={dragValue} onClick={onClick} title={title} onDragOverItem={onDragOverItem} selected={selected} right={rightIcons}>
             {expander}
             <span className="track-description">{children}</span>
             <span>{" "}</span>

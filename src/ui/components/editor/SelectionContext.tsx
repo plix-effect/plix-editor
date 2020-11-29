@@ -1,4 +1,4 @@
-import React, {createContext, FC, useContext, useEffect, useMemo, useRef, useState} from "react";
+import React, {createContext, FC, memo, useContext, useEffect, useMemo, useState} from "react";
 import useLatestCallback from "../../use/useLatestCallback";
 import {EditorPath} from "../../types/Editor";
 import type {PlixJsonData} from "@plix-effect/core/types/parser";
@@ -25,7 +25,7 @@ const SelectionControlContext = createContext<SelectionControlContextProps|null>
 export interface CreatePlaybackProps {
     track: PlixJsonData;
 }
-export const CreateSelectionData: FC<CreatePlaybackProps> = ({children, track}) => {
+export const CreateSelectionData: FC<CreatePlaybackProps> = memo(({children, track}) => {
 
     interface SelectionData {
         selectedItem: any;
@@ -103,7 +103,7 @@ export const CreateSelectionData: FC<CreatePlaybackProps> = ({children, track}) 
             </SelectionPathContext.Provider>
         </SelectionControlContext.Provider>
     );
-}
+});
 
 export function useSelectionPath(): EditorPath|null{
     return useContext(SelectionPathContext);
@@ -137,6 +137,7 @@ function selectItem(
     filterConstructorMap: FilterConstructorMap,
     [pathEl, ...path]: EditorPath
 ): (null | {item:any, type:string}) {
+    if (item === undefined) return null;
     if (pathEl === undefined) return {item, type};
     let key;
     if (typeof pathEl === "string" || typeof pathEl === "number") key = pathEl;

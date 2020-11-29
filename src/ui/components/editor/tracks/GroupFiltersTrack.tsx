@@ -1,6 +1,6 @@
 import React, {
     ChangeEvent, DragEvent, DragEventHandler,
-    FC, FormEventHandler,
+    FC, FormEventHandler, KeyboardEvent,
     memo,
     MouseEventHandler,
     useCallback,
@@ -70,6 +70,9 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
 
     const onClickTree: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
         if (!event.ctrlKey && event.altKey && !event.shiftKey) clearFilter()
+        if (!event.ctrlKey && !event.altKey && event.shiftKey) {
+            if (filter === undefined) setEmptyFilter();
+        }
         if (!event.ctrlKey && !event.altKey && !event.shiftKey) changeExpanded();
     }, [dispatch]);
 
@@ -81,6 +84,10 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
         event.preventDefault();
         add();
     }, [add]);
+
+    const onKeyDown = useCallback((event: KeyboardEvent<HTMLFormElement>) => {
+        if (event.nativeEvent.code === "Escape") clearFilter();
+    }, []);
 
     const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | [string, DragEventHandler] => {
         if (!dragData) return;
@@ -105,7 +112,7 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
         if (valueFilter === undefined) return void (dragData.dropEffect = "none");
         dragData.dropEffect = mode;
 
-        return ["_drop-insert", () => {
+        return ["_drop-add-item", () => {
             setFilter(valueFilter);
         }]
     }, [path, dispatch]);
@@ -115,22 +122,46 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
         if (filter) inputRef.current.focus();
     }, [filter]);
 
+    const onClickAdd: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        setEmptyFilter();
+    }, [setEmptyFilter]);
+
+    const onClickClear: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        clearFilter();
+    }, [clearFilter]);
+
+    const rightIcons = (<>
+        {filter === undefined && (
+            <i className="fa fa-plus track-tree-icon track-tree-icon-action" onClick={onClickAdd} title="add filter"/>
+        )}
+        {(filter !== undefined) && (
+            <i className="fa fa-times track-tree-icon track-tree-icon-action" onClick={onClickClear} title="clear"/>
+        )}
+    </>);
+
+    useEffect(() => {
+        if (filter) inputRef.current.focus();
+    }, [filter]);
 
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock type="title" onClick={onClickTree} onDragOverItem={onDragOverItemSelf}>
+            <TreeBlock type="title" onClick={onClickTree} onDragOverItem={onDragOverItemSelf} right={rightIcons}>
                 {expander}
                 <span className="track-description">Filters ({count})</span>
             </TreeBlock>
             <TimelineBlock type="title" fixed onClick={onClickTimeline}>
-                {filter === undefined && (
+                {filter === undefined && (<>
+                    <span className="track-description _desc">Filter prefabs</span>
+                    &nbsp;
                     <a onClick={setEmptyFilter}>[add]</a>
-                )}
+                </>)}
                 {filter !== undefined && (<>
                     <DisplayFilter filter={filter}/>
                     &nbsp;
-                    <form style={{margin:0}} onSubmit={onSubmit} onReset={clearFilter}>
-                        <input ref={inputRef} type="text" placeholder="prefab name" value={name} onChange={onEditName} />
+                    <form style={{margin:0}} onSubmit={onSubmit} onReset={clearFilter} onKeyDown={onKeyDown}>
+                        <input autoFocus ref={inputRef} type="text" placeholder="prefab name" value={name} onChange={onEditName} />
                         <button type="submit" onClick={add} disabled={!name || name in filtersMap}>add</button>
                         <button type="reset">cancel</button>
                     </form>

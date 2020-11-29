@@ -50,6 +50,8 @@ export const TreeBlock: FC<TreeBlockProps> = (
             offsetX: event.nativeEvent.offsetX,
             offsetY: event.nativeEvent.offsetY,
         }
+        localStorage.setItem("plix_editor_drag", JSON.stringify(dragRef.current));
+        event.dataTransfer.setData("plix/localstorage", "");
         blockRef.current.classList.add("_drag");
         event.stopPropagation();
         event.dataTransfer.setDragImage(new Image(), 0, 0);
@@ -117,11 +119,13 @@ export const TreeBlock: FC<TreeBlockProps> = (
             {children}
             <div className="track-tree-block-space"/>
             <div className="track-tree-block-right">
-                {right}
+                <div className="track-tree-block-right-content">
+                    {right}
+                </div>
                 <div className="track-tree-drop-icon-content">
                     <i className="fa fa-edit track-tree-icon track-tree-icon-replace"/>
                     <i className="fa fa-plus track-tree-icon track-tree-icon-add-item"/>
-                    <i className="fa fa-plus-square track-tree-icon track-tree-icon-add-array"/>
+                    <i className="fa fa-plus track-tree-icon track-tree-icon-add-array"/>
                 </div>
             </div>
 

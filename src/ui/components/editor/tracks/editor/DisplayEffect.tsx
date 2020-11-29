@@ -14,13 +14,12 @@ export interface DisplayEffectProps {
 }
 export const DisplayEffect: FC<DisplayEffectProps> = memo(({effect}) => {
     const {effectConstructorMap} = useContext(ConstructorContext);
+    const effectClass = useEffectClass(effect);
+
     if (!effect) {
         return <span className="track-description _empty">empty</span>
     }
     const [enabled, id, params = [], filters = []] = effect;
-
-    const effectClass = useEffectClass(effect);
-
     if (id) {
         const effectConstructor = effectConstructorMap[id];
         const meta: ParseMeta = effectConstructor['meta'];

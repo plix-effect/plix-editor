@@ -50,14 +50,32 @@ export const ColorTrack: FC<ColorTrackProps> = memo(({value, children, path, del
         }
     }, [value, deleteAction]);
 
-
     const onDragOverItemSelf = useMemo(() => {
         return createDefaultDragTypeBehavior("color", path, dispatch, onDragOverItem)
     }, [path, dispatch, onDragOverItem]);
 
+    const onClickDelete: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        if (deleteAction) dispatch(deleteAction);
+    }, [deleteAction, clearAction, dispatch]);
+
+    const onClickClear: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        if (clearAction) dispatch(clearAction);
+    }, [deleteAction, clearAction, dispatch]);
+
+    const rightIcons = (<>
+        {(deleteAction) && (
+            <i className="far fa-trash-alt track-tree-icon track-tree-icon-action" onClick={onClickDelete} title="delete"/>
+        )}
+        {(clearAction) && (
+            <i className="fa fa-times track-tree-icon track-tree-icon-action" onClick={onClickClear} title="clear"/>
+        )}
+    </>)
+
     return (
         <Track>
-            <TreeBlock onClick={onClick} onDragOverItem={onDragOverItemSelf} dragValue={dragValue} >
+            <TreeBlock onClick={onClick} onDragOverItem={onDragOverItemSelf} dragValue={dragValue} right={rightIcons}>
                 {children} <ColorView background={true} color={color}/>
             </TreeBlock>
             <TimelineBlock fixed>

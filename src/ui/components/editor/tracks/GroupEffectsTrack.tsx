@@ -6,7 +6,7 @@ import React, {
     useCallback,
     useContext,
     useMemo,
-    MouseEvent,
+    KeyboardEvent,
     useState, MouseEventHandler, FormEventHandler, DragEvent, useRef, useEffect
 } from "react";
 import {Track} from "../../timeline/Track";
@@ -71,7 +71,10 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
     }, [setEffect])
 
     const onClickTree: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
-        if (!event.ctrlKey && event.altKey && !event.shiftKey) clearEffect()
+        if (!event.ctrlKey && event.altKey && !event.shiftKey) clearEffect();
+        if (!event.ctrlKey && !event.altKey && event.shiftKey) {
+            if (effect === undefined) setEmptyEffect();
+        }
         if (!event.ctrlKey && !event.altKey && !event.shiftKey) changeExpanded();
     }, [dispatch]);
 
@@ -107,7 +110,7 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
         if (valueEffect === undefined) return void (dragData.dropEffect = "none");
         dragData.dropEffect = mode;
 
-        return ["_drop-insert", () => {
+        return ["_drop-add-item", () => {
             setEffect(valueEffect);
         }]
     }, [path, dispatch]);
@@ -117,20 +120,45 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
         if (effect) inputRef.current.focus();
     }, [effect]);
 
+    const onClickAdd: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        setEmptyEffect();
+    }, [setEmptyEffect]);
+
+    const onClickClear: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        clearEffect();
+    }, [clearEffect]);
+
+    const rightIcons = (<>
+        {effect === undefined && (
+            <i className="fa fa-plus track-tree-icon track-tree-icon-action" onClick={onClickAdd} title="add effect"/>
+        )}
+        {(effect !== undefined) && (
+            <i className="fa fa-times track-tree-icon track-tree-icon-action" onClick={onClickClear} title="clear"/>
+        )}
+    </>)
+
+    const onKeyDown = useCallback((event: KeyboardEvent<HTMLFormElement>) => {
+        if (event.nativeEvent.code === "Escape") clearEffect();
+    }, []);
+
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock type="title" onClick={onClickTree} onDragOverItem={onDragOverItemSelf}>
+            <TreeBlock type="title" onClick={onClickTree} onDragOverItem={onDragOverItemSelf} right={rightIcons}>
                 {expander}
                 <span className="track-description">Effects ({count})</span>
             </TreeBlock>
             <TimelineBlock type="title" fixed onClick={onClickTimeline}>
-                {effect === undefined && (
+                {effect === undefined && (<>
+                    <span className="track-description _desc">Effect prefabs</span>
+                    &nbsp;
                     <a onClick={setEmptyEffect}>[add]</a>
-                )}
+                </>)}
                 {effect !== undefined && (<>
                     <DisplayEffect effect={effect}/>
                     &nbsp;
-                    <form style={{margin:0}} onSubmit={onSubmit} onReset={clearEffect}>
+                    <form style={{margin:0}} onSubmit={onSubmit} onReset={clearEffect} onKeyDown={onKeyDown}>
                         <input autoFocus ref={inputRef} type="text" placeholder="prefab name" value={name} onChange={onEditName} />
                         <button type="submit" onClick={add} disabled={!name || name in effectsMap}>add</button>
                         <button type="reset">cancel</button>

@@ -8,6 +8,7 @@ import {EditorPath} from "../../../../../types/Editor";
 import {generateColorByText} from "../../../../../utils/generateColorByText";
 import {TrackContext} from "../../../TrackContext";
 import cn from "classnames";
+import {useSelectionControl, useSelectionPath} from "../../../SelectionContext";
 
 export interface RecordProps {
     record: PlixTimeEffectRecordJsonData,
@@ -17,7 +18,14 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
     const {duration} = useContext(ScaleDisplayContext) ?? {duration: 1};
     const dragRef = useContext(DragContext);
     const {dispatch} = useContext(TrackContext) || {};
-    const recordRef = useRef<HTMLDivElement>()
+    const recordRef = useRef<HTMLDivElement>();
+
+    const {toggleSelect, isSelectedPath} = useSelectionControl();
+    const selectionPath = useSelectionPath();
+
+    const selected = useMemo(() => {
+        return isSelectedPath(path);
+    }, [selectionPath, path]);
 
     const onDragStartName = useCallback((event: DragEvent<HTMLDivElement>) => {
         dragRef.current = {
@@ -40,13 +48,16 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
         if (dropEffect) recordRef.current.classList.add(`_${dropEffect}`);
     }, [record, path]);
 
-    const onClick = useCallback((event: MouseEvent<HTMLDivElement>) => {
+    const onClick = useCallback(({ctrlKey, altKey, shiftKey}: MouseEvent<HTMLDivElement>) => {
         if (!dispatch) return;
-        if (event.altKey) {
+        if (!ctrlKey && altKey && !shiftKey) {
             return dispatch(DeleteValueAction(path.slice(0, -1), record));
         }
-        if (event.ctrlKey) {
+        if (ctrlKey && !altKey && !shiftKey) {
             return dispatch(EditValueAction([...path, 0], !enabled));
+        }
+        if (ctrlKey && !altKey && shiftKey) {
+            return toggleSelect(path);
         }
     }, [path, record]);
 
@@ -88,13 +99,12 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
                 }}
                 ref={recordRef}
                 onClick={onClick}
-                title={createTitleRecord(record)}
             >
                 <div
                     onDragStart={onDragStartName}
                     onDrag={onDragName}
                     onDragEnd={onDragEndAll}
-                    className={cn("timeline-record-name", {"_disabled": !enabled})}
+                    className={cn("timeline-record-name", {"_disabled": !enabled, "_selected": selected})}
                     draggable
                     style={{backgroundColor: generateColorByText(link, enabled ? 1 : 0.2, 0.3, enabled ? 1 : 0.5)}}
                 >{link}</div>
@@ -103,34 +113,16 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
                     draggable
                     onDragStart={onDragStartLeft}
                     onDragEnd={onDragEndAll}
-                    title={createTitleResize(record, "left")}
                 />
                 <div
                     className="timeline-record-scaling _right"
                     draggable
                     onDragStart={onDragStartRight}
                     onDragEnd={onDragEndAll}
-                    title={createTitleResize(record, "right")}
                 />
 
             </div>
         );
 
-    }, [duration, start, link, recordDuration, enabled, onDragStartRight, onDragStartLeft]);
+    }, [duration, start, link, recordDuration, enabled, onDragStartRight, onDragStartLeft, selected]);
 });
-
-const createTitleRecord = (record: PlixTimeEffectRecordJsonData) =>
-    `${record[1]}\n\n` +
-    "[Alt + Click] = delete\n" +
-    `[Ctrl + Click] = ${record[0] ? 'disable' : 'enable'}\n` +
-    "[Drag] = move to new position\n" +
-    "[Shift + Drag] = don't snap on grid\n" +
-    "[Ctrl + Drag] = copy\n"
-;
-
-const createTitleResize = (record: PlixTimeEffectRecordJsonData, pos) =>
-    `start = ${Math.round(record[2])}ms\n` +
-    `duration = ${Math.round(record[3])}ms\n\n` +
-    "[Drag] = resize\n" +
-    "[Shift + Drag] = don't snap on grid\n"
-;
