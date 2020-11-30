@@ -24,6 +24,7 @@ let canvas;
 let canvasCtx;
 let performanceOffset;
 let status;
+let playbackRate;
 let lastPauseTime;
 let playFromTimestamp;
 let renderData;
@@ -42,6 +43,7 @@ const handleSyncPerformanceMsg = (msg) => {
 const handlePlaybackStatusMsg = (msg) => {
     status = msg.status;
     if (parsedData != null && status === "play") {
+        playbackRate = msg.rate;
         startRendering();
         return;
     }
@@ -134,7 +136,7 @@ const startRendering = () => {
             return;
         requestAnimationFrame(doRender);
         const time = performance.now() - playFromTimestamp;
-        renderTime(time);
+        renderTime(time * playbackRate);
     }
     doRender();
 };
