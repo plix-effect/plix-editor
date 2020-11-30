@@ -105,7 +105,7 @@ export const CanvasPreview:FC<CanvasPreviewProps> = ({duration, width, count, he
             value: performance.now()
         }
         workerRef.current.postMessage(msgSync, [])
-    }, [playbackStatus, workerRef.current, pauseTime])
+    }, [playbackStatus, workerRef.current, pauseTime, rate])
 
 
     useEffect(() => {

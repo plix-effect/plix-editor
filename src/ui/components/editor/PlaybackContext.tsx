@@ -83,10 +83,10 @@ export const CreatePlayback: FC<CreatePlaybackProps> = ({children, duration}) =>
         if (from == null) from = getPlayTime();
         if (from >= duration) return pause(duration);
         if (from >= repeatEnd) from = repeatStart;
-        const playFromStamp = performance.now() - (from / rate);
-        const segmentRepeat = (repeat == null) ? (playData.repeat) : repeat;
         const segmentRate = (rate == null) ? (playData.rate??1) : rate||1;
         const segmentDuration = (repeatEnd - from) / segmentRate;
+        const playFromStamp = performance.now() - (from / segmentRate);
+        const segmentRepeat = (repeat == null) ? (playData.repeat) : repeat;
         setPlayData({
             playFromStamp: playFromStamp,
             repeat: segmentRepeat,
