@@ -79070,10 +79070,10 @@ const CreatePlayback = ({ children, duration }) => {
             return pause(duration);
         if (from >= repeatEnd)
             from = repeatStart;
-        const playFromStamp = performance.now() - (from / rate);
-        const segmentRepeat = (repeat == null) ? (playData.repeat) : repeat;
         const segmentRate = (rate == null) ? ((_a = playData.rate) !== null && _a !== void 0 ? _a : 1) : rate || 1;
         const segmentDuration = (repeatEnd - from) / segmentRate;
+        const playFromStamp = performance.now() - (from / segmentRate);
+        const segmentRepeat = (repeat == null) ? (playData.repeat) : repeat;
         setPlayData({
             playFromStamp: playFromStamp,
             repeat: segmentRepeat,
@@ -83566,7 +83566,7 @@ const CanvasPreview = ({ duration, width, count, height, render, track }) => {
             value: performance.now()
         };
         workerRef.current.postMessage(msgSync, []);
-    }, [playbackStatus, workerRef.current, pauseTime]);
+    }, [playbackStatus, workerRef.current, pauseTime, rate]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         if (!workerRef.current || playFromStamp === null)
             return;
