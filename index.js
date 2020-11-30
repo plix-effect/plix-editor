@@ -84191,7 +84191,7 @@ function generateColorByText(value, s = 1, l = 0.5, a = 1) {
     for (let i = 0; i < value.length; i++) {
         v = v + value.charCodeAt(i) * (i + 1) * 9973;
     }
-    return `hsla(${v % 360},${s * 100}%, ${l * 100}%, ${a})`;
+    return `hsla(${v % 360},${40 + (v * v) % 61}%, ${l * 100}%, ${a})`;
 }
 
 
