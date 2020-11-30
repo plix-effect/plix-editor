@@ -31,11 +31,12 @@ export interface ArrayTrackProps {
     type: string,
     children: [name: ReactNode,desc: ReactNode]
     path: EditorPath,
+    title?: string,
     onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler],
     deleteAction?: MultiActionType,
     clearAction?: MultiActionType,
 }
-export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [name, desc], path, onDragOverItem, deleteAction, clearAction}) => {
+export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, title, type, children: [name, desc], path, onDragOverItem, deleteAction, clearAction}) => {
     const [expanded, expander, changeExpanded, setExpanded] = useExpander(false);
     const {dispatch} = useContext(TrackContext);
 
@@ -153,7 +154,7 @@ export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, type, children: [na
 
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock onDragOverItem={onDragOverItemSelf} dragValue={dragValue} onClick={onClick} right={rightIcons}>
+            <TreeBlock onDragOverItem={onDragOverItemSelf} dragValue={dragValue} onClick={onClick} right={rightIcons} title={title}>
                 {expander}
                 <span className="track-description">{name}</span>
                 <span>{" "}</span>

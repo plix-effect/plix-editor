@@ -123,7 +123,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({leftBloc
             )}
 
 
-            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters}>
+            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters} title="filters applied to effect">
                 Filters
             </ValueTrack>
         </Track>

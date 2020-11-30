@@ -1,13 +1,21 @@
-import React, {FC, memo, ReactNode, DragEvent, DragEventHandler} from "react";
+import React, {FC, memo, ReactNode, DragEvent, DragEventHandler, ComponentType} from "react";
 import {EditorPath} from "../../../types/Editor";
 import {FilterTrack} from "./FilterTrack";
-import {ValueUnknownTrack} from "./ValueUnknownTrack";
 import {ArrayTrack} from "./ArrayTrack";
 import {EffectTrack} from "./EffectTrack";
-import {ColorTrack} from "./ColorTrack";
-import {NumberTrack} from "./NumberTrack";
 import {MultiActionType} from "../PlixEditorReducerActions";
 import {DragType} from "../DragContext";
+import {ValueWithEditorTrack} from "./ValueWithEditorTrack";
+import {InlineNumberEditor} from "./editor/inline/InlineNumberEditor";
+import {InlineBlenderEditor} from "./editor/inline/InlineBlenderEditor";
+import {InlineJsonEditor} from "./editor/inline/InlineJsonEditor";
+import {InlineColorEditor} from "./editor/inline/InlineColorEditor";
+
+const defaultInlineEditors: {[key: string]: ComponentType<{value:any, onChange:(value:any) => void}>} = {
+    color: InlineColorEditor,
+    number: InlineNumberEditor,
+    blend: InlineBlenderEditor,
+}
 
 export interface ValueTrackProps {
     value: any,
@@ -15,15 +23,16 @@ export interface ValueTrackProps {
     children?: ReactNode
     description?: ReactNode
     path: EditorPath,
+    title?: string
     clearAction?: MultiActionType
     deleteAction?: MultiActionType
     onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]
 }
-export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, children, path, deleteAction, clearAction, onDragOverItem}) => {
+export const ValueTrack: FC<ValueTrackProps> = memo(({type, title, value, description, children, path, deleteAction, clearAction, onDragOverItem}) => {
 
     if (type.startsWith("array:")) {
         return (
-            <ArrayTrack path={path} value={value} type={type.substring(6)} onDragOverItem={onDragOverItem} deleteAction={deleteAction} clearAction={clearAction}>
+            <ArrayTrack title={title} path={path} value={value} type={type.substring(6)} onDragOverItem={onDragOverItem} deleteAction={deleteAction} clearAction={clearAction}>
                 {children}
                 <span className="track-description _desc">{description}</span>
             </ArrayTrack>
@@ -31,35 +40,47 @@ export const ValueTrack: FC<ValueTrackProps> = memo(({type, value, description, 
     }
     if (type === "filter") {
         return (
-            <FilterTrack filter={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction} clearAction={clearAction}>
+            <FilterTrack title={title} filter={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction} clearAction={clearAction}>
                 {children}
             </FilterTrack>
         )
     }
     if (type === "effect") {
         return (
-            <EffectTrack effect={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction} clearAction={clearAction}>
+            <EffectTrack title={title} effect={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction} clearAction={clearAction}>
                 {children}
             </EffectTrack>
         );
     }
-    if (type === "color") {
+    const ValueEditor = defaultInlineEditors[type];
+    if (ValueEditor) {
         return (
-            <ColorTrack value={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction} clearAction={clearAction}>
-                {children}
-            </ColorTrack>
+            <ValueWithEditorTrack
+                type={type}
+                title={title}
+                value={value}
+                path={path}
+                onDragOverItem={onDragOverItem}
+                deleteAction={deleteAction}
+                clearAction={clearAction}
+                EditorComponent={ValueEditor}
+            >
+                <span>{children}</span>
+            </ValueWithEditorTrack>
         );
     }
-    if (type === "number") {
-        return (
-            <NumberTrack value={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction} clearAction={clearAction}>
-                <span>{children}</span>
-            </NumberTrack>
-        )
-    }
     return (
-        <ValueUnknownTrack type={type} value={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction} clearAction={clearAction}>
+        <ValueWithEditorTrack
+            type={type}
+            title={title}
+            value={value}
+            path={path}
+            onDragOverItem={onDragOverItem}
+            deleteAction={deleteAction}
+            clearAction={clearAction}
+            EditorComponent={InlineJsonEditor}
+        >
             <span>{children}</span>
-        </ValueUnknownTrack>
-    )
+        </ValueWithEditorTrack>
+    );
 });

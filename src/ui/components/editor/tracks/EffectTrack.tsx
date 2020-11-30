@@ -36,13 +36,14 @@ export interface EffectTrackProps {
     path: EditorPath,
     baseExpanded?: boolean,
     children: ReactNode,
-    alias?: string,
     effect: PlixEffectJsonData,
+    title?: string,
+    alias?: string,
     deleteAction?: MultiActionType,
     clearAction?: MultiActionType,
     onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]
 }
-export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpanded, children, alias, deleteAction, clearAction, onDragOverItem}) => {
+export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, title, baseExpanded, children, alias, deleteAction, clearAction, onDragOverItem}) => {
     const [expanded, expander, changeExpanded, setExpanded] = useExpander(baseExpanded);
 
     const dragValue: DragType = useMemo<DragType>(() => {
@@ -176,6 +177,7 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, baseExpand
             setExpanded={setExpanded}
             expander={expander}
             path={path}
+            title={title}
             deleteAction={deleteAction}
             clearAction={clearAction}
             dragValue={dragValue}
@@ -272,7 +274,7 @@ const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, leftBlock, effect:
                 </span>
             </TimelineBlock>
 
-            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters}>
+            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters} title="filters applied to effect">
                 Filters
             </ValueTrack>
         </Track>
@@ -325,11 +327,11 @@ const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, le
             </TimelineBlock>
 
             {effectData.paramDescriptions.map((paramDesc) => (
-                <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description} clearAction={paramDesc.clearAction}>
+                <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description} clearAction={paramDesc.clearAction} title={paramDesc.description}>
                     {paramDesc.name}
                 </ValueTrack>
             ))}
-            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters}>
+            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters} title="filters applied to effect">
                 Filters
             </ValueTrack>
         </Track>

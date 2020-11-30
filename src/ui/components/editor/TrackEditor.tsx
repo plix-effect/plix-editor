@@ -113,11 +113,15 @@ export const TrackEditor: FC = () => {
 
     const playPause = useCallback(() => {
         if (playbackStatus === "play") return pause();
-        return play();
+        return play(null, 1, false);
+    }, [playbackStatus]);
+
+    const play025 = useCallback(() => {
+        return play(null, 0.25, false);
     }, [playbackStatus]);
 
     const repeat = useCallback(() => {
-        return play(null, true);
+        return play(null, null, true);
     }, [playbackStatus]);
 
     useEffect(() => {
@@ -185,6 +189,9 @@ export const TrackEditor: FC = () => {
                             <i className="fa fa-play"/>
                         )}
                     </button>
+                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={play025} title={"play 0.25 speed"}>
+                        <i className="fas fa-play-circle"/>
+                    </button>
                     <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={repeat} title={"Repeat"}>
                         <i className="fas fa-sync-alt"/>
                     </button>
@@ -200,7 +207,7 @@ export const TrackEditor: FC = () => {
                         <Track>
                             {null /*left*/}
                             {null /*right*/}
-                            <EffectTrack effect={track.render} baseExpanded={true} path={paths.render}>render</EffectTrack>
+                            <EffectTrack effect={track.render} baseExpanded={true} path={paths.render} title="main render effect">render</EffectTrack>
                             <GroupEffectsTrack effectsMap={track.effects} path={paths.effects}/>
                             <GroupFiltersTrack filtersMap={track.filters} path={paths.filters}/>
                             <GroupOptionsTrack options={track?.['editor']} path={paths.editor}/>

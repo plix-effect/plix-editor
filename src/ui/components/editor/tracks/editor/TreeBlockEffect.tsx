@@ -30,9 +30,10 @@ export interface TreeBlockEffectProps {
     setExpanded: Dispatch<SetStateAction<boolean>>,
     expander: ReactNode,
     changeExpanded: () => void,
+    title?: string,
     onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]
 }
-export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effect, path, deleteAction, setExpanded, clearAction, expander, changeExpanded, children, onDragOverItem}) => {
+export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effect, title, path, deleteAction, setExpanded, clearAction, expander, changeExpanded, children, onDragOverItem}) => {
     const {dispatch} = useContext(TrackContext);
 
     const {toggleSelect, isSelectedPath} = useSelectionControl();
@@ -106,7 +107,7 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
     </>)
 
     return (
-        <TreeBlock dragValue={dragValue} onClick={onClick} onDragOverItem={onDragOverItem} selected={selected} right={rightIcons}>
+        <TreeBlock dragValue={dragValue} onClick={onClick} onDragOverItem={onDragOverItem} selected={selected} right={rightIcons} title={title}>
             {expander}
             <span className="track-description">{children}</span>
             <span>{" "}</span>

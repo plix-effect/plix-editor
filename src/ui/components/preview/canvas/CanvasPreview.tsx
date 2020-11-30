@@ -31,7 +31,7 @@ export const CanvasPreview:FC<CanvasPreviewProps> = ({duration, width, count, he
     const lastUsedFilters = useRef<any[]>();
 
     const playbackStatus = usePlaybackStatus();
-    const {playFromStamp, pauseTime} = usePlaybackData()
+    const {playFromStamp, pauseTime, rate} = usePlaybackData()
 
     useEffect(() => {
         if (!canvas) return;
@@ -97,6 +97,7 @@ export const CanvasPreview:FC<CanvasPreviewProps> = ({duration, width, count, he
             type:"playback_status",
             status: playbackStatus,
             pauseTime: pauseTime,
+            rate: rate,
         }
         workerRef.current.postMessage(msg, [])
         const msgSync: CanvasPreviewWkInMsgSyncPerformance = {

@@ -29,25 +29,15 @@ export interface TreeBlockFilterProps {
     expander: ReactNode,
     setExpanded: Dispatch<SetStateAction<boolean>>,
     changeExpanded: () => void,
+    title?: string,
     onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]
 }
-export const TreeBlockFilter: FC<TreeBlockFilterProps> = memo(({dragValue, setExpanded, filter, path, deleteAction, clearAction, expander, changeExpanded, children, onDragOverItem}) => {
+export const TreeBlockFilter: FC<TreeBlockFilterProps> = memo(({dragValue, setExpanded, title, filter, path, deleteAction, clearAction, expander, changeExpanded, children, onDragOverItem}) => {
     const {dispatch} = useContext(TrackContext);
 
     const id = filter?.[1];
     const filterIsContainer = id === "FChain" || id === "BlendFilters";
     const filterClass = useFilterClass(filter);
-
-    const title: string|undefined = useMemo(() => {
-        if (!deleteAction && !dragValue) return undefined;
-        let title = "Ctrl + Click = disable\n"
-        if (deleteAction) title += "Alt + Click = delete\n";
-        if (filterIsContainer) title += "Shift + Click = add filter\n";
-        if (dragValue) {
-            title += "Draggable\n"
-        }
-        return title;
-    }, [deleteAction, dragValue])
 
     const onClick: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
         if (!event.ctrlKey && event.altKey && !event.shiftKey) {

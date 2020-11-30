@@ -7,7 +7,7 @@ export const AudioPlayer: FC = () => {
     const {audioFile} = useContext(AudioFileContext);
     const audioRef = useRef<HTMLAudioElement>();
     const {getPlayTime, stop} = usePlaybackControl();
-    const {playFromStamp} = usePlaybackData();
+    const {playFromStamp, rate} = usePlaybackData();
     const status = usePlaybackStatus();
 
     useEffect(() => {
@@ -41,6 +41,7 @@ export const AudioPlayer: FC = () => {
         } else {
             const time = getPlayTime();
             audioRef.current.currentTime = time/1000;
+            audioRef.current.playbackRate = rate;
             if (lastUrlRef.current) audioRef.current.play().then(() => {
                 // fix loading time
                 let time = getPlayTime();
@@ -48,7 +49,7 @@ export const AudioPlayer: FC = () => {
                 if (time !== null) audioRef.current.currentTime = time/1000;
             });
         }
-    }, [status, playFromStamp])
+    }, [status, playFromStamp, rate])
 
     return (
         <audio ref={audioRef} preload="auto" />

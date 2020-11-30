@@ -71,12 +71,12 @@ export const ContainerEffectTrack: FC<ContainerEffectTrackProps> = memo((
             <ArrayElementsTrack value={paramEffects} type="effect" path={paramEffectsPath} canDelete/>
 
             {effectData.paramDescriptions.map((paramDesc) => (
-                <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description}>
+                <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description} title={paramDesc.description}>
                     {paramDesc.name}
                 </ValueTrack>
             ))}
 
-            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters}>
+            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters} title="filters applied to effect">
                 Filters
             </ValueTrack>
         </Track>

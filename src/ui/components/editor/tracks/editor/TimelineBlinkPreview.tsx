@@ -25,7 +25,7 @@ export const TimelineBlinkPreview: FC<TimelineBlinkTrackProps> = memo(({cycle, o
     }, []);
 
     const status = usePlaybackStatus();
-    const {playFromStamp} = usePlaybackData();
+    const {playFromStamp, rate} = usePlaybackData();
     const {getPlayTime} = usePlaybackControl();
 
     useEffect(() => {
@@ -45,7 +45,7 @@ export const TimelineBlinkPreview: FC<TimelineBlinkTrackProps> = memo(({cycle, o
             lastTimeout = setTimeout(() => {
                 blink();
                 handleNextBlink();
-            }, timeout)
+            }, timeout / rate)
         }
         handleNextBlink();
         return () => {

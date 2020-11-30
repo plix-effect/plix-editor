@@ -21,6 +21,7 @@ let canvas: OffscreenCanvas;
 let canvasCtx: OffscreenCanvasRenderingContext2D
 let performanceOffset: number
 let status: PlaybackStatus;
+let playbackRate: number|null;
 let lastPauseTime: number|null;
 let playFromTimestamp: number
 let renderData: RenderMsgData;
@@ -42,6 +43,7 @@ const handleSyncPerformanceMsg = (msg: CanvasPreviewWkInMsgSyncPerformance) => {
 const handlePlaybackStatusMsg = (msg: CanvasPreviewWkInMsgPlaybackStatus) => {
     status = msg.status;
     if (parsedData != null && status === "play") {
+        playbackRate = msg.rate;
         startRendering();
         return;
     }
@@ -137,7 +139,7 @@ const startRendering = () => {
         if (currentRafProcessId !== rafRenderProcessId || status !== "play") return;
         requestAnimationFrame(doRender);
         const time = performance.now() - playFromTimestamp;
-        renderTime(time);
+        renderTime(time * playbackRate);
     }
     doRender();
 }
@@ -184,6 +186,7 @@ export interface CanvasPreviewWkInMsgPlaybackStatus {
     type: "playback_status",
     status: PlaybackStatus,
     pauseTime: number | null
+    rate: number | null
 }
 export interface CanvasPreviewWkInMsgRender {
     type: "render",

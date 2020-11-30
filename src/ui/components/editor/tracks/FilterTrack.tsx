@@ -34,12 +34,13 @@ export interface FilterTrackProps {
     filter: PlixFilterJsonData,
     path: EditorPath,
     children: ReactNode,
+    title?: string,
     alias?: string,
     clearAction?: MultiActionType,
     deleteAction?: MultiActionType,
     onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]
 }
-export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, filter, path, children, alias, deleteAction, onDragOverItem, clearAction}) => {
+export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, title, filter, path, children, alias, deleteAction, onDragOverItem, clearAction}) => {
     const [expanded, expander, changeExpanded, setExpanded] = useExpander(baseExpanded);
     const {dispatch} = useContext(TrackContext);
 
@@ -120,6 +121,7 @@ export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, filter, pa
             setExpanded={setExpanded}
             expander={expander}
             path={path}
+            title={title}
             clearAction={clearAction}
             deleteAction={deleteAction}
             dragValue={dragValue}

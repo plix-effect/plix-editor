@@ -1,13 +1,13 @@
 import React, {
+    ComponentType,
     DragEvent,
     DragEventHandler,
-    FC,
-    memo,
+    PropsWithChildren,
     MouseEventHandler,
     ReactNode,
     useCallback,
     useContext,
-    useMemo
+    useMemo, ReactElement,
 } from "react";
 import {Track} from "../../timeline/Track";
 import {EditorPath} from "../../../types/Editor";
@@ -16,18 +16,21 @@ import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {EditValueAction, MultiActionType} from "../PlixEditorReducerActions";
 import {TrackContext} from "../TrackContext";
 import {DragType} from "../DragContext";
-import {InlineJsonEditor} from "./editor/inline/InlineJsonEditor";
 
-export interface ValueUnknownTrackProps {
+export interface ValueWithEditorTrackProps<T,> {
     type: string,
-    value: any,
+    value: T,
     children: ReactNode
     path: EditorPath,
+    title?: string,
     deleteAction?: MultiActionType,
     clearAction?: MultiActionType,
     onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]
+    EditorComponent: ComponentType<{value:T, onChange:(value: T) => void}>
 }
-export const ValueUnknownTrack: FC<ValueUnknownTrackProps> = memo(({type, value, children, path, deleteAction, clearAction, onDragOverItem}) => {
+export const ValueWithEditorTrack = <T,>(
+    {type, title, value, children, path, deleteAction, clearAction, onDragOverItem, EditorComponent}: PropsWithChildren<ValueWithEditorTrackProps<T>>
+): ReactElement => {
     const {dispatch} = useContext(TrackContext);
 
     const onChange = useCallback((value) => {
@@ -75,12 +78,12 @@ export const ValueUnknownTrack: FC<ValueUnknownTrackProps> = memo(({type, value,
 
     return (
         <Track>
-            <TreeBlock onDragOverItem={onDragOverItemSelf} onClick={onClick} dragValue={dragValue} right={rightIcons}>
+            <TreeBlock title={title} onDragOverItem={onDragOverItemSelf} onClick={onClick} dragValue={dragValue} right={rightIcons}>
                 {children}
             </TreeBlock>
             <TimelineBlock fixed>
-                <InlineJsonEditor value={value} onChange={onChange}/>
+                <EditorComponent value={value} onChange={onChange}/>
             </TimelineBlock>
         </Track>
     );
-});
+};

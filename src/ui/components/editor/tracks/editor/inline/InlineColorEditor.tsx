@@ -8,12 +8,12 @@ import {colorToNumber, hslaToRgba, rgbaToNumber} from "@plix-effect/core/color";
 import Popup from "reactjs-popup";
 
 export interface InlineColorEditorProps {
-    color: any,
+    value: any,
     onChange: (color: any) => void
 }
-export const InlineColorEditor: FC<InlineColorEditorProps> = ({color, onChange}) => {
+export const InlineColorEditor: FC<InlineColorEditorProps> = ({value, onChange}) => {
 
-    const hslaColor = useMemo(() => parseColor(color, null), [color]);
+    const hslaColor = useMemo(() => parseColor(value, null), [value]);
     const styleColor = useMemo(() => getStyleColor(hslaColor), [hslaColor]);
 
     const [colorPickerValue, setColorPickerValue] = useState(hslaToRgba(hslaColor))
