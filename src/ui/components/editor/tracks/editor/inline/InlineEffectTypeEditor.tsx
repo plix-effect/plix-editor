@@ -31,12 +31,12 @@ const NO_EFFECT_OPTION:EffectInlineSelectOptionValue = (
     }
 )
 
-export interface InlineSelectEditorProps {
+export interface InlineEffectTypeEditorProps {
     effect: PlixEffectJsonData,
     onChange: (type: null|"alias"|"constructor", value?: string) => void
 }
 
-export const InlineEffectTypeEditor: FC<InlineSelectEditorProps> = ({effect, onChange}) => {
+export const InlineEffectTypeEditor: FC<InlineEffectTypeEditorProps> = ({effect, onChange}) => {
 
     const handleChange = useCallback((option: EffectInlineSelectOptionValue) => {
         const type = option.effectType;

@@ -1,10 +1,9 @@
-import React, {ChangeEvent, FC, MutableRefObject, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {FC, useCallback, useMemo, useState} from "react";
 import "./InlineEditor.scss"
-import {HSLAColor, RGBAColor} from "@plix-effect/core/types";
+import {RGBAColor} from "@plix-effect/core/types";
 import {parseColor} from "@plix-effect/core";
-import {useInlineEditableContainer} from "../../../../../use/useInlineEditableContainer";
 import { ChromePicker } from 'react-color'
-import {colorToNumber, hslaToRgba, rgbaToNumber} from "@plix-effect/core/color";
+import {rgbaToNumber, toRgba} from "@plix-effect/core/color";
 import Popup from "reactjs-popup";
 
 export interface InlineColorEditorProps {
@@ -13,10 +12,10 @@ export interface InlineColorEditorProps {
 }
 export const InlineColorEditor: FC<InlineColorEditorProps> = ({value, onChange}) => {
 
-    const hslaColor = useMemo(() => parseColor(value, null), [value]);
-    const styleColor = useMemo(() => getStyleColor(hslaColor), [hslaColor]);
+    const rgbaColor = useMemo(() => toRgba(parseColor(value, null)), [value]);
+    const styleColor = useMemo(() => getStyleColor(rgbaColor), [rgbaColor]);
 
-    const [colorPickerValue, setColorPickerValue] = useState(hslaToRgba(hslaColor))
+    const [colorPickerValue, setColorPickerValue] = useState(rgbaColor)
 
     const handleChange = useCallback((changedColor) => {
         setColorPickerValue(changedColor.rgb);
@@ -34,7 +33,7 @@ export const InlineColorEditor: FC<InlineColorEditorProps> = ({value, onChange})
                 <div className={"ice-color"} style={{backgroundColor: styleColor}}/>
             </div>
         )
-    }, [hslaColor])
+    }, [rgbaColor])
 
     return (
         <div className={"inline-color-editor"}>
@@ -45,16 +44,8 @@ export const InlineColorEditor: FC<InlineColorEditorProps> = ({value, onChange})
     );
 }
 
-function getStyleColor(color: HSLAColor) {
-    const h = color[0]*360;
-    const s = color[1]*100;
-    const l = color[2]*100;
-    const a = color[3]*100;
-    return `hsla(${h},${s}%,${l}%,${a}%)`
-}
-
-function toHtmlColor(color: HSLAColor){
-    return "#" + String((colorToNumber(color)>>>8).toString(16)).padStart(6, "0");
+function getStyleColor({r,g,b,a}: RGBAColor) {
+    return `rgba(${r},${g},${b},${a})`
 }
 
 function toSaveColor(color: RGBAColor): number {

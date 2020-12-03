@@ -1,4 +1,4 @@
-import React, {FC, Fragment, memo, useContext, useEffect, useMemo, useRef, useState} from "react";
+import React, {FC, memo, useContext, useEffect, useMemo, useState} from "react";
 import {ScaleDisplayContext} from "../../../ScaleDisplayContext";
 import "./TimelineEditorGrid.scss";
 
@@ -6,18 +6,25 @@ const MIN_GRID_SIZE = 5;
 const CANVAS_OVERSIZE = 1000;
 
 export interface TimelineEditorGridProps {
-    cycle: number
+    bpm: number
     grid: number
     offset: number
+    repeatStart: number
+    repeatEnd: number
 }
-export const TimelineEditorGrid: FC<TimelineEditorGridProps> = memo(({cycle, grid, offset}) => {
+export const TimelineEditorGrid: FC<TimelineEditorGridProps> = memo(({bpm, grid, offset, repeatStart, repeatEnd}) => {
     const {trackWidth, zoom, timelineEl} = useContext(ScaleDisplayContext);
     const [canvasEl, setCanvasEl] = useState<HTMLCanvasElement>();
-    const offsetPx = zoom*offset;
+    const cycle = 60000 / bpm;
+    const offsetPx = offset * zoom;
     const cycleWidth = cycle * zoom;
     const cycleCount = Math.ceil((trackWidth - offsetPx) / cycleWidth);
     const showCycle = cycleWidth >= MIN_GRID_SIZE;
     const showGrid = grid > 1 && cycleWidth/grid >= MIN_GRID_SIZE;
+    const repeatStartTime = repeatStart > 0 ? offset + cycle * repeatStart : 0;
+    const repeatEndTime = repeatEnd > 0 ? offset + cycle * repeatEnd : 0;
+    const repeatStartPx = repeatStartTime * zoom;
+    const repeatEndPx = repeatEndTime * zoom;
 
     useEffect(() => {
         if (!canvasEl || !timelineEl) return;
@@ -55,19 +62,38 @@ export const TimelineEditorGrid: FC<TimelineEditorGridProps> = memo(({cycle, gri
 
 
             if (showCycle) for (let i=startCycle; i<cycleCount; i++) {
-                const linePos = (offset + cycle * i) * zoom - canvasStartPx;
+                const linePx = (offset + cycle * i) * zoom;
+                if (repeatEndPx > 0 && linePx > repeatEndPx) break;
+                const linePos = linePx - canvasStartPx;
                 if (linePos > canvasWidth) break;
-                drawLine(ctx, linePos|0, 0, height, "#888");
+                const inRepeat = repeatEndPx > 0 && linePx >= repeatStartPx;
+                drawLine(ctx, linePos|0, 0, height, inRepeat ? "#ff0" : "#888");
 
                 if (showGrid) for (let j=1; j<grid; j++) {
-                    const lineGridPos = ((offset + cycle * i) + (cycle * j/grid)) * zoom - canvasStartPx;
+                    const gridWidthPx = (cycle / grid) * zoom;
+                    const lineGridPx = (offset + cycle * i) * zoom + gridWidthPx * j;
+                    const lineGridPos = lineGridPx - canvasStartPx;
                     if (lineGridPos > canvasWidth) break;
-                    drawLine(ctx, lineGridPos|0, 4, height-8, "#444");
+                    const inRepeat = repeatEndPx > 0 && lineGridPx >= repeatStartPx;
+                    drawLine(ctx, lineGridPos|0, 4, height-8, inRepeat ? "#880" : "#444");
+                    if (gridWidthPx >= 40) {
+                        ctx.fillStyle = "#444"
+                        ctx.fillText(`${j}/${grid}`, (lineGridPos|0)+2, 10, cycleWidth);
+                    }
                 }
 
                 if (cycleWidth >= 10) {
                     ctx.fillStyle = "#fff"
-                    ctx.fillText(String(i+1), linePos+2, 10, cycleWidth);
+                    ctx.fillText(String(i), linePos+2, 10, cycleWidth);
+                }
+            }
+
+            if (repeatEndPx > 0) {
+                const repeatEndLinePos = Math.max(repeatEndPx - canvasStartPx, 0);
+                if (repeatEndLinePos <= canvasWidth) {
+                    ctx.clearRect(repeatEndLinePos, 0, canvasWidth - repeatEndLinePos, height);
+                    hatchRect(ctx, repeatEndLinePos, 0, canvasWidth - repeatEndLinePos, height, 15, "#880");
+                    drawLine(ctx, repeatEndLinePos|0, 0, height, "#ff0");
                 }
             }
         }
@@ -85,7 +111,7 @@ export const TimelineEditorGrid: FC<TimelineEditorGridProps> = memo(({cycle, gri
         timelineEl.addEventListener("scroll", onScroll);
         return () => timelineEl.removeEventListener("scroll", onScroll);
 
-    }, [canvasEl, zoom, cycle, grid, offset, showCycle, showGrid])
+    }, [canvasEl, zoom, cycle, grid, offset, showCycle, showGrid, repeatStartPx, repeatEndPx])
 
     return useMemo(() => (
         <canvas className="timeline-editor-grid-canvas" ref={setCanvasEl}/>

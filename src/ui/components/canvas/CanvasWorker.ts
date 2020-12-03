@@ -1,5 +1,5 @@
 import parseRender from "@plix-effect/core";
-import {hslaToRgba} from "@plix-effect/core/color";
+import {toRgba, TRANSPARENT_BLACK} from "@plix-effect/core/color";
 import {Effect} from "@plix-effect/core/types";
 import * as effectConstructorMap from "@plix-effect/core/effects";
 import * as filterConstructorMap from "@plix-effect/core/filters";
@@ -34,8 +34,8 @@ onmessage = (event) => {
             const line = effect(h/height*duration, duration);
             for (let w=0; w<width; w++){
                 const mod = line(w/width*count, count);
-                const color = mod([0,0,0,0]);
-                const {r,g,b,a} = hslaToRgba(color);
+                const color = mod(TRANSPARENT_BLACK);
+                const {r,g,b,a} = toRgba(color);
                 const index = ((h*width) + w) * 4;
                 colorMap[index] = r;
                 colorMap[index+1] = g;

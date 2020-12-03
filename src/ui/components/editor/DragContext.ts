@@ -13,7 +13,11 @@ export interface DragTypes {
         side: "left"|"right"
     },
     typedValue: { type: string, value: any }
-    record: PlixTimeEffectRecordJsonData,
+    recordMove: {
+        record: PlixTimeEffectRecordJsonData,
+        bpm: number,
+        offset: number
+    },
     deleteAction: MultiActionType,
     dropEffect: null | "none" | "copy" | "link" | "move",
     offsetX: number,

@@ -6,12 +6,14 @@ import "../TimelineBlinkTrack.scss";
 import {usePlaybackControl, usePlaybackData, usePlaybackStatus} from "../../PlaybackContext";
 
 export interface TimelineBlinkTrackProps {
-    cycle: number
+    bpm: number
     offset: number;
 }
-export const TimelineBlinkPreview: FC<TimelineBlinkTrackProps> = memo(({cycle, offset}) => {
+export const TimelineBlinkPreview: FC<TimelineBlinkTrackProps> = memo(({bpm, offset}) => {
 
     const imgRef = useRef<HTMLImageElement>();
+
+    const cycle = 60000/bpm;
 
     const blink = useCallback(() => {
         const img = imgRef.current;

@@ -9,16 +9,22 @@ import {generateColorByText} from "../../../../../utils/generateColorByText";
 import {TrackContext} from "../../../TrackContext";
 import cn from "classnames";
 import {useSelectionControl, useSelectionPath} from "../../../SelectionContext";
+import {TIMELINE_LCM} from "@plix-effect/core";
 
 export interface RecordProps {
     record: PlixTimeEffectRecordJsonData,
     path: EditorPath,
+    bpm: number,
+    offset: number
 }
-export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, link, start, recordDuration]}) => {
+export const Record: FC<RecordProps> = memo(({path, bpm, offset, record, record: [enabled, link, startM, endM]}) => {
     const {duration} = useContext(ScaleDisplayContext) ?? {duration: 1};
     const dragRef = useContext(DragContext);
     const {dispatch} = useContext(TrackContext) || {};
     const recordRef = useRef<HTMLDivElement>();
+    const cycle = 60000 / bpm;
+    const start = offset + startM * cycle / TIMELINE_LCM;
+    const recordDuration = (endM - startM) * cycle / TIMELINE_LCM;
 
     const {toggleSelect, isSelectedPath} = useSelectionControl();
     const selectionPath = useSelectionPath();
@@ -32,7 +38,11 @@ export const Record: FC<RecordProps> = memo(({path, record, record: [enabled, li
             effect: [true, null, link, []],
             typedValue: {type: "effect", value: [true, null, link, []]},
             effectLink: [true, null, link, []],
-            record: record,
+            recordMove: {
+                record,
+                bpm,
+                offset
+            },
             deleteAction: DeleteAction(path),
             offsetX: event.nativeEvent.offsetX,
             offsetY: event.nativeEvent.offsetY,

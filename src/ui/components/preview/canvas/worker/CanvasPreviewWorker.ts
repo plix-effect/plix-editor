@@ -4,8 +4,8 @@ import type {PlaybackStatus} from "../../../editor/PlaybackContext";
 import * as effectConstructorMap from "@plix-effect/core/effects";
 import * as filterConstructorMap from "@plix-effect/core/filters";
 import parseRender from "@plix-effect/core/dist/parser";
-import {HSLAColor} from "@plix-effect/core/types";
-import {hslaToRgba} from "@plix-effect/core/color";
+import {RGBAColor} from "@plix-effect/core/types";
+import {toRgba, BLACK} from "@plix-effect/core/color";
 
 interface RenderMsgData {
     width: number,
@@ -104,8 +104,8 @@ const renderTime = (time: number) => {
     const line = parsedData.effect(time, renderData.duration);
     for (let i = 0; i < count; i++) {
         const mod = line(i, count);
-        const color = mod([0,0,0,0]);
-        renderPixel(i, color);
+        const color = mod(BLACK);
+        renderPixel(i, toRgba(color));
     }
 }
 
@@ -113,7 +113,7 @@ const startPixelCoord = [25,25];
 const maxPixelRadius = 15;
 const distanceBetweenPixels = 42;
 const TwoPI = 2 * Math.PI;
-const renderPixel = (pixelIndex: number, color?: HSLAColor) => {
+const renderPixel = (pixelIndex: number, color?: RGBAColor) => {
     let [x,y] = startPixelCoord;
     x = x+(pixelIndex*distanceBetweenPixels);
     canvasCtx.beginPath();
@@ -122,9 +122,10 @@ const renderPixel = (pixelIndex: number, color?: HSLAColor) => {
     canvasCtx.strokeStyle = "#444";
     canvasCtx.stroke();
     if (!color) return;
-    const sizeGain = Math.min(color[2]*2, 1); // L
+    const {r,g,b,a} = color;
+    const lum = 0.3 * r*a + 0.59 * g*a + 0.11 * b*a; // luminosity value: 0-255
+    const sizeGain = Math.min(lum/128, 1); // L
     const radius = Math.round(Math.sqrt(sizeGain)*maxPixelRadius);
-    const {r,g,b,a} = hslaToRgba(color);
     canvasCtx.beginPath();
     canvasCtx.arc(x, y, radius, 0, TwoPI);
     canvasCtx.fillStyle = `rgba(${r},${g},${b},${a})`;

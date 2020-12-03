@@ -7,9 +7,11 @@ import {getArrayKey} from "../../../../../utils/KeyManager";
 
 export interface RecordsProps {
     records: PlixTimeEffectRecordJsonData[],
+    bpm: number,
     path: EditorPath,
+    offset: number,
 }
-export const Records: FC<RecordsProps> = memo(({records, path}) => {
+export const Records: FC<RecordsProps> = memo(({records, path, bpm, offset}) => {
 
     return useMemo(() => {
         return (
@@ -18,11 +20,11 @@ export const Records: FC<RecordsProps> = memo(({records, path}) => {
                     const key = getArrayKey(records, i);
                     const valPath: EditorPath = [...path, {key: String(key)}]
                     return (
-                        <Record record={record} key={key} path={valPath} />
+                        <Record record={record} key={key} path={valPath} bpm={bpm} offset={offset} />
                     );
                 })}
             </Fragment>
         );
 
-    }, [records]);
+    }, [records, path, bpm, offset]);
 })

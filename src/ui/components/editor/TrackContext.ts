@@ -1,5 +1,5 @@
 import {createContext, Dispatch} from "react";
-import type {EffectConstructorMap, FilterConstructorMap, PlixJsonData} from "@plix-effect/core/types/parser";
+import type {PlixJsonData} from "@plix-effect/core/types/parser";
 import type {PlixEditorAction} from "./PlixEditorReducer";
 
 export interface TrackContextProps {

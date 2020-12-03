@@ -10,11 +10,13 @@ import {InlineNumberEditor} from "./editor/inline/InlineNumberEditor";
 import {InlineBlenderEditor} from "./editor/inline/InlineBlenderEditor";
 import {InlineJsonEditor} from "./editor/inline/InlineJsonEditor";
 import {InlineColorEditor} from "./editor/inline/InlineColorEditor";
+import {InlineGridEditor} from "./editor/inline/InlineGridEditor";
 
 const defaultInlineEditors: {[key: string]: ComponentType<{value:any, onChange:(value:any) => void}>} = {
     color: InlineColorEditor,
     number: InlineNumberEditor,
     blend: InlineBlenderEditor,
+    grid: InlineGridEditor,
 }
 
 export interface ValueTrackProps {
@@ -36,6 +38,22 @@ export const ValueTrack: FC<ValueTrackProps> = memo(({type, title, value, descri
                 {children}
                 <span className="track-description _desc">{description}</span>
             </ArrayTrack>
+        )
+    }
+    if (type.startsWith("grid:")) {
+        return (
+            <ValueWithEditorTrack
+                type={type}
+                title={title}
+                value={value}
+                path={path}
+                onDragOverItem={onDragOverItem}
+                deleteAction={deleteAction}
+                clearAction={clearAction}
+                EditorComponent={InlineGridEditor}
+            >
+                <span>{children}</span>
+            </ValueWithEditorTrack>
         )
     }
     if (type === "filter") {

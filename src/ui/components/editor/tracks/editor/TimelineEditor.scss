@@ -33,4 +33,9 @@
   &._unavailable {
     background-color: #c00;
   }
+
+  &._foreground {
+    z-index: 1;
+    background-color: #cc0;
+  }
 }

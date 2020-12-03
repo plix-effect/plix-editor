@@ -14,6 +14,9 @@ import {EditValueAction} from "../PlixEditorReducerActions";
 import {InlineJsonEditor} from "./editor/inline/InlineJsonEditor";
 import {InlineNumberEditor} from "./editor/inline/InlineNumberEditor";
 import {TimelineBlinkPreview} from "./editor/TimelineBlinkPreview";
+import {ParseMeta} from "../../../types/ParseMeta";
+import {getArrayKey} from "../../../utils/KeyManager";
+import {ConstructorContext} from "../ConstructorContext";
 
 export interface TimelineEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
@@ -22,106 +25,61 @@ export interface TimelineEffectTrackProps {
     expanded: boolean,
     leftBlock?: ReactNode
 }
-export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({leftBlock, effect, effect: [,, params, filters], path, onChange, expanded}) => {
+export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({leftBlock, effect, effect: [,effectId, params, filters], path, onChange, expanded}) => {
 
     const filtersPath = useMemo(() => [...path, 3], [path]);
     const timelinePath = useMemo(() => [...path, 2, 0], [path]);
     const valueFilters = useMemo(() => filters ?? [], [filters]);
-    const {dispatch} = useContext(TrackContext);
-
-    const onChangeCycle = useCallback((value) => {
-        if (!value || !params[1]) {
-            const newParams = [params[0], value ?? 0, params[2] ?? 1, params[3] ?? 0];
-            return dispatch(EditValueAction([...path, 2], newParams));
-        }
-        if (!params[1]) {
-            const newParams = [params[0], null, params[2] ?? 1, params[3] ?? 0];
-            return dispatch(EditValueAction([...path, 2], newParams));
-        }
-        const zoom = value / params[1];
-        const offset = params[3] ?? 0;
-        const newRecords = (params[0] ?? []).map(([enabled, link, start, duration]) => {
-            const zoomStart = (start - offset) * zoom + offset
-            return [enabled, link, zoomStart, duration*zoom];
-        });
-        const newParams = [newRecords, value, params[2] ?? 1, offset];
-        dispatch(EditValueAction([...path, 2], newParams));
-    }, [path, params, dispatch]);
-
-    const onChangeGrid = useCallback((value) => {
-        const newParams = [params[0], params[1] ?? 0, value ?? 1, params[3] ?? 0];
-        dispatch(EditValueAction([...path, 2], newParams));
-    }, [path, params, dispatch]);
-
-    const onChangeOffset = useCallback((value) => {
-        const shift = value - params[3];
-        const newRecords = (params[0] ?? []).map(([enabled, link, start, duration]) => {
-            return [enabled, link, start+shift, duration];
-        });
-        const newParams = [newRecords, params[1] ?? 0, params[2] ?? 1, value ?? 0];
-        dispatch(EditValueAction([...path, 2], newParams));
-    }, [path, params, dispatch]);
+    const {effectConstructorMap} = useContext(ConstructorContext);
 
     const clearFilters = useMemo(() => {
         return EditValueAction([...path, 3], []);
     }, [path]);
 
+    const effectData = useMemo(() => {
+        const effectConstructor = effectConstructorMap[effectId];
+        const meta: ParseMeta = effectConstructor['meta'];
+        const paramDescriptions = meta.paramNames.slice(1).map((paramName, i) => ({
+            name: paramName,
+            type: meta.paramTypes[i+1],
+            description: meta.paramDescriptions[i+1],
+            value: params[i+1],
+            path: [...path, 2, {key: getArrayKey(params, i+1)}]
+        }))
+        return {
+            name: meta.name,
+            description: meta.description,
+            paramDescriptions: paramDescriptions
+        }
+    }, [effectId, params, path, effectConstructorMap]);
+
+
     return (
         <Track nested expanded={expanded}>
             {leftBlock}
             <TimelineBlock type="timeline">
-                <TimelineEditor cycle={params[1]} grid={params[2]} offset={params[3]} records={params[0]} path={timelinePath} />
+                <TimelineEditor records={params[0]} bpm={params[1]} grid={params[2]} offset={params[3]} repeatStart={params[4]} repeatEnd={params[5]} path={timelinePath} />
             </TimelineBlock>
 
             <EffectTypeTrack onChange={onChange} effect={effect} />
 
-            <Track>
-                <TreeBlock>
-                    <span className="track-description">
-                        Cycle
-                    </span>
-                </TreeBlock>
-                <TimelineBlock fixed>
-                    <InlineNumberEditor value={params[1]} onChange={onChangeCycle}/>
-                </TimelineBlock>
-            </Track>
+            {effectData.paramDescriptions.map((paramDesc) => (
+                <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description} title={paramDesc.description}>
+                    {paramDesc.name}
+                </ValueTrack>
+            ))}
+
 
             <Track>
                 <TreeBlock>
-                    <span className="track-description">
-                        Grid
-                    </span>
+                <span className="track-description">
+                    Blink preview
+                </span>
                 </TreeBlock>
                 <TimelineBlock fixed>
-                    <InlineNumberEditor  value={params[2]} onChange={onChangeGrid}/>
+                    <TimelineBlinkPreview bpm={params[1]} offset={params[3]} />
                 </TimelineBlock>
             </Track>
-
-            <Track>
-                <TreeBlock>
-                    <span className="track-description">
-                        Offset
-                    </span>
-                </TreeBlock>
-                <TimelineBlock fixed>
-                    <InlineNumberEditor value={params[3]} onChange={onChangeOffset}/>
-                </TimelineBlock>
-            </Track>
-
-            {params[1] > 0 && (
-                <Track>
-                    <TreeBlock>
-                    <span className="track-description">
-                        Blink preview
-                    </span>
-                    </TreeBlock>
-                    <TimelineBlock fixed>
-                        <TimelineBlinkPreview cycle={params[1]} offset={params[3]} />
-                    </TimelineBlock>
-                </Track>
-
-            )}
-
 
             <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters} title="filters applied to effect">
                 Filters
