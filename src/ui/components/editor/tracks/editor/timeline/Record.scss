@@ -4,6 +4,13 @@
     top: 0;
     bottom: 0;
     overflow: hidden;
+    &._selected {
+        overflow: visible;
+        .timeline-record-name {
+            outline: solid 2px #888844;
+            z-index: 1;
+        }
+    }
 
     &._drag {
         .timeline-record-name {
@@ -43,9 +50,6 @@
     cursor: grab;
     &._disabled {
         border-color: rgba(255, 255, 255, 0.5);
-    }
-    &._selected {
-        outline: solid 1px #888844;
     }
 }
 

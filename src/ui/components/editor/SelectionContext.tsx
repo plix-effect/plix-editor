@@ -1,4 +1,4 @@
-import React, {createContext, FC, memo, useContext, useEffect, useMemo, useState} from "react";
+import React, {createContext, Dispatch, FC, memo, useContext, useEffect, useMemo, useRef, useState} from "react";
 import useLatestCallback from "../../use/useLatestCallback";
 import {EditorPath} from "../../types/Editor";
 import type {PlixJsonData} from "@plix-effect/core/types/parser";
@@ -6,6 +6,8 @@ import {EffectConstructorMap, FilterConstructorMap} from "@plix-effect/core/dist
 import {ConstructorContext} from "./ConstructorContext";
 import {getArrayKeyIndex} from "../../utils/KeyManager";
 import {ParseMeta} from "../../types/ParseMeta";
+import {PlixEditorAction} from "./PlixEditorReducer";
+import {EditValueAction, InsertValuesAction, PushValueAction} from "./PlixEditorReducerActions";
 
 
 interface SelectionItemContextProps {
@@ -24,8 +26,11 @@ const SelectionControlContext = createContext<SelectionControlContextProps|null>
 
 export interface CreatePlaybackProps {
     track: PlixJsonData;
+    dispatch: Dispatch<PlixEditorAction>
 }
-export const CreateSelectionData: FC<CreatePlaybackProps> = memo(({children, track}) => {
+export const SelectionProvider: FC<CreatePlaybackProps> = memo(({children, track, dispatch}) => {
+
+    const shiftKeyDown = useRef(false);
 
     interface SelectionData {
         selectedItem: any;
@@ -39,6 +44,91 @@ export const CreateSelectionData: FC<CreatePlaybackProps> = memo(({children, tra
     });
 
     const {effectConstructorMap, filterConstructorMap} = useContext(ConstructorContext);
+
+    const onCopy = useLatestCallback((event: DocumentEventMap["copy"]) => {
+        const focusedNode = document.querySelectorAll(":focus:not(body)");
+        if (focusedNode.length > 0) return;
+        const data = JSON.stringify({
+            type: selectionData.selectedType,
+            item: selectionData.selectedItem,
+        });
+        event.clipboardData.setData('application/json', data);
+        event.clipboardData.setData('text/plain', data);
+        event.preventDefault();
+    });
+
+    const onPaste = useLatestCallback((event: DocumentEventMap["paste"]) => {
+        const focusedNode = document.querySelectorAll(":focus:not(body)");
+        if (focusedNode.length > 0) return;
+        // PASTE DATA -> CURRENT DATA: ACTION / SHIFT-ACTION
+        // array:x -> x in array: insert after / skip
+        // x -> x in array: insert after / skip
+        // x -> x: replace / replace
+        try {
+            let data = event.clipboardData.getData('application/json');
+            if (!data) data = event.clipboardData.getData('text/plain'); // ctrl + shift + v
+            const {type, item} = JSON.parse(data);
+            if (type === "effectId" || type === "filterId") return;
+            const selectionInArray = isSelectionInArray(track, selectionData.selectedPath, effectConstructorMap, filterConstructorMap);
+            if (selectionData.selectedType === "record" && type === "record") {
+                const selItem = selectionData.selectedItem;
+                if (item[0] === selItem[0] && item[1] === selItem[1]) return;
+                dispatch(EditValueAction(selectionData.selectedPath, [item[0],item[1],selItem[2],selItem[3]]));
+                return event.preventDefault();
+            }
+            if (type === "array:"+selectionData.selectedType && selectionInArray && !shiftKeyDown.current) {
+                console.log("paste mode 1");
+                const parentSelection = getParentSelection(track, selectionData.selectedPath, effectConstructorMap, filterConstructorMap);
+                const lastPathElement = selectionData.selectedPath[selectionData.selectedPath.length-1];
+                let index = Number(lastPathElement);
+                if (typeof lastPathElement === "object") index = getArrayKeyIndex(parentSelection.item, lastPathElement.key);
+                dispatch(InsertValuesAction(parentSelection.path, index+1, item));
+                return event.preventDefault();
+            }
+            if (type === selectionData.selectedType && selectionInArray && !shiftKeyDown.current) {
+                console.log("paste mode 2");
+                const parentSelection = getParentSelection(track, selectionData.selectedPath, effectConstructorMap, filterConstructorMap);
+                const lastPathElement = selectionData.selectedPath[selectionData.selectedPath.length-1];
+                let index = Number(lastPathElement);
+                if (typeof lastPathElement === "object") index = getArrayKeyIndex(parentSelection.item, lastPathElement.key);
+                // console.log("COPIED",type, item);
+                // console.log("INSERT INTO", index);
+                // console.log("NOW SEL", selectionData.selectedPath);
+                // console.log("PARSEL", parentSelection.path);
+                // console.log("ACTION",InsertValuesAction(parentSelection.path, index, item));
+                dispatch(InsertValuesAction(parentSelection.path, index+1, [item]));
+                return event.preventDefault();
+            }
+            if (type === selectionData.selectedType) {
+                console.log("paste mode 3");
+                dispatch(EditValueAction(selectionData.selectedPath, item));
+                return event.preventDefault();
+            }
+            console.log("no paste mode");
+        } catch (ignored) {
+            console.log("pASTE ERROR", ignored);
+            return;
+        }
+    });
+
+    useEffect(() => {
+        const onKeyUpDown = (event: DocumentEventMap["keyup"]|DocumentEventMap["keydown"]) => {
+            shiftKeyDown.current = event.shiftKey;
+        }
+
+        document.addEventListener("keydown", onKeyUpDown);
+        document.addEventListener("keyup", onKeyUpDown);
+        document.addEventListener("copy", onCopy);
+        document.addEventListener("cut", onCopy);
+        document.addEventListener("paste", onPaste);
+        return () => {
+            document.removeEventListener("keydown", onKeyUpDown);
+            document.removeEventListener("keyup", onKeyUpDown);
+            document.removeEventListener("copy", onCopy);
+            document.removeEventListener("cut", onCopy);
+            document.removeEventListener("paste", onPaste);
+        }
+    }, []);
 
     useEffect(() => {
         if (selectionData.selectedPath) select(selectionData.selectedPath);
@@ -120,8 +210,8 @@ export function useSelectionControl(): SelectionControlContextProps{
 const staticSelectTypes = {
     track: {
         render: "effect",
-        effects: "array:effect",
-        filters: "array:filter",
+        effects: "map:effect",
+        filters: "map:filter",
         options: "trackOptions",
     },
     trackOptions: {
@@ -147,6 +237,8 @@ function selectItem(
         nextType = staticSelectTypes[type][key];
     } else if (type.startsWith("array:")) {
         nextType = type.substring(6);
+    } else if (type.startsWith("map:")) {
+        nextType = type.substring(4);
     } else if (type === "effect") {
         const effectId = item[1];
         nextType = ["boolean", "effectId", `effectParams:${effectId}`, "array:filter"][key];
@@ -168,4 +260,27 @@ function selectItem(
     return selectItem(nextType, item[key], effectConstructorMap, filterConstructorMap, path);
 }
 
+function isSelectionInArray(
+    track: PlixJsonData,
+    path: EditorPath,
+    effectConstructorMap: EffectConstructorMap,
+    filterConstructorMap: FilterConstructorMap
+) {
+    const selection = getParentSelection(track, path, effectConstructorMap, filterConstructorMap);
+    if (!selection) return false;
+    if (selection.type.startsWith("array:")) return true;
+}
+
+function getParentSelection(
+    track: PlixJsonData,
+    path: EditorPath,
+    effectConstructorMap: EffectConstructorMap,
+    filterConstructorMap: FilterConstructorMap
+) {
+    if (path.length < 1) return null;
+    const parentPath = path.slice(0, path.length - 1);
+    const item = selectItem("track", track, effectConstructorMap, filterConstructorMap, parentPath);
+    if (!item) return null;
+    return {...item, path: parentPath};
+}
 

@@ -19,6 +19,7 @@ import {PlixFilterJsonData} from "@plix-effect/core/types/parser";
 import {DisplayFilter} from "./DisplayFilter";
 import {useFilterClass} from "../../../../use/useFilterClass";
 import cn from "classnames";
+import {useSelectionControl, useSelectionPath} from "../../SelectionContext";
 
 export interface TreeBlockFilterProps {
     filter: PlixFilterJsonData,
@@ -38,22 +39,34 @@ export const TreeBlockFilter: FC<TreeBlockFilterProps> = memo(({dragValue, setEx
     const id = filter?.[1];
     const filterIsContainer = id === "FChain" || id === "BlendFilters";
     const filterClass = useFilterClass(filter);
+    const {toggleSelect, isSelectedPath, select} = useSelectionControl();
+    const selectionPath = useSelectionPath();
+    const selected = useMemo(() => {
+        return isSelectedPath(path);
+    }, [selectionPath]);
 
-    const onClick: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
-        if (!event.ctrlKey && event.altKey && !event.shiftKey) {
+    const onClick: MouseEventHandler<HTMLDivElement> = useCallback(({ctrlKey, altKey, shiftKey}) => {
+        if (!ctrlKey && altKey && !shiftKey) {
             if (deleteAction || clearAction) dispatch(deleteAction ?? clearAction);
         }
-        if (event.ctrlKey && !event.altKey && !event.shiftKey) {
+        if (ctrlKey && !altKey && !shiftKey) {
             if (filter) dispatch(EditValueAction([...path, 0], !filter[0]));
         }
-        if (!event.ctrlKey && !event.altKey && event.shiftKey) {
+        if (!ctrlKey && !altKey && shiftKey) {
             if (filterIsContainer) {
                 dispatch(PushValueAction([...path, 2, 0], null));
                 setExpanded(true);
             }
         }
-        if (!event.ctrlKey && !event.altKey && !event.shiftKey) changeExpanded();
+        if (!ctrlKey && !altKey && !shiftKey) select(path); // Click
+        if (ctrlKey && !altKey && shiftKey) { // Ctrl+Shift
+            toggleSelect(path);
+        }
     }, [deleteAction, dispatch, filter, setExpanded, changeExpanded]);
+
+    const onDblClick: MouseEventHandler<HTMLDivElement> = useCallback(({ctrlKey, altKey, shiftKey}) => {
+        if (!ctrlKey && !altKey && !shiftKey) changeExpanded();
+    }, [changeExpanded]);
 
     const onClickAdd: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
         event.stopPropagation();
@@ -90,7 +103,7 @@ export const TreeBlockFilter: FC<TreeBlockFilterProps> = memo(({dragValue, setEx
     </>);
 
     return (
-        <TreeBlock dragValue={dragValue} onClick={onClick} title={title} onDragOverItem={onDragOverItem} right={rightIcons}>
+        <TreeBlock dragValue={dragValue} selected={selected} onClick={onClick} onDoubleClick={onDblClick} title={title} onDragOverItem={onDragOverItem} right={rightIcons}>
             {expander}
             <span className="track-description">{children}</span>
             <span>{" "}</span>

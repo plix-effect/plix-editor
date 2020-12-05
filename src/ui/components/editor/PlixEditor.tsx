@@ -24,7 +24,7 @@ import {OpenAction} from "./PlixEditorReducerActions";
 import {AudioFileContext} from "./AudioFileContext";
 import {CreatePlayback} from "./PlaybackContext";
 import {SplitLeftRight} from "../divider/SplitLeftRight";
-import {CreateSelectionData, useSelectionItem, useSelectionPath} from "./SelectionContext";
+import {SelectionProvider, useSelectionItem, useSelectionPath} from "./SelectionContext";
 import {AudioPlayer} from "./AudioPlayer";
 import {readMp3Json} from "../../utils/Mp3Meta";
 import {PreviewContainer} from "../preview/PreviewContainer";
@@ -157,7 +157,7 @@ export const PlixEditor: FC = () => {
             <ConstructorContext.Provider value={constructorContextValue}>
                 <AudioFileContext.Provider value={audioFileContextValue}>
                     <CreatePlayback duration={track?.['editor']?.['duration'] ?? 60*1000}>
-                        <CreateSelectionData track={track}>
+                        <SelectionProvider track={track} dispatch={dispatch}>
                             <DragContext.Provider value={dragRef}>
                                 <TrackContext.Provider value={trackContextValue}>
                                     <AudioPlayer/>
@@ -172,7 +172,7 @@ export const PlixEditor: FC = () => {
                                     </SplitTopBottom>
                                 </TrackContext.Provider>
                             </DragContext.Provider>
-                        </CreateSelectionData>
+                        </SelectionProvider>
                     </CreatePlayback>
                 </AudioFileContext.Provider>
             </ConstructorContext.Provider>

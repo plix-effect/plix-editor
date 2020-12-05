@@ -26,7 +26,7 @@ export const Record: FC<RecordProps> = memo(({path, bpm, offset, record, record:
     const start = offset + startM * cycle / TIMELINE_LCM;
     const recordDuration = (endM - startM) * cycle / TIMELINE_LCM;
 
-    const {toggleSelect, isSelectedPath} = useSelectionControl();
+    const {toggleSelect, isSelectedPath, select} = useSelectionControl();
     const selectionPath = useSelectionPath();
 
     const selected = useMemo(() => {
@@ -66,10 +66,11 @@ export const Record: FC<RecordProps> = memo(({path, bpm, offset, record, record:
         if (ctrlKey && !altKey && !shiftKey) {
             return dispatch(EditValueAction([...path, 0], !enabled));
         }
+        if (!ctrlKey && !altKey && !shiftKey) select(path)
         if (ctrlKey && !altKey && shiftKey) {
             return toggleSelect(path);
         }
-    }, [path, record]);
+    }, [path, record, select, toggleSelect]);
 
     const onDragStartLeft = useCallback((event: DragEvent<HTMLDivElement>) => {
         dragRef.current = {
@@ -102,7 +103,7 @@ export const Record: FC<RecordProps> = memo(({path, bpm, offset, record, record:
         const durD = recordDuration / duration;
         return (
             <div
-                className={cn("timeline-record")}
+                className={cn("timeline-record", {"_selected": selected})}
                 style={{
                     left: `${startD * 100}%`,
                     width: `${durD * 100}%`,
@@ -114,7 +115,7 @@ export const Record: FC<RecordProps> = memo(({path, bpm, offset, record, record:
                     onDragStart={onDragStartName}
                     onDrag={onDragName}
                     onDragEnd={onDragEndAll}
-                    className={cn("timeline-record-name", {"_disabled": !enabled, "_selected": selected})}
+                    className={cn("timeline-record-name", {"_disabled": !enabled})}
                     draggable
                     style={{backgroundColor: generateColorByText(link, enabled ? 1 : 0.2, 0.3, enabled ? 1 : 0.5)}}
                 >{link}</div>

@@ -23,6 +23,7 @@ export interface TreeBlockProps {
     selected?: boolean,
     dragValue?: DragType,
     onClick?: MouseEventHandler<HTMLDivElement>,
+    onDoubleClick?: MouseEventHandler<HTMLDivElement>,
     title?: string,
     right?: ReactNode,
     onDragOverItem?: (event: DragEvent<HTMLElement>, value?: DragType) => void | [string,DragEventHandler]
@@ -35,6 +36,7 @@ export const TreeBlock: FC<TreeBlockProps> = (
         type = "default",
         dragValue,
         onClick,
+        onDoubleClick,
         onDragOverItem,
         right
     }
@@ -111,6 +113,7 @@ export const TreeBlock: FC<TreeBlockProps> = (
             onDragEnd={onDragEnd}
             onDrag={onDrag}
             onClick={onClick}
+            onDoubleClick={onDoubleClick}
             onDragEnter={onDragEnter}
             onDragLeave={onDragLeave}
             onDragOver={onDragOver}

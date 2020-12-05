@@ -7,6 +7,7 @@ import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 import "./tracks.scss"
 import {InlineEffectTypeEditor} from "./editor/inline/InlineEffectTypeEditor";
+import {TimelineBlinkPreview} from "./editor/TimelineBlinkPreview";
 
 export interface EffectTypeTrackProps {
     effect: PlixEffectJsonData,
@@ -22,5 +23,5 @@ export const EffectTypeTrack: FC<EffectTypeTrackProps> = memo(({effect, onChange
                 <InlineEffectTypeEditor onChange={onChange} effect={effect} />
             </TimelineBlock>
         </Track>
-    )
+    );
 })

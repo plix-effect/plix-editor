@@ -16,6 +16,7 @@ import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {EditValueAction, MultiActionType} from "../PlixEditorReducerActions";
 import {TrackContext} from "../TrackContext";
 import {DragType} from "../DragContext";
+import {useSelectionControl, useSelectionPath} from "../SelectionContext";
 
 export interface ValueWithEditorTrackProps<T,> {
     type: string,
@@ -32,6 +33,11 @@ export const ValueWithEditorTrack = <T,>(
     {type, title, value, children, path, deleteAction, clearAction, onDragOverItem, EditorComponent}: PropsWithChildren<ValueWithEditorTrackProps<T>>
 ): ReactElement => {
     const {dispatch} = useContext(TrackContext);
+    const {toggleSelect, isSelectedPath, select} = useSelectionControl();
+    const selectionPath = useSelectionPath();
+    const selected = useMemo(() => {
+        return isSelectedPath(path);
+    }, [selectionPath]);
 
     const onChange = useCallback((value) => {
         dispatch(EditValueAction(path, value));
@@ -48,12 +54,16 @@ export const ValueWithEditorTrack = <T,>(
         return createDefaultDragTypeBehavior(type, path, dispatch, onDragOverItem)
     }, [type, path, dispatch, onDragOverItem]);
 
-    const onClick: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
-        if (!event.ctrlKey && event.altKey && !event.shiftKey) {
+    const onClick: MouseEventHandler<HTMLDivElement> = useCallback(({ctrlKey, shiftKey, altKey}) => {
+        if (!ctrlKey && altKey && !shiftKey) {
             if (deleteAction || clearAction) dispatch(deleteAction ?? clearAction);
         }
-        if (event.ctrlKey && event.altKey && !event.shiftKey) {
+        if (ctrlKey && altKey && !shiftKey) {
             if (clearAction) dispatch(clearAction);
+        }
+        if (!ctrlKey && !altKey && !shiftKey) select(path); // Click
+        if (ctrlKey && !altKey && shiftKey) { // Ctrl+Shift
+            toggleSelect(path);
         }
     }, [deleteAction, dispatch]);
 
@@ -74,11 +84,11 @@ export const ValueWithEditorTrack = <T,>(
         {(clearAction) && (
             <i className="fa fa-times track-tree-icon track-tree-icon-action" onClick={onClickClear} title="clear"/>
         )}
-    </>)
+    </>);
 
     return (
         <Track>
-            <TreeBlock title={title} onDragOverItem={onDragOverItemSelf} onClick={onClick} dragValue={dragValue} right={rightIcons}>
+            <TreeBlock selected={selected} title={title} onDragOverItem={onDragOverItemSelf} onClick={onClick} dragValue={dragValue} right={rightIcons}>
                 {children}
             </TreeBlock>
             <TimelineBlock fixed>

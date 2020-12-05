@@ -1,4 +1,4 @@
-import React, {FC, memo, ReactNode, useCallback, useContext, useMemo} from "react";
+import React, {FC, memo, MouseEventHandler, ReactNode, useCallback, useContext, useMemo} from "react";
 import {Track} from "../../timeline/Track";
 import {PlixEffectConfigurableJsonData} from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
@@ -6,17 +6,15 @@ import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 
 import {TimelineEditor} from "./editor/TimelineEditor";
-import {EffectTypeTrack} from "./EffectTypeTrack";
 import {ValueTrack} from "./ValueTrack";
-import {TrackContext} from "../TrackContext";
 import "./tracks.scss"
 import {EditValueAction} from "../PlixEditorReducerActions";
-import {InlineJsonEditor} from "./editor/inline/InlineJsonEditor";
-import {InlineNumberEditor} from "./editor/inline/InlineNumberEditor";
 import {TimelineBlinkPreview} from "./editor/TimelineBlinkPreview";
 import {ParseMeta} from "../../../types/ParseMeta";
 import {getArrayKey} from "../../../utils/KeyManager";
 import {ConstructorContext} from "../ConstructorContext";
+import {InlineEffectTypeEditor} from "./editor/inline/InlineEffectTypeEditor";
+import {useSelectionControl, useSelectionPath} from "../SelectionContext";
 
 export interface TimelineEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
@@ -61,7 +59,7 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({leftBloc
                 <TimelineEditor records={params[0]} bpm={params[1]} grid={params[2]} offset={params[3]} repeatStart={params[4]} repeatEnd={params[5]} path={timelinePath} />
             </TimelineBlock>
 
-            <EffectTypeTrack onChange={onChange} effect={effect} />
+            <TimelineEffectTypeTrack effect={effect} effectPath={path} onChange={onChange} />
 
             {effectData.paramDescriptions.map((paramDesc) => (
                 <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description} title={paramDesc.description}>
@@ -69,21 +67,46 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({leftBloc
                 </ValueTrack>
             ))}
 
-
-            <Track>
-                <TreeBlock>
-                <span className="track-description">
-                    Blink preview
-                </span>
-                </TreeBlock>
-                <TimelineBlock fixed>
-                    <TimelineBlinkPreview bpm={params[1]} offset={params[3]} />
-                </TimelineBlock>
-            </Track>
-
             <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters} title="filters applied to effect">
                 Filters
             </ValueTrack>
         </Track>
     )
-})
+});
+
+interface TimelineEffectTypeTrackProps {
+    effect: PlixEffectConfigurableJsonData,
+    effectPath: EditorPath,
+    onChange: (type: null|"alias"|"constructor", value?: string) => void,
+}
+const TimelineEffectTypeTrack: FC<TimelineEffectTypeTrackProps> = ({effect, onChange, effectPath}) => {
+    const params = effect[2];
+    const path = useMemo(() => [...effectPath, 1], [effectPath]);
+    const {toggleSelect, isSelectedPath, select} = useSelectionControl();
+    const selectionPath = useSelectionPath();
+    const selected = useMemo(() => {
+        return isSelectedPath(path);
+    }, [selectionPath]);
+
+    const onClick: MouseEventHandler<HTMLDivElement> = useCallback(({ctrlKey, altKey, shiftKey}) => {
+        if (!ctrlKey && altKey && !shiftKey) { // Alt
+            onChange(null);
+        }
+        if (!ctrlKey && !altKey && !shiftKey) select(path); // Click
+        if (ctrlKey && !altKey && shiftKey) { // Ctrl+Shift
+            toggleSelect(path);
+        }
+    }, [effect, select, toggleSelect, path]);
+
+    return (
+        <Track>
+            <TreeBlock selected={selected} title="type of effect" onClick={onClick}>
+                Effect type
+            </TreeBlock>
+            <TimelineBlock fixed>
+                <InlineEffectTypeEditor onChange={onChange} effect={effect} />
+                <TimelineBlinkPreview bpm={params[1]} offset={params[3]} />
+            </TimelineBlock>
+        </Track>
+    );
+}

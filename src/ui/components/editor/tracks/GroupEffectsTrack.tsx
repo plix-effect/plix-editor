@@ -17,12 +17,11 @@ import {useExpander} from "../track-elements/Expander";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {TrackContext} from "../TrackContext";
-import {DeleteAction, EditValueAction, MultiAction} from "../PlixEditorReducerActions";
-import {generateColorByText} from "../../../utils/generateColorByText";
+import {DeleteAction, EditValueAction} from "../PlixEditorReducerActions";
 import "./GroupEffectsTrack.scss";
-import {DragContext, DragType} from "../DragContext";
+import {DragType} from "../DragContext";
 import {DisplayEffect} from "./editor/DisplayEffect";
-import {isObjectEqualOrContains} from "../../../utils/isObjectContains";
+import {useSelectionControl, useSelectionPath} from "../SelectionContext";
 
 export interface GroupEffectsTrackProps {
     effectsMap: PlixEffectsMapJsonData,
@@ -34,7 +33,13 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
     const {dispatch} = useContext(TrackContext);
 
     const [effect, setEffect] = useState<PlixEffectJsonData|undefined>(undefined);
-    const inputRef = useRef<HTMLInputElement>()
+    const inputRef = useRef<HTMLInputElement>();
+
+    const {toggleSelect, isSelectedPath, select} = useSelectionControl();
+    const selectionPath = useSelectionPath();
+    const selected = useMemo(() => {
+        return isSelectedPath(path);
+    }, [selectionPath]);
 
     const aliasesList = useMemo(() => {
         return Object.keys(effectsMap).sort(/*a-z*/).map((name, index) => {
@@ -70,13 +75,21 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
         setEffect(undefined)
     }, [setEffect])
 
-    const onClickTree: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
-        if (!event.ctrlKey && event.altKey && !event.shiftKey) clearEffect();
-        if (!event.ctrlKey && !event.altKey && event.shiftKey) {
+    const onClickTree: MouseEventHandler<HTMLDivElement> = useCallback(({ctrlKey,altKey, shiftKey}) => {
+        if (!ctrlKey && altKey && !shiftKey) clearEffect();
+        if (!ctrlKey && !altKey && shiftKey) {
             if (effect === undefined) setEmptyEffect();
         }
-        if (!event.ctrlKey && !event.altKey && !event.shiftKey) changeExpanded();
+        if (!ctrlKey && !altKey && !shiftKey) select(path); // Click
+        if (ctrlKey && !altKey && shiftKey) { // Ctrl+Shift
+            toggleSelect(path);
+        }
     }, [dispatch]);
+
+    const onDblClickTree: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        if (!event.ctrlKey && !event.altKey && !event.shiftKey) changeExpanded();
+        event.preventDefault();
+    }, [changeExpanded]);
 
     const onClickTimeline: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
         if (!event.ctrlKey && event.altKey && !event.shiftKey) clearEffect()
@@ -145,7 +158,7 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
 
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock type="title" onClick={onClickTree} onDragOverItem={onDragOverItemSelf} right={rightIcons}>
+            <TreeBlock selected={selected} type="title" onClick={onClickTree} onDoubleClick={onDblClickTree} onDragOverItem={onDragOverItemSelf} right={rightIcons}>
                 {expander}
                 <span className="track-description">Effects ({count})</span>
             </TreeBlock>
