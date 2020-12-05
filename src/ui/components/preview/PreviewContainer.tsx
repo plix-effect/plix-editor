@@ -3,6 +3,8 @@ import {FC, useContext, useMemo} from "react";
 import {CanvasPreview} from "./canvas/CanvasPreview";
 import {useSelectionItem, useSelectionPath} from "../editor/SelectionContext";
 import {TrackContext} from "../editor/TrackContext";
+import {BSTabsWithContent} from "../control/tabs/BSTabsWithContent";
+
 
 export const PreviewContainer: FC = () => {
 
@@ -22,6 +24,17 @@ export const PreviewContainer: FC = () => {
 
     return (
         <div style={{flexGrow: 1}}>
+            <BSTabsWithContent tabs={["Static", "Dynamic", "Timed"]} type={"pills"} justify={true}>
+                <div>
+                    STATIC
+                </div>
+                <div>
+                    IM DYN
+                </div>
+                <div>
+                    NEEVR GOAN GIVE YUO UP
+                </div>
+            </BSTabsWithContent>
             <CanvasPreview width={1000} height={50} duration={duration} count={20} render={selectedItem ?? track.render} track={track}/>
         </div>
     )
