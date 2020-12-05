@@ -62,6 +62,7 @@ export const SelectionProvider: FC<CreatePlaybackProps> = memo(({children, track
         if (focusedNode.length > 0) return;
         // PASTE DATA -> CURRENT DATA: ACTION / SHIFT-ACTION
         // array:x -> x in array: insert after / skip
+        // xx -> array:x insert after / insert before
         // x -> x in array: insert after / skip
         // x -> x: replace / replace
         try {
@@ -76,8 +77,12 @@ export const SelectionProvider: FC<CreatePlaybackProps> = memo(({children, track
                 dispatch(EditValueAction(selectionData.selectedPath, [item[0],item[1],selItem[2],selItem[3]]));
                 return event.preventDefault();
             }
+            if ("array:"+type === selectionData.selectedType) {
+                let index = shiftKeyDown.current ? 0 : selectionData.selectedItem.length;
+                dispatch(InsertValuesAction(selectionData.selectedPath, index, [item]));
+                return event.preventDefault();
+            }
             if (type === "array:"+selectionData.selectedType && selectionInArray && !shiftKeyDown.current) {
-                console.log("paste mode 1");
                 const parentSelection = getParentSelection(track, selectionData.selectedPath, effectConstructorMap, filterConstructorMap);
                 const lastPathElement = selectionData.selectedPath[selectionData.selectedPath.length-1];
                 let index = Number(lastPathElement);
@@ -86,27 +91,18 @@ export const SelectionProvider: FC<CreatePlaybackProps> = memo(({children, track
                 return event.preventDefault();
             }
             if (type === selectionData.selectedType && selectionInArray && !shiftKeyDown.current) {
-                console.log("paste mode 2");
                 const parentSelection = getParentSelection(track, selectionData.selectedPath, effectConstructorMap, filterConstructorMap);
                 const lastPathElement = selectionData.selectedPath[selectionData.selectedPath.length-1];
                 let index = Number(lastPathElement);
                 if (typeof lastPathElement === "object") index = getArrayKeyIndex(parentSelection.item, lastPathElement.key);
-                // console.log("COPIED",type, item);
-                // console.log("INSERT INTO", index);
-                // console.log("NOW SEL", selectionData.selectedPath);
-                // console.log("PARSEL", parentSelection.path);
-                // console.log("ACTION",InsertValuesAction(parentSelection.path, index, item));
                 dispatch(InsertValuesAction(parentSelection.path, index+1, [item]));
                 return event.preventDefault();
             }
             if (type === selectionData.selectedType) {
-                console.log("paste mode 3");
                 dispatch(EditValueAction(selectionData.selectedPath, item));
                 return event.preventDefault();
             }
-            console.log("no paste mode");
         } catch (ignored) {
-            console.log("pASTE ERROR", ignored);
             return;
         }
     });
