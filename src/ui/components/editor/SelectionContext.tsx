@@ -274,14 +274,15 @@ function isSelectionInArray(
     if (selection.type.startsWith("array:")) return true;
 }
 
-function getParentSelection(
+export function getParentSelection(
     track: PlixJsonData,
     path: EditorPath,
     effectConstructorMap: EffectConstructorMap,
-    filterConstructorMap: FilterConstructorMap
+    filterConstructorMap: FilterConstructorMap,
+    parentLevel: number = 1
 ) {
     if (path.length < 1) return null;
-    const parentPath = path.slice(0, path.length - 1);
+    const parentPath = path.slice(0, path.length - parentLevel);
     const item = selectItem("track", track, effectConstructorMap, filterConstructorMap, parentPath);
     if (!item) return null;
     return {...item, path: parentPath};
