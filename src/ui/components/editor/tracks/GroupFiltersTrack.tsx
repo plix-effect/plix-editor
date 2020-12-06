@@ -21,6 +21,7 @@ import {DeleteAction, EditValueAction} from "../PlixEditorReducerActions";
 import {PlixFilterJsonData} from "@plix-effect/core/dist/types/parser";
 import {DisplayFilter} from "./editor/DisplayFilter";
 import {DragType} from "../DragContext";
+import {useSelectionControl, useSelectionPath} from "../SelectionContext";
 
 export interface GroupFiltersTrackProps {
     filtersMap: PlixFiltersMapJsonData,
@@ -32,7 +33,13 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
     const {dispatch} = useContext(TrackContext);
 
     const [filter, setFilter] = useState<PlixFilterJsonData|undefined>(undefined);
-    const inputRef = useRef<HTMLInputElement>()
+    const inputRef = useRef<HTMLInputElement>();
+
+    const {toggleSelect, isSelectedPath, select} = useSelectionControl();
+    const selectionPath = useSelectionPath();
+    const selected = useMemo(() => {
+        return isSelectedPath(path);
+    }, [selectionPath]);
 
     const aliasesList = useMemo(() => {
         return Object.keys(filtersMap).sort(/*a-z*/).map((name, index) => {
@@ -68,13 +75,22 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
         setFilter(undefined)
     }, [setFilter])
 
-    const onClickTree: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
-        if (!event.ctrlKey && event.altKey && !event.shiftKey) clearFilter()
-        if (!event.ctrlKey && !event.altKey && event.shiftKey) {
+    const onClickTree: MouseEventHandler<HTMLDivElement> = useCallback(({ctrlKey, altKey, shiftKey}) => {
+        if (!ctrlKey && altKey && !shiftKey) clearFilter()
+        if (!ctrlKey && !altKey && shiftKey) {
             if (filter === undefined) setEmptyFilter();
         }
-        if (!event.ctrlKey && !event.altKey && !event.shiftKey) changeExpanded();
+        if (!ctrlKey && !altKey && !shiftKey) changeExpanded();
+        if (!ctrlKey && !altKey && !shiftKey) select(path); // Click
+        if (ctrlKey && !altKey && shiftKey) { // Ctrl+Shift
+            toggleSelect(path);
+        }
     }, [dispatch]);
+
+    const onDblClickTree: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        if (!event.ctrlKey && !event.altKey && !event.shiftKey) changeExpanded();
+        event.preventDefault();
+    }, [changeExpanded]);
 
     const onClickTimeline: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
         if (!event.ctrlKey && event.altKey && !event.shiftKey) clearFilter()
@@ -147,7 +163,7 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
 
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock type="title" onClick={onClickTree} onDragOverItem={onDragOverItemSelf} right={rightIcons}>
+            <TreeBlock type="title" onClick={onClickTree} onDoubleClick={onDblClickTree} selected={selected} onDragOverItem={onDragOverItemSelf} right={rightIcons}>
                 {expander}
                 <span className="track-description">Filters ({count})</span>
             </TreeBlock>

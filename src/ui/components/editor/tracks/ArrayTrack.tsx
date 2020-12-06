@@ -25,6 +25,7 @@ import {
 import {ArrayElementsTrack} from "./ArrayElementsTrack";
 import {DragType} from "../DragContext";
 import {isObjectEqualOrContains} from "../../../utils/isObjectContains";
+import {useSelectionControl, useSelectionPath} from "../SelectionContext";
 
 export interface ArrayTrackProps {
     value: any[],
@@ -39,6 +40,12 @@ export interface ArrayTrackProps {
 export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, title, type, children: [name, desc], path, onDragOverItem, deleteAction, clearAction}) => {
     const [expanded, expander, changeExpanded, setExpanded] = useExpander(false);
     const {dispatch} = useContext(TrackContext);
+
+    const {toggleSelect, isSelectedPath, select} = useSelectionControl();
+    const selectionPath = useSelectionPath();
+    const selected = useMemo(() => {
+        return isSelectedPath(path);
+    }, [selectionPath]);
 
     const valueToPush = useMemo(() => {
         if (type.startsWith("array:")) return [];
@@ -112,18 +119,25 @@ export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, title, type, childr
     }, [path, dispatch, onDragOverItem]);
 
 
-    const onClick: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
-        if (!event.ctrlKey && event.altKey && !event.shiftKey) {
+    const onClick: MouseEventHandler<HTMLDivElement> = useCallback(({ctrlKey, shiftKey, altKey}) => {
+        if (!ctrlKey && altKey && !shiftKey) {
             if (deleteAction || clearAction) dispatch(deleteAction ?? clearAction);
         }
-        if (!event.ctrlKey && !event.altKey && event.shiftKey) {
+        if (!ctrlKey && !altKey && shiftKey) {
             if (valueToPush !== undefined) push();
         }
-        if (event.ctrlKey && event.altKey && !event.shiftKey) {
+        if (ctrlKey && altKey && !shiftKey) {
             if (clearAction) dispatch(clearAction);
         }
-        if (!event.ctrlKey && !event.altKey && !event.shiftKey) changeExpanded();
-    }, [deleteAction, dispatch, valueToPush, push]);
+        if (!ctrlKey && !altKey && !shiftKey) select(path); // Click
+        if (ctrlKey && !altKey && shiftKey) { // Ctrl+Shift
+            toggleSelect(path);
+        }
+    }, [deleteAction, dispatch, valueToPush, push, path]);
+
+    const onDblClick: MouseEventHandler<HTMLDivElement> = useCallback(({ctrlKey, altKey, shiftKey}) => {
+        if (!ctrlKey && !altKey && !shiftKey) changeExpanded();
+    }, [changeExpanded]);
 
     const onClickDelete: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
         event.stopPropagation();
@@ -154,7 +168,7 @@ export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, title, type, childr
 
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock onDragOverItem={onDragOverItemSelf} dragValue={dragValue} onClick={onClick} right={rightIcons} title={title}>
+            <TreeBlock selected={selected} onDragOverItem={onDragOverItemSelf} dragValue={dragValue} onClick={onClick} onDoubleClick={onDblClick} right={rightIcons} title={title}>
                 {expander}
                 <span className="track-description">{name}</span>
                 <span>{" "}</span>

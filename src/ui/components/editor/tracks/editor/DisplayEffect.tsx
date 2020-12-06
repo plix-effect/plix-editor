@@ -34,7 +34,13 @@ export const DisplayEffect: FC<DisplayEffectProps> = memo(({effect}) => {
     } else {
         return (
             <span className={cn("track-description _link", {"_disabled": !enabled})}>
-                {params}
+                <i className="fa fa-link"/> {params}
+                {filters && filters.length > 0 && (
+                    <span className={cn("track-description _type")}>
+                    {filters && filters.length > 0 && <> +{filters.length} filters</>}
+                </span>
+                )}
+
             </span>
         );
     }

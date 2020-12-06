@@ -36,7 +36,7 @@ export interface TreeBlockEffectProps {
 export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effect, title, path, deleteAction, setExpanded, clearAction, expander, changeExpanded, children, onDragOverItem}) => {
     const {dispatch} = useContext(TrackContext);
 
-    const {toggleSelect, isSelectedPath} = useSelectionControl();
+    const {toggleSelect, isSelectedPath, select} = useSelectionControl();
     const selectionPath = useSelectionPath();
 
     const effectClass = useEffectClass(effect);
@@ -66,11 +66,15 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
                 setExpanded(true);
             }
         }
-        if (!ctrlKey && !altKey && !shiftKey) changeExpanded(); // Click
+        if (!ctrlKey && !altKey && !shiftKey) select(path); // Click
         if (ctrlKey && !altKey && shiftKey) { // Ctrl+Shift
             toggleSelect(path);
         }
-    }, [deleteAction, dispatch, effect, setExpanded, changeExpanded]);
+    }, [deleteAction, dispatch, effect, setExpanded, select, toggleSelect, path]);
+
+    const onDblClick: MouseEventHandler<HTMLDivElement> = useCallback(({ctrlKey, altKey, shiftKey}) => {
+        if (!ctrlKey && !altKey && !shiftKey) changeExpanded();
+    }, [changeExpanded]);
 
     const onClickAdd: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
         event.stopPropagation();
@@ -107,7 +111,7 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
     </>)
 
     return (
-        <TreeBlock dragValue={dragValue} onClick={onClick} onDragOverItem={onDragOverItem} selected={selected} right={rightIcons} title={title}>
+        <TreeBlock dragValue={dragValue} onClick={onClick} onDoubleClick={onDblClick} onDragOverItem={onDragOverItem} selected={selected} right={rightIcons} title={title}>
             {expander}
             <span className="track-description">{children}</span>
             <span>{" "}</span>

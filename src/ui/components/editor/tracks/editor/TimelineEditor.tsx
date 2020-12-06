@@ -33,6 +33,7 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
     const {dispatch} = useContext(TrackContext);
     const onDropActionRef = useRef<(event: DragEvent<HTMLDivElement>) => void>();
     const cycle = 60000 / bpm;
+    const durationM = (repeatEnd ? repeatEnd : (duration - offset) / cycle) * TIMELINE_LCM;
 
     const dummyRef = useRef<HTMLDivElement>();
     const editorRef = useRef<HTMLDivElement>();
@@ -65,14 +66,15 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
 
     const onRecordMove = useCallback((
         event: DragEvent<HTMLDivElement>,
-        timeM: number,
+        cursorPosM: number,
+        recordStartM: number,
         record: PlixTimeEffectRecordJsonData,
         recordDurationM: number,
         targetAsLink: boolean,
     ) => {
         let dropEffect: "move"|"copy"|"link" = dragRef.current.deleteAction && !event.ctrlKey ? "move" : "copy"
         if (targetAsLink) dropEffect = "link";
-        const [[startM, endM], canMove] = getMovingResult(record, timeM, recordDurationM, !event.shiftKey, cycle, grid, records, dropEffect);
+        const [[startM, endM], canMove] = getMovingResult(record, cursorPosM, recordStartM, recordDurationM, !event.shiftKey, grid, records, durationM, dropEffect);
         const dummyStart = offset + startM * cycle / TIMELINE_LCM;
         const dummyDuration = (endM - startM) * cycle / TIMELINE_LCM;
         setDummyPosition(dummyRef.current, duration, [dummyStart, dummyDuration], canMove, record[0], record[1]);
@@ -87,7 +89,29 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
                 dispatch(insertAction);
             }
         });
-    }, [dragRef, cycle, grid, offset, records]);
+    }, [dragRef, cycle, grid, offset, records, durationM]);
+
+
+    const onRecordScale = useCallback((
+        event: DragEvent<HTMLDivElement>,
+        {record, side}: DragTypes['recordScale'],
+        cursorPosM: number,
+    ) => {
+        if (!records.includes(record)) return;
+
+        const [[startM, endM], canMove] = getScalingResult(record, records, side, cursorPosM, durationM, !event.shiftKey, grid);
+        const dummyStart = offset + startM * cycle / TIMELINE_LCM;
+        const dummyDuration = (endM - startM) * cycle / TIMELINE_LCM;
+        setDummyPosition(dummyRef.current, duration, [dummyStart, dummyDuration], canMove, record[0], record[1]);
+        if (!canMove) return;
+        return allowEventWithDropEffect(event, "move", (event) => {
+            event.dataTransfer.dropEffect = "move";
+            const newRecordValue: PlixTimeEffectRecordJsonData = [record[0], record[1], startM, endM];
+            const index = records.indexOf(record);
+            const editAction = EditValueAction([...path, index], newRecordValue);
+            dispatch(editAction);
+        });
+    }, [dragRef, cycle, grid, offset, records, durationM]);
 
     const onRecordReplace = useCallback((
         event: DragEvent<HTMLDivElement>,
@@ -123,7 +147,7 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
 
 
         let record: PlixTimeEffectRecordJsonData;
-        let recordPosM: number;
+        let recordStartM: number;
         let recordBpm: number;
         let targetAsLink: boolean;
         const cursorPosTime = (event.clientX - editorRect.left) / zoom;
@@ -133,16 +157,15 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
         if (recordMove) {
             record = recordMove.record;
             const eventPosTime = (event.clientX - editorRect.left - dragRef.current.offsetX) / zoom;
-            recordPosM = (eventPosTime - offset) / cycle * TIMELINE_LCM;
+            recordStartM = (eventPosTime - offset) / cycle * TIMELINE_LCM;
             recordBpm = recordMove.bpm;
             targetAsLink = false;
         } else if (effectLink) {
             const recordDuration = TIMELINE_LCM; // todo: calculate best record duration
             record = [true, effectLink[2], 0, recordDuration];
             const shiftTime = cycle * recordDuration / TIMELINE_LCM / 2; // drag center of element
-            console.log("shiftTime", shiftTime);
             const eventPosTime =  (event.clientX - editorRect.left) / zoom - shiftTime;
-            recordPosM = (eventPosTime - offset) / cycle * TIMELINE_LCM;
+            recordStartM = (eventPosTime - offset) / cycle * TIMELINE_LCM;
             recordBpm = bpm;
             targetAsLink = true;
         }
@@ -158,9 +181,14 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
             // move record to new position
             const [,,startM, endM] = record;
             const recordDurationM = (endM - startM) * (bpm / recordBpm);
-            return onRecordMove(event, recordPosM, record, recordDurationM, targetAsLink);
+            return onRecordMove(event, cursorPosM, recordStartM, record, recordDurationM, targetAsLink);
         }
-    }, [zoom, duration, cycle, grid, offset, records, createInsertRecordAction, onRecordMove]);
+        const recordScale = dragRef.current.recordScale;
+        if (recordScale) {
+            return onRecordScale(event, recordScale, cursorPosM);
+        }
+
+    }, [zoom, duration, cycle, grid, offset, records, createInsertRecordAction, onRecordMove, onRecordScale, onRecordReplace]);
 
     const onDrop = useCallback((event: DragEvent<HTMLDivElement>) => {
         dragCount.current = 0;
@@ -191,70 +219,99 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
     );
 }
 
-// function getScalingResult(
-//     recordScale: { record: PlixTimeEffectRecordJsonData, side: "left"|"right" },
-//     eventPosTime: number,
-//     bindToGrid: boolean,
-//     cycle: number|null,
-//     grid: number|null,
-//     offset: number,
-//     records: PlixTimeEffectRecordJsonData[],
-//
-// ): [position: [startBeat: number, endBeat: number], available: boolean]{
-//     const selectedPosition = getSelectedPosition(bindToGrid, eventPosTime, cycle, grid, offset);
-//     const moveRecordPosition = getNewPositionAfterScaling(recordScale, selectedPosition);
-//     if (moveRecordPosition[1] <= 0) { // overflow
-//         return [[recordScale.record[2], recordScale.record[3]], false];
-//     }
-//     const canMove = canMoveRecord(recordScale.record, records, moveRecordPosition, "move");
-//     return [moveRecordPosition, canMove];
-// }
+function getScalingResult(
+    record: PlixTimeEffectRecordJsonData,
+    records: PlixTimeEffectRecordJsonData[],
+    side: "left"|"right",
+    cursorPosM: number,
+    maxDurationM: number,
+    bindToGrid: boolean,
+    grid: number|null,
+): [position: [startBeat: number, endBeat: number], available: boolean]{
+    cursorPosM = Math.round(cursorPosM);
+    const moveFromM = (side === "left") ? record[2] : record[3]
+    const freeSpaceM = getFreeSpace(record, records, moveFromM, maxDurationM, "move");
+    if (side === "right") freeSpaceM[0] = record[2];
+    else freeSpaceM[1] = record[3];
+
+    let targetPosM = cursorPosM;
+    if (bindToGrid) targetPosM = getGridPosition(cursorPosM, grid, freeSpaceM);
+
+    const newRecordPosM: PositionM = [record[2], record[3]];
+    if (side === "right") newRecordPosM[1] = Math.min(targetPosM, freeSpaceM[1]);
+    if (side === "left") newRecordPosM[0] = Math.max(targetPosM, freeSpaceM[0]);
+
+    const canMove = canMoveRecord(record, records, newRecordPosM[0], newRecordPosM[1], "move")
+    return [newRecordPosM, canMove];
+}
 
 function getMovingResult(
     record: PlixTimeEffectRecordJsonData,
+    cursorPosM: number,
     recordStartM: number,
     recordDurationM: number,
     bindToGrid: boolean,
-    cycle: number|null,
     grid: number|null,
     records: PlixTimeEffectRecordJsonData[],
+    maxDurationM: number,
     dropEffect: "move"|"copy"|"link"|"none",
 ): [position: PositionM, available: boolean]{
+    recordStartM = Math.round(recordStartM);
+    recordDurationM = Math.round(recordDurationM);
+    const freeSpaceM = getFreeSpace(record, records, cursorPosM, maxDurationM, dropEffect);
+    const freeSpaceDurationM = freeSpaceM[1] - freeSpaceM[0];
+
+    // shrink mode
+    if (freeSpaceDurationM <= recordDurationM) return [freeSpaceM, true];
+
+    // bind to free space
+    let limitedPositionM: PositionM;
+    if (recordStartM <= freeSpaceM[0]) {
+        limitedPositionM = [freeSpaceM[0], freeSpaceM[0]+recordDurationM];
+    } else if (recordStartM + recordDurationM >= freeSpaceM[1]) {
+        limitedPositionM = [freeSpaceM[1] - recordDurationM, freeSpaceM[1]];
+    }
+    if (limitedPositionM) {
+        const canMove = canMoveRecord(record, records, limitedPositionM[0], limitedPositionM[1], dropEffect);
+        return [limitedPositionM, canMove];
+    }
+
+    // free move mode
     if (!bindToGrid) {
         const recordEndM = recordStartM + recordDurationM;
-        // просто переносим рекорд и проверяем, можно ли.
         const canMove = canMoveRecord(record, records, recordStartM, recordEndM, dropEffect);
         return [[recordStartM, recordEndM], canMove];
     }
-    return [[0,1],false];
-    // const posEndTime = posTime + recordDuration;
-    // const selectedPositionLeft = getSelectedPosition(bindToGrid, posTime, cycle, grid, offset);
-    // const selectedPositionRight = getSelectedPosition(bindToGrid, posEndTime, cycle, grid, offset);
-    // let selectedPosition
-    // if (selectedPositionLeft < offset) {
-    //     selectedPosition = selectedPositionRight - recordDuration;
-    // } else {
-    //     const leftDif = Math.abs(selectedPositionLeft - posTime);
-    //     const rightDif = Math.abs(selectedPositionRight - posEndTime);
-    //     selectedPosition = (leftDif <= rightDif) ? selectedPositionLeft : selectedPositionRight - recordDuration;
-    // }
-    // if (selectedPosition < 0) selectedPosition = 0;
-    // const moveRecordPosition: [number, number] = [selectedPosition, recordDuration];
-    // const canMove = canMoveRecord(record, records, moveRecordPosition, dropEffect);
-    // return [moveRecordPosition, canMove];
+    // snap to grid
+
+    const leftGridPosM = getGridPosition(recordStartM, grid, freeSpaceM);
+    const rightGridPosM = getGridPosition(recordStartM + recordDurationM, grid, freeSpaceM);
+    const leftDif = Math.abs(recordStartM - leftGridPosM);
+    const rightDif = Math.abs(recordStartM + recordDurationM - rightGridPosM);
+    let gridPositionM: PositionM;
+
+    // check if grid is over free space
+    if (leftDif <= rightDif) gridPositionM = [leftGridPosM, leftGridPosM+recordDurationM];
+    else gridPositionM = [rightGridPosM-recordDurationM, rightGridPosM];
+
+    if (gridPositionM[0] <= freeSpaceM[0]) gridPositionM = [freeSpaceM[0], freeSpaceM[0]+recordDurationM];
+    else if (gridPositionM[1] >= freeSpaceM[1]) gridPositionM = [freeSpaceM[1] - recordDurationM, freeSpaceM[1]];
+
+    const canMove = canMoveRecord(record, records, gridPositionM[0], gridPositionM[1], dropEffect);
+    return [gridPositionM, canMove];
 }
 
-// function getNewPositionAfterScaling(
-//     recordScale: { record: PlixTimeEffectRecordJsonData, side: "left"|"right" },
-//     selectedPosition: number
-// ): [position: number, duration: number]{
-//     const [,,recordPosition, recordWidth] = recordScale.record;
-//     if (recordScale.side === "right") {
-//         return [recordPosition, selectedPosition - recordPosition]
-//     } else {
-//         return [selectedPosition, recordPosition + recordWidth - selectedPosition]
-//     }
-// }
+function getGridPosition(
+    positionM: number,
+    grid: number,
+    freeSpace: PositionM,
+): number {
+    const step = TIMELINE_LCM / grid;
+    const stepsLeft = (positionM / step)|0;
+    let gridLeftM = Math.max(stepsLeft * step, freeSpace[0]);
+    let gridRightM = Math.min((stepsLeft+1) * step, freeSpace[1]);
+    return (positionM - gridLeftM > gridRightM - positionM) ? gridRightM : gridLeftM;
+}
 
 function clearDummy(dummy: HTMLDivElement){
     dummy.style.display = "none";
@@ -285,26 +342,6 @@ function setDummyPosition(
         dummyRecord.style.backgroundColor = bgColor;
     }
 
-}
-
-function getSelectedPosition(
-    bindToGrid: boolean,
-    dragLeftPosTime: number,
-    cycle: number|null,
-    grid: number|null,
-    offset: number,
-){
-    if (dragLeftPosTime < 0) return 0;
-    if (!bindToGrid) return dragLeftPosTime;
-    if (!cycle) return dragLeftPosTime;
-
-    if (dragLeftPosTime < offset) return dragLeftPosTime;
-    const gridSize = cycle/(grid??1);
-    const gridsLeft = Math.floor((dragLeftPosTime-offset) / gridSize);
-    const leftGridPos = offset + gridSize * gridsLeft;
-    const leftGridDif = dragLeftPosTime - leftGridPos;
-    if (leftGridDif < gridSize/2) return leftGridPos;
-    return leftGridPos + gridSize;
 }
 
 function canMoveRecord(
@@ -338,4 +375,29 @@ function getCollisionRecord(
         return [i, rec];
     }
     return [-1, null];
+}
+
+function getFreeSpace(
+    record: PlixTimeEffectRecordJsonData,
+    records: PlixTimeEffectRecordJsonData[],
+    timeM: number,
+    maxDurationM: number,
+    effect: "copy"|"move"|"link"|"none"
+): PositionM {
+    let leftEl: PlixTimeEffectRecordJsonData;
+    let rightEl: PlixTimeEffectRecordJsonData;
+    for (let i = 0; i < records.length; i++){
+        let rec = records[i];
+        if (effect === "move" && rec === record) continue;
+        const [,,recStartM, recEndM] = rec;
+        if (recStartM >= timeM) {
+            rightEl = rec;
+            break;
+        }
+        if (recEndM <= timeM) leftEl = rec;
+    }
+    if (leftEl && rightEl) return [leftEl[3], rightEl[2]];
+    if (leftEl) return [leftEl[3], maxDurationM];
+    if (rightEl) return [0, rightEl[2]];
+    return [0, maxDurationM];
 }

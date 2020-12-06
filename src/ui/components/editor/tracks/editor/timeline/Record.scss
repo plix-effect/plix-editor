@@ -4,6 +4,13 @@
     top: 0;
     bottom: 0;
     overflow: hidden;
+    &._selected {
+        overflow: visible;
+        .timeline-record-name {
+            outline: solid 2px #888844;
+            z-index: 1;
+        }
+    }
 
     &._drag {
         .timeline-record-name {
@@ -44,9 +51,6 @@
     &._disabled {
         border-color: rgba(255, 255, 255, 0.5);
     }
-    &._selected {
-        outline: solid 1px #888844;
-    }
 }
 
 .timeline-record-scaling {
@@ -57,6 +61,7 @@
     width: 5px;
     cursor: col-resize;
     box-sizing: border-box;
+    z-index: 2;
     &._left {
         left: 0;
     }
