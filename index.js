@@ -3544,6 +3544,8 @@ function Timeline(effectRecords, bpm, grid, offset, repeatStart, repeatEnd) {
     });
     return function (time, _, startFrom) {
         if (startFrom === void 0) { startFrom = 0; }
+        if (repeatEnd > 0)
+            time = time + startFrom;
         if (repeatEnd > 0 && time > repeatStartTime) {
             time = repeatStartTime + (time - repeatStartTime) % repeatDuration;
             startFrom = repeatStartTime;
@@ -3552,9 +3554,8 @@ function Timeline(effectRecords, bpm, grid, offset, repeatStart, repeatEnd) {
         if (!lastRecord)
             return utils_1.EmptyLine;
         var start = lastRecord.start, duration = lastRecord.duration, effect = lastRecord.effect;
-        if (start + duration < time)
+        if (start + duration <= time)
             return utils_1.EmptyLine;
-        // todo: change startFrom;
         return effect(time - start, duration, startFrom + start);
     };
 }
@@ -4038,11 +4039,17 @@ var parseTimeEffectRecord_1 = __webpack_require__(/*! ./parseTimeEffectRecord */
 Object.defineProperty(exports, "parseTimeEffectRecord", ({ enumerable: true, get: function () { return parseTimeEffectRecord_1.default; } }));
 var Timeline_1 = __webpack_require__(/*! ../effects/Timeline */ "./node_modules/@plix-effect/core/dist/effects/Timeline.js");
 Object.defineProperty(exports, "TIMELINE_LCM", ({ enumerable: true, get: function () { return Timeline_1.TIMELINE_LCM; } }));
-function parseRender(effectData, effectsMapData, filtersMapData, effectConstructorMap, filterConstructorMap) {
+function parseRender(effectData, effectsMapData, filtersMapData, effectConstructorMap, filterConstructorMap, profiles, profileName) {
     var effectsMap = {};
     var filtersMap = {};
     var parsedEffectsNames = new Set();
     var parsedFiltersNames = new Set();
+    var profile;
+    if (profileName) {
+        profile = profiles === null || profiles === void 0 ? void 0 : profiles[profileName];
+        if (!profile)
+            throw new Error("unknown profile: " + profileName);
+    }
     var parserData = {
         getEffectConstructor: function (id) {
             return effectConstructorMap[id];
@@ -4057,7 +4064,16 @@ function parseRender(effectData, effectsMapData, filtersMapData, effectConstruct
             if (parsedEffectsNames.has(name))
                 throw new Error("circular effect alias: " + name);
             parsedEffectsNames.add(name);
-            var effectData = effectsMapData[name];
+            var effectData;
+            if (name.startsWith("@")) {
+                effectData = effectsMapData[name.substring(1)];
+            }
+            else {
+                if (profile && profile.effects)
+                    effectData = profile.effects[name];
+                if (effectData === undefined)
+                    effectData = effectsMapData[name];
+            }
             if (effectData === undefined)
                 throw new Error("unknown effect alias: " + name);
             var parsedEffect = parseEffect_1.default(effectData, parserData);
@@ -4071,7 +4087,16 @@ function parseRender(effectData, effectsMapData, filtersMapData, effectConstruct
             if (parsedFiltersNames.has(name))
                 throw new Error("circular filter alias: " + name);
             parsedFiltersNames.add(name);
-            var filterData = filtersMapData[name];
+            var filterData;
+            if (name.startsWith("@")) {
+                filterData = filtersMapData[name.substring(1)];
+            }
+            else {
+                if (profile && profile.filters)
+                    filterData = profile.filters[name];
+                if (filterData === undefined)
+                    filterData = filtersMapData[name];
+            }
             if (filterData === undefined)
                 throw new Error("unknown filter alias: " + name);
             var parsedFilter = parseFilter_1.default(filterData, parserData);
@@ -4080,7 +4105,7 @@ function parseRender(effectData, effectsMapData, filtersMapData, effectConstruct
         }
     };
     var effect = parseEffect_1.default(effectData, parserData);
-    return { effect: effect, effectsMap: effectsMap, filtersMap: filtersMap };
+    return { effect: effect, effectsMap: effectsMap, filtersMap: filtersMap, profile: profileName !== null && profileName !== void 0 ? profileName : null };
 }
 exports.default = parseRender;
 //# sourceMappingURL=index.js.map
@@ -76902,6 +76927,7 @@ const defaultTrack = {
                 [true, "Timeline", [[], 1000, 8, 100], [[true, "Blend", [1, "normal"]]]],
                 [true, "Timeline", [[], 0, 8, 1000], [[true, "Blend", [1, "normal"]]]],
             ]], []],
+    profiles: {},
     editor: { duration: 10000, count: 10 }
 };
 const PlixEditor = () => {
@@ -77805,6 +77831,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _tracks_editor_TrackPlayPosition__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./tracks/editor/TrackPlayPosition */ "./src/ui/components/editor/tracks/editor/TrackPlayPosition.tsx");
 /* harmony import */ var _AudioFileContext__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./AudioFileContext */ "./src/ui/components/editor/AudioFileContext.ts");
 /* harmony import */ var _utils_Mp3Meta__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../../utils/Mp3Meta */ "./src/ui/utils/Mp3Meta.ts");
+/* harmony import */ var _tracks_GroupProfilesTrack__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./tracks/GroupProfilesTrack */ "./src/ui/components/editor/tracks/GroupProfilesTrack.tsx");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -77814,6 +77841,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
 
 
 
@@ -77855,6 +77883,7 @@ const TrackEditor = () => {
         effects: ["effects"],
         filters: ["filters"],
         editor: ["editor"],
+        profiles: ["profiles"],
     }), []);
     const undo = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
         dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.UndoAction)());
@@ -77981,6 +78010,7 @@ const TrackEditor = () => {
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_EffectTrack__WEBPACK_IMPORTED_MODULE_3__.EffectTrack, { effect: track.render, baseExpanded: true, path: paths.render, title: "main render effect" }, "render"),
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupEffectsTrack__WEBPACK_IMPORTED_MODULE_4__.GroupEffectsTrack, { effectsMap: track.effects, path: paths.effects }),
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupFiltersTrack__WEBPACK_IMPORTED_MODULE_5__.GroupFiltersTrack, { filtersMap: track.filters, path: paths.filters }),
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupProfilesTrack__WEBPACK_IMPORTED_MODULE_16__.GroupProfilesTrack, { profilesMap: track.profiles, path: paths.profiles }),
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupOptionsTrack__WEBPACK_IMPORTED_MODULE_11__.GroupOptionsTrack, { options: track === null || track === void 0 ? void 0 : track['editor'], path: paths.editor })))),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-timeline", ref: setRightRenderEl },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_editor_TrackPlayPosition__WEBPACK_IMPORTED_MODULE_13__.TrackPlayPosition, null)))));
@@ -79375,10 +79405,6 @@ const GroupFiltersTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ filters
     const rightIcons = (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
         filter === undefined && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-plus track-tree-icon track-tree-icon-action", onClick: onClickAdd, title: "add filter" })),
         (filter !== undefined) && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-times track-tree-icon track-tree-icon-action", onClick: onClickClear, title: "clear" }))));
-    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
-        if (filter)
-            inputRef.current.focus();
-    }, [filter]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_4__.TreeBlock, { type: "title", onClick: onClickTree, onDoubleClick: onDblClickTree, selected: selected, onDragOverItem: onDragOverItemSelf, right: rightIcons },
             expander,
@@ -79451,6 +79477,165 @@ const GroupOptionsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ options
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { path: countPath, value: (_b = options === null || options === void 0 ? void 0 : options['count']) !== null && _b !== void 0 ? _b : null, type: "number", description: "number of pixels" }, "Pixels")));
 });
 const defaultFilter = null;
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/tracks/GroupProfilesTrack.tsx":
+/*!****************************************************************!*
+  !*** ./src/ui/components/editor/tracks/GroupProfilesTrack.tsx ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "GroupProfilesTrack": () => /* binding */ GroupProfilesTrack
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _timeline_Track__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../timeline/Track */ "./src/ui/components/timeline/Track.tsx");
+/* harmony import */ var _track_elements_Expander__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../track-elements/Expander */ "./src/ui/components/editor/track-elements/Expander.tsx");
+/* harmony import */ var _track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
+/* harmony import */ var _track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
+/* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+/* harmony import */ var _SelectionContext__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../SelectionContext */ "./src/ui/components/editor/SelectionContext.tsx");
+
+
+
+
+
+
+
+
+const GroupProfilesTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ profilesMap = {}, path, baseExpanded }) => {
+    const [expanded, expander, changeExpanded, setExpanded] = (0,_track_elements_Expander__WEBPACK_IMPORTED_MODULE_2__.useExpander)(baseExpanded);
+    const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_5__.TrackContext);
+    const { toggleSelect, isSelectedPath, select } = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_7__.useSelectionControl)();
+    const [profile, setProfile] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(undefined);
+    const selectionPath = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_7__.useSelectionPath)();
+    const selected = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return isSelectedPath(path);
+    }, [selectionPath]);
+    const inputRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const profilesList = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return Object.keys(profilesMap).sort().map((name) => {
+            return {
+                name: name,
+                path: [...path, name],
+                value: profilesMap[name],
+            };
+        });
+    }, [profilesMap]);
+    const count = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => profilesList.length, [profilesList]);
+    const [name, setName] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("");
+    const onEditName = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        setName(event.target.value);
+    }, [setName]);
+    const add = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        if (!name)
+            return;
+        if (name in profilesMap)
+            return;
+        dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.EditValueAction)([...path, name], defaultProfile));
+        setName('');
+        setExpanded(true);
+    }, [name, profilesMap, path, dispatch]);
+    const setEmptyProfile = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        setProfile(defaultProfile);
+    }, [setProfile]);
+    const clearProfile = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        setProfile(undefined);
+    }, [setProfile]);
+    const onClickTree = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(({ ctrlKey, altKey, shiftKey }) => {
+        if (!ctrlKey && altKey && !shiftKey)
+            clearProfile();
+        if (!ctrlKey && !altKey && shiftKey) {
+            if (profile === undefined)
+                setEmptyProfile();
+        }
+        if (!ctrlKey && !altKey && !shiftKey)
+            changeExpanded();
+        if (!ctrlKey && !altKey && !shiftKey)
+            select(path);
+        if (ctrlKey && !altKey && shiftKey) {
+            toggleSelect(path);
+        }
+    }, [dispatch]);
+    const onDblClickTree = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        if (!event.ctrlKey && !event.altKey && !event.shiftKey)
+            changeExpanded();
+        event.preventDefault();
+    }, [changeExpanded]);
+    const onClickTimeline = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        if (!event.ctrlKey && event.altKey && !event.shiftKey)
+            clearProfile();
+    }, [dispatch]);
+    const onSubmit = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        event.preventDefault();
+        add();
+    }, [add]);
+    const onKeyDown = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        if (event.nativeEvent.code === "Escape")
+            clearProfile();
+    }, []);
+    const onDragOverItemSelf = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, dragData) => {
+        if (!dragData)
+            return;
+        if (event.shiftKey)
+            return;
+        let valueProfile;
+        const typedValue = dragData.typedValue;
+        if (!typedValue)
+            return;
+        if (typedValue.type !== "profile")
+            return;
+        valueProfile = typedValue.value;
+        dragData.dropEffect = "copy";
+        return ["_drop-add-item", () => void setProfile(valueProfile)];
+    }, [path, dispatch]);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        if (profile)
+            inputRef.current.focus();
+    }, [profile]);
+    const onClickAdd = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        event.stopPropagation();
+        setEmptyProfile();
+    }, [setEmptyProfile]);
+    const onClickClear = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        event.stopPropagation();
+        clearProfile();
+    }, [clearProfile]);
+    const rightIcons = (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+        profile === undefined && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-plus track-tree-icon track-tree-icon-action", onClick: onClickAdd, title: "add filter" })),
+        (profile !== undefined) && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-times track-tree-icon track-tree-icon-action", onClick: onClickClear, title: "clear" }))));
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_3__.TreeBlock, { type: "title", onClick: onClickTree, onDoubleClick: onDblClickTree, selected: selected, onDragOverItem: onDragOverItemSelf, right: rightIcons },
+            expander,
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description" },
+                "Profiles (",
+                count,
+                ")")),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_4__.TimelineBlock, { type: "title", fixed: true, onClick: onClickTimeline },
+            profile === undefined && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" }, "Add new profile to customize effects and filters"),
+                "\u00A0",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { onClick: setEmptyProfile }, "[add]"))),
+            profile !== undefined && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+                "(todo: display profile) \u00A0",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", { style: { margin: 0 }, onSubmit: onSubmit, onReset: clearProfile, onKeyDown: onKeyDown },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { autoFocus: true, ref: inputRef, type: "text", placeholder: "prefab name", value: name, onChange: onEditName }),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { type: "submit", onClick: add, disabled: !name || name in profilesMap }, "add"),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { type: "reset" }, "cancel"))))),
+        profilesList.map(alias => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(AliasProfileTrack, { name: alias.name, path: alias.path, key: alias.name, value: alias.value })))));
+});
+const defaultProfile = { filters: {}, effects: {}, fieldConfig: null };
+const AliasProfileTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, path, name }) => {
+    const deleteAction = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.DeleteAction)(path), [path]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, name),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, JSON.stringify(value))));
+});
 
 
 /***/ }),
@@ -81384,12 +81569,10 @@ const CanvasDynPreview = ({ fieldConfig }) => {
             if (selectedItem) {
                 const copySelectedItem = selectedItem.slice(0);
                 copySelectedItem[0] = true;
-                if (selectedItem[1] === "Timeline")
-                    return [copySelectedItem, 0, trackDuration];
-                return [copySelectedItem, 0, 3000];
+                return [copySelectedItem, 0, trackDuration];
             }
             else
-                return [selectedItem, 0, 3000];
+                return [selectedItem, 0, trackDuration];
         }
         else if (selectedType === "record") {
             const copySelectedItem = selectedItem.slice(0);
