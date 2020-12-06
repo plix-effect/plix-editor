@@ -23,6 +23,7 @@ import {usePlaybackControl, usePlaybackStatus} from "./PlaybackContext";
 import {TrackPlayPosition} from "./tracks/editor/TrackPlayPosition";
 import {AudioFileContext} from "./AudioFileContext";
 import {setMp3Json} from "../../utils/Mp3Meta";
+import {GroupProfilesTrack} from "./tracks/GroupProfilesTrack";
 
 
 const ZOOM_FACTOR = Math.sqrt(2);
@@ -54,6 +55,7 @@ export const TrackEditor: FC = () => {
         effects: ["effects"],
         filters: ["filters"],
         editor: ["editor"],
+        profiles: ["profiles"],
     }), []);
 
     const undo = useCallback(() => {
@@ -210,6 +212,7 @@ export const TrackEditor: FC = () => {
                             <EffectTrack effect={track.render} baseExpanded={true} path={paths.render} title="main render effect">render</EffectTrack>
                             <GroupEffectsTrack effectsMap={track.effects} path={paths.effects}/>
                             <GroupFiltersTrack filtersMap={track.filters} path={paths.filters}/>
+                            <GroupProfilesTrack profilesMap={track.profiles} path={paths.profiles}/>
                             <GroupOptionsTrack options={track?.['editor']} path={paths.editor}/>
                         </Track>
                     </PortalContext.Provider>

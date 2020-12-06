@@ -48,10 +48,9 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = ({fieldConfig}) => {
             if (selectedItem) {
                 const copySelectedItem = selectedItem.slice(0);
                 copySelectedItem[0] = true;
-                if (selectedItem[1] === "Timeline") return [copySelectedItem, 0, trackDuration]
-                return [copySelectedItem, 0, 3000]
+                return [copySelectedItem, 0, trackDuration]
             }
-            else return [selectedItem, 0, 3000];
+            else return [selectedItem, 0, trackDuration];
         } else if (selectedType === "record") {
             const copySelectedItem = selectedItem.slice(0);
             copySelectedItem[0] = true;

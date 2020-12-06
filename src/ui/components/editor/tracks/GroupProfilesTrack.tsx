@@ -10,7 +10,7 @@ import React, {
     useState
 } from "react";
 import {Track} from "../../timeline/Track";
-import {PlixFiltersMapJsonData} from "@plix-effect/core/types/parser";
+import {PlixFiltersMapJsonData, PlixProfile, PlixProfileMap} from "@plix-effect/core/types/parser";
 import {FilterTrack} from "./FilterTrack";
 import {EditorPath} from "../../../types/Editor";
 import {useExpander} from "../track-elements/Expander";
@@ -23,35 +23,35 @@ import {DisplayFilter} from "./editor/DisplayFilter";
 import {DragType} from "../DragContext";
 import {useSelectionControl, useSelectionPath} from "../SelectionContext";
 
-export interface GroupFiltersTrackProps {
-    filtersMap: PlixFiltersMapJsonData,
+export interface GroupProfilesTrackProps {
+    profilesMap: PlixProfileMap,
     path: EditorPath,
     baseExpanded?: boolean
 }
-export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, path}) => {
-    const [expanded, expander, changeExpanded, setExpanded] = useExpander(true);
+export const GroupProfilesTrack: FC<GroupProfilesTrackProps> = memo(({profilesMap = {}, path, baseExpanded}) => {
+    const [expanded, expander, changeExpanded, setExpanded] = useExpander(baseExpanded);
     const {dispatch} = useContext(TrackContext);
 
-    const [filter, setFilter] = useState<PlixFilterJsonData|undefined>(undefined);
-    const inputRef = useRef<HTMLInputElement>();
-
     const {toggleSelect, isSelectedPath, select} = useSelectionControl();
+    const [profile, setProfile] = useState<PlixProfile|undefined>(undefined);
     const selectionPath = useSelectionPath();
     const selected = useMemo(() => {
         return isSelectedPath(path);
     }, [selectionPath]);
 
-    const aliasesList = useMemo(() => {
-        return Object.keys(filtersMap).sort(/*a-z*/).map((name, index) => {
+    const inputRef = useRef<HTMLInputElement>();
+
+    const profilesList = useMemo(() => {
+        return Object.keys(profilesMap).sort(/*a-z*/).map((name) => {
             return {
                 name: name,
                 path: [...path, name] as EditorPath,
-                value: filtersMap[name],
+                value: profilesMap[name],
             }
         })
-    }, [filtersMap, dispatch]);
+    }, [profilesMap]);
 
-    const count = useMemo(() => Object.keys(filtersMap || {}).length, [filtersMap])
+    const count = useMemo(() => profilesList.length, [profilesList])
 
     const [name, setName] = useState("");
     const onEditName = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -61,24 +61,24 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
 
     const add = useCallback(() => {
         if (!name) return;
-        if (name in filtersMap) return;
-        dispatch(EditValueAction([...path, name], filter));
+        if (name in profilesMap) return;
+        dispatch(EditValueAction([...path, name], defaultProfile));
         setName('');
         setExpanded(true);
-    }, [name, filtersMap, path, dispatch]);
+    }, [name, profilesMap, path, dispatch]);
 
-    const setEmptyFilter = useCallback(() => {
-        setFilter(defaultFilter)
-    }, [setFilter])
+    const setEmptyProfile = useCallback(() => {
+        setProfile(defaultProfile)
+    }, [setProfile])
 
-    const clearFilter = useCallback(() => {
-        setFilter(undefined)
-    }, [setFilter])
+    const clearProfile = useCallback(() => {
+        setProfile(undefined)
+    }, [setProfile])
 
     const onClickTree: MouseEventHandler<HTMLDivElement> = useCallback(({ctrlKey, altKey, shiftKey}) => {
-        if (!ctrlKey && altKey && !shiftKey) clearFilter()
+        if (!ctrlKey && altKey && !shiftKey) clearProfile()
         if (!ctrlKey && !altKey && shiftKey) {
-            if (filter === undefined) setEmptyFilter();
+            if (profile === undefined) setEmptyProfile();
         }
         if (!ctrlKey && !altKey && !shiftKey) changeExpanded();
         if (!ctrlKey && !altKey && !shiftKey) select(path); // Click
@@ -93,7 +93,7 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
     }, [changeExpanded]);
 
     const onClickTimeline: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
-        if (!event.ctrlKey && event.altKey && !event.shiftKey) clearFilter()
+        if (!event.ctrlKey && event.altKey && !event.shiftKey) clearProfile()
     }, [dispatch]);
 
     const onSubmit: FormEventHandler<HTMLFormElement> = useCallback((event) => {
@@ -102,57 +102,43 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
     }, [add]);
 
     const onKeyDown = useCallback((event: KeyboardEvent<HTMLFormElement>) => {
-        if (event.nativeEvent.code === "Escape") clearFilter();
+        if (event.nativeEvent.code === "Escape") clearProfile();
     }, []);
 
     const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | [string, DragEventHandler] => {
         if (!dragData) return;
-        let mode: "copy"|"move"|"link"|"none" = "none";
-        if (event.ctrlKey && event.shiftKey) mode = "link";
-        else if (event.ctrlKey) mode = "copy";
-        else if (event.shiftKey) mode = dragData.deleteAction ? "move" : "none";
-        else if (dragData.filterLink !== undefined) mode = "link";
-        else if (dragData.filter !== undefined) mode = "copy";
+        if (event.shiftKey) return;
 
-        if (mode === "none" || mode === "move") return void (dragData.dropEffect = "none");
+        let valueProfile: PlixProfile;
+        const typedValue = dragData.typedValue;
+        if (!typedValue) return;
+        if (typedValue.type !== "profile") return;
+        valueProfile = typedValue.value;
 
-        let valueFilter: PlixFilterJsonData;
-
-        if (dragData.filter !== undefined && mode !== "link") {
-            valueFilter = dragData.filter;
-        }
-
-        if (valueFilter === undefined && dragData.filterLink && mode === "link") {
-            valueFilter = dragData.filterLink;
-        }
-        if (valueFilter === undefined) return void (dragData.dropEffect = "none");
-        dragData.dropEffect = mode;
-
-        return ["_drop-add-item", () => {
-            setFilter(valueFilter);
-        }]
+        dragData.dropEffect = "copy"
+        return ["_drop-add-item", () => void setProfile(valueProfile)]
     }, [path, dispatch]);
 
 
     useEffect(() => {
-        if (filter) inputRef.current.focus();
-    }, [filter]);
+        if (profile) inputRef.current.focus();
+    }, [profile]);
 
     const onClickAdd: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
         event.stopPropagation();
-        setEmptyFilter();
-    }, [setEmptyFilter]);
+        setEmptyProfile();
+    }, [setEmptyProfile]);
 
     const onClickClear: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
         event.stopPropagation();
-        clearFilter();
-    }, [clearFilter]);
+        clearProfile();
+    }, [clearProfile]);
 
     const rightIcons = (<>
-        {filter === undefined && (
+        {profile === undefined && (
             <i className="fa fa-plus track-tree-icon track-tree-icon-action" onClick={onClickAdd} title="add filter"/>
         )}
-        {(filter !== undefined) && (
+        {(profile !== undefined) && (
             <i className="fa fa-times track-tree-icon track-tree-icon-action" onClick={onClickClear} title="clear"/>
         )}
     </>);
@@ -161,45 +147,47 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
         <Track nested expanded={expanded}>
             <TreeBlock type="title" onClick={onClickTree} onDoubleClick={onDblClickTree} selected={selected} onDragOverItem={onDragOverItemSelf} right={rightIcons}>
                 {expander}
-                <span className="track-description">Filters ({count})</span>
+                <span className="track-description">Profiles ({count})</span>
             </TreeBlock>
             <TimelineBlock type="title" fixed onClick={onClickTimeline}>
-                {filter === undefined && (<>
-                    <span className="track-description _desc">Filter prefabs</span>
+                {profile === undefined && (<>
+                    <span className="track-description _desc">Add new profile to customize effects and filters</span>
                     &nbsp;
-                    <a onClick={setEmptyFilter}>[add]</a>
+                    <a onClick={setEmptyProfile}>[add]</a>
                 </>)}
-                {filter !== undefined && (<>
-                    <DisplayFilter filter={filter}/>
+                {profile !== undefined && (<>
+                    (todo: display profile)
                     &nbsp;
-                    <form style={{margin:0}} onSubmit={onSubmit} onReset={clearFilter} onKeyDown={onKeyDown}>
+                    <form style={{margin:0}} onSubmit={onSubmit} onReset={clearProfile} onKeyDown={onKeyDown}>
                         <input autoFocus ref={inputRef} type="text" placeholder="prefab name" value={name} onChange={onEditName} />
-                        <button type="submit" onClick={add} disabled={!name || name in filtersMap}>add</button>
+                        <button type="submit" onClick={add} disabled={!name || name in profilesMap}>add</button>
                         <button type="reset">cancel</button>
                     </form>
                 </>)}
 
             </TimelineBlock>
-            {aliasesList.map(alias => (
-                <AliasFilterTrack name={alias.name} path={alias.path} key={alias.name} value={alias.value}/>
+            {profilesList.map(alias => (
+                <AliasProfileTrack name={alias.name} path={alias.path} key={alias.name} value={alias.value}/>
             ))}
         </Track>
     )
 });
 
-const defaultFilter = null;
+// todo: get default fieldConfig;
+const defaultProfile = {filters: {}, effects: {}, fieldConfig: null};
 
-interface AliasFilterTrackProps {
-    value: PlixFilterJsonData,
+interface AliasProfileTrackProps {
+    value: PlixProfile,
     path: EditorPath,
     name: string,
 }
-const AliasFilterTrack: FC<AliasFilterTrackProps> = memo(({value, path, name}) => {
+const AliasProfileTrack: FC<AliasProfileTrackProps> = memo(({value, path, name}) => {
     const deleteAction = useMemo(() => DeleteAction(path), [path]);
 
     return (
-        <FilterTrack filter={value} path={path} key={name} alias={name} deleteAction={deleteAction}>
-            {name}
-        </FilterTrack>
+        <Track>
+            <div>{name}</div>
+            <div>{JSON.stringify(value)}</div>
+        </Track>
     );
 })

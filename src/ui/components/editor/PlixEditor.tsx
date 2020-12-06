@@ -37,6 +37,7 @@ const defaultTrack: PlixJsonData & {editor: any} = {
         [true, "Timeline", [[], 1000, 8, 100], [[true, "Blend", [1, "normal"]]]],
         [true, "Timeline", [[], 0, 8, 1000], [[true, "Blend", [1, "normal"]]]],
     ]], []],
+    profiles: {},
     editor: {duration: 10_000, count: 10}
 };
 
