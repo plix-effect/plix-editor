@@ -50,4 +50,5 @@ export class CanvasFieldRenderer {
     }
 
     public get rendering() {return this.currentRenderProcessId != null}
+    public get readyForRendering() {return this.parsedData != null && this.duration != null}
 }

@@ -4,8 +4,17 @@ import {CanvasPreview} from "./canvas/CanvasPreview";
 import {useSelectionItem, useSelectionPath} from "../editor/SelectionContext";
 import {TrackContext} from "../editor/TrackContext";
 import {BSTabsWithContent} from "../control/tabs/BSTabsWithContent";
+import {CanvasDynPreview} from "./canvas/CanvasDynPreview";
+import {FieldConfig} from "./canvas/worker/PlixCanvasField";
 
-
+const DEFAULT_FIELD: FieldConfig = {
+    width: 1000,
+    height: 100,
+    elements: Array.from({length: 20}).map((_, i) => {
+        const size = 25;
+        return {type: "pixel", shape: i<10 ? "circle" : "square", size: size, position: [40 + i * (size + 10), 40]}
+    })
+}
 export const PreviewContainer: FC = () => {
 
     const path = useSelectionPath();
@@ -13,29 +22,29 @@ export const PreviewContainer: FC = () => {
     const {track} = useContext(TrackContext);
     const trackDuration = track?.['editor']?.['duration'] ?? 60*1000;
 
-    const duration = useMemo(() => {
-        if (!selectedItem) return -1;
-        if (selectedType === "effect" && path.length === 1 && path[0] === "render") {
-            return trackDuration;
-        } else {
-            return 3000;
+    const [effect, duration] = useMemo(() => {
+        if (selectedType === "effect") {
+            if (selectedItem && selectedItem[1] === "Timeline") return [selectedItem, trackDuration]
+            else return [selectedItem, 3000];
+        } else if (selectedType === "record") {
+            const parent = se
         }
+        return [track.render, trackDuration];
     }, [selectedItem, selectedType])
 
     return (
         <div style={{flexGrow: 1}}>
-            <BSTabsWithContent tabs={["Static", "Dynamic", "Timed"]} type={"pills"} justify={true}>
+            <BSTabsWithContent tabs={["Static", "Dynamic", "Timed"]} type={"pills"} justify={true} >
                 <div>
                     STATIC
                 </div>
                 <div>
-                    IM DYN
+                    <CanvasDynPreview duration={duration} render={selectedItem ?? track.render} track={track} fieldConfig={DEFAULT_FIELD}/>
                 </div>
                 <div>
                     NEEVR GOAN GIVE YUO UP
                 </div>
             </BSTabsWithContent>
-            <CanvasPreview width={1000} height={50} duration={duration} count={20} render={selectedItem ?? track.render} track={track}/>
         </div>
     )
 }

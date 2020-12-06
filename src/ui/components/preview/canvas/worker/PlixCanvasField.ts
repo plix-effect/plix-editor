@@ -22,7 +22,7 @@ export type FieldElement =
     | FieldElementLine
 ;
 
-interface FieldConfig {
+export interface FieldConfig {
     width: number,
     height: number,
     elements: FieldElement[],
@@ -43,7 +43,9 @@ type CanvasGeneric =
     | RegularCanvasGeneric
 ;
 
-export class PlixCanvasField<T extends CanvasGeneric> {
+const contourColor = "#444";
+
+export class PlixCanvasField<T extends CanvasGeneric = any> {
 
     private cfg: FieldConfig
     private canvas: T['canvas'];
@@ -72,7 +74,7 @@ export class PlixCanvasField<T extends CanvasGeneric> {
 
     public resetDraw() {
         this.ctx.fillStyle = "black";
-        this.ctx.fillRect(0,0, this.canvas.height, this.canvas.width);
+        this.ctx.fillRect(0,0, this.canvas.width, this.canvas.height);
         const elements = this.cfg.elements;
         for (let i = 0; i < elements.length; i++) {
             this.draw(i, null);
@@ -96,9 +98,9 @@ export class PlixCanvasField<T extends CanvasGeneric> {
         }
 
         function drawSquare() {
-            ctx.setLineDash([5, 15]);
-            ctx.strokeStyle = "#444";
+            ctx.strokeStyle = contourColor;
             const halfSize = size/2;
+            ctx.setLineDash([halfSize/2, halfSize/2]);
             ctx.strokeRect(x-halfSize-1, y-halfSize-1, size+2, size+2)
             if (!color) return;
             const sizeGain = getSizeGain();
@@ -111,16 +113,17 @@ export class PlixCanvasField<T extends CanvasGeneric> {
 
         function drawCircle() {
             ctx.beginPath();
-            ctx.setLineDash([5, 15]);
-            ctx.arc(x, y, size+1, 0, TWO_PI);
-            ctx.strokeStyle = "#444";
+            const radius = Math.floor(size/2)
+            ctx.setLineDash([radius/2, radius/2]);
+            ctx.arc(x, y, radius+1, 0, TWO_PI);
+            ctx.strokeStyle = contourColor;
             ctx.stroke();
             if (!color) return;
             const {r,g,b,a} = color;
             const sizeGain = getSizeGain()
-            const rds = Math.round(Math.sqrt(sizeGain)*size);
+            const innerRadius = Math.round(Math.sqrt(sizeGain)*radius);
             ctx.beginPath();
-            ctx.arc(x, y, rds, 0, TWO_PI);
+            ctx.arc(x, y, innerRadius, 0, TWO_PI);
             ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
             ctx.fill();
         }
@@ -130,6 +133,5 @@ export class PlixCanvasField<T extends CanvasGeneric> {
         } else {
             drawSquare();
         }
-
     }
 }
