@@ -33,6 +33,20 @@ body .btn-primary:focus {
   line-height: 1.5;
   border-radius: .2rem; }
 
+.noselect {
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Old versions of Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */ }
+
 .plix-editor {
   display: flex;
   height: 100vh; }
@@ -68,7 +82,7 @@ button.btn.track-header-icon-button {
   opacity: 0.9;
   cursor: ew-resize;
   background-color: white;
-  z-index: 1;
+  z-index: 3;
   transform: translate(-2px, 0);
   mix-blend-mode: difference; }
 
@@ -203,8 +217,8 @@ button.btn.track-header-icon-button {
     color: #888;
     cursor: auto; }
   .track-description._link {
-    color: #88f;
-    cursor: pointer; }
+    color: #888;
+    cursor: auto; }
   .track-description._type {
     color: #bbb;
     cursor: auto; }
@@ -419,6 +433,9 @@ button.btn.track-header-icon-button {
   overflow: hidden; }
   .timeline-editor-dummy._unavailable {
     background-color: #c00; }
+  .timeline-editor-dummy._foreground {
+    z-index: 1;
+    background-color: #cc0; }
 
 .timeline-editor-grid-canvas {
   position: absolute;
@@ -431,6 +448,11 @@ button.btn.track-header-icon-button {
   top: 0;
   bottom: 0;
   overflow: hidden; }
+  .timeline-record._selected {
+    overflow: visible; }
+    .timeline-record._selected .timeline-record-name {
+      outline: solid 2px #888844;
+      z-index: 1; }
   .timeline-record._drag .timeline-record-name {
     border-style: dashed;
     border-color: rgba(255, 255, 255, 0.7); }
@@ -457,8 +479,6 @@ button.btn.track-header-icon-button {
   cursor: grab; }
   .timeline-record-name._disabled {
     border-color: rgba(255, 255, 255, 0.5); }
-  .timeline-record-name._selected {
-    outline: solid 1px #888844; }
 
 .timeline-record-scaling {
   position: absolute;
@@ -467,7 +487,8 @@ button.btn.track-header-icon-button {
   bottom: -7px;
   width: 5px;
   cursor: col-resize;
-  box-sizing: border-box; }
+  box-sizing: border-box;
+  z-index: 2; }
   .timeline-record-scaling._left {
     left: 0; }
   .timeline-record-scaling._right {
