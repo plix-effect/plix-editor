@@ -61,6 +61,7 @@
     width: 5px;
     cursor: col-resize;
     box-sizing: border-box;
+    z-index: 2;
     &._left {
         left: 0;
     }

@@ -61,6 +61,7 @@ export const SelectionProvider: FC<CreatePlaybackProps> = memo(({children, track
         const focusedNode = document.querySelectorAll(":focus:not(body)");
         if (focusedNode.length > 0) return;
         // PASTE DATA -> CURRENT DATA: ACTION / SHIFT-ACTION
+        // effectId -> effectId: replace / replace
         // array:x -> x in array: insert after / skip
         // xx -> array:x insert after / insert before
         // x -> x in array: insert after / skip
@@ -209,10 +210,16 @@ const staticSelectTypes = {
         effects: "map:effect",
         filters: "map:filter",
         options: "trackOptions",
+        profiles: "map:profile"
     },
     trackOptions: {
         duration: "number",
-        count: "number",
+        count: "number", // todo: delete
+    },
+    profile: {
+        effects: "map:effect",
+        filters: "map:filter",
+        previewFieldConfig: "fieldConfig"
     }
 }
 
