@@ -1,6 +1,6 @@
 import {PlaybackStatus} from "../../../editor/PlaybackContext";
 import {PlixEffectJsonData} from "@plix-effect/core/dist/types/parser";
-import {PlixJsonData} from "@plix-effect/core/types/parser";
+import {PlixJsonData, PlixProfile} from "@plix-effect/core/types/parser";
 import {PreviewFieldConfig, PlixCanvasField, OffscreenCanvasGeneric} from "./PlixCanvasField";
 import parseRender from "@plix-effect/core/dist/parser";
 import * as effectConstructorMap from "@plix-effect/core/effects";
@@ -14,6 +14,7 @@ declare const self: Worker;
 interface RenderMsgData {
     render: PlixEffectJsonData,
     track: PlixJsonData,
+    profileName: string|null,
     duration: number
 }
 export type CvsDynPreviewInMsg =
@@ -62,7 +63,7 @@ export interface CvsDynPreviewOutMsgDeps {
 let field: PlixCanvasField<OffscreenCanvasGeneric>;
 let renderer: CanvasFieldRenderer;
 let performanceOffset: number;
-let lastPlayFrom: number;
+let lastPauseTime: number|null;
 
 // Handlers
 const syncPerformance = (globalValue) => {
@@ -81,11 +82,14 @@ const handleChangePlaybackMsg = (msg: CvsDynPreviewInMsgChangePlayback) => {
     const status = msg.status;
     if (renderer.readyForRendering) {
         if (status === "play") {
+            lastPauseTime = null;
             renderer.startRendering(msg.playFromStamp-performanceOffset, msg.rate);
         } else if (status === "pause") {
+            lastPauseTime = msg.pauseTime;
             renderer.stopRendering();
             renderer.renderTime(msg.pauseTime);
         } else if (status === "stop") {
+            lastPauseTime = null;
             renderer.stopRendering();
             field.resetDraw();
         }
@@ -97,14 +101,17 @@ const handleRenderMsg = (msg: CvsDynPreviewInMsgRenderData) => {
     const effectData = renderData.render;
     const track = renderData.track;
     const duration = renderData.duration;
+    const profileName = renderData.profileName;
 
-    const parsedData = parseRender(effectData, track.effects, track.filters, effectConstructorMap, filterConstructorMap);
+    const parsedData = parseRender(effectData, track.effects, track.filters, effectConstructorMap, filterConstructorMap, track.profiles, profileName);
     const effectKeys = Object.keys(parsedData.effectsMap).sort();
     const filterKeys = Object.keys(parsedData.filtersMap).sort();
-    self.postMessage([effectKeys, filterKeys], []);
+    const depsMessage: CvsDynPreviewOutMsgDeps = { type: "deps", deps: [effectKeys, filterKeys]}
+    self.postMessage(depsMessage, []);
 
     renderer.setParsedData(parsedData);
     renderer.setDuration(duration);
+    if (lastPauseTime != null) renderer.renderTime(lastPauseTime);
 }
 
 const handleChangeFieldMsg = (msg: CvsDynPreviewInMsgChangeField) => {
