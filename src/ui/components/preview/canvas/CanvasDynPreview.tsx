@@ -19,7 +19,7 @@ import "./CanvasPreview.scss"
 import {CheckboxButton} from "../../control/checkbox/CheckboxButton";
 import {PlaybackRateSelector} from "./PlaybackRateSelector";
 import {useLocalStorage} from "../../../use/useStorage";
-import {useProfile} from "../../editor/ProfileContext";
+import {useProfile, useProfileName} from "../../editor/ProfileContext";
 
 const createDynPreviewCanvasWorker = () => new Worker(new URL("./worker/CanvasDynamicPreviewWorker.ts", import.meta.url));
 
@@ -76,6 +76,7 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = ({fieldConfig}) => {
     }, [selectedItem, selectedType, track]);
 
     const profile = useProfile();
+    const [profileName] = useProfileName();
     const profileRef = useRef(profile);
     profileRef.current = profile;
 
@@ -149,10 +150,10 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = ({fieldConfig}) => {
         lastUsedEffectNames.current = null;
         lastUsedFilterNames.current = null;
 
-        const message: CvsDynPreviewInMsgRenderData = {type: "render", data: {render, track, duration}};
+        const message: CvsDynPreviewInMsgRenderData = {type: "render", data: {render, track, duration, profileName}};
 
         worker.postMessage(message, []);
-    }, [worker, duration, render, track.filters, track.effects, profile]);
+    }, [worker, duration, render, track.filters, track.effects, profile, profileName]);
 
     useEffect(() => {
         if (!worker) return;

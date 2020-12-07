@@ -43,9 +43,7 @@ export const AudioPlayer: FC = () => {
             audioRef.current.currentTime = time/1000;
             audioRef.current.playbackRate = rate;
             if (lastUrlRef.current) audioRef.current.play().then(() => {
-                // fix loading time
                 let time = getPlayTime();
-                console.log("fixing time:", audioRef.current.currentTime-time/1000);
                 if (time !== null) audioRef.current.currentTime = time/1000;
             });
         }
