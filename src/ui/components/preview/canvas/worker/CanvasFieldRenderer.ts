@@ -5,11 +5,11 @@ import parseRender from "@plix-effect/core/dist/parser";
 
 export class CanvasFieldRenderer {
 
-    private field: PlixCanvasField;
+    private field: PlixCanvasField<any>;
     private parsedData: ReturnType<typeof parseRender>;
     private duration: number
 
-    constructor(field: PlixCanvasField) {
+    constructor(field: PlixCanvasField<any>) {
         this.field = field;
     }
 

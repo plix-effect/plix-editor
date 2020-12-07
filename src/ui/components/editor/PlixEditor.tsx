@@ -8,7 +8,6 @@ import {
     useEffect,
     useCallback,
     DragEvent,
-    memo
 } from "react";
 import "./PlixEditor.scss";
 import {SplitTopBottom} from "../divider/SplitTopBottom";
@@ -167,8 +166,8 @@ export const PlixEditor: FC = () => {
                                         <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
                                             <TrackEditor />
                                             <SplitLeftRight minLeft={100} minRight={200} storageKey={"btm"}>
-                                                <div style={{flexGrow: 1, backgroundColor: "green"}}>libs</div>
-                                                <div style={{flexGrow: 1, backgroundColor: "green", display: "flex", flexDirection: "column"}}>
+                                                <div style={{flexGrow: 1, backgroundColor: "black"}}>libs</div>
+                                                <div style={{flexGrow: 1, backgroundColor: "black", display: "flex", flexDirection: "column"}}>
                                                     <PreviewContainer/>
                                                 </div>
                                             </SplitLeftRight>

@@ -1,7 +1,7 @@
 import {PlaybackStatus} from "../../../editor/PlaybackContext";
 import {PlixEffectJsonData} from "@plix-effect/core/dist/types/parser";
 import {PlixJsonData} from "@plix-effect/core/types/parser";
-import {FieldConfig, PlixCanvasField} from "./PlixCanvasField";
+import {PreviewFieldConfig, PlixCanvasField, OffscreenCanvasGeneric} from "./PlixCanvasField";
 import parseRender from "@plix-effect/core/dist/parser";
 import * as effectConstructorMap from "@plix-effect/core/effects";
 import * as filterConstructorMap from "@plix-effect/core/filters";
@@ -48,7 +48,7 @@ export interface CvsDynPreviewInMsgRenderData {
 }
 export interface CvsDynPreviewInMsgChangeField {
     type: "field",
-    config: FieldConfig
+    config: PreviewFieldConfig
 }
 export type CvsDynPreviewOutMsg =
     | CvsDynPreviewOutMsgDeps
@@ -59,7 +59,7 @@ export interface CvsDynPreviewOutMsgDeps {
 };
 
 // Variables
-let field: PlixCanvasField;
+let field: PlixCanvasField<OffscreenCanvasGeneric>;
 let renderer: CanvasFieldRenderer;
 let performanceOffset: number;
 let lastPlayFrom: number;
@@ -70,7 +70,7 @@ const syncPerformance = (globalValue) => {
 }
 
 const handleInitMsg = (msg: CvsDynPreviewInMsgInit) => {
-    field = new PlixCanvasField(msg.canvas);
+    field = new PlixCanvasField<OffscreenCanvasGeneric>(msg.canvas);
     renderer = new CanvasFieldRenderer(field);
     syncPerformance(msg.performanceValue);
 }
@@ -108,7 +108,7 @@ const handleRenderMsg = (msg: CvsDynPreviewInMsgRenderData) => {
 }
 
 const handleChangeFieldMsg = (msg: CvsDynPreviewInMsgChangeField) => {
-    field.setFieldConfig(msg.config);
+    field.setConfig(msg.config);
 }
 
 // On message

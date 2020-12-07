@@ -7,7 +7,7 @@ import React, {
     ReactNode,
     useCallback,
     useContext,
-    useMemo
+    useMemo,
 } from "react";
 import {Track} from "../../timeline/Track";
 import {EditorPath} from "../../../types/Editor";
@@ -21,6 +21,7 @@ import {useSelectionControl, useSelectionPath} from "../SelectionContext";
 import {PlixProfile} from "@plix-effect/core/types/parser";
 import {GroupOverrideEffectsTrack} from "./GroupOverrideEffectsTrack";
 import {GroupOverrideFiltersTrack} from "./GroupOverrideFiltersTrack";
+import {PreviewFieldEditor} from "./editor/preview-field/PreviewFieldEditor";
 import {useProfileName} from "../ProfileContext";
 
 export interface ProfileTrackProps {
@@ -151,7 +152,7 @@ export const ProfileTrack: FC<ProfileTrackProps> = memo(({value, baseValue, name
                     fieldConfig
                 </TreeBlock>
                 <TimelineBlock fixed>
-                    <button>todo: edit fieldConfig in popup</button>
+                    <PreviewFieldEditor/>
                 </TimelineBlock>
             </Track>
         </Track>

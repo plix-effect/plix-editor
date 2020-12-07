@@ -1,0 +1,24 @@
+.canvas-preview-container {
+  margin: 5px;
+
+  .cvs-container {
+    border: 2px #444 solid;
+    display: inline-block;
+  }
+
+  .controls {
+    margin-top: 10px;
+
+    .rate-option {
+      height: 38px;
+      display: flex;
+      flex-direction: row;
+      justify-content: left;
+      align-items: center;
+      margin-top: 10px;
+      .rate-selector {
+        margin-left: 10px;
+      }
+    }
+  }
+}

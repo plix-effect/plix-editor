@@ -21,6 +21,7 @@
     "reactjs-popup": "^2.0.4"
   },
   "devDependencies": {
+    "@types/react-bootstrap": "^0.32.25",
     "awesome-typescript-loader": "^5.2.1",
     "classnames": "^2.2.6",
     "copy-webpack-plugin": "^6.3.0",
