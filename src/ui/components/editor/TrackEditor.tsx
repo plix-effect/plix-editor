@@ -187,7 +187,7 @@ export const TrackEditor: FC = () => {
                 <div className="track-header track-header-timeline" onWheelCapture={onWheel}>
                     <TrackScale />
                 </div>
-                <div className="track-tree" onWheelCapture={onWheel}>
+                <div className="track-tree" style={{marginLeft: 1}} onWheelCapture={onWheel}>
                     <PortalContext.Provider value={rightRenderEl}>
                         <Track>
                             {null /*left*/}
