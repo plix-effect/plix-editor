@@ -184,22 +184,6 @@ export const TrackEditor: FC = () => {
                     <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={zoomIn} title={"Zoom in"}>
                         <i className="fa fa-search-plus"/>
                     </button>
-                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={playPause} title={playbackStatus === "play" ? "Pause" : "Play"}>
-                        {playbackStatus === "play" ? (
-                            <i className="fa fa-pause"/>
-                        ) : (
-                            <i className="fa fa-play"/>
-                        )}
-                    </button>
-                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={play025} title={"play 0.25 speed"}>
-                        <i className="fas fa-play-circle"/>
-                    </button>
-                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={repeat} title={"Repeat"}>
-                        <i className="fas fa-sync-alt"/>
-                    </button>
-                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={stop} title={"Stop"}>
-                       <i className="fa fa-stop"/>
-                    </button>
                 </div>
                 <div className="track-header track-header-timeline" onWheelCapture={onWheel}>
                     <TrackScale />
