@@ -64,7 +64,7 @@ const handleRenderMsg = (msg) => {
     renderer.setDuration(duration);
 };
 const handleChangeFieldMsg = (msg) => {
-    field.setFieldConfig(msg.config);
+    field.setConfig(msg.config);
 };
 onmessage = (event) => {
     const data = event.data;
@@ -153,16 +153,25 @@ class CanvasFieldRenderer {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "DEFAULT_PREVIEW_FIELD_CONFIG": () => /* binding */ DEFAULT_PREVIEW_FIELD_CONFIG,
 /* harmony export */   "PlixCanvasField": () => /* binding */ PlixCanvasField
 /* harmony export */ });
 const TWO_PI = 2 * Math.PI;
 const contourColor = "#444";
+const DEFAULT_PREVIEW_FIELD_CONFIG = {
+    width: 1000,
+    height: 100,
+    elements: Array.from({ length: 20 }).map((_, i) => {
+        const size = 25;
+        return { type: "pixel", shape: i < 10 ? "circle" : "square", size: size, position: [40 + i * (size + 10), 40] };
+    })
+};
 class PlixCanvasField {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
     }
-    setFieldConfig(cfg) {
+    setConfig(cfg) {
         this.cfg = cfg;
         this.canvas.height = cfg.height;
         this.canvas.width = cfg.width;

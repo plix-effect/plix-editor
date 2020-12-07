@@ -592,6 +592,62 @@ button.btn.track-header-icon-button {
   display: inline-block;
   background-color: #222; }
 
+.bsmodal-cover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); }
+
+.bsmodal .modal-content {
+  background-color: #333; }
+
+.bsmodal .modal-content .modal-header .close {
+  color: white; }
+
+.cfe-cvs-container {
+  max-width: 100%;
+  border: 1px #444 solid;
+  display: inline-block;
+  overflow: auto; }
+
+.cfe-controls {
+  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  flex-direction: row; }
+
+.cfe-controls-group {
+  display: flex;
+  flex-direction: column; }
+  .cfe-controls-group:not(:first-child) {
+    margin-left: 20px; }
+
+.cfe-option {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+  width: 200px; }
+  .cfe-option .cfe-option-name {
+    display: inline-block;
+    width: 35%; }
+  .cfe-option .cfe-option-value {
+    display: inline-block;
+    margin-left: 10px;
+    width: 64%; }
+  .cfe-option input[type="number"].cfe-option-value {
+    width: 120px; }
+
+.checkbox {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center; }
+  .checkbox label {
+    user-select: none; }
+
 .split-lr {
   display: flex;
   height: 100%;
@@ -665,6 +721,23 @@ button.btn.track-header-icon-button {
       background-position: 0 -25px, 0, 0 25px;
       border-left: 3px solid rgba(0, 0, 0, 0.3);
       border-right: 3px solid rgba(0, 0, 0, 0.3); } }
+
+.canvas-preview-container {
+  margin: 5px; }
+  .canvas-preview-container .cvs-container {
+    border: 2px #444 solid;
+    display: inline-block; }
+  .canvas-preview-container .controls {
+    margin-top: 10px; }
+    .canvas-preview-container .controls .rate-option {
+      height: 38px;
+      display: flex;
+      flex-direction: row;
+      justify-content: left;
+      align-items: center;
+      margin-top: 10px; }
+      .canvas-preview-container .controls .rate-option .rate-selector {
+        margin-left: 10px; }
 
 
 /*# sourceMappingURL=style-index.css.map*/
