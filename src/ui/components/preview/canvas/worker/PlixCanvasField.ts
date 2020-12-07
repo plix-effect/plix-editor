@@ -22,7 +22,7 @@ export type FieldElement =
     | FieldElementLine
 ;
 
-export interface FieldConfig {
+export interface PreviewFieldConfig {
     width: number,
     height: number,
     elements: FieldElement[],
@@ -30,24 +30,33 @@ export interface FieldConfig {
 
 const TWO_PI = 2 * Math.PI;
 
-type OffscreenCanvasGeneric = {
+export type OffscreenCanvasGeneric = {
     canvas: OffscreenCanvas
     ctx: OffscreenCanvasRenderingContext2D
 }
-type RegularCanvasGeneric = {
+export type RegularCanvasGeneric = {
     canvas: HTMLCanvasElement
     ctx: CanvasRenderingContext2D
 }
-type CanvasGeneric =
+export type CanvasGeneric =
     | OffscreenCanvasGeneric
     | RegularCanvasGeneric
 ;
 
 const contourColor = "#444";
 
-export class PlixCanvasField<T extends CanvasGeneric = any> {
+export const DEFAULT_PREVIEW_FIELD_CONFIG: PreviewFieldConfig = {
+    width: 1000,
+    height: 100,
+    elements: Array.from({length: 20}).map((_, i) => {
+        const size = 25;
+        return {type: "pixel", shape: i<10 ? "circle" : "square", size: size, position: [40 + i * (size + 10), 40]}
+    })
+}
 
-    private cfg: FieldConfig
+export class PlixCanvasField<T extends CanvasGeneric> {
+
+    private cfg: PreviewFieldConfig
     private canvas: T['canvas'];
     private ctx: T['ctx'];
 
@@ -56,7 +65,7 @@ export class PlixCanvasField<T extends CanvasGeneric = any> {
         this.ctx = canvas.getContext("2d");
     }
 
-    setFieldConfig(cfg: FieldConfig) {
+    setConfig(cfg: PreviewFieldConfig) {
         this.cfg = cfg;
         this.canvas.height = cfg.height;
         this.canvas.width = cfg.width;

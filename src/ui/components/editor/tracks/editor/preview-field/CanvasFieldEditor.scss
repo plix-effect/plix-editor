@@ -1,0 +1,45 @@
+
+.canvas-field-editor {
+}
+
+.cfe-cvs-container {
+  max-width: 100%;
+  border: 1px #444 solid;
+  display: inline-block;
+  overflow: auto;
+}
+
+.cfe-controls {
+  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.cfe-controls-group {
+  display: flex;
+  flex-direction: column;
+  &:not(:first-child) {
+    margin-left: 20px;
+  }
+}
+
+.cfe-option {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+  width: 200px;
+  .cfe-option-name {
+    display: inline-block;
+    width: 35%;
+  }
+  .cfe-option-value {
+    display: inline-block;
+    margin-left: 10px;
+    width: 64%;
+  }
+  input[type="number"].cfe-option-value {
+    width: 120px;
+  }
+}

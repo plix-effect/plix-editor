@@ -7,36 +7,23 @@ import Modal from "react-bootstrap/cjs/Modal";
 import {modalManager, ModalManagerCloseReason} from "./ModalManager";
 
 
-export enum MODAL_COLOR {
-    DANGER = "danger",
-    SUCCESS = "success",
-    WARNING = "warning",
-    INFO = "info",
-    DEFAULT = "default"
-}
-export enum MODAL_SIZE {
-    LARGE = "lg",
-    MEDIUM = "md",
-    SMALL = "sm",
-    EXTRA_LARGE = "xl",
-    EXTRA_SMALL = "xs"
-}
+export type ModalSize = | "sm" | "lg" | "xl";
 
 export interface IReactModalPromiseProps {
-    isOpen?: boolean;
+    isOpen: boolean;
     instanceId?: string;
-    close?: (result: any) => void;
+    close: (result: any) => void;
 }
 
 export interface BSModalProps extends IReactModalPromiseProps{
-    size?: MODAL_SIZE
-    color?: MODAL_COLOR
+    size?: ModalSize
     allowClose?: boolean
     centered?: boolean
 }
 
-export const BSModal: FC<BSModalProps> = ({size = MODAL_SIZE.MEDIUM, isOpen,instanceId, close: onClose, color = MODAL_COLOR.DEFAULT, children, allowClose = true, centered = true}) => {
+export const BSModal: FC<BSModalProps> = ({size = undefined, isOpen,instanceId, close: onClose, children, allowClose = true, centered = true}) => {
     const lastIsOpenRef = useRef(false);
+    const instanceIdRef  = useRef(instanceId || String(Math.random()*1000000))
 
     const [title, body, actions] = useMemo(() => {
         const childs =  React.Children.toArray(children);
@@ -45,15 +32,15 @@ export const BSModal: FC<BSModalProps> = ({size = MODAL_SIZE.MEDIUM, isOpen,inst
     }, [children])
 
     const close = useCallback((value? :any) => {
-        if (!modalManager.isModalOpened(instanceId)) return;
+        if (!modalManager.isModalOpened(instanceIdRef.current)) return;
         onClose(value);
-    }, [instanceId, onClose])
+    }, [instanceIdRef.current, onClose])
 
     const closeByControls = useCallback((value?: any) => {
-        if (!modalManager.isModalOpened(instanceId))  return;
+        if (!modalManager.isModalOpened(instanceIdRef.current))  return;
         close(value)
-        modalManager.onClosedModalByButton(instanceId);
-    }, [instanceId, close]);
+        modalManager.onClosedModalByButton(instanceIdRef.current);
+    }, [close]);
 
 
     const closeByManager = useCallback((reason: ModalManagerCloseReason) => {
@@ -75,7 +62,7 @@ export const BSModal: FC<BSModalProps> = ({size = MODAL_SIZE.MEDIUM, isOpen,inst
 
     useEffect(() => {
         if (isOpen && !lastIsOpenRef.current) {
-            modalManager.onOpenModal({id: instanceId, close: closeByManager})
+            modalManager.onOpenModal({id: instanceIdRef.current, close: closeByManager})
             lastIsOpenRef.current = true;
         }
     }, [isOpen])
@@ -83,14 +70,14 @@ export const BSModal: FC<BSModalProps> = ({size = MODAL_SIZE.MEDIUM, isOpen,inst
 
     const contextValue: CurrentModalInfo = useMemo(() => {
         return {
-            instanceId: instanceId,
+            instanceId: instanceIdRef.current,
             close: closeByControls
         }
-    }, [instanceId, closeByControls]);
+    }, [closeByControls]);
 
     return (
         <CurrentModalContext.Provider value={contextValue}>
-            <Modal show={isOpen} centered={centered} onHide={onClickClose} backdrop={allowClose ? true : "static"} className={"bsmodal"}>
+            <Modal show={isOpen} centered={centered} onHide={onClickClose} backdrop={allowClose ? true : "static"} className={"bsmodal"} size={size}>
                 <Modal.Header closeButton={allowClose}>
                     <Modal.Title>{title}</Modal.Title>
                 </Modal.Header>

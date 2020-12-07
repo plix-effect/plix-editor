@@ -3,7 +3,7 @@ import {ChangeEventHandler, FC, useCallback, useContext, useEffect, useMemo, use
 import {PlixEffectJsonData, PlixJsonData} from "@plix-effect/core/dist/types/parser";
 import {isArraysEqual} from "../../../utils/isArraysEqual";
 import {usePlaybackControl, usePlaybackData, usePlaybackStatus} from "../../editor/PlaybackContext";
-import type {FieldConfig} from "./worker/PlixCanvasField";
+import type {PreviewFieldConfig} from "./worker/PlixCanvasField";
 import type {
     CvsDynPreviewInMsgChangeField,
     CvsDynPreviewInMsgChangePlayback,
@@ -19,7 +19,7 @@ import {TIMELINE_LCM} from "@plix-effect/core/dist/effects/Timeline";
 const createDynPreviewCanvasWorker = () => new Worker(new URL("./worker/CanvasDynamicPreviewWorker.ts", import.meta.url));
 
 export interface CanvasDynPreviewProps {
-    fieldConfig: FieldConfig
+    fieldConfig: PreviewFieldConfig
 }
 export const CanvasDynPreview:FC<CanvasDynPreviewProps> = ({fieldConfig}) => {
     const [canvas, setCanvas] = useState<HTMLCanvasElement>();

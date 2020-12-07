@@ -23,6 +23,7 @@ import {GroupOverrideEffectsTrack} from "./GroupOverrideEffectsTrack";
 import {GroupOverrideFiltersTrack} from "./GroupOverrideFiltersTrack";
 import {BSModal} from "../../modal/BSModal";
 import {BSModalPart} from "../../modal/BSModalPart";
+import {PreviewFieldEditor} from "./editor/preview-field/PreviewFieldEditor";
 
 export interface ProfileTrackProps {
     value: PlixProfile,
@@ -134,10 +135,7 @@ export const ProfileTrack: FC<ProfileTrackProps> = memo(({value, baseValue, name
                     fieldConfig
                 </TreeBlock>
                 <TimelineBlock fixed>
-                    <div>
-                        <button>todo: edit fieldConfig in popup</button>
-
-                    </div>
+                    <PreviewFieldEditor/>
                 </TimelineBlock>
             </Track>
         </Track>
