@@ -28,6 +28,8 @@ import {isObjectEqualOrContains} from "../../../utils/isObjectContains";
 import {ConstructorContext} from "../ConstructorContext";
 import {useEffectClass} from "../../../use/useEffectClass";
 import {PlixFilterJsonData} from "@plix-effect/core/dist/types/parser";
+import {EffectParamsTrack} from "./EffectParamsTrack";
+import {RenameTrack} from "./RenameTrack";
 
 export interface EffectTrackProps {
     path: EditorPath,
@@ -191,30 +193,13 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, title, bas
             expanded={expanded}
             leftBlock={leftBlock}
             overrideValue={overrideValue}
+            alias={alias}
         >{children}</OverrideEffectTrack>
-    );
-
-    if (effect === null) return (
-        <NoEffectTrack
-            onChange={onChangeEffect}
-            expanded={expanded}
-            leftBlock={leftBlock}
-        >{children}</NoEffectTrack>
-    );
-
-    if (effect[1] === null) return (
-        <AliasEffectTrack
-            path={path}
-            onChange={onChangeEffect}
-            expanded={expanded}
-            effect={effect as PlixEffectAliasJsonData}
-            children={children}
-            leftBlock={leftBlock}
-        />
     );
     if (effectClass === "timeline") return (
         <TimelineEffectTrack
             effect={effect as PlixEffectConfigurableJsonData}
+            alias={alias}
             onChange={onChangeEffect}
             path={path}
             expanded={expanded}
@@ -224,49 +209,38 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, title, bas
     if (effectClass === "container") return (
         <ContainerEffectTrack
             effect={effect as PlixEffectConfigurableJsonData}
+            alias={alias}
             path={path}
             expanded={expanded}
             onChange={onChangeEffect}
             leftBlock={leftBlock}
         />
     );
-    return (
-        <ConfigurableEffectTrack
-            path={path}
-            onChange={onChangeEffect}
-            expanded={expanded}
-            effect={effect as PlixEffectConfigurableJsonData}
-            children={children}
-            leftBlock={leftBlock}
-        />
-    );
-})
-
-////////////////////////////////////////////////////////////
-
-export interface NoEffectTrackProps {
-    onChange: (type: null|"alias"|"constructor", value?: string) => void,
-    expanded: boolean,
-    leftBlock: ReactNode;
-}
-const NoEffectTrack: FC<NoEffectTrackProps> = memo(({onChange, expanded, leftBlock}) => {
     return (
         <Track nested expanded={expanded}>
             {leftBlock}
             <TimelineBlock fixed>
-                <InlineEffectTypeEditor onChange={onChange} effect={null} />
+                <span className="track-description _desc">
+                    <InlineEffectTypeEditor onChange={onChangeEffect} effect={effect} />
+                </span>
             </TimelineBlock>
+
+            {alias != null && (<RenameTrack value={alias} type={"effect"}/>)}
+
+            <EffectParamsTrack effect={effect} path={path}/>
         </Track>
     );
-});
+})
+
 
 export interface OverrideEffectTrackProps {
-    path: EditorPath
-    overrideValue: PlixEffectJsonData
+    path: EditorPath,
+    overrideValue: PlixEffectJsonData,
     expanded: boolean,
-    leftBlock: ReactNode;
+    leftBlock: ReactNode,
+    alias?: string
 }
-const OverrideEffectTrack: FC<OverrideEffectTrackProps> = memo(({path, expanded, leftBlock, overrideValue}) => {
+const OverrideEffectTrack: FC<OverrideEffectTrackProps> = memo(({path, alias, expanded, leftBlock, overrideValue}) => {
     const {dispatch} = useContext(TrackContext);
     const override = useCallback(() => {
         dispatch(EditValueAction(path, overrideValue))
@@ -278,94 +252,8 @@ const OverrideEffectTrack: FC<OverrideEffectTrackProps> = memo(({path, expanded,
             <TimelineBlock fixed>
                 <button onClick={override}>override effect</button>
             </TimelineBlock>
+
+            {alias != null && (<RenameTrack value={alias} type={"effect"}/>)}
         </Track>
     );
 });
-
-interface AliasEffectTrackProps {
-    effect: PlixEffectAliasJsonData
-    path: EditorPath,
-    expanded: boolean,
-    onChange: (type: null|"alias"|"constructor", value?: string) => void,
-    leftBlock: ReactNode;
-}
-const AliasEffectTrack: FC<AliasEffectTrackProps> = ({effect, leftBlock, effect: [enabled ,, link, filters], path,  expanded, onChange}) => {
-    const filtersPath = useMemo(() => [...path, 3], [path]);
-    const valueFilters = useMemo(() => filters ?? [], [filters]);
-
-    const clearFilters = useMemo(() => {
-        return EditValueAction([...path, 3], []);
-    }, [path]);
-
-    return (
-        <Track nested expanded={expanded} >
-            {leftBlock}
-            <TimelineBlock fixed>
-                <span className="track-description _desc">
-                    <InlineEffectTypeEditor onChange={onChange} effect={effect} />
-                </span>
-            </TimelineBlock>
-
-            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters} title="filters applied to effect">
-                Filters
-            </ValueTrack>
-        </Track>
-    )
-}
-
-interface ConfigurableEffectTrackProps {
-    effect: PlixEffectConfigurableJsonData
-    path: EditorPath,
-    expanded: boolean,
-    onChange: (type: null|"alias"|"constructor", value?: string) => void,
-    leftBlock?: ReactNode
-}
-const ConfigurableEffectTrack: FC<ConfigurableEffectTrackProps> = ({onChange, leftBlock, effect, effect: [enabled, effectId, params, filters], children, path, expanded}) => {
-    const {effectConstructorMap} = useContext(ConstructorContext);
-    const effectData = useMemo(() => {
-        const effectConstructor = effectConstructorMap[effectId];
-        const meta: ParseMeta = effectConstructor['meta'];
-        const paramDescriptions = meta.paramNames.map((paramName, i) => {
-            const defaultValue = meta.defaultValues[i];
-            return ({
-                name: paramName,
-                type: meta.paramTypes[i],
-                description: meta.paramDescriptions[i],
-                value: params[i],
-                clearAction: EditValueAction([...path, 2, i], defaultValue),
-                path: [...path, 2, i],
-            })
-        })
-        return {
-            name: meta.name,
-            description: meta.description,
-            paramDescriptions: paramDescriptions
-        }
-    }, [effectId, params]);
-    const filtersPath = useMemo(() => [...path, 3], [path]);
-    const valueFilters = useMemo(() => filters ?? [], [filters]);
-
-    const clearFilters = useMemo(() => {
-        return EditValueAction([...path, 3], []);
-    }, [path]);
-
-    return (
-        <Track nested expanded={expanded}>
-            {leftBlock}
-            <TimelineBlock fixed>
-                <span className="track-description _desc">
-                    <InlineEffectTypeEditor onChange={onChange} effect={effect} />
-                </span>
-            </TimelineBlock>
-
-            {effectData.paramDescriptions.map((paramDesc) => (
-                <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description} clearAction={paramDesc.clearAction} title={paramDesc.description}>
-                    {paramDesc.name}
-                </ValueTrack>
-            ))}
-            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters} title="filters applied to effect">
-                Filters
-            </ValueTrack>
-        </Track>
-    )
-}

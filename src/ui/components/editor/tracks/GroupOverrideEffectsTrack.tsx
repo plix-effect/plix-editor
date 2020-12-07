@@ -88,6 +88,9 @@ export const GroupOverrideEffectsTrack: FC<GroupOverrideEffectsTrackProps> = mem
         <Track nested expanded={expanded}>
             <TreeBlock selected={selected} onClick={onClickTree} onDoubleClick={onDblClickTree} right={rightIcons}>
                 {expander}
+                &nbsp;
+                <i className="fas fa-palette"/>
+                &nbsp;
                 <span className="track-description">Effects ({count}/{totalCount})</span>
             </TreeBlock>
             <TimelineBlock fixed>

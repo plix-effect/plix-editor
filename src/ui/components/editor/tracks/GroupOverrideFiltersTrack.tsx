@@ -90,6 +90,9 @@ export const GroupOverrideFiltersTrack: FC<GroupOverrideFiltersTrackProps> = mem
         <Track nested expanded={expanded}>
             <TreeBlock selected={selected} onClick={onClickTree} onDoubleClick={onDblClickTree} right={rightIcons}>
                 {expander}
+                &nbsp;
+                <i className="fas fa-mask"/>
+                &nbsp;
                 <span className="track-description">Filters ({count}/{totalCount})</span>
             </TreeBlock>
             <TimelineBlock fixed>

@@ -160,6 +160,9 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
         <Track nested expanded={expanded}>
             <TreeBlock selected={selected} type="title" onClick={onClickTree} onDoubleClick={onDblClickTree} onDragOverItem={onDragOverItemSelf} right={rightIcons}>
                 {expander}
+                &nbsp;
+                <i className="fas fa-palette"/>
+                &nbsp;
                 <span className="track-description">Effects ({count})</span>
             </TreeBlock>
             <TimelineBlock type="title" fixed onClick={onClickTimeline}>

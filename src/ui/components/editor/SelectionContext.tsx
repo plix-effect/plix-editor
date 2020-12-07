@@ -24,11 +24,11 @@ interface SelectionControlContextProps {
 }
 const SelectionControlContext = createContext<SelectionControlContextProps|null>(null);
 
-export interface CreatePlaybackProps {
+export interface SelectionProviderProps {
     track: PlixJsonData;
     dispatch: Dispatch<PlixEditorAction>
 }
-export const SelectionProvider: FC<CreatePlaybackProps> = memo(({children, track, dispatch}) => {
+export const SelectionProvider: FC<SelectionProviderProps> = memo(({children, track, dispatch}) => {
 
     const shiftKeyDown = useRef(false);
 
@@ -204,7 +204,7 @@ export function useSelectionControl(): SelectionControlContextProps{
     return useContext(SelectionControlContext);
 }
 
-const staticSelectTypes = {
+export const staticSelectTypes = {
     track: {
         render: "effect",
         effects: "map:effect",

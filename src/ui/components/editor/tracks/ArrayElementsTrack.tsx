@@ -1,14 +1,4 @@
-import React, {
-    DragEvent,
-    DragEventHandler,
-    FC,
-    memo,
-    MouseEvent,
-    useCallback,
-    useContext,
-    useMemo,
-    useRef
-} from "react";
+import React, {DragEvent, DragEventHandler, FC, memo, useCallback, useContext, useMemo} from "react";
 import {EditorPath} from "../../../types/Editor";
 import {ValueTrack} from "./ValueTrack";
 import {getArrayKey} from "../../../utils/KeyManager";

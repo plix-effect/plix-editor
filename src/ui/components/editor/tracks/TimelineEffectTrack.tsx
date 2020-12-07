@@ -15,42 +15,20 @@ import {getArrayKey} from "../../../utils/KeyManager";
 import {ConstructorContext} from "../ConstructorContext";
 import {InlineEffectTypeEditor} from "./editor/inline/InlineEffectTypeEditor";
 import {useSelectionControl, useSelectionPath} from "../SelectionContext";
+import {EffectParamsTrack} from "./EffectParamsTrack";
+import {RenameTrack} from "./RenameTrack";
 
 export interface TimelineEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
     path: EditorPath,
+    alias?: string,
     onChange: (type: null|"alias"|"constructor", value?: string) => void,
     expanded: boolean,
     leftBlock?: ReactNode
 }
-export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({leftBlock, effect, effect: [,effectId, params, filters], path, onChange, expanded}) => {
+export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({leftBlock, alias, effect, effect: [,effectId, params, filters], path, onChange, expanded}) => {
 
-    const filtersPath = useMemo(() => [...path, 3], [path]);
     const timelinePath = useMemo(() => [...path, 2, 0], [path]);
-    const valueFilters = useMemo(() => filters ?? [], [filters]);
-    const {effectConstructorMap} = useContext(ConstructorContext);
-
-    const clearFilters = useMemo(() => {
-        return EditValueAction([...path, 3], []);
-    }, [path]);
-
-    const effectData = useMemo(() => {
-        const effectConstructor = effectConstructorMap[effectId];
-        const meta: ParseMeta = effectConstructor['meta'];
-        const paramDescriptions = meta.paramNames.slice(1).map((paramName, i) => ({
-            name: paramName,
-            type: meta.paramTypes[i+1],
-            description: meta.paramDescriptions[i+1],
-            value: params[i+1],
-            path: [...path, 2, {key: getArrayKey(params, i+1)}]
-        }))
-        return {
-            name: meta.name,
-            description: meta.description,
-            paramDescriptions: paramDescriptions
-        }
-    }, [effectId, params, path, effectConstructorMap]);
-
 
     return (
         <Track nested expanded={expanded}>
@@ -59,17 +37,11 @@ export const TimelineEffectTrack: FC<TimelineEffectTrackProps> = memo(({leftBloc
                 <TimelineEditor records={params[0]} bpm={params[1]} grid={params[2]} offset={params[3]} repeatStart={params[4]} repeatEnd={params[5]} path={timelinePath} />
             </TimelineBlock>
 
+            {alias != null && (<RenameTrack value={alias} type={"effect"}/>)}
+
             <TimelineEffectTypeTrack effect={effect} effectPath={path} onChange={onChange} />
 
-            {effectData.paramDescriptions.map((paramDesc) => (
-                <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} description={paramDesc.description} title={paramDesc.description}>
-                    {paramDesc.name}
-                </ValueTrack>
-            ))}
-
-            <ValueTrack value={valueFilters} type={"array:filter"} path={filtersPath} description="filters applied to effect" clearAction={clearFilters} title="filters applied to effect">
-                Filters
-            </ValueTrack>
+            <EffectParamsTrack effect={effect} path={path} skipParams={1}/>
         </Track>
     )
 });

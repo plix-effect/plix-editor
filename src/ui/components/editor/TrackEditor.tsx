@@ -156,14 +156,6 @@ export const TrackEditor: FC = () => {
         <ScaleDisplayContext.Provider value={scaleDisplayContextValue}>
             <SplitTimeline minLeft={100} minRight={200} storageKey="timeline" ref={setTimelineEl}>
                 <div className="track-header track-header-tree">
-                    <div className="track-header-filename">
-                        {audioFile !== null ? (
-                            audioFile.name
-                        ) : (
-                            "no audio file"
-                        )}
-                    </div>
-
                     <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={undo} disabled={undoCounts<=0} title={"Undo"}>
                         <i className="fa fa-undo"/>
                         <span className="badge badge-secondary">{undoCounts}</span>
@@ -184,22 +176,13 @@ export const TrackEditor: FC = () => {
                     <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={zoomIn} title={"Zoom in"}>
                         <i className="fa fa-search-plus"/>
                     </button>
-                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={playPause} title={playbackStatus === "play" ? "Pause" : "Play"}>
-                        {playbackStatus === "play" ? (
-                            <i className="fa fa-pause"/>
+                    <div className="track-header-filename">
+                        {audioFile !== null ? (
+                            audioFile.name
                         ) : (
-                            <i className="fa fa-play"/>
+                            "no audio file"
                         )}
-                    </button>
-                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={play025} title={"play 0.25 speed"}>
-                        <i className="fas fa-play-circle"/>
-                    </button>
-                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={repeat} title={"Repeat"}>
-                        <i className="fas fa-sync-alt"/>
-                    </button>
-                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={stop} title={"Stop"}>
-                       <i className="fa fa-stop"/>
-                    </button>
+                    </div>
                 </div>
                 <div className="track-header track-header-timeline" onWheelCapture={onWheel}>
                     <TrackScale />

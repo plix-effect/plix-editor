@@ -15,6 +15,7 @@ import {getParentSelection, useSelectionItem, useSelectionPath} from "../../edit
 import {TrackContext} from "../../editor/TrackContext";
 import {ConstructorContext} from "../../editor/ConstructorContext";
 import {TIMELINE_LCM} from "@plix-effect/core/dist/effects/Timeline";
+import {useProfile} from "../../editor/ProfileContext";
 
 const createDynPreviewCanvasWorker = () => new Worker(new URL("./worker/CanvasDynamicPreviewWorker.ts", import.meta.url));
 
@@ -68,7 +69,11 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = ({fieldConfig}) => {
             return [timeline, start, duration]
         }
         return [track.render, 0, trackDuration];
-    }, [selectedItem, selectedType, track])
+    }, [selectedItem, selectedType, track]);
+
+    const profile = useProfile();
+    const profileRef = useRef(profile);
+    profileRef.current = profile;
 
     useEffect(() => {
         if (!canvas) return;
@@ -86,8 +91,16 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = ({fieldConfig}) => {
             const [usedEffectNames, usedFilterNames] = data.deps;
             lastUsedEffectNames.current = usedEffectNames;
             lastUsedFilterNames.current = usedFilterNames;
-            lastUsedEffects.current = usedEffectNames.map(name => track.effects[name]);
-            lastUsedFilters.current = usedFilterNames.map(name => track.filters[name]);
+            lastUsedEffects.current = usedEffectNames.map(name => {
+                const effect = profileRef.current?.effects?.[name];
+                if (effect !== undefined) return effect;
+                return track.effects[name];
+            });
+            lastUsedFilters.current = usedFilterNames.map(name => {
+                const filter = profileRef.current?.filters?.[name];
+                if (filter !== undefined) return filter;
+                return track.filters[name]
+            });
         });
         worker.postMessage(msg, [msg.canvas]);
 
@@ -109,11 +122,19 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = ({fieldConfig}) => {
             if (!lastUsedEffectNames.current || !lastUsedFilterNames.current) {
                 return true;
             }
-            const usedEffects = lastUsedEffectNames.current.map(name => track.effects[name]);
+            const usedEffects = lastUsedEffectNames.current.map(name => {
+                const effect = profile?.effects?.[name];
+                if (effect !== undefined) return effect;
+                return track.effects[name];
+            });
             if (!isArraysEqual(lastUsedEffects.current, usedEffects)) {
                 return true;
             }
-            const usedFilters = lastUsedFilterNames.current.map(name => track.filters[name]);
+            const usedFilters = lastUsedFilterNames.current.map(name => {
+                const filter = profile?.filters?.[name];
+                if (filter !== undefined) return filter;
+                return track.filters[name];
+            });
             return !isArraysEqual(lastUsedFilters.current, usedFilters);
 
         }
@@ -127,7 +148,7 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = ({fieldConfig}) => {
         const message: CvsDynPreviewInMsgRenderData = {type: "render", data: {render, track, duration}};
 
         worker.postMessage(message, []);
-    }, [worker, duration, render, track.filters, track.effects]);
+    }, [worker, duration, render, track.filters, track.effects, profile]);
 
     useEffect(() => {
         if (!worker) return;

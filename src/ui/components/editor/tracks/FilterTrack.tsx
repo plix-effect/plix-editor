@@ -28,6 +28,8 @@ import {DragType} from "../DragContext";
 import {TreeBlockFilter} from "./editor/TreeBlockFilter";
 import {isObjectEqualOrContains} from "../../../utils/isObjectContains";
 import {ConstructorContext} from "../ConstructorContext";
+import {FilterParamsTrack} from "./FilterParamsTrack";
+import {RenameTrack} from "./RenameTrack";
 
 export interface FilterTrackProps {
     baseExpanded?: boolean,
@@ -135,64 +137,35 @@ export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, overrideVa
     if (filter === undefined && overrideValue !== undefined) return (
         <OverrideFilterTrack
             path={path}
+            alias={alias}
             expanded={expanded}
             leftBlock={leftBlock}
             overrideValue={overrideValue}
         >{children}</OverrideFilterTrack>
     );
 
-    if (filter === null) return (
-        <NoFilterTrack
-            onChange={onChangeFilter}
-            path={path}
-            expanded={expanded}
-            leftBlock={leftBlock}
-        >{children}</NoFilterTrack>
-    )
-
-    if (filter[1] === null) return (
-        <AliasFilterTrack
-            path={path}
-            expanded={expanded}
-            filter={filter as PlixFilterAliasJsonData}
-            leftBlock={leftBlock}
-            onChange={onChangeFilter}
-        />
-    );
-    return <ConfigurableFilterTrack
-        path={path}
-        expanded={expanded}
-        filter={filter as PlixFilterConfigurableJsonData}
-        leftBlock={leftBlock}
-        onChange={onChangeFilter}
-    />
-})
-
-export interface NoFilterTrackProps {
-    path: EditorPath,
-    children: ReactNode,
-    onChange: (type: null|"alias"|"constructor", value?: string) => void,
-    expanded: boolean,
-    leftBlock: ReactNode;
-}
-const NoFilterTrack: FC<NoFilterTrackProps> = memo(({expanded, onChange, leftBlock}) => {
     return (
         <Track nested expanded={expanded}>
             {leftBlock}
             <TimelineBlock fixed>
-                <InlineFilterTypeEditor onChange={onChange} filter={null} />
+                <InlineFilterTypeEditor onChange={onChangeFilter} filter={filter} />
             </TimelineBlock>
+
+            {alias != null && (<RenameTrack value={alias} type={"filter"}/>)}
+
+            <FilterParamsTrack filter={filter} path={path} />
         </Track>
     )
-});
+})
 
 export interface OverrideFilterTrackProps {
     path: EditorPath
     overrideValue: PlixFilterJsonData
     expanded: boolean,
     leftBlock: ReactNode;
+    alias?: string
 }
-const OverrideFilterTrack: FC<OverrideFilterTrackProps> = memo(({path, expanded, leftBlock, overrideValue}) => {
+const OverrideFilterTrack: FC<OverrideFilterTrackProps> = memo(({path, alias, expanded, leftBlock, overrideValue}) => {
     const {dispatch} = useContext(TrackContext);
     const override = useCallback(() => {
         dispatch(EditValueAction(path, overrideValue))
@@ -204,72 +177,9 @@ const OverrideFilterTrack: FC<OverrideFilterTrackProps> = memo(({path, expanded,
             <TimelineBlock fixed>
                 <button onClick={override}>override filter</button>
             </TimelineBlock>
+
+            {alias != null && (<RenameTrack value={alias} type={"filter"}/>)}
+
         </Track>
     );
 });
-
-interface AliasFilterTrackProps {
-    filter: PlixFilterAliasJsonData
-    path: EditorPath,
-    expanded: boolean,
-    leftBlock: ReactNode;
-    onChange: (type: null|"alias"|"constructor", value?: string) => void,
-}
-const AliasFilterTrack: FC<AliasFilterTrackProps> = memo(({filter, leftBlock, expanded, onChange}) => {
-    return (
-        <Track nested expanded={expanded}>
-            {leftBlock}
-            <TimelineBlock fixed>
-                <InlineFilterTypeEditor onChange={onChange} filter={filter} />
-            </TimelineBlock>
-        </Track>
-    )
-});
-
-interface ConfigurableFilterTrackProps {
-
-    filter: PlixFilterConfigurableJsonData
-    path: EditorPath,
-    expanded: boolean,
-    leftBlock: ReactNode,
-    onChange: (type: null|"alias"|"constructor", value?: string) => void,
-}
-const ConfigurableFilterTrack: FC<ConfigurableFilterTrackProps> = memo(({filter, filter: [enabled, filterId, params], onChange, path, expanded, leftBlock}) => {
-    const {filterConstructorMap} = useContext(ConstructorContext);
-    const filterData = useMemo(() => {
-        const filterConstructor = filterConstructorMap[filterId];
-        const meta: ParseMeta = filterConstructor['meta'];
-        const paramDescriptions = meta.paramNames.map((paramName, i) => {
-            const defaultValue = meta.defaultValues[i];
-            const paramPath = [...path, 2, i];
-            return ({
-                name: paramName,
-                type: meta.paramTypes[i],
-                description: meta.paramDescriptions[i],
-                value: params[i],
-                clearAction: EditValueAction(paramPath,defaultValue),
-                path: paramPath as EditorPath
-            })
-        })
-        return {
-            name: meta.name,
-            description: meta.description,
-            paramDescriptions: paramDescriptions
-        }
-    }, [filterId, params])
-    return (
-        <Track nested expanded={expanded}>
-            {leftBlock}
-            <TimelineBlock fixed>
-                <span className="track-description ">
-                    <InlineFilterTypeEditor onChange={onChange} filter={filter} />
-                </span>
-            </TimelineBlock>
-            {filterData.paramDescriptions.map((paramDesc) => (
-                <ValueTrack value={paramDesc.value} type={paramDesc.type} path={paramDesc.path} key={paramDesc.name} clearAction={paramDesc.clearAction}>
-                    {paramDesc.name}
-                </ValueTrack>
-            ))}
-        </Track>
-    )
-})

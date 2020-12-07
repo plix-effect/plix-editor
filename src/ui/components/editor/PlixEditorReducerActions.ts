@@ -1,5 +1,5 @@
 import type {EditorPath} from "../../types/Editor";
-import {PlixJsonData} from "@plix-effect/core/dist/types/parser";
+import {EffectConstructorMap, FilterConstructorMap, PlixJsonData} from "@plix-effect/core/dist/types/parser";
 
 export const EditValueAction = (path: EditorPath, value: any) => {
     return {
@@ -55,6 +55,17 @@ export const InsertIndexAction = (path: EditorPath, index: number, value: any) =
         path,
         index,
         values: [value]
+    } as const;
+}
+
+export const RenameAliasAction = (aliasType: "effect"|"filter", from: string, to: string, effectConstructorMap: EffectConstructorMap, filterConstructorMap: FilterConstructorMap,) => {
+    return {
+        type: "rename",
+        aliasType,
+        from,
+        to,
+        effectConstructorMap,
+        filterConstructorMap,
     } as const;
 }
 

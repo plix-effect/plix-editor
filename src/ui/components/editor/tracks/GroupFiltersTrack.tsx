@@ -160,6 +160,9 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
         <Track nested expanded={expanded}>
             <TreeBlock type="title" onClick={onClickTree} onDoubleClick={onDblClickTree} selected={selected} onDragOverItem={onDragOverItemSelf} right={rightIcons}>
                 {expander}
+                &nbsp;
+                <i className="fas fa-mask"/>
+                &nbsp;
                 <span className="track-description">Filters ({count})</span>
             </TreeBlock>
             <TimelineBlock type="title" fixed onClick={onClickTimeline}>

@@ -21,6 +21,7 @@ import {useSelectionControl, useSelectionPath} from "../SelectionContext";
 import {PlixProfile} from "@plix-effect/core/types/parser";
 import {GroupOverrideEffectsTrack} from "./GroupOverrideEffectsTrack";
 import {GroupOverrideFiltersTrack} from "./GroupOverrideFiltersTrack";
+import {useProfileName} from "../ProfileContext";
 
 export interface ProfileTrackProps {
     value: PlixProfile,
@@ -110,18 +111,36 @@ export const ProfileTrack: FC<ProfileTrackProps> = memo(({value, baseValue, name
         {(clearAction) && (
             <i className="fa fa-times track-tree-icon track-tree-icon-action" onClick={onClickClear} title="clear"/>
         )}
-    </>)
+    </>);
+
+    const [profileName, setProfile] = useProfileName();
+    const setCurrentProfile = useCallback(() => {
+        setProfile(name);
+    }, [setProfile, name]);
+    const clearCurrentProfile = useCallback(() => {
+        setProfile(null);
+    }, [setProfile]);
 
     return (
         <Track nested expanded={expanded}>
             <TreeBlock selected={selected} onDragOverItem={onDragOverItemSelf} dragValue={dragValue} onClick={onClick} onDoubleClick={onDblClick} right={rightIcons} title={title}>
                 {expander}
-                <span className="track-description">{children}</span>
                 &nbsp;
-                <span className="track-description _desc">selected</span>
+                <i className="fas fa-user"/>
+                &nbsp;
+                <span className="track-description">{children}</span>
             </TreeBlock>
             <TimelineBlock fixed>
-                <button>select</button>
+                {profileName === name ? (<>
+                    <span className="track-description _desc">
+                        using {name}.
+                    </span>
+                    &nbsp;
+                    <a onClick={clearCurrentProfile}>[clear profile]</a>
+                </>) : (
+                    <button onClick={setCurrentProfile}>use this profile</button>
+                )}
+
             </TimelineBlock>
 
             <GroupOverrideEffectsTrack name={name} effectsMap={value.effects} baseEffectsMap={baseValue.effects} path={paths.effects} clearAction={clearEffectsAction} />

@@ -35,6 +35,9 @@ export const GroupOptionsTrack: FC<GroupOptionsTrackProps> = memo(({options = {}
         <Track nested expanded={expanded}>
             <TreeBlock type="title" onClick={onClickTree}>
                 {expander}
+                &nbsp;
+                <i className="fas fa-sliders-h"/>
+                &nbsp;
                 <span className="track-description" onClick={changeExpanded}>Options</span>
             </TreeBlock>
             <TimelineBlock type="title" fixed>

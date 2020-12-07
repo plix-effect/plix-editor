@@ -14,7 +14,13 @@ export const Expander: FC<ExpanderProps> = ({show = true, expanded, changeExpand
         changeExpanded();
     }, [changeExpanded])
     return (
-        <a onDragEnter={changeExpanded} className={cn("track-expander", show && (expanded ? "_expanded" : "_collapsed") )} onClick={onClick} />
+        <span onDragEnter={changeExpanded} className={cn("track-expander", show && (expanded ? "_expanded" : "_collapsed") )} onClick={onClick}>
+            {expanded ? (
+                <i className="far fa-minus-square"/>
+            ) : (
+                <i className="far fa-plus-square"/>
+            )}
+        </span>
     );
 }
 

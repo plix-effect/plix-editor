@@ -28,6 +28,7 @@ import {SelectionProvider, useSelectionItem, useSelectionPath} from "./Selection
 import {AudioPlayer} from "./AudioPlayer";
 import {readMp3Json} from "../../utils/Mp3Meta";
 import {PreviewContainer} from "../preview/PreviewContainer";
+import {SelectProvider} from "./ProfileContext";
 
 const defaultTrack: PlixJsonData & {editor: any} = {
     effects: {},
@@ -159,20 +160,22 @@ export const PlixEditor: FC = () => {
                 <AudioFileContext.Provider value={audioFileContextValue}>
                     <CreatePlayback duration={track?.['editor']?.['duration'] ?? 60*1000}>
                         <SelectionProvider track={track} dispatch={dispatch}>
-                            <DragContext.Provider value={dragRef}>
-                                <TrackContext.Provider value={trackContextValue}>
-                                    <AudioPlayer/>
-                                    <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
-                                        <TrackEditor />
-                                        <SplitLeftRight minLeft={100} minRight={200} storageKey={"btm"}>
-                                            <div style={{flexGrow: 1, backgroundColor: "green"}}>libs</div>
-                                            <div style={{flexGrow: 1, backgroundColor: "green", display: "flex", flexDirection: "column"}}>
-                                                <PreviewContainer/>
-                                            </div>
-                                        </SplitLeftRight>
-                                    </SplitTopBottom>
-                                </TrackContext.Provider>
-                            </DragContext.Provider>
+                            <SelectProvider track={track}>
+                                <DragContext.Provider value={dragRef}>
+                                    <TrackContext.Provider value={trackContextValue}>
+                                        <AudioPlayer/>
+                                        <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
+                                            <TrackEditor />
+                                            <SplitLeftRight minLeft={100} minRight={200} storageKey={"btm"}>
+                                                <div style={{flexGrow: 1, backgroundColor: "green"}}>libs</div>
+                                                <div style={{flexGrow: 1, backgroundColor: "green", display: "flex", flexDirection: "column"}}>
+                                                    <PreviewContainer/>
+                                                </div>
+                                            </SplitLeftRight>
+                                        </SplitTopBottom>
+                                    </TrackContext.Provider>
+                                </DragContext.Provider>
+                            </SelectProvider>
                         </SelectionProvider>
                     </CreatePlayback>
                 </AudioFileContext.Provider>

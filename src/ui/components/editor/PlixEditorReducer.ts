@@ -3,6 +3,9 @@ import type {PlixJsonData} from "@plix-effect/core/dist/types/parser";
 import type * as actionConstructors from "./PlixEditorReducerActions";
 import type {EditorPath, HistoryPath} from "../../types/Editor";
 import {generateKeyId, getArrayKeyIndex, keyMap, settleKeys} from "../../utils/KeyManager";
+import {EffectConstructorMap, FilterConstructorMap} from "@plix-effect/core/dist/types/parser";
+import {ParseMeta} from "../../types/ParseMeta";
+import {staticSelectTypes} from "./SelectionContext";
 
 type ActionConstructorMap = typeof actionConstructors;
 type ActionsMap = {
@@ -88,8 +91,12 @@ export const PlixEditorReducer: Reducer<PlixEditorState, PlixEditorAction> = (st
                 historyPosition: initHistoryPos + 1
             }
         }
+        case "rename": {
+            const renamedTrack = rename(state.track, "track", action.aliasType, action.from, action.to, action.effectConstructorMap, action.filterConstructorMap);
+            if (state.track === renamedTrack) return state;
+            return changeState(state, new GlobalHistoryItem(state.track, renamedTrack))
+        }
     }
-
 }
 
 function undoState(state: PlixEditorState): PlixEditorState {
@@ -137,6 +144,14 @@ function changeState(state: PlixEditorState, historyItem: PlixEditorHistoryItem)
         historyPosition: state.historyPosition + 1,
     }
 
+}
+
+class GlobalHistoryItem implements PlixEditorHistoryItem {
+    public readonly timestamp = performance.now();
+    constructor(private from: PlixJsonData, private to: PlixJsonData){}
+    revert() {return this.from}
+    apply() {return this.to}
+    merge() {return null}
 }
 
 class MultiHistoryItem implements PlixEditorHistoryItem {
@@ -389,4 +404,79 @@ function toHistoryPath(track: PlixJsonData, editorPath: EditorPath): HistoryPath
         }
     }
     return historyPath;
+}
+
+function rename<T extends any>(
+    value: T,
+    type: string,
+    aliasType: "filter"|"effect",
+    nameFrom: string,
+    nameTo: string,
+    effectConstructorMap: EffectConstructorMap,
+    filterConstructorMap: FilterConstructorMap,
+) {
+    if (!type) return value;
+    if (aliasType === "effect" && type === "effectAlias" && value === nameFrom) return nameTo;
+    if (aliasType === "effect" && type.startsWith("effectParams:") && value === nameFrom) return nameTo;
+    if (aliasType === "filter" && type.startsWith("filterParams:") && value === nameFrom) return nameTo;
+    if (typeof value !== "object" || value === null) return value;
+    if (Array.isArray(value)) {
+        let subTypes: string[];
+        let subType: string;
+        if (type === "effect") {
+            subTypes = ["boolean", "effectId", `effectParams:${value[1]}`, "array:filter"];
+        } else if (type === "filter") {
+            subTypes = ["boolean", "filterId", `filterParams:${value[1]}`];
+        } else if (type === "record") {
+            subTypes = ["boolean", "effectAlias", "number", "number"];
+        } else if (type.startsWith("array:")) {
+            subType = type.substring(6);
+        } else if (type.startsWith("effectParams:")) {
+            const id = type.substring(13);
+            const constructor = effectConstructorMap[id];
+            if (!constructor) return value;
+            const meta: ParseMeta = constructor['meta'];
+            subTypes = meta.paramTypes;
+        } else if (type.startsWith("filterParams:")) {
+            const id = type.substring(13);
+            const constructor = filterConstructorMap[id];
+            if (!constructor) return value;
+            const meta: ParseMeta = constructor['meta'];
+            subTypes = meta.paramTypes;
+        } else {
+            return value;
+        }
+        let hasChanges = false;
+        const clone = value.map((nextValue, i) => {
+            const nextType = subType ?? subTypes[i];
+            if (!nextType) return nextValue;
+            const renamedValue = rename(nextValue, nextType, aliasType, nameFrom, nameTo, effectConstructorMap, filterConstructorMap);
+            if (nextValue !== renamedValue) hasChanges = true;
+            return renamedValue;
+        });
+        return hasChanges ? clone : value;
+    } else {
+        let subTypes: {[name: string]: string};
+        let subType: string;
+        if (type in staticSelectTypes) {
+            subTypes = staticSelectTypes[type];
+        } else if (type.startsWith("map:")) {
+            subType = type.substring(4);
+        }
+        let hasChanges = false;
+        const clone = Object.fromEntries(Object.entries(value).map(([key, nextValue]) => {
+            const nextType = subType ?? subTypes[key];
+            const renameEffect = (type === "map:effect" && aliasType === "effect" && key === nameFrom)
+            const renameFilter = (type === "map:filter" && aliasType === "filter" && key === nameFrom)
+            if (renameEffect || renameFilter) {
+                hasChanges = true;
+                key = nameTo;
+            }
+            if (!nextType) return [key, nextValue];
+            const renamedValue = rename(nextValue, nextType, aliasType, nameFrom, nameTo, effectConstructorMap, filterConstructorMap);
+            if (nextValue !== renamedValue) hasChanges = true;
+            return [key, renamedValue];
+        }));
+        return hasChanges ? clone : value;
+    }
 }

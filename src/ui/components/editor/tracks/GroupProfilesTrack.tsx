@@ -148,6 +148,9 @@ export const GroupProfilesTrack: FC<GroupProfilesTrackProps> = memo(({profilesMa
         <Track nested expanded={expanded}>
             <TreeBlock type="title" onClick={onClickTree} onDoubleClick={onDblClickTree} selected={selected} onDragOverItem={onDragOverItemSelf} right={rightIcons}>
                 {expander}
+                &nbsp;
+                <i className="fas fa-users"/>
+                &nbsp;
                 <span className="track-description">Profiles ({count})</span>
             </TreeBlock>
             <TimelineBlock type="title" fixed onClick={onClickTimeline}>
