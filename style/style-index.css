@@ -690,9 +690,7 @@ button.btn.track-header-icon-button {
 .split-lr-left {
   width: 200px;
   min-height: 100%;
-  height: max-content;
   overflow: auto;
-  cursor: auto;
   flex-grow: 0;
   flex-shrink: 0;
   display: flex; }
@@ -736,6 +734,13 @@ button.btn.track-header-icon-button {
       margin-top: 10px; }
       .canvas-preview-container .controls .rate-option .rate-selector {
         margin-left: 10px; }
+
+.plix-lib-block {
+  height: 100%;
+  max-height: 100%; }
+
+.plix-lib-container {
+  overflow: auto; }
 
 
 /*# sourceMappingURL=style-index.css.map*/

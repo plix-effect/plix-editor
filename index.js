@@ -18905,6 +18905,19 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/ui/components/editor/PlixLibBlock.scss":
+/*!****************************************************!*
+  !*** ./src/ui/components/editor/PlixLibBlock.scss ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./src/ui/components/editor/TrackScale.scss":
 /*!**************************************************!*
   !*** ./src/ui/components/editor/TrackScale.scss ***!
@@ -81572,6 +81585,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Mp3Meta__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../../utils/Mp3Meta */ "./src/ui/utils/Mp3Meta.ts");
 /* harmony import */ var _preview_PreviewContainer__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../preview/PreviewContainer */ "./src/ui/components/preview/PreviewContainer.tsx");
 /* harmony import */ var _ProfileContext__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./ProfileContext */ "./src/ui/components/editor/ProfileContext.tsx");
+/* harmony import */ var _PlixLibBlock__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./PlixLibBlock */ "./src/ui/components/editor/PlixLibBlock.tsx");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -81581,6 +81595,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
 
 
 
@@ -81726,7 +81741,7 @@ const PlixEditor = () => {
                                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_divider_SplitTopBottom__WEBPACK_IMPORTED_MODULE_2__.SplitTopBottom, { minTop: 100, minBottom: 200, storageKey: "s1" },
                                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackEditor__WEBPACK_IMPORTED_MODULE_3__.TrackEditor, null),
                                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_divider_SplitLeftRight__WEBPACK_IMPORTED_MODULE_13__.SplitLeftRight, { minLeft: 100, minRight: 200, storageKey: "btm" },
-                                            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: { flexGrow: 1, backgroundColor: "black" } }, "libs"),
+                                            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PlixLibBlock__WEBPACK_IMPORTED_MODULE_19__.PlixLibBlock, null),
                                             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: { flexGrow: 1, backgroundColor: "black", display: "flex", flexDirection: "column" } },
                                                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_preview_PreviewContainer__WEBPACK_IMPORTED_MODULE_17__.PreviewContainer, null)))))))))))));
 };
@@ -82297,6 +82312,70 @@ const MultiAction = (actions) => {
 
 /***/ }),
 
+/***/ "./src/ui/components/editor/PlixLibBlock.tsx":
+/*!***************************************************!*
+  !*** ./src/ui/components/editor/PlixLibBlock.tsx ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "PlixLibBlock": () => /* binding */ PlixLibBlock
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _PlixEditor_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PlixEditor.scss */ "./src/ui/components/editor/PlixEditor.scss");
+/* harmony import */ var _control_tabs_BSTabsWithContent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../control/tabs/BSTabsWithContent */ "./src/ui/components/control/tabs/BSTabsWithContent.tsx");
+/* harmony import */ var _PlixLibBlock_scss__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./PlixLibBlock.scss */ "./src/ui/components/editor/PlixLibBlock.scss");
+
+
+
+
+const tabs = ["Filters", "Effects"];
+const PlixLibBlock = () => {
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-block" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_control_tabs_BSTabsWithContent__WEBPACK_IMPORTED_MODULE_2__.BSTabsWithContent, { tabs: tabs, type: "pills", justify: true, localStorageKey: "lib-tabs" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-container" },
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+                "FIL",
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null)),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-container" }, "EFF"))));
+};
+
+
+/***/ }),
+
 /***/ "./src/ui/components/editor/ProfileContext.tsx":
 /*!*****************************************************!*
   !*** ./src/ui/components/editor/ProfileContext.tsx ***!
@@ -82543,7 +82622,7 @@ const staticSelectTypes = {
         render: "effect",
         effects: "map:effect",
         filters: "map:filter",
-        options: "trackOptions",
+        editor: "trackOptions",
         profiles: "map:profile"
     },
     trackOptions: {
@@ -82554,7 +82633,7 @@ const staticSelectTypes = {
         effects: "map:effect",
         filters: "map:filter",
         previewFieldConfig: "fieldConfig"
-    }
+    },
 };
 function selectItem(type, item, effectConstructorMap, filterConstructorMap, [pathEl, ...path]) {
     if (item === undefined)
@@ -84330,6 +84409,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../track-elements/TreeBlock */ "./src/ui/components/editor/track-elements/TreeBlock.tsx");
 /* harmony import */ var _track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
 /* harmony import */ var _ValueTrack__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ValueTrack */ "./src/ui/components/editor/tracks/ValueTrack.tsx");
+/* harmony import */ var _SelectionContext__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../SelectionContext */ "./src/ui/components/editor/SelectionContext.tsx");
+
 
 
 
@@ -84341,12 +84422,25 @@ const GroupOptionsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ options
     const [expanded, expander, changeExpanded] = (0,_track_elements_Expander__WEBPACK_IMPORTED_MODULE_2__.useExpander)(false);
     const durationPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, "duration"], [path]);
     const countPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, "count"], [path]);
-    const onClickTree = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+    const { toggleSelect, isSelectedPath, select } = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_6__.useSelectionControl)();
+    const selectionPath = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_6__.useSelectionPath)();
+    const selected = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return isSelectedPath(path);
+    }, [selectionPath]);
+    const onClickTree = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(({ ctrlKey, altKey, shiftKey }) => {
+        if (!ctrlKey && !altKey && !shiftKey)
+            select(path);
+        if (ctrlKey && !altKey && shiftKey) {
+            toggleSelect(path);
+        }
+    }, [toggleSelect, select, path]);
+    const onDblClickTree = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         if (!event.ctrlKey && !event.altKey && !event.shiftKey)
             changeExpanded();
+        event.preventDefault();
     }, [changeExpanded]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_3__.TreeBlock, { type: "title", onClick: onClickTree },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_3__.TreeBlock, { selected: selected, type: "title", onClick: onClickTree, onDoubleClick: onDblClickTree },
             expander,
             "\u00A0",
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-sliders-h" }),
@@ -84357,7 +84451,6 @@ const GroupOptionsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ options
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { path: durationPath, value: (_a = options === null || options === void 0 ? void 0 : options['duration']) !== null && _a !== void 0 ? _a : null, type: "number", description: "duration in milliseconds" }, "Track duration"),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { path: countPath, value: (_b = options === null || options === void 0 ? void 0 : options['count']) !== null && _b !== void 0 ? _b : null, type: "number", description: "number of pixels" }, "Pixels")));
 });
-const defaultFilter = null;
 
 
 /***/ }),
