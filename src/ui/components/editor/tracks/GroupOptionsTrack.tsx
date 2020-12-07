@@ -15,6 +15,7 @@ import {useExpander} from "../track-elements/Expander";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {ValueTrack} from "./ValueTrack";
+import {useSelectionControl, useSelectionPath} from "../SelectionContext";
 
 export interface GroupOptionsTrackProps {
     options: object,
@@ -27,13 +28,27 @@ export const GroupOptionsTrack: FC<GroupOptionsTrackProps> = memo(({options = {}
     const durationPath = useMemo(() => [...path, "duration"] ,[path]);
     const countPath = useMemo(() => [...path, "count"] ,[path]);
 
-    const onClickTree: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+    const {toggleSelect, isSelectedPath, select} = useSelectionControl();
+    const selectionPath = useSelectionPath();
+    const selected = useMemo(() => {
+        return isSelectedPath(path);
+    }, [selectionPath]);
+
+    const onClickTree: MouseEventHandler<HTMLDivElement> = useCallback(({ctrlKey, altKey, shiftKey}) => {
+        if (!ctrlKey && !altKey && !shiftKey) select(path); // Click
+        if (ctrlKey && !altKey && shiftKey) { // Ctrl+Shift
+            toggleSelect(path);
+        }
+    }, [toggleSelect, select, path]);
+
+    const onDblClickTree: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
         if (!event.ctrlKey && !event.altKey && !event.shiftKey) changeExpanded();
+        event.preventDefault();
     }, [changeExpanded]);
 
     return (
         <Track nested expanded={expanded}>
-            <TreeBlock type="title" onClick={onClickTree}>
+            <TreeBlock selected={selected} type="title" onClick={onClickTree} onDoubleClick={onDblClickTree}>
                 {expander}
                 &nbsp;
                 <i className="fas fa-sliders-h"/>
@@ -54,5 +69,3 @@ export const GroupOptionsTrack: FC<GroupOptionsTrackProps> = memo(({options = {}
         </Track>
     )
 });
-
-const defaultFilter = null;

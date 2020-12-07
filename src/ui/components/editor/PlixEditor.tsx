@@ -28,6 +28,7 @@ import {AudioPlayer} from "./AudioPlayer";
 import {readMp3Json} from "../../utils/Mp3Meta";
 import {PreviewContainer} from "../preview/PreviewContainer";
 import {SelectProvider} from "./ProfileContext";
+import {PlixLibBlock} from "./PlixLibBlock";
 
 const defaultTrack: PlixJsonData & {editor: any} = {
     effects: {},
@@ -166,7 +167,7 @@ export const PlixEditor: FC = () => {
                                         <SplitTopBottom minTop={100} minBottom={200} storageKey="s1">
                                             <TrackEditor />
                                             <SplitLeftRight minLeft={100} minRight={200} storageKey={"btm"}>
-                                                <div style={{flexGrow: 1, backgroundColor: "black"}}>libs</div>
+                                                <PlixLibBlock/>
                                                 <div style={{flexGrow: 1, backgroundColor: "black", display: "flex", flexDirection: "column"}}>
                                                     <PreviewContainer/>
                                                 </div>

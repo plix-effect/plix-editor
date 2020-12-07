@@ -209,7 +209,7 @@ export const staticSelectTypes = {
         render: "effect",
         effects: "map:effect",
         filters: "map:filter",
-        options: "trackOptions",
+        editor: "trackOptions",
         profiles: "map:profile"
     },
     trackOptions: {
@@ -220,7 +220,7 @@ export const staticSelectTypes = {
         effects: "map:effect",
         filters: "map:filter",
         previewFieldConfig: "fieldConfig"
-    }
+    },
 }
 
 function selectItem(
