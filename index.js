@@ -82829,7 +82829,7 @@ const TrackEditor = () => {
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header-filename" }, audioFile !== null ? (audioFile.name) : ("no audio file"))),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header track-header-timeline", onWheelCapture: onWheel },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackScale__WEBPACK_IMPORTED_MODULE_8__.TrackScale, null)),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-tree", onWheelCapture: onWheel },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-tree", style: { marginLeft: 1 }, onWheelCapture: onWheel },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_PortalContext__WEBPACK_IMPORTED_MODULE_1__.PortalContext.Provider, { value: rightRenderEl },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_9__.Track, null,
                         null,
