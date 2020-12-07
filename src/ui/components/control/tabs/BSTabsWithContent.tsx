@@ -2,17 +2,19 @@ import * as React from "react";
 import {FC, useState} from "react";
 import {BSTabs} from "./BSTabs";
 import {BSTabsContent} from "./BSTabsContent";
+import {useLocalStorage} from "../../../use/useStorage";
 
 interface BSTabsWithContentProps {
     tabs: string[]
     type?: "pills"|"tabs"
     justify?: boolean
+    localStorageKey?: string
     disabledIndexes?: number[]
 }
 
-export const BSTabsWithContent: FC<BSTabsWithContentProps> = ({tabs, type, justify, disabledIndexes, children}) => {
+export const BSTabsWithContent: FC<BSTabsWithContentProps> = ({tabs, type, justify, disabledIndexes, children, localStorageKey}) => {
 
-    const [activeIndex, setActiveIndex] = useState(0);
+    const [activeIndex, setActiveIndex] = localStorageKey ? useLocalStorage(localStorageKey, 0) : useState(0);
 
     return (
         <React.Fragment>

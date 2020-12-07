@@ -10,7 +10,7 @@ export const PreviewContainer: FC = () => {
 
     return (
         <div style={{flexGrow: 1}}>
-            <BSTabsWithContent tabs={["Dynamic", "Static", "Timed"]} type={"pills"} justify={true} >
+            <BSTabsWithContent tabs={["Dynamic", "Static", "Timed"]} type={"pills"} justify={true} localStorageKey={"preview-tabs"}>
                 <div>
                     <CanvasDynPreview fieldConfig={DEFAULT_PREVIEW_FIELD_CONFIG}/>
                 </div>

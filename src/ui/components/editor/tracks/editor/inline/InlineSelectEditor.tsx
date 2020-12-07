@@ -33,9 +33,10 @@ export interface InlineSelectEditorProps {
     onChange: (value: any) => void,
     options: InlineSelectOption[],
     emptyText?: string
+    allowEmpty?: boolean
 }
 
-export const InlineSelectEditor: FC<InlineSelectEditorProps> = ({value, onChange, options, emptyText="Not selected"}) => {
+export const InlineSelectEditor: FC<InlineSelectEditorProps> = ({value, onChange, options, emptyText="Not selected", allowEmpty=true}) => {
 
     const formRef = useRef<HTMLFormElement>();
     const [editMode, setEditMode, toggleEditMode] = useInlineEditableContainer(formRef,false)
@@ -75,6 +76,8 @@ export const InlineSelectEditor: FC<InlineSelectEditorProps> = ({value, onChange
                             className={"form-control"}
                             value={value}
                             autosize={true}
+                            isClearable={allowEmpty}
+                            menuPlacement="auto"
                             autoFocus={true}
                             onChange={onSetValue}
                             menuPortalTarget={document.querySelector('body')}

@@ -15,6 +15,11 @@ import {getParentSelection, useSelectionItem, useSelectionPath} from "../../edit
 import {TrackContext} from "../../editor/TrackContext";
 import {ConstructorContext} from "../../editor/ConstructorContext";
 import {TIMELINE_LCM} from "@plix-effect/core/dist/effects/Timeline";
+import {Checkbox} from "../../control/checkbox/Checkbox";
+import "./CanvasPreview.scss"
+import {CheckboxButton} from "../../control/checkbox/CheckboxButton";
+import {PlaybackRateSelector} from "./PlaybackRateSelector";
+import {useLocalStorage} from "../../../use/useStorage";
 
 const createDynPreviewCanvasWorker = () => new Worker(new URL("./worker/CanvasDynamicPreviewWorker.ts", import.meta.url));
 
@@ -24,7 +29,8 @@ export interface CanvasDynPreviewProps {
 export const CanvasDynPreview:FC<CanvasDynPreviewProps> = ({fieldConfig}) => {
     const [canvas, setCanvas] = useState<HTMLCanvasElement>();
     const [worker, setWorker] = useState<Worker>();
-    const checkboxRef = useRef<HTMLInputElement>()
+    const [repeatEnabled, setRepeatEnabled] = useLocalStorage("preview-repeat",false);
+    const [playbackRate, setPlaybackRate] = useLocalStorage("preview-playback-rate", 1);
 
     const lastUsedSize = useRef<any[]>([]);
     const lastUsedEffectRef = useRef<PlixEffectJsonData>();
@@ -64,7 +70,6 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = ({fieldConfig}) => {
             const start = offset + 60000/bpm / TIMELINE_LCM * selectedItem[2];
             const duration = (selectedItem[3]-selectedItem[2]) *  60000/bpm/TIMELINE_LCM
             timeline[2] = parentOptions;
-            console.log("PARENT",timeline);
             return [timeline, start, duration]
         }
         return [track.render, 0, trackDuration];
@@ -159,45 +164,75 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = ({fieldConfig}) => {
 
     }, [playbackStatus, worker, pauseTime, rate, playFromStamp])
 
-    const onClickPlay = useCallback(() => {
-        const repeat = checkboxRef.current ? checkboxRef.current.checked : false;
+    const doPlay = useCallback(() => {
         let playTime = getPlayTime();
-        console.log("GETPLAYTIME", playTime);
         if (playTime == null) playTime = start;
         else if (playTime < start) playTime = start;
         else if (playTime > start+duration) playTime = start;
-        play(playTime, 1, repeat, start, start+duration);
-        console.log("PLAY", playTime, 1, repeat, start, start+duration)
-    }, [start, duration])
+        play(playTime, playbackRate, repeatEnabled, start, start+duration);
+    }, [start, duration, repeatEnabled, playbackRate])
 
-    const onClickPause = () => {
-        pause();
+    const onClickPlayBtn = () => {
+        if (playbackStatus === "play") {
+            pause()
+        } else {
+            doPlay()
+        };
     }
 
     const onClickStop = () => {
         stop()
     }
 
-    const onChangeRepeatCheckbox: ChangeEventHandler<HTMLInputElement> = (event) => {
-        const checked = event.target.checked;
+    const onChangeRepeatCheckbox = useCallback((value) => {
+        setRepeatEnabled(value);
         if (playbackStatus === "play") {
-            play(null, null, checked, start, start+duration)
+            play(null, null, value, start, start+duration)
         }
-    }
+    }, [playbackStatus, setRepeatEnabled])
 
     useEffect(() => {
         if (playbackStatus === "play") {
-            onClickPlay();
+            doPlay();
         }
-    }, [onClickPlay])
+    }, [doPlay])
+
+    const onChangePlaybackRate = useCallback((rate) => {
+        setPlaybackRate(rate);
+        if (playbackStatus === "play") {
+            play(null, rate, repeatEnabled, start, start+duration)
+        }
+    }, [playbackStatus, repeatEnabled, setPlaybackRate])
 
     return (
-        <div>
-            <canvas ref={setCanvas}/>
-            <button onClick={onClickPlay}>PLAY</button>
-            <button onClick={onClickPause}>PAUSE</button>
-            <button onClick={onClickStop}>STOP</button>
-            <input type={"checkbox"} ref={checkboxRef} onChange={onChangeRepeatCheckbox}/>
+        <div className={"canvas-preview-container"}>
+            <div className={"cvs-container"}>
+                <canvas ref={setCanvas}/>
+            </div>
+            <div className={"controls"}>
+                <div className={"btn-group-toggle btn-group"}>
+                    <button className={"btn btn-md btn-primary"} onClick={onClickPlayBtn} title={playbackStatus === "play" ? "Pause" : "Stop"}>
+                        {
+                            playbackStatus === "play" ?
+                                (<i className="fas fa-pause"/>)
+                            :
+                                (<i className="fas fa-play"/>)
+                        }
+                    </button>
+                    <button className={"btn btn-md btn-primary"} onClick={onClickStop} title={"Stop"}>
+                        <i className="fas fa-stop"/>
+                    </button>
+                    <CheckboxButton value={repeatEnabled} onChange={onChangeRepeatCheckbox} title={"Repeat"} sizeClass={"btn-md"}>
+                        <i className="fas fa-sync-alt"/>
+                    </CheckboxButton>
+                </div>
+                <div className={"rate-option"}>
+                    <span>Playback rate: </span>
+                    <div className={"rate-selector"}>
+                        <PlaybackRateSelector value={playbackRate} onChange={onChangePlaybackRate}/>
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }
