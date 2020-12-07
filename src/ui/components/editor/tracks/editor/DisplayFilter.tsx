@@ -8,12 +8,18 @@ import {ConstructorContext} from "../../ConstructorContext";
 
 export interface DisplayFilterProps {
     filter: PlixFilterJsonData,
+    override?: boolean,
 }
-export const DisplayFilter: FC<DisplayFilterProps> = memo(({filter}) => {
+export const DisplayFilter: FC<DisplayFilterProps> = memo(({filter, override = false}) => {
     const {filterConstructorMap} = useContext(ConstructorContext);
 
     if (!filter) {
-        return <span className="track-description _empty">empty</span>
+        return (
+            <span className="track-description _empty">
+                {override && <span className="track-description _empty"><i className="fas fa-at"/> </span>}
+                empty
+            </span>
+        )
     }
     const [enabled, id, params] = filter;
     if (id) {
@@ -21,6 +27,7 @@ export const DisplayFilter: FC<DisplayFilterProps> = memo(({filter}) => {
         const meta: ParseMeta = filterConstructor['meta'];
         return (
             <span className={cn("track-description _type", {"_disabled": !enabled})}>
+                {override && <span className="track-description _empty"><i className="fas fa-at"/> </span>}
                 {meta.name}
                 {id === "FChain" && <> ({params[0]?.length})</>}
                 {id === "BlendFilters" && <> ({params[0]?.length})</>}
@@ -29,7 +36,8 @@ export const DisplayFilter: FC<DisplayFilterProps> = memo(({filter}) => {
     } else {
         return (
             <span className={cn("track-description _link", {"_disabled": !enabled})}>
-                {params}
+                {override && <span className="track-description _empty"><i className="fas fa-at"/> </span>}
+                <i className="fa fa-link"/> {params}
             </span>
         );
     }

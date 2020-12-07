@@ -28,8 +28,8 @@ export interface GroupFiltersTrackProps {
     path: EditorPath,
     baseExpanded?: boolean
 }
-export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, path}) => {
-    const [expanded, expander, changeExpanded, setExpanded] = useExpander(true);
+export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, path, baseExpanded}) => {
+    const [expanded, expander, changeExpanded, setExpanded] = useExpander(baseExpanded);
     const {dispatch} = useContext(TrackContext);
 
     const [filter, setFilter] = useState<PlixFilterJsonData|undefined>(undefined);
@@ -80,7 +80,6 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
         if (!ctrlKey && !altKey && shiftKey) {
             if (filter === undefined) setEmptyFilter();
         }
-        if (!ctrlKey && !altKey && !shiftKey) changeExpanded();
         if (!ctrlKey && !altKey && !shiftKey) select(path); // Click
         if (ctrlKey && !altKey && shiftKey) { // Ctrl+Shift
             toggleSelect(path);

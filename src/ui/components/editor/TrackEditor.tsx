@@ -212,7 +212,7 @@ export const TrackEditor: FC = () => {
                             <EffectTrack effect={track.render} baseExpanded={true} path={paths.render} title="main render effect">render</EffectTrack>
                             <GroupEffectsTrack effectsMap={track.effects} path={paths.effects}/>
                             <GroupFiltersTrack filtersMap={track.filters} path={paths.filters}/>
-                            <GroupProfilesTrack profilesMap={track.profiles} path={paths.profiles}/>
+                            <GroupProfilesTrack profilesMap={track.profiles} path={paths.profiles} baseValue={track}/>
                             <GroupOptionsTrack options={track?.['editor']} path={paths.editor}/>
                         </Track>
                     </PortalContext.Provider>

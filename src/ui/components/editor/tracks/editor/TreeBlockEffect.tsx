@@ -23,6 +23,7 @@ import cn from "classnames";
 
 export interface TreeBlockEffectProps {
     effect: PlixEffectJsonData,
+    overrideValue: PlixEffectJsonData,
     deleteAction?: MultiActionType,
     clearAction?: MultiActionType,
     dragValue?: DragType,
@@ -33,7 +34,7 @@ export interface TreeBlockEffectProps {
     title?: string,
     onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]
 }
-export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effect, title, path, deleteAction, setExpanded, clearAction, expander, changeExpanded, children, onDragOverItem}) => {
+export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, overrideValue, effect, title, path, deleteAction, setExpanded, clearAction, expander, changeExpanded, children, onDragOverItem}) => {
     const {dispatch} = useContext(TrackContext);
 
     const {toggleSelect, isSelectedPath, select} = useSelectionControl();
@@ -94,6 +95,11 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
         if (effect) dispatch(EditValueAction([...path, 0], !effect[0]));
     }, [dispatch, effect]);
 
+    const onClickOverride: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        if (effect === undefined && overrideValue !== undefined) dispatch(EditValueAction(path, overrideValue));
+    }, [dispatch, effect, overrideValue]);
+
     const rightIcons = (<>
         {(effect) && (
             <i
@@ -102,11 +108,14 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
                 title={effect[0] ? "hide" : "show"}
             />
         )}
-        {effectClass === "container" && (
+        {effect !== undefined && effectClass === "container" && (
             <i className="fa fa-plus track-tree-icon track-tree-icon-action" onClick={onClickAdd} title="add effect"/>
         )}
-        {(deleteAction || clearAction) && (
+        {effect !== undefined && (deleteAction || clearAction) && (
             <i className="far fa-trash-alt track-tree-icon track-tree-icon-action" onClick={onClickDelete} title="delete"/>
+        )}
+        {effect === undefined && overrideValue !== undefined && (
+            <i className="far fa-clone track-tree-icon track-tree-icon-action" onClick={onClickOverride} title="override"/>
         )}
     </>)
 
@@ -115,7 +124,7 @@ export const TreeBlockEffect: FC<TreeBlockEffectProps> = memo(({dragValue, effec
             {expander}
             <span className="track-description">{children}</span>
             <span>{" "}</span>
-            <DisplayEffect effect={effect}/>
+            <DisplayEffect effect={effect === undefined ? overrideValue : effect} override={effect === undefined && overrideValue !== undefined}/>
         </TreeBlock>
     );
 });

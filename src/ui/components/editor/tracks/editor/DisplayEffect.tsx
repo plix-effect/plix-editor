@@ -1,23 +1,25 @@
 import React, {FC, memo, useCallback, useContext, MouseEvent, DragEvent, useMemo} from "react";
 import {PlixEffectJsonData} from "@plix-effect/core/dist/types/parser";
-import {TrackContext} from "../../TrackContext";
 import {ParseMeta} from "../../../../types/ParseMeta";
-import {EditorPath} from "../../../../types/Editor";
-import {EditValueAction} from "../../PlixEditorReducerActions";
-import {DragContext} from "../../DragContext";
 import cn from "classnames";
 import {ConstructorContext} from "../../ConstructorContext";
 import {useEffectClass} from "../../../../use/useEffectClass";
 
 export interface DisplayEffectProps {
     effect: PlixEffectJsonData,
+    override?: boolean,
 }
-export const DisplayEffect: FC<DisplayEffectProps> = memo(({effect}) => {
+export const DisplayEffect: FC<DisplayEffectProps> = memo(({effect, override = false}) => {
     const {effectConstructorMap} = useContext(ConstructorContext);
     const effectClass = useEffectClass(effect);
 
     if (!effect) {
-        return <span className="track-description _empty">empty</span>
+        return (
+            <span className="track-description _empty">
+                {override && <span className="track-description _empty"><i className="fas fa-at"/> </span>}
+                empty
+            </span>
+        )
     }
     const [enabled, id, params = [], filters = []] = effect;
     if (id) {
@@ -25,6 +27,7 @@ export const DisplayEffect: FC<DisplayEffectProps> = memo(({effect}) => {
         const meta: ParseMeta = effectConstructor['meta'];
         return (
             <span className={cn("track-description _type", {"_disabled": !enabled})}>
+                {override && <span className="track-description _empty"><i className="fas fa-at"/> </span>}
                 {meta.name}
                 {effectClass === "container" && <> ({params[0]?.length})</>}
                 {effectClass === "timeline" && <> ({params[0]?.length})</>}
@@ -34,13 +37,13 @@ export const DisplayEffect: FC<DisplayEffectProps> = memo(({effect}) => {
     } else {
         return (
             <span className={cn("track-description _link", {"_disabled": !enabled})}>
+                {override && <span className="track-description _empty"><i className="fas fa-at"/> </span>}
                 <i className="fa fa-link"/> {params}
                 {filters && filters.length > 0 && (
-                    <span className={cn("track-description _type")}>
+                    <span className="track-description _type">
                     {filters && filters.length > 0 && <> +{filters.length} filters</>}
                 </span>
                 )}
-
             </span>
         );
     }

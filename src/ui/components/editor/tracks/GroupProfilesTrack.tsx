@@ -22,13 +22,15 @@ import {PlixFilterJsonData} from "@plix-effect/core/dist/types/parser";
 import {DisplayFilter} from "./editor/DisplayFilter";
 import {DragType} from "../DragContext";
 import {useSelectionControl, useSelectionPath} from "../SelectionContext";
+import {ProfileTrack} from "./ProfileTrack";
 
 export interface GroupProfilesTrackProps {
     profilesMap: PlixProfileMap,
+    baseValue: PlixProfile,
     path: EditorPath,
     baseExpanded?: boolean
 }
-export const GroupProfilesTrack: FC<GroupProfilesTrackProps> = memo(({profilesMap = {}, path, baseExpanded}) => {
+export const GroupProfilesTrack: FC<GroupProfilesTrackProps> = memo(({profilesMap = {}, path, baseExpanded, baseValue}) => {
     const [expanded, expander, changeExpanded, setExpanded] = useExpander(baseExpanded);
     const {dispatch} = useContext(TrackContext);
 
@@ -80,7 +82,6 @@ export const GroupProfilesTrack: FC<GroupProfilesTrackProps> = memo(({profilesMa
         if (!ctrlKey && !altKey && shiftKey) {
             if (profile === undefined) setEmptyProfile();
         }
-        if (!ctrlKey && !altKey && !shiftKey) changeExpanded();
         if (!ctrlKey && !altKey && !shiftKey) select(path); // Click
         if (ctrlKey && !altKey && shiftKey) { // Ctrl+Shift
             toggleSelect(path);
@@ -167,7 +168,7 @@ export const GroupProfilesTrack: FC<GroupProfilesTrackProps> = memo(({profilesMa
 
             </TimelineBlock>
             {profilesList.map(alias => (
-                <AliasProfileTrack name={alias.name} path={alias.path} key={alias.name} value={alias.value}/>
+                <AliasProfileTrack name={alias.name} path={alias.path} key={alias.name} value={alias.value} baseValue={baseValue}/>
             ))}
         </Track>
     )
@@ -179,15 +180,15 @@ const defaultProfile = {filters: {}, effects: {}, fieldConfig: null};
 interface AliasProfileTrackProps {
     value: PlixProfile,
     path: EditorPath,
+    baseValue: PlixProfile,
     name: string,
 }
-const AliasProfileTrack: FC<AliasProfileTrackProps> = memo(({value, path, name}) => {
+const AliasProfileTrack: FC<AliasProfileTrackProps> = memo(({value, path, name, baseValue}) => {
     const deleteAction = useMemo(() => DeleteAction(path), [path]);
 
     return (
-        <Track>
-            <div>{name}</div>
-            <div>{JSON.stringify(value)}</div>
-        </Track>
+        <ProfileTrack value={value} path={path} name={name} deleteAction={deleteAction} baseValue={baseValue}>
+            {name}
+        </ProfileTrack>
     );
 })

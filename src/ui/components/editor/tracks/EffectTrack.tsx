@@ -20,10 +20,7 @@ import {
     InsertValuesAction,
     MultiAction,
     MultiActionType,
-    PushValueAction
 } from "../PlixEditorReducerActions";
-import {EffectTypeTrack} from "./EffectTypeTrack";
-import {EffectPreview} from "./editor/EffectPreview";
 import {InlineEffectTypeEditor} from "./editor/inline/InlineEffectTypeEditor";
 import {DragType} from "../DragContext";
 import {TreeBlockEffect} from "./editor/TreeBlockEffect";
@@ -42,18 +39,20 @@ export interface EffectTrackProps {
     deleteAction?: MultiActionType,
     clearAction?: MultiActionType,
     onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]
+    overrideValue?: PlixEffectJsonData
 }
-export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, title, baseExpanded, children, alias, deleteAction, clearAction, onDragOverItem}) => {
+export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, title, baseExpanded, children, alias, deleteAction, clearAction, onDragOverItem, overrideValue}) => {
     const [expanded, expander, changeExpanded, setExpanded] = useExpander(baseExpanded);
 
     const dragValue: DragType = useMemo<DragType>(() => {
+        const dragEffect = effect === undefined ? overrideValue : effect;
         return {
-            typedValue: {type: "effect", value: effect},
-            effect: effect,
+            typedValue: {type: "effect", value: dragEffect},
+            effect: dragEffect,
             effectLink: alias && [true, null, alias, []],
             deleteAction: deleteAction
         }
-    }, [effect, alias, deleteAction]);
+    }, [effect, alias, deleteAction, overrideValue]);
 
     const {dispatch} = useContext(TrackContext);
 
@@ -173,6 +172,7 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, title, bas
     const leftBlock = (
         <TreeBlockEffect
             effect={effect}
+            overrideValue={overrideValue}
             changeExpanded={changeExpanded}
             setExpanded={setExpanded}
             expander={expander}
@@ -185,13 +185,23 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, title, bas
         > {children} </TreeBlockEffect>
     )
 
-    if (!effect) return (
+    if (effect === undefined && overrideValue !== undefined) return (
+        <OverrideEffectTrack
+            path={path}
+            expanded={expanded}
+            leftBlock={leftBlock}
+            overrideValue={overrideValue}
+        >{children}</OverrideEffectTrack>
+    );
+
+    if (effect === null) return (
         <NoEffectTrack
             onChange={onChangeEffect}
             expanded={expanded}
             leftBlock={leftBlock}
         >{children}</NoEffectTrack>
-    )
+    );
+
     if (effect[1] === null) return (
         <AliasEffectTrack
             path={path}
@@ -245,6 +255,28 @@ const NoEffectTrack: FC<NoEffectTrackProps> = memo(({onChange, expanded, leftBlo
             {leftBlock}
             <TimelineBlock fixed>
                 <InlineEffectTypeEditor onChange={onChange} effect={null} />
+            </TimelineBlock>
+        </Track>
+    );
+});
+
+export interface OverrideEffectTrackProps {
+    path: EditorPath
+    overrideValue: PlixEffectJsonData
+    expanded: boolean,
+    leftBlock: ReactNode;
+}
+const OverrideEffectTrack: FC<OverrideEffectTrackProps> = memo(({path, expanded, leftBlock, overrideValue}) => {
+    const {dispatch} = useContext(TrackContext);
+    const override = useCallback(() => {
+        dispatch(EditValueAction(path, overrideValue))
+    }, [overrideValue, path, dispatch])
+
+    return (
+        <Track nested expanded={expanded}>
+            {leftBlock}
+            <TimelineBlock fixed>
+                <button onClick={override}>override effect</button>
             </TimelineBlock>
         </Track>
     );

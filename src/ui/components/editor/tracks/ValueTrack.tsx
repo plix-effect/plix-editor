@@ -40,22 +40,6 @@ export const ValueTrack: FC<ValueTrackProps> = memo(({type, title, value, descri
             </ArrayTrack>
         )
     }
-    if (type.startsWith("grid:")) {
-        return (
-            <ValueWithEditorTrack
-                type={type}
-                title={title}
-                value={value}
-                path={path}
-                onDragOverItem={onDragOverItem}
-                deleteAction={deleteAction}
-                clearAction={clearAction}
-                EditorComponent={InlineGridEditor}
-            >
-                <span>{children}</span>
-            </ValueWithEditorTrack>
-        )
-    }
     if (type === "filter") {
         return (
             <FilterTrack title={title} filter={value} path={path} onDragOverItem={onDragOverItem} deleteAction={deleteAction} clearAction={clearAction}>

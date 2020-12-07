@@ -28,8 +28,8 @@ export interface GroupEffectsTrackProps {
     path: EditorPath,
     baseExpanded?: boolean
 }
-export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, path}) => {
-    const [expanded, expander, changeExpanded, setExpanded] = useExpander(true);
+export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, path, baseExpanded}) => {
+    const [expanded, expander, changeExpanded, setExpanded] = useExpander(baseExpanded);
     const {dispatch} = useContext(TrackContext);
 
     const [effect, setEffect] = useState<PlixEffectJsonData|undefined>(undefined);

@@ -15,14 +15,16 @@ import {TreeBlock} from "../../track-elements/TreeBlock";
 import {DragType} from "../../DragContext";
 import {TrackContext} from "../../TrackContext";
 import {EditorPath} from "../../../../types/Editor";
-import {PlixFilterJsonData} from "@plix-effect/core/types/parser";
+import {PlixEffectJsonData, PlixFilterJsonData} from "@plix-effect/core/types/parser";
 import {DisplayFilter} from "./DisplayFilter";
 import {useFilterClass} from "../../../../use/useFilterClass";
 import cn from "classnames";
 import {useSelectionControl, useSelectionPath} from "../../SelectionContext";
+import {DisplayEffect} from "./DisplayEffect";
 
 export interface TreeBlockFilterProps {
     filter: PlixFilterJsonData,
+    overrideValue: PlixFilterJsonData,
     clearAction?: MultiActionType,
     deleteAction?: MultiActionType,
     dragValue?: DragType,
@@ -33,7 +35,7 @@ export interface TreeBlockFilterProps {
     title?: string,
     onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]
 }
-export const TreeBlockFilter: FC<TreeBlockFilterProps> = memo(({dragValue, setExpanded, title, filter, path, deleteAction, clearAction, expander, changeExpanded, children, onDragOverItem}) => {
+export const TreeBlockFilter: FC<TreeBlockFilterProps> = memo(({dragValue, overrideValue, setExpanded, title, filter, path, deleteAction, clearAction, expander, changeExpanded, children, onDragOverItem}) => {
     const {dispatch} = useContext(TrackContext);
 
     const id = filter?.[1];
@@ -86,6 +88,11 @@ export const TreeBlockFilter: FC<TreeBlockFilterProps> = memo(({dragValue, setEx
         if (filter) dispatch(EditValueAction([...path, 0], !filter[0]));
     }, [dispatch, filter]);
 
+    const onClickOverride: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
+        event.stopPropagation();
+        if (filter === undefined && overrideValue !== undefined) dispatch(EditValueAction(path, overrideValue));
+    }, [dispatch, filter, overrideValue]);
+
     const rightIcons = (<>
         {(filter) && (
             <i
@@ -97,8 +104,11 @@ export const TreeBlockFilter: FC<TreeBlockFilterProps> = memo(({dragValue, setEx
         {filterClass === "container" && (
             <i className="fa fa-plus track-tree-icon track-tree-icon-action" onClick={onClickAdd} title="add filter"/>
         )}
-        {(deleteAction || clearAction) && (
+        {filter !== undefined && (deleteAction || clearAction) && (
             <i className="far fa-trash-alt track-tree-icon track-tree-icon-action" onClick={onClickDelete} title="delete"/>
+        )}
+        {filter === undefined && overrideValue !== undefined && (
+            <i className="far fa-clone track-tree-icon track-tree-icon-action" onClick={onClickOverride} title="override"/>
         )}
     </>);
 
@@ -107,7 +117,7 @@ export const TreeBlockFilter: FC<TreeBlockFilterProps> = memo(({dragValue, setEx
             {expander}
             <span className="track-description">{children}</span>
             <span>{" "}</span>
-            <DisplayFilter filter={filter}/>
+            <DisplayFilter filter={filter === undefined ? overrideValue : filter} override={filter === undefined && overrideValue !== undefined}/>
         </TreeBlock>
     );
 });

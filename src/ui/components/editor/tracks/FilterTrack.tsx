@@ -12,7 +12,7 @@ import {Track} from "../../timeline/Track";
 import {
     PlixFilterJsonData,
     PlixFilterAliasJsonData,
-    PlixFilterConfigurableJsonData,
+    PlixFilterConfigurableJsonData, PlixEffectJsonData,
 } from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
@@ -38,20 +38,22 @@ export interface FilterTrackProps {
     alias?: string,
     clearAction?: MultiActionType,
     deleteAction?: MultiActionType,
-    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler]
+    onDragOverItem?: (event: DragEvent<HTMLElement>, value: DragType) => void | [string, DragEventHandler],
+    overrideValue?: PlixFilterJsonData
 }
-export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, title, filter, path, children, alias, deleteAction, onDragOverItem, clearAction}) => {
+export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, overrideValue, title, filter, path, children, alias, deleteAction, onDragOverItem, clearAction}) => {
     const [expanded, expander, changeExpanded, setExpanded] = useExpander(baseExpanded);
     const {dispatch} = useContext(TrackContext);
 
     const dragValue: DragType = useMemo<DragType>(() => {
+        const dragFilter = filter === undefined ? overrideValue : filter;
         return {
-            typedValue: {type: "filter", value: filter},
-            filter: filter,
+            typedValue: {type: "filter", value: dragFilter},
+            filter: dragFilter,
             filterLink: alias && [true, null, alias],
             deleteAction: deleteAction
         }
-    }, [filter, alias, deleteAction]);
+    }, [filter, alias, deleteAction, overrideValue]);
 
     const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | [string, DragEventHandler] => {
         const originDragHandler = onDragOverItem?.(event, dragData);
@@ -118,6 +120,7 @@ export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, title, fil
         <TreeBlockFilter
             filter={filter}
             changeExpanded={changeExpanded}
+            overrideValue={overrideValue}
             setExpanded={setExpanded}
             expander={expander}
             path={path}
@@ -127,14 +130,26 @@ export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, title, fil
             dragValue={dragValue}
             onDragOverItem={onDragOverItemSelf}
         > {children} </TreeBlockFilter>
+    );
+
+    if (filter === undefined && overrideValue !== undefined) return (
+        <OverrideFilterTrack
+            path={path}
+            expanded={expanded}
+            leftBlock={leftBlock}
+            overrideValue={overrideValue}
+        >{children}</OverrideFilterTrack>
+    );
+
+    if (filter === null) return (
+        <NoFilterTrack
+            onChange={onChangeFilter}
+            path={path}
+            expanded={expanded}
+            leftBlock={leftBlock}
+        >{children}</NoFilterTrack>
     )
 
-    if (!filter) return <NoFilterTrack
-        onChange={onChangeFilter}
-        path={path}
-        expanded={expanded}
-        leftBlock={leftBlock}
-    >{children}</NoFilterTrack>
     if (filter[1] === null) return (
         <AliasFilterTrack
             path={path}
@@ -169,6 +184,28 @@ const NoFilterTrack: FC<NoFilterTrackProps> = memo(({expanded, onChange, leftBlo
             </TimelineBlock>
         </Track>
     )
+});
+
+export interface OverrideFilterTrackProps {
+    path: EditorPath
+    overrideValue: PlixFilterJsonData
+    expanded: boolean,
+    leftBlock: ReactNode;
+}
+const OverrideFilterTrack: FC<OverrideFilterTrackProps> = memo(({path, expanded, leftBlock, overrideValue}) => {
+    const {dispatch} = useContext(TrackContext);
+    const override = useCallback(() => {
+        dispatch(EditValueAction(path, overrideValue))
+    }, [overrideValue, path, dispatch])
+
+    return (
+        <Track nested expanded={expanded}>
+            {leftBlock}
+            <TimelineBlock fixed>
+                <button onClick={override}>override filter</button>
+            </TimelineBlock>
+        </Track>
+    );
 });
 
 interface AliasFilterTrackProps {
