@@ -227,6 +227,8 @@ button.btn.track-header-icon-button {
   cursor: pointer;
   color: #666;
   padding: 10px; }
+  .track-expander > * {
+    pointer-events: none; }
 
 .track-tree-block {
   box-sizing: border-box;

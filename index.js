@@ -81377,7 +81377,6 @@ const AudioPlayer = () => {
             if (lastUrlRef.current)
                 audioRef.current.play().then(() => {
                     let time = getPlayTime();
-                    console.log("fixing time:", audioRef.current.currentTime - time / 1000);
                     if (time !== null)
                         audioRef.current.currentTime = time / 1000;
                 });
@@ -87262,6 +87261,7 @@ const CanvasDynPreview = ({ fieldConfig }) => {
         return [track.render, 0, trackDuration];
     }, [selectedItem, selectedType, track]);
     const profile = (0,_editor_ProfileContext__WEBPACK_IMPORTED_MODULE_11__.useProfile)();
+    const [profileName] = (0,_editor_ProfileContext__WEBPACK_IMPORTED_MODULE_11__.useProfileName)();
     const profileRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(profile);
     profileRef.current = profile;
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
@@ -87339,9 +87339,9 @@ const CanvasDynPreview = ({ fieldConfig }) => {
         lastUsedEffectRef.current = render;
         lastUsedEffectNames.current = null;
         lastUsedFilterNames.current = null;
-        const message = { type: "render", data: { render, track, duration } };
+        const message = { type: "render", data: { render, track, duration, profileName } };
         worker.postMessage(message, []);
-    }, [worker, duration, render, track.filters, track.effects, profile]);
+    }, [worker, duration, render, track.filters, track.effects, profile, profileName]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         if (!worker)
             return;

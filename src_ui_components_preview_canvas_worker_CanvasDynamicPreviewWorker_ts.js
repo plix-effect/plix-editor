@@ -23,7 +23,7 @@ __webpack_require__.r(__webpack_exports__);
 let field;
 let renderer;
 let performanceOffset;
-let lastPlayFrom;
+let lastPauseTime;
 const syncPerformance = (globalValue) => {
     performanceOffset = globalValue - performance.now();
 };
@@ -39,13 +39,16 @@ const handleChangePlaybackMsg = (msg) => {
     const status = msg.status;
     if (renderer.readyForRendering) {
         if (status === "play") {
+            lastPauseTime = null;
             renderer.startRendering(msg.playFromStamp - performanceOffset, msg.rate);
         }
         else if (status === "pause") {
+            lastPauseTime = msg.pauseTime;
             renderer.stopRendering();
             renderer.renderTime(msg.pauseTime);
         }
         else if (status === "stop") {
+            lastPauseTime = null;
             renderer.stopRendering();
             field.resetDraw();
         }
@@ -56,12 +59,16 @@ const handleRenderMsg = (msg) => {
     const effectData = renderData.render;
     const track = renderData.track;
     const duration = renderData.duration;
-    const parsedData = (0,_plix_effect_core_dist_parser__WEBPACK_IMPORTED_MODULE_1__.default)(effectData, track.effects, track.filters, _plix_effect_core_effects__WEBPACK_IMPORTED_MODULE_2__, _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_3__);
+    const profileName = renderData.profileName;
+    const parsedData = (0,_plix_effect_core_dist_parser__WEBPACK_IMPORTED_MODULE_1__.default)(effectData, track.effects, track.filters, _plix_effect_core_effects__WEBPACK_IMPORTED_MODULE_2__, _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_3__, track.profiles, profileName);
     const effectKeys = Object.keys(parsedData.effectsMap).sort();
     const filterKeys = Object.keys(parsedData.filtersMap).sort();
-    self.postMessage([effectKeys, filterKeys], []);
+    const depsMessage = { type: "deps", deps: [effectKeys, filterKeys] };
+    self.postMessage(depsMessage, []);
     renderer.setParsedData(parsedData);
     renderer.setDuration(duration);
+    if (lastPauseTime != null)
+        renderer.renderTime(lastPauseTime);
 };
 const handleChangeFieldMsg = (msg) => {
     field.setConfig(msg.config);
