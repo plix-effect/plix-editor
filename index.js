@@ -87097,7 +87097,7 @@ const MIN = SEC * 60;
 const HR = MIN * 60;
 const minCycleSize = 50;
 const timeSteps = [100, 200, 500, SEC, 2 * SEC, 5 * SEC, 10 * SEC, 30 * SEC, MIN, 2 * MIN, 5 * MIN, 10 * MIN, HR, 10 * HR];
-const gridSteps = [10, 20, 50, 100, 100, SEC, SEC, 5 * SEC, 10 * SEC, 10 * SEC, 30 * SEC, MIN, 5 * MIN, HR];
+const gridSteps = [10, 20, 50, 100, 200, SEC, SEC, 5 * SEC, 10 * SEC, 10 * SEC, 30 * SEC, MIN, 5 * MIN, HR];
 const TimelineEditorTime = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({}) => {
     const { zoom, timelineEl } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_1__.ScaleDisplayContext);
     const [canvasEl, setCanvasEl] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
