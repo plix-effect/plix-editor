@@ -40,6 +40,7 @@ export const TrackEditor: FC = () => {
     const duration = track?.['editor']?.['duration'] ?? 60*1000;
     const pixelsCount = track?.['editor']?.['count'] ?? 20;
 
+
     const scaleDisplayContextValue: ScaleDisplayContextProps = useMemo(() => ({
         duration,
         pixelsCount,
@@ -110,22 +111,6 @@ export const TrackEditor: FC = () => {
     const zoomIn = useCallback(() => multiplyZoom(ZOOM_FACTOR), [multiplyZoom])
     const zoomOut = useCallback(() => multiplyZoom(1/ZOOM_FACTOR), [multiplyZoom]);
 
-    const playbackStatus = usePlaybackStatus();
-    const {play, pause, stop} = usePlaybackControl();
-
-    const playPause = useCallback(() => {
-        if (playbackStatus === "play") return pause();
-        return play(null, 1, false);
-    }, [playbackStatus]);
-
-    const play025 = useCallback(() => {
-        return play(null, 0.25, false);
-    }, [playbackStatus]);
-
-    const repeat = useCallback(() => {
-        return play(null, null, true);
-    }, [playbackStatus]);
-
     useEffect(() => {
         const onKeydown = ({ctrlKey, shiftKey, altKey, code}: DocumentEventMap["keydown"]) => {
             const focusedNode = document.querySelectorAll(":focus:not(body)");
@@ -135,11 +120,10 @@ export const TrackEditor: FC = () => {
             if (active && ctrlKey && !shiftKey && !altKey && code === "KeyY") return dispatch(RedoAction());
             if (active && !ctrlKey && !shiftKey && !altKey && code === "Minus") return zoomOut();
             if (active && !ctrlKey && !shiftKey && !altKey && code === "Equal") return zoomIn();
-            if (active && !ctrlKey && !shiftKey && !altKey && code === "Space") return playPause();
         }
         document.addEventListener("keydown", onKeydown);
         return () => document.removeEventListener("keydown", onKeydown);
-    }, [dispatch, zoomIn, zoomOut, playPause]);
+    }, [dispatch, zoomIn, zoomOut]);
 
     const onWheel = useCallback((event: WheelEvent<any>) => {
         if (!event.ctrlKey && !event.metaKey) return;
@@ -170,12 +154,6 @@ export const TrackEditor: FC = () => {
                     <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={deleteFile} title={"Delete audio"}>
                         <i className="far fa-trash-alt"/>
                     </button>
-                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={zoomOut} title={"Zoom out"}>
-                        <i className="fa fa-search-minus"/>
-                    </button>
-                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={zoomIn} title={"Zoom in"}>
-                        <i className="fa fa-search-plus"/>
-                    </button>
                     <div className="track-header-filename">
                         {audioFile !== null ? (
                             audioFile.name
@@ -200,7 +178,7 @@ export const TrackEditor: FC = () => {
                         </Track>
                     </PortalContext.Provider>
                 </div>
-                <div className="track-timeline" ref={setRightRenderEl}>
+                <div className="track-timeline" style={{minWidth: scaleDisplayContextValue.trackWidth}} ref={setRightRenderEl}>
                     <TrackPlayPosition />
                 </div>
             </SplitTimeline>
