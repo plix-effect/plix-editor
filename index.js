@@ -87347,9 +87347,13 @@ class FieldElementEditor extends _utils_TypedEventEmitter__WEBPACK_IMPORTED_MODU
             const conf = this.field.getConfig();
             this.field.resetDraw();
             const { x, y } = this.getMousePos(e);
-            const [hoverElement] = this.field.getElementAtPos(x, y);
+            const [hoverElement, i] = this.field.getElementAtPos(x, y);
             if (hoverElement) {
                 this.field.drawElement(hoverElement, undefined, "white");
+                this.canvas.title = `Element: ${i}\nProps: ${JSON.stringify(hoverElement.props)}`;
+            }
+            else {
+                this.canvas.title = "";
             }
         };
         this.canvas = canvas;
