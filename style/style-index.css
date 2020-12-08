@@ -582,13 +582,26 @@ button.btn.track-header-icon-button {
   display: none; }
 
 .track-scale {
-  display: flex;
   position: relative;
   height: 100%; }
 
 .track-scale-line {
   display: inline-block;
   background-color: #222; }
+
+.track-scale-container {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  overflow: hidden; }
+
+.track-scale-interface {
+  position: sticky;
+  width: max-content;
+  left: 0;
+  z-index: 3; }
 
 .bsmodal-cover {
   position: fixed;

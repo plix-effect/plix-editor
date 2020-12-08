@@ -82740,11 +82740,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _timeline_Track__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../timeline/Track */ "./src/ui/components/timeline/Track.tsx");
 /* harmony import */ var _ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
 /* harmony import */ var _tracks_GroupOptionsTrack__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./tracks/GroupOptionsTrack */ "./src/ui/components/editor/tracks/GroupOptionsTrack.tsx");
-/* harmony import */ var _PlaybackContext__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./PlaybackContext */ "./src/ui/components/editor/PlaybackContext.tsx");
-/* harmony import */ var _tracks_editor_TrackPlayPosition__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./tracks/editor/TrackPlayPosition */ "./src/ui/components/editor/tracks/editor/TrackPlayPosition.tsx");
-/* harmony import */ var _AudioFileContext__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./AudioFileContext */ "./src/ui/components/editor/AudioFileContext.ts");
-/* harmony import */ var _utils_Mp3Meta__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../../utils/Mp3Meta */ "./src/ui/utils/Mp3Meta.ts");
-/* harmony import */ var _tracks_GroupProfilesTrack__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./tracks/GroupProfilesTrack */ "./src/ui/components/editor/tracks/GroupProfilesTrack.tsx");
+/* harmony import */ var _tracks_editor_TrackPlayPosition__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./tracks/editor/TrackPlayPosition */ "./src/ui/components/editor/tracks/editor/TrackPlayPosition.tsx");
+/* harmony import */ var _AudioFileContext__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./AudioFileContext */ "./src/ui/components/editor/AudioFileContext.ts");
+/* harmony import */ var _utils_Mp3Meta__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../../utils/Mp3Meta */ "./src/ui/utils/Mp3Meta.ts");
+/* harmony import */ var _tracks_GroupProfilesTrack__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./tracks/GroupProfilesTrack */ "./src/ui/components/editor/tracks/GroupProfilesTrack.tsx");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -82770,12 +82769,11 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
-
 const ZOOM_FACTOR = Math.sqrt(2);
 const ZOOM_FACTOR_WHEEL = Math.pow(2, 0.01);
 const TrackEditor = () => {
     var _a, _b, _c, _d;
-    const { audioFile, setAudioFile } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_AudioFileContext__WEBPACK_IMPORTED_MODULE_14__.AudioFileContext);
+    const { audioFile, setAudioFile } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_AudioFileContext__WEBPACK_IMPORTED_MODULE_13__.AudioFileContext);
     const { track, dispatch, undoCounts, redoCounts } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
     const [zoom, setZoom] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0.2);
     const [position, setPosition] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0.01);
@@ -82807,7 +82805,7 @@ const TrackEditor = () => {
     const save = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => __awaiter(void 0, void 0, void 0, function* () {
         if (audioFile) {
             const buffer = yield audioFile.arrayBuffer();
-            const settledBuffer = yield (0,_utils_Mp3Meta__WEBPACK_IMPORTED_MODULE_15__.setMp3Json)(buffer, track);
+            const settledBuffer = yield (0,_utils_Mp3Meta__WEBPACK_IMPORTED_MODULE_14__.setMp3Json)(buffer, track);
             saveByteArray(settledBuffer, audioFile.name);
             return;
         }
@@ -82844,19 +82842,6 @@ const TrackEditor = () => {
     }, [setZoom, duration, timelineEl, mouseLeftRef]);
     const zoomIn = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => multiplyZoom(ZOOM_FACTOR), [multiplyZoom]);
     const zoomOut = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => multiplyZoom(1 / ZOOM_FACTOR), [multiplyZoom]);
-    const playbackStatus = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_12__.usePlaybackStatus)();
-    const { play, pause, stop } = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_12__.usePlaybackControl)();
-    const playPause = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
-        if (playbackStatus === "play")
-            return pause();
-        return play(null, 1, false);
-    }, [playbackStatus]);
-    const play025 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
-        return play(null, 0.25, false);
-    }, [playbackStatus]);
-    const repeat = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
-        return play(null, null, true);
-    }, [playbackStatus]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         const onKeydown = ({ ctrlKey, shiftKey, altKey, code }) => {
             const focusedNode = document.querySelectorAll(":focus:not(body)");
@@ -82871,12 +82856,10 @@ const TrackEditor = () => {
                 return zoomOut();
             if (active && !ctrlKey && !shiftKey && !altKey && code === "Equal")
                 return zoomIn();
-            if (active && !ctrlKey && !shiftKey && !altKey && code === "Space")
-                return playPause();
         };
         document.addEventListener("keydown", onKeydown);
         return () => document.removeEventListener("keydown", onKeydown);
-    }, [dispatch, zoomIn, zoomOut, playPause]);
+    }, [dispatch, zoomIn, zoomOut]);
     const onWheel = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         if (!event.ctrlKey && !event.metaKey)
             return;
@@ -82901,10 +82884,6 @@ const TrackEditor = () => {
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-save" })),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: deleteFile, title: "Delete audio" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "far fa-trash-alt" })),
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: zoomOut, title: "Zoom out" },
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-search-minus" })),
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: zoomIn, title: "Zoom in" },
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-search-plus" })),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header-filename" }, audioFile !== null ? (audioFile.name) : ("no audio file"))),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header track-header-timeline", onWheelCapture: onWheel },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackScale__WEBPACK_IMPORTED_MODULE_8__.TrackScale, null)),
@@ -82916,10 +82895,10 @@ const TrackEditor = () => {
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_EffectTrack__WEBPACK_IMPORTED_MODULE_3__.EffectTrack, { effect: track.render, baseExpanded: true, path: paths.render, title: "main render effect" }, "render"),
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupEffectsTrack__WEBPACK_IMPORTED_MODULE_4__.GroupEffectsTrack, { effectsMap: track.effects, path: paths.effects }),
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupFiltersTrack__WEBPACK_IMPORTED_MODULE_5__.GroupFiltersTrack, { filtersMap: track.filters, path: paths.filters }),
-                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupProfilesTrack__WEBPACK_IMPORTED_MODULE_16__.GroupProfilesTrack, { profilesMap: track.profiles, path: paths.profiles, baseValue: track }),
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupProfilesTrack__WEBPACK_IMPORTED_MODULE_15__.GroupProfilesTrack, { profilesMap: track.profiles, path: paths.profiles, baseValue: track }),
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_GroupOptionsTrack__WEBPACK_IMPORTED_MODULE_11__.GroupOptionsTrack, { options: track === null || track === void 0 ? void 0 : track['editor'], path: paths.editor })))),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-timeline", ref: setRightRenderEl },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_editor_TrackPlayPosition__WEBPACK_IMPORTED_MODULE_13__.TrackPlayPosition, null)))));
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-timeline", style: { minWidth: scaleDisplayContextValue.trackWidth }, ref: setRightRenderEl },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_editor_TrackPlayPosition__WEBPACK_IMPORTED_MODULE_12__.TrackPlayPosition, null)))));
 };
 function download(filename, text) {
     const pom = document.createElement('a');
@@ -82966,24 +82945,67 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TrackScale_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./TrackScale.scss */ "./src/ui/components/editor/TrackScale.scss");
 /* harmony import */ var _ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
 /* harmony import */ var _tracks_editor_TrackPlayPosition__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./tracks/editor/TrackPlayPosition */ "./src/ui/components/editor/tracks/editor/TrackPlayPosition.tsx");
+/* harmony import */ var _tracks_editor_timeline_TimelineEditorTime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./tracks/editor/timeline/TimelineEditorTime */ "./src/ui/components/editor/tracks/editor/timeline/TimelineEditorTime.tsx");
+/* harmony import */ var _PlaybackContext__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PlaybackContext */ "./src/ui/components/editor/PlaybackContext.tsx");
 
 
 
 
+
+
+const ZOOM_FACTOR = Math.sqrt(2);
 const TrackScale = () => {
-    const seprataion = 1000;
-    const { trackWidth, duration } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_2__.ScaleDisplayContext);
-    const offsetD = seprataion / duration;
-    const count = Math.ceil(duration / seprataion);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-scale" },
+    const { timelineEl, setZoom } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_2__.ScaleDisplayContext);
+    const { duration, zoom, trackWidth } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_2__.ScaleDisplayContext);
+    const { pause } = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_5__.usePlaybackControl)();
+    const mouseLeftRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(0);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        const onMouseMove = ({ pageX }) => {
+            mouseLeftRef.current = pageX;
+        };
+        document.addEventListener("mousemove", onMouseMove);
+        return () => document.removeEventListener("mousemove", onMouseMove);
+    });
+    const multiplyZoom = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
+        setZoom(v => {
+            let z = v * value;
+            if (z > 1) {
+                z = 1;
+            }
+            else if (duration * z < 500) {
+                z = 500 / duration;
+            }
+            if (z === v)
+                return v;
+            if (timelineEl) {
+                const { left } = timelineEl.getBoundingClientRect();
+                const dif = Math.max(mouseLeftRef.current - left, 0);
+                const newScrollLeftPos = (timelineEl.scrollLeft + dif) * z / v - (dif);
+                timelineEl.scrollLeft = newScrollLeftPos;
+                setTimeout(() => timelineEl.scrollLeft = newScrollLeftPos, 50);
+            }
+            return z;
+        });
+    }, [setZoom, duration, timelineEl, mouseLeftRef]);
+    const zoomIn = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => multiplyZoom(ZOOM_FACTOR), [multiplyZoom]);
+    const zoomOut = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => multiplyZoom(1 / ZOOM_FACTOR), [multiplyZoom]);
+    const onClickTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        if (!timelineEl)
+            return;
+        const { left } = timelineEl.getBoundingClientRect();
+        const pos = event.pageX - left + timelineEl.scrollLeft;
+        const time = pos / zoom;
+        pause(time);
+    }, [zoom, timelineEl]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-scale", style: { width: trackWidth } },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_editor_TrackPlayPosition__WEBPACK_IMPORTED_MODULE_3__.TrackPlayPosition, null),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor", style: { width: trackWidth } },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-grid" }, Array.from({ length: count }).map((_, i) => {
-                const widthPercent = offsetD * 100;
-                return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { key: i, className: "timeline-editor-grid-offset", style: { width: `${widthPercent}%`, left: `${i * widthPercent}%` } },
-                    seprataion * (i + 1) / 1000,
-                    "s"));
-            })))));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-scale-container", onClick: onClickTrack },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_tracks_editor_timeline_TimelineEditorTime__WEBPACK_IMPORTED_MODULE_4__.TimelineEditorTime, null)),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-scale-interface" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: zoomOut, title: "Zoom out" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-search-minus" })),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: zoomIn, title: "Zoom in" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-search-plus" })))));
 };
 
 
@@ -87047,6 +87069,116 @@ function hatchRect(ctx, x1, y1, dx, dy, delta, color) {
         ctx.stroke();
     }
     ctx.restore();
+}
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/tracks/editor/timeline/TimelineEditorTime.tsx":
+/*!********************************************************************************!*
+  !*** ./src/ui/components/editor/tracks/editor/timeline/TimelineEditorTime.tsx ***!
+  \********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "TimelineEditorTime": () => /* binding */ TimelineEditorTime
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
+/* harmony import */ var _TimelineEditorGrid_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TimelineEditorGrid.scss */ "./src/ui/components/editor/tracks/editor/timeline/TimelineEditorGrid.scss");
+
+
+
+const CANVAS_OVERSIZE = 1000;
+const SEC = 1000;
+const MIN = SEC * 60;
+const HR = MIN * 60;
+const minCycleSize = 50;
+const timeSteps = [100, 200, 500, SEC, 2 * SEC, 5 * SEC, 10 * SEC, 30 * SEC, MIN, 2 * MIN, 5 * MIN, 10 * MIN, HR, 10 * HR];
+const gridSteps = [10, 20, 50, 100, 100, SEC, SEC, 5 * SEC, 10 * SEC, 10 * SEC, 30 * SEC, MIN, 5 * MIN, HR];
+const TimelineEditorTime = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({}) => {
+    const { zoom, timelineEl } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_1__.ScaleDisplayContext);
+    const [canvasEl, setCanvasEl] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
+    const dur = minCycleSize / zoom;
+    console.log("DUR", dur);
+    const timeStep = timeSteps.find(step => step >= dur);
+    const gridTimeStep = gridSteps[timeSteps.indexOf(timeStep)];
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        if (!canvasEl || !timelineEl)
+            return;
+        const ctx = canvasEl.getContext("2d");
+        let canvasStartPx = 0;
+        let canvasEndPx = 0;
+        function paint() {
+            const { height } = canvasEl.parentElement.getBoundingClientRect();
+            const timelineBcr = timelineEl.getBoundingClientRect();
+            canvasStartPx = timelineEl.scrollLeft - CANVAS_OVERSIZE;
+            const canvasWidth = timelineBcr.width + CANVAS_OVERSIZE * 2;
+            canvasEndPx = canvasStartPx + canvasWidth;
+            canvasEl.height = height;
+            canvasEl.width = canvasWidth;
+            canvasEl.style.left = `${canvasStartPx}px`;
+            if (!timeStep)
+                return;
+            const startCycle = Math.max(0, canvasStartPx * zoom / timeStep) | 0;
+            for (let i = startCycle;; i++) {
+                const lineTime = timeStep * i;
+                const linePx = lineTime * zoom;
+                const linePos = linePx - canvasStartPx;
+                if (linePos > canvasWidth)
+                    break;
+                drawLine(ctx, linePos | 0, 0, height, "#888");
+                for (let j = 1; j < (timeStep / gridTimeStep); j++) {
+                    const gridWidthPx = gridTimeStep * zoom;
+                    const lineGridPx = linePx + gridWidthPx * j;
+                    const lineGridPos = lineGridPx - canvasStartPx;
+                    if (lineGridPos > canvasWidth)
+                        break;
+                    drawLine(ctx, lineGridPos | 0, height - 10, 10, "#444");
+                }
+                ctx.fillStyle = "#fff";
+                ctx.fillText(getDisplayTimeValue(lineTime), linePos + 2, height - 15);
+            }
+        }
+        paint();
+        function onScroll() {
+            const timelineBcr = timelineEl.getBoundingClientRect();
+            const leftViewPos = timelineEl.scrollLeft;
+            if (leftViewPos <= canvasStartPx)
+                return paint();
+            const rightViewPos = timelineEl.scrollLeft + timelineBcr.width;
+            if (rightViewPos >= canvasEndPx)
+                return paint();
+        }
+        timelineEl.addEventListener("scroll", onScroll);
+        return () => timelineEl.removeEventListener("scroll", onScroll);
+    }, [canvasEl, zoom, timeStep, gridTimeStep]);
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => (react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { className: "timeline-editor-grid-canvas", ref: setCanvasEl })), []);
+});
+function drawLine(ctx, x, y, dy, color) {
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x, y + dy);
+    ctx.stroke();
+}
+function getDisplayTimeValue(time) {
+    if (time === 0)
+        return "0";
+    if (time < 1000)
+        return time.toFixed(0) + 'ms';
+    const h = (time / HR) | 0;
+    time = time % HR;
+    const m = (time / MIN) | 0;
+    time = time % MIN;
+    const s = time / SEC;
+    let value = h > 0 ? h + "h " : "";
+    value += (m > 0 || h > 0 && s > 0) ? m + "m " : "";
+    if (s > 0)
+        value += s + "s";
+    return value;
 }
 
 
