@@ -1,7 +1,7 @@
 import {PlaybackStatus} from "../../../editor/PlaybackContext";
 import {PlixEffectJsonData} from "@plix-effect/core/dist/types/parser";
 import {PlixJsonData, PlixProfile} from "@plix-effect/core/types/parser";
-import {PreviewFieldConfig, PlixCanvasField, OffscreenCanvasGeneric} from "./PlixCanvasField";
+import {PreviewFieldConfig, PlixCanvasField, OffscreenCanvasGeneric} from "../preview-field/PlixCanvasField";
 import parseRender from "@plix-effect/core/dist/parser";
 import * as effectConstructorMap from "@plix-effect/core/effects";
 import * as filterConstructorMap from "@plix-effect/core/filters";

@@ -1,27 +1,57 @@
+import {PlixCanvasField, RegularCanvasGeneric} from "../../../../preview/canvas/preview-field/PlixCanvasField";
+import {FieldElement} from "../../../../preview/canvas/preview-field/PreviewFieldElement";
+import {ITypedEventEmitter, TypedEventEmitter} from "../../../../../utils/TypedEventEmitter";
+import {shade} from "@plix-effect/core/color";
 
+export type DrawingFieldElement = Omit<FieldElement, "geometry">;
 
-export class FieldElementEditor {
+type FieldElementEditorEvents = {
+    elementPlaced: (element: FieldElement) => void;
+}
+
+export class FieldElementEditor extends TypedEventEmitter<FieldElementEditorEvents> {
 
     private canvas: HTMLCanvasElement;
+    private field: PlixCanvasField<RegularCanvasGeneric>;
     private ctx: CanvasRenderingContext2D
+    private drawingElement?: DrawingFieldElement;
 
-    private drawingMode: boolean = false;
 
-    constructor(canvas: HTMLCanvasElement) {
+    constructor(canvas: HTMLCanvasElement, field: PlixCanvasField<RegularCanvasGeneric>) {
+        super();
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
+        this.field = field;
+        this.setDrawingModeEnabled(false);
     }
 
-    setDrawingMode(val: boolean) {
-        this.drawingMode = val;
+    setDrawingElement(element: DrawingFieldElement|null) {
+        this.drawingElement = element;
+        this.lastDrawingElement = null;
+        this.field.resetDraw();
+        const isDrawMode = element != null;
+        this.setDrawingModeEnabled(isDrawMode)
+        this.setCommonModeEnabled(!isDrawMode)
+    }
+
+    private setDrawingModeEnabled(val: boolean) {
         if (val) {
-            this.canvas.addEventListener("mousemove", this.onMouseOverEditMode )
+            this.canvas.addEventListener("mousemove", this.onMouseMoveEditMode );
+            this.canvas.addEventListener("click", this.onClickInDrawingMode );
         } else {
-            this.canvas.removeEventListener("mousemove", this.onMouseOverEditMode)
+            this.canvas.removeEventListener("mousemove", this.onMouseMoveEditMode)
+            this.canvas.removeEventListener("click", this.onClickInDrawingMode );
+        }
+    }
+    private setCommonModeEnabled(val: boolean) {
+        if (val) {
+            this.canvas.addEventListener("mousemove", this.onMoseMoveCommonMode );
+        } else {
+            this.canvas.removeEventListener("mousemove", this.onMoseMoveCommonMode);
         }
     }
 
-    getMousePos = (evt: MouseEvent) => {
+    private getMousePos = (evt: MouseEvent) => {
         const rect = this.canvas.getBoundingClientRect();
         return {
             x: evt.clientX - rect.left,
@@ -29,11 +59,40 @@ export class FieldElementEditor {
         };
     }
 
-    onMouseOverEditMode = (e: MouseEvent) => {
-        const ctx = this.ctx;
+    private onClickInDrawingMode = () => {
+        this.emit("elementPlaced", {...this.lastDrawingElement});
+        // this.field.drawElement(this.lastDrawingElement)
+        this.lastDrawingElement = null;
+    }
+
+    private onMouseMoveEditMode = (e: MouseEvent) => {
+        if (this.drawingElement.type === "pixel") {
+            this.onDrawingPixel(e)
+        }
+    }
+
+    lastDrawingElement?: FieldElement;
+    private onDrawingPixel = (e: MouseEvent) => {
         const {x,y} = this.getMousePos(e);
-        ctx.strokeStyle = "red";
-        ctx.setLineDash([]);
-        ctx.strokeRect(x,y,1,1)
+        let lastDrawingElement = this.lastDrawingElement;
+        if (lastDrawingElement == null || this.lastDrawingElement) {
+            this.lastDrawingElement = lastDrawingElement = {...this.drawingElement, geometry: [x,y]} as any
+        } else {
+            lastDrawingElement.geometry = [x,y]
+        }
+        this.field.resetDraw();
+        this.field.drawElement(lastDrawingElement, undefined, "green")
+    }
+
+
+
+    private onMoseMoveCommonMode = (e: MouseEvent) => {
+        const conf = this.field.getConfig();
+        this.field.resetDraw();
+        const {x,y} = this.getMousePos(e);
+        const [hoverElement] = this.field.getElementAtPos(x,y);
+        if (hoverElement) {
+            this.field.drawElement(hoverElement, undefined, "white");
+        }
     }
 }

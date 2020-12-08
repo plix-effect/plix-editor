@@ -9,11 +9,16 @@ import React, {
     useRef,
     useState
 } from "react";
-import {PlixCanvasField, PreviewFieldConfig} from "../../../../preview/canvas/worker/PlixCanvasField";
+import {
+    PlixCanvasField,
+    PreviewFieldConfig,
+    RegularCanvasGeneric
+} from "../../../../preview/canvas/preview-field/PlixCanvasField";
 import "./CanvasFieldEditor.scss"
 import Form from "react-bootstrap/cjs/Form";
 import {Checkbox} from "../../../../control/checkbox/Checkbox";
 import {FieldElementEditor} from "./FieldElementEditor";
+import {FieldElement} from "../../../../preview/canvas/preview-field/PreviewFieldElement";
 
 interface CanvasFieldEditorProps {
     value: PreviewFieldConfig
@@ -23,14 +28,26 @@ export const CanvasFieldEditor: FC<CanvasFieldEditorProps> = ({value, onChange})
     const [canvas, setCanvas] = useState<HTMLCanvasElement>();
     const [drawModeEnabled, setDrawModeEnabled] = useState(false);
 
-    const field = useMemo(() => {
-        if (!canvas) return null;
-        return new PlixCanvasField(canvas);
+    const [field, elementEditor] = useMemo(() => {
+        if (!canvas) return [null,null];
+        const field = new PlixCanvasField<RegularCanvasGeneric>(canvas);
+        const editor =  new FieldElementEditor(canvas, field);
+        return [field, editor]
     }, [canvas])
-    const elementEditor = useMemo(() => {
-        if (!canvas) return null;
-        return new FieldElementEditor(canvas);
-    }, [canvas])
+
+    useEffect(() => {
+        if (!elementEditor) return;
+        const addElement = (element: FieldElement) => {
+            const clone: PreviewFieldConfig = {...value, elements: [...value.elements, element]};
+            onChange(clone);
+        }
+        elementEditor.on("elementPlaced", addElement);
+
+        return () => {
+            elementEditor.off("elementPlaced", addElement)
+        }
+    }, [value, onChange, elementEditor])
+
 
     useEffect(() => {
         if (!field) return;
@@ -40,7 +57,7 @@ export const CanvasFieldEditor: FC<CanvasFieldEditorProps> = ({value, onChange})
 
     useEffect(() => {
         if (!elementEditor) return;
-        elementEditor.setDrawingMode(drawModeEnabled)
+        elementEditor.setDrawingElement(drawModeEnabled ? {type: "pixel", props: {shape: "circle", size: 15}}: null)
     }, [elementEditor,drawModeEnabled])
 
     const onChangeWidth = useCallback((e: ChangeEvent<HTMLInputElement>) => {
@@ -76,7 +93,7 @@ export const CanvasFieldEditor: FC<CanvasFieldEditorProps> = ({value, onChange})
                 <div className={"cfe-controls-group"}>
                     <label>Elements:</label>
                     <Form>
-                        <Checkbox onChange={setDrawModeEnabled} value={drawModeEnabled}>Test</Checkbox>
+                        <Checkbox onChange={setDrawModeEnabled} value={drawModeEnabled}>Draw mode</Checkbox>
                     </Form>
                 </div>
             </div>
