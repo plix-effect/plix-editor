@@ -4,6 +4,7 @@ import {ScaleDisplayContext} from "./ScaleDisplayContext";
 import {TrackPlayPosition} from "./tracks/editor/TrackPlayPosition";
 import {TimelineEditorTime} from "./tracks/editor/timeline/TimelineEditorTime";
 import {usePlaybackControl} from "./PlaybackContext";
+import {RedoAction, UndoAction} from "./PlixEditorReducerActions";
 
 const ZOOM_FACTOR = Math.sqrt(2);
 
@@ -20,7 +21,7 @@ export const TrackScale: FC = () => {
         }
         document.addEventListener("mousemove", onMouseMove);
         return () => document.removeEventListener("mousemove", onMouseMove);
-    })
+    });
 
     const multiplyZoom = useCallback((value: number) => {
         setZoom(v => {
@@ -46,6 +47,17 @@ export const TrackScale: FC = () => {
 
     const zoomIn = useCallback(() => multiplyZoom(ZOOM_FACTOR), [multiplyZoom])
     const zoomOut = useCallback(() => multiplyZoom(1/ZOOM_FACTOR), [multiplyZoom]);
+
+    useEffect(() => {
+        const onKeydown = ({ctrlKey, shiftKey, altKey, code}: DocumentEventMap["keydown"]) => {
+            const focusedNode = document.querySelectorAll(":focus:not(body)");
+            const active = (focusedNode.length <= 0);
+             if (active && !ctrlKey && !shiftKey && !altKey && code === "Minus") return zoomOut();
+            if (active && !ctrlKey && !shiftKey && !altKey && code === "Equal") return zoomIn();
+        }
+        document.addEventListener("keydown", onKeydown);
+        return () => document.removeEventListener("keydown", onKeydown);
+    }, [zoomIn, zoomOut]);
 
     const onClickTrack: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
         if (!timelineEl) return;

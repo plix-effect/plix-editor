@@ -47,6 +47,7 @@
     padding: 1px 0 0 5px;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
     cursor: grab;
     &._disabled {
         border-color: rgba(255, 255, 255, 0.5);

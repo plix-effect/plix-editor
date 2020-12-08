@@ -6,7 +6,6 @@ import React, {
     useMemo,
     useRef,
     useState,
-    WheelEvent
 } from "react";
 import {PortalContext} from "../timeline/PortalContext";
 import {TrackContext} from "./TrackContext";
@@ -19,7 +18,6 @@ import {TrackScale} from "./TrackScale";
 import {Track} from "../timeline/Track";
 import {ScaleDisplayContext, ScaleDisplayContextProps} from "./ScaleDisplayContext";
 import {GroupOptionsTrack} from "./tracks/GroupOptionsTrack";
-import {usePlaybackControl, usePlaybackStatus} from "./PlaybackContext";
 import {TrackPlayPosition} from "./tracks/editor/TrackPlayPosition";
 import {AudioFileContext} from "./AudioFileContext";
 import {setMp3Json} from "../../utils/Mp3Meta";
@@ -86,31 +84,6 @@ export const TrackEditor: FC = () => {
         return () => document.removeEventListener("mousemove", onMouseMove);
     })
 
-    const multiplyZoom = useCallback((value: number) => {
-        setZoom(v => {
-            let z = v*value;
-            if (z > 1) {
-                z = 1;
-            } else if (duration * z < 500) {
-                z = 500/duration;
-            }
-            if (z === v) return v;
-            if (timelineEl) {
-                const {left} = timelineEl.getBoundingClientRect();
-                const dif = Math.max(mouseLeftRef.current - left, 0);
-                const newScrollLeftPos = (timelineEl.scrollLeft + dif) * z / v - (dif)
-                timelineEl.scrollLeft = newScrollLeftPos;
-                // fix scrollLeft after resizing
-                setTimeout(() => timelineEl.scrollLeft = newScrollLeftPos, 50);
-            }
-            return z;
-
-        });
-    }, [setZoom, duration, timelineEl, mouseLeftRef]);
-
-    const zoomIn = useCallback(() => multiplyZoom(ZOOM_FACTOR), [multiplyZoom])
-    const zoomOut = useCallback(() => multiplyZoom(1/ZOOM_FACTOR), [multiplyZoom]);
-
     useEffect(() => {
         const onKeydown = ({ctrlKey, shiftKey, altKey, code}: DocumentEventMap["keydown"]) => {
             const focusedNode = document.querySelectorAll(":focus:not(body)");
@@ -118,19 +91,10 @@ export const TrackEditor: FC = () => {
             if (active && ctrlKey && !shiftKey && !altKey && code === "KeyZ") return dispatch(UndoAction());
             if (active && ctrlKey && shiftKey && !altKey && code === "KeyZ") return dispatch(RedoAction());
             if (active && ctrlKey && !shiftKey && !altKey && code === "KeyY") return dispatch(RedoAction());
-            if (active && !ctrlKey && !shiftKey && !altKey && code === "Minus") return zoomOut();
-            if (active && !ctrlKey && !shiftKey && !altKey && code === "Equal") return zoomIn();
         }
         document.addEventListener("keydown", onKeydown);
         return () => document.removeEventListener("keydown", onKeydown);
-    }, [dispatch, zoomIn, zoomOut]);
-
-    const onWheel = useCallback((event: WheelEvent<any>) => {
-        if (!event.ctrlKey && !event.metaKey) return;
-        if (!event.deltaY) return;
-        const zoomIndex = Math.pow(ZOOM_FACTOR_WHEEL, event.deltaY);
-        multiplyZoom(zoomIndex);
-    }, [multiplyZoom]);
+    }, [dispatch]);
 
     const deleteFile = useCallback(() => {
         setAudioFile(null);
@@ -162,10 +126,10 @@ export const TrackEditor: FC = () => {
                         )}
                     </div>
                 </div>
-                <div className="track-header track-header-timeline" onWheelCapture={onWheel}>
+                <div className="track-header track-header-timeline">
                     <TrackScale />
                 </div>
-                <div className="track-tree" style={{marginLeft: 1}} onWheelCapture={onWheel}>
+                <div className="track-tree">
                     <PortalContext.Provider value={rightRenderEl}>
                         <Track>
                             {null /*left*/}

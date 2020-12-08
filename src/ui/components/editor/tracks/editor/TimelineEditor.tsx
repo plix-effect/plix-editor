@@ -91,6 +91,22 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
         });
     }, [dragRef, cycle, grid, offset, records, durationM]);
 
+    const onMultiSelect = useCallback((
+        event: DragEvent<HTMLDivElement>,
+        indexFrom: number,
+        indexTo: number,
+    ) => {
+        const startM = records[indexFrom][2];
+        const endM = records[indexTo][3];
+        const dummyStart = offset + startM * cycle / TIMELINE_LCM;
+        const dummyDuration = (endM - startM) * cycle / TIMELINE_LCM;
+        setDummyPosition(dummyRef.current, duration, [dummyStart, dummyDuration], true, false, "", true);
+        return allowEventWithDropEffect(event, "link", (event) => {
+            console.log("MULTI-SELECT", indexFrom, indexTo);
+        });
+    }, [dragRef, cycle, grid, offset, records, durationM]);
+
+
 
     const onRecordScale = useCallback((
         event: DragEvent<HTMLDivElement>,
@@ -139,12 +155,9 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
 
 
     const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
-        if (!dragRef.current) return;
+        if (!dragRef.current) return clearDummy(dummyRef.current);
         dragRef.current.dropEffect = event.dataTransfer.dropEffect = "none";
         const editorRect = editorRef.current.getBoundingClientRect();
-        // const dummy = dummyRef.current;
-
-
 
         let record: PlixTimeEffectRecordJsonData;
         let recordStartM: number;
@@ -154,25 +167,39 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
         const cursorPosM = (cursorPosTime - offset) / cycle * TIMELINE_LCM;
         const recordMove = dragRef.current.recordMove;
         const effectLink = dragRef.current.effectLink;
+        const effect = dragRef.current.effect;
         if (recordMove) {
             record = recordMove.record;
             const eventPosTime = (event.clientX - editorRect.left - dragRef.current.offsetX) / zoom;
             recordStartM = (eventPosTime - offset) / cycle * TIMELINE_LCM;
             recordBpm = recordMove.bpm;
             targetAsLink = false;
-        } else if (effectLink) {
+        } else if (effectLink || effect) {
             const recordDuration = TIMELINE_LCM; // todo: calculate best record duration
-            record = [true, effectLink[2], 0, recordDuration];
+            if (effectLink) {
+                record = [true, effectLink[2], 0, recordDuration];
+                targetAsLink = true;
+            } else {
+                if (effect && effect[1] === null && (effect[3] ?? []).length === 0) {
+                    record = [true, String(effect[2]), 0, recordDuration];
+                }
+            }
             const shiftTime = cycle * recordDuration / TIMELINE_LCM / 2; // drag center of element
             const eventPosTime =  (event.clientX - editorRect.left) / zoom - shiftTime;
             recordStartM = (eventPosTime - offset) / cycle * TIMELINE_LCM;
             recordBpm = bpm;
-            targetAsLink = true;
         }
 
         if (record) {
             // check collision with mouse position
             const [collisionIndex, collisionRecord] = getCollisionRecord(record, records, cursorPosM);
+
+            if (event.altKey) { // multi-select
+                const selfIndex = records.indexOf(record);
+                if (selfIndex === -1 || collisionIndex === -1) return clearDummy(dummyRef.current);
+                return onMultiSelect(event, Math.min(selfIndex, collisionIndex), Math.max(selfIndex, collisionIndex));
+            }
+
             if (collisionRecord) {
                 const recordsIsSame = collisionRecord[0] === record[0] && collisionRecord[1] === record[1]
                 if (!recordsIsSame) return onRecordReplace(event, record, collisionIndex, collisionRecord, targetAsLink);
