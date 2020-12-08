@@ -82394,10 +82394,10 @@ __webpack_require__.r(__webpack_exports__);
 const ProfileNameContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)([null, () => { }]);
 const ProfileContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
 const SelectProvider = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ track, children }) => {
-    var _a;
+    var _a, _b;
     const [profileName, setProfileName] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
-    const profileMap = track.profiles;
-    const profile = (_a = profileMap[profileName]) !== null && _a !== void 0 ? _a : null;
+    const profileMap = (_a = track.profiles) !== null && _a !== void 0 ? _a : {};
+    const profile = (_b = profileMap[profileName]) !== null && _b !== void 0 ? _b : null;
     const actualProfileName = profile ? profileName : null;
     const profileNameCtxValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [actualProfileName, (v) => setProfileName(v)], [actualProfileName]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(ProfileNameContext.Provider, { value: profileNameCtxValue },
@@ -85519,7 +85519,15 @@ const TimelineEditor = ({ records, bpm, grid, offset, repeatStart, repeatEnd, pa
         const dummyDuration = (endM - startM) * cycle / _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM;
         setDummyPosition(dummyRef.current, duration, [dummyStart, dummyDuration], true, false, "", true);
         return allowEventWithDropEffect(event, "link", (event) => {
-            console.log("MULTI-SELECT", indexFrom, indexTo);
+            const selectedRecords = [];
+            for (let i = indexFrom; i <= indexTo; i++)
+                selectedRecords.push(records[i]);
+            const recordsGroup = {
+                position: [startM, endM],
+                records: selectedRecords,
+                bpm: bpm
+            };
+            console.log("MULTI-SELECT", recordsGroup);
         });
     }, [dragRef, cycle, grid, offset, records, durationM]);
     const onRecordScale = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, { record, side }, cursorPosM) => {
