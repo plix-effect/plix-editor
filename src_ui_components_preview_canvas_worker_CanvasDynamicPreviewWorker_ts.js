@@ -2,6 +2,138 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/ui/components/preview/canvas/preview-field/PlixCanvasField.ts":
+/*!***************************************************************************!*
+  !*** ./src/ui/components/preview/canvas/preview-field/PlixCanvasField.ts ***!
+  \***************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "DEFAULT_PREVIEW_FIELD_CONFIG": () => /* binding */ DEFAULT_PREVIEW_FIELD_CONFIG,
+/* harmony export */   "PlixCanvasField": () => /* binding */ PlixCanvasField
+/* harmony export */ });
+const TWO_PI = 2 * Math.PI;
+const contourColor = "#444";
+const DEFAULT_PREVIEW_FIELD_CONFIG = {
+    width: 1000,
+    height: 100,
+    elements: Array.from({ length: 20 }).map((_, i) => {
+        const size = 25;
+        return { type: "pixel", props: { shape: i < 10 ? "circle" : "square", size: size, }, geometry: [40 + i * (size + 10), 40] };
+    })
+};
+class PlixCanvasField {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext("2d");
+    }
+    setConfig(cfg) {
+        this.cfg = cfg;
+        this.canvas.height = cfg.height;
+        this.canvas.width = cfg.width;
+    }
+    getConfig() {
+        return this.cfg;
+    }
+    get elementsCount() {
+        return this.cfg.elements.length;
+    }
+    drawElementFromConfig(index, color, outlineColor = contourColor) {
+        const element = this.cfg.elements[index];
+        this.drawElement(element, color, outlineColor);
+    }
+    drawElement(element, color, outlineColor = contourColor) {
+        if (element.type === "line")
+            this.drawLine(element, color, outlineColor);
+        else if (element.type === "pixel")
+            this.drawPixel(element, color, outlineColor);
+    }
+    resetDraw() {
+        this.ctx.fillStyle = "black";
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        const elements = this.cfg.elements;
+        for (let i = 0; i < elements.length; i++) {
+            this.drawElementFromConfig(i, null);
+        }
+    }
+    drawLine(lineInfo, color, outlineColor = contourColor) {
+        console.warn("drawLine not implemented");
+    }
+    drawPixel(pixelInfo, color, outlineColor = contourColor) {
+        const [x, y] = pixelInfo.geometry;
+        const ctx = this.ctx;
+        const size = pixelInfo.props.size;
+        function getSizeGain() {
+            const { r, g, b, a } = color;
+            const lum = 0.3 * r * a + 0.59 * g * a + 0.11 * b * a;
+            const sizeGain = Math.min(lum / 128, 1);
+            return sizeGain;
+        }
+        function drawSquare() {
+            ctx.strokeStyle = outlineColor;
+            const halfSize = size / 2;
+            ctx.setLineDash([halfSize / 2, halfSize / 2]);
+            ctx.strokeRect(x - halfSize - 1, y - halfSize - 1, size + 2, size + 2);
+            if (!color)
+                return;
+            const sizeGain = getSizeGain();
+            const colorSize = sizeGain * size;
+            const halfColorSize = colorSize / 2;
+            const { r, g, b, a } = color;
+            ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
+            ctx.fillRect(x - halfColorSize, y - halfColorSize, colorSize, colorSize);
+        }
+        function drawCircle() {
+            ctx.beginPath();
+            const radius = Math.floor(size / 2);
+            ctx.setLineDash([radius / 2, radius / 2]);
+            ctx.arc(x, y, radius + 1, 0, TWO_PI);
+            ctx.strokeStyle = outlineColor;
+            ctx.stroke();
+            if (!color)
+                return;
+            const { r, g, b, a } = color;
+            const sizeGain = getSizeGain();
+            const innerRadius = Math.round(Math.sqrt(sizeGain) * radius);
+            ctx.beginPath();
+            ctx.arc(x, y, innerRadius, 0, TWO_PI);
+            ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
+            ctx.fill();
+        }
+        if (pixelInfo.props.shape === "circle") {
+            drawCircle();
+        }
+        else {
+            drawSquare();
+        }
+    }
+    getElementAtPos(x, y) {
+        const index = this.cfg.elements.findIndex((value, i) => {
+            if (value.type === "pixel") {
+                const size = value.props.size;
+                const halfSize = size / 2;
+                const [eX, eY] = value.geometry;
+                const dx = eX - x;
+                const dy = eY - y;
+                if (value.props.shape === "circle") {
+                    return Math.sqrt(dx * dx + dy * dy) <= halfSize;
+                }
+                else {
+                    return Math.abs(dx) <= halfSize && Math.abs(dy) <= halfSize;
+                }
+            }
+            return false;
+        });
+        if (index == -1)
+            return [null, -1];
+        return [this.cfg.elements[index], index];
+    }
+}
+
+
+/***/ }),
+
 /***/ "./src/ui/components/preview/canvas/worker/CanvasDynamicPreviewWorker.ts":
 /*!*******************************************************************************!*
   !*** ./src/ui/components/preview/canvas/worker/CanvasDynamicPreviewWorker.ts ***!
@@ -9,7 +141,7 @@
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _PlixCanvasField__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./PlixCanvasField */ "./src/ui/components/preview/canvas/worker/PlixCanvasField.ts");
+/* harmony import */ var _preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../preview-field/PlixCanvasField */ "./src/ui/components/preview/canvas/preview-field/PlixCanvasField.ts");
 /* harmony import */ var _plix_effect_core_dist_parser__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @plix-effect/core/dist/parser */ "./node_modules/@plix-effect/core/dist/parser/index.js");
 /* harmony import */ var _plix_effect_core_effects__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @plix-effect/core/effects */ "./node_modules/@plix-effect/core/dist/effects/index.js");
 /* harmony import */ var _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @plix-effect/core/filters */ "./node_modules/@plix-effect/core/dist/filters/index.js");
@@ -28,7 +160,7 @@ const syncPerformance = (globalValue) => {
     performanceOffset = globalValue - performance.now();
 };
 const handleInitMsg = (msg) => {
-    field = new _PlixCanvasField__WEBPACK_IMPORTED_MODULE_0__.PlixCanvasField(msg.canvas);
+    field = new _preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_0__.PlixCanvasField(msg.canvas);
     renderer = new _CanvasFieldRenderer__WEBPACK_IMPORTED_MODULE_4__.CanvasFieldRenderer(field);
     syncPerformance(msg.performanceValue);
 };
@@ -128,7 +260,7 @@ class CanvasFieldRenderer {
         for (let i = 0; i < count; i++) {
             const mod = line(i, count);
             const color = mod(_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_0__.BLACK);
-            this.field.draw(i, (0,_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_0__.toRgba)(color));
+            this.field.drawElementFromConfig(i, (0,_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_0__.toRgba)(color));
         }
     }
     startRendering(playFromTimestamp, playbackRate) {
@@ -147,111 +279,6 @@ class CanvasFieldRenderer {
     }
     get rendering() { return this.currentRenderProcessId != null; }
     get readyForRendering() { return this.parsedData != null && this.duration != null; }
-}
-
-
-/***/ }),
-
-/***/ "./src/ui/components/preview/canvas/worker/PlixCanvasField.ts":
-/*!********************************************************************!*
-  !*** ./src/ui/components/preview/canvas/worker/PlixCanvasField.ts ***!
-  \********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "DEFAULT_PREVIEW_FIELD_CONFIG": () => /* binding */ DEFAULT_PREVIEW_FIELD_CONFIG,
-/* harmony export */   "PlixCanvasField": () => /* binding */ PlixCanvasField
-/* harmony export */ });
-const TWO_PI = 2 * Math.PI;
-const contourColor = "#444";
-const DEFAULT_PREVIEW_FIELD_CONFIG = {
-    width: 1000,
-    height: 100,
-    elements: Array.from({ length: 20 }).map((_, i) => {
-        const size = 25;
-        return { type: "pixel", shape: i < 10 ? "circle" : "square", size: size, position: [40 + i * (size + 10), 40] };
-    })
-};
-class PlixCanvasField {
-    constructor(canvas) {
-        this.canvas = canvas;
-        this.ctx = canvas.getContext("2d");
-    }
-    setConfig(cfg) {
-        this.cfg = cfg;
-        this.canvas.height = cfg.height;
-        this.canvas.width = cfg.width;
-    }
-    get elementsCount() {
-        return this.cfg.elements.length;
-    }
-    draw(index, color) {
-        const element = this.cfg.elements[index];
-        if (element.type === "line")
-            this.drawLine(element, color);
-        else if (element.type === "pixel")
-            this.drawPixel(element, color);
-    }
-    resetDraw() {
-        this.ctx.fillStyle = "black";
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        const elements = this.cfg.elements;
-        for (let i = 0; i < elements.length; i++) {
-            this.draw(i, null);
-        }
-    }
-    drawLine(lineInfo, color) {
-        console.warn("drawLine not implemented");
-    }
-    drawPixel(pixelInfo, color) {
-        const [x, y] = pixelInfo.position;
-        const ctx = this.ctx;
-        const size = pixelInfo.size;
-        function getSizeGain() {
-            const { r, g, b, a } = color;
-            const lum = 0.3 * r * a + 0.59 * g * a + 0.11 * b * a;
-            const sizeGain = Math.min(lum / 128, 1);
-            return sizeGain;
-        }
-        function drawSquare() {
-            ctx.strokeStyle = contourColor;
-            const halfSize = size / 2;
-            ctx.setLineDash([halfSize / 2, halfSize / 2]);
-            ctx.strokeRect(x - halfSize - 1, y - halfSize - 1, size + 2, size + 2);
-            if (!color)
-                return;
-            const sizeGain = getSizeGain();
-            const colorSize = sizeGain * size;
-            const halfColorSize = colorSize / 2;
-            const { r, g, b, a } = color;
-            ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
-            ctx.fillRect(x - halfColorSize, y - halfColorSize, colorSize, colorSize);
-        }
-        function drawCircle() {
-            ctx.beginPath();
-            const radius = Math.floor(size / 2);
-            ctx.setLineDash([radius / 2, radius / 2]);
-            ctx.arc(x, y, radius + 1, 0, TWO_PI);
-            ctx.strokeStyle = contourColor;
-            ctx.stroke();
-            if (!color)
-                return;
-            const { r, g, b, a } = color;
-            const sizeGain = getSizeGain();
-            const innerRadius = Math.round(Math.sqrt(sizeGain) * radius);
-            ctx.beginPath();
-            ctx.arc(x, y, innerRadius, 0, TWO_PI);
-            ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
-            ctx.fill();
-        }
-        if (pixelInfo.shape === "circle") {
-            drawCircle();
-        }
-        else {
-            drawSquare();
-        }
-    }
 }
 
 
