@@ -52,7 +52,8 @@ body .btn-primary:focus {
   height: 100vh; }
 
 .track-tree {
-  width: 100%; }
+  width: 100%;
+  margin-left: 1px; }
 
 .track-timeline {
   width: 100%;
@@ -413,6 +414,7 @@ button.btn.track-header-icon-button {
   padding: 1px 0 0 5px;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
   cursor: grab; }
   .timeline-record-name._disabled {
     border-color: rgba(255, 255, 255, 0.5); }

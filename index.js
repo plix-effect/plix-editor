@@ -82819,29 +82819,6 @@ const TrackEditor = () => {
         document.addEventListener("mousemove", onMouseMove);
         return () => document.removeEventListener("mousemove", onMouseMove);
     });
-    const multiplyZoom = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
-        setZoom(v => {
-            let z = v * value;
-            if (z > 1) {
-                z = 1;
-            }
-            else if (duration * z < 500) {
-                z = 500 / duration;
-            }
-            if (z === v)
-                return v;
-            if (timelineEl) {
-                const { left } = timelineEl.getBoundingClientRect();
-                const dif = Math.max(mouseLeftRef.current - left, 0);
-                const newScrollLeftPos = (timelineEl.scrollLeft + dif) * z / v - (dif);
-                timelineEl.scrollLeft = newScrollLeftPos;
-                setTimeout(() => timelineEl.scrollLeft = newScrollLeftPos, 50);
-            }
-            return z;
-        });
-    }, [setZoom, duration, timelineEl, mouseLeftRef]);
-    const zoomIn = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => multiplyZoom(ZOOM_FACTOR), [multiplyZoom]);
-    const zoomOut = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => multiplyZoom(1 / ZOOM_FACTOR), [multiplyZoom]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         const onKeydown = ({ ctrlKey, shiftKey, altKey, code }) => {
             const focusedNode = document.querySelectorAll(":focus:not(body)");
@@ -82852,22 +82829,10 @@ const TrackEditor = () => {
                 return dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.RedoAction)());
             if (active && ctrlKey && !shiftKey && !altKey && code === "KeyY")
                 return dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.RedoAction)());
-            if (active && !ctrlKey && !shiftKey && !altKey && code === "Minus")
-                return zoomOut();
-            if (active && !ctrlKey && !shiftKey && !altKey && code === "Equal")
-                return zoomIn();
         };
         document.addEventListener("keydown", onKeydown);
         return () => document.removeEventListener("keydown", onKeydown);
-    }, [dispatch, zoomIn, zoomOut]);
-    const onWheel = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
-        if (!event.ctrlKey && !event.metaKey)
-            return;
-        if (!event.deltaY)
-            return;
-        const zoomIndex = Math.pow(ZOOM_FACTOR_WHEEL, event.deltaY);
-        multiplyZoom(zoomIndex);
-    }, [multiplyZoom]);
+    }, [dispatch]);
     const deleteFile = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
         setAudioFile(null);
     }, [setAudioFile]);
@@ -82885,9 +82850,9 @@ const TrackEditor = () => {
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: deleteFile, title: "Delete audio" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "far fa-trash-alt" })),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header-filename" }, audioFile !== null ? (audioFile.name) : ("no audio file"))),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header track-header-timeline", onWheelCapture: onWheel },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header track-header-timeline" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackScale__WEBPACK_IMPORTED_MODULE_8__.TrackScale, null)),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-tree", style: { marginLeft: 1 }, onWheelCapture: onWheel },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-tree" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_PortalContext__WEBPACK_IMPORTED_MODULE_1__.PortalContext.Provider, { value: rightRenderEl },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_9__.Track, null,
                         null,
@@ -82989,6 +82954,18 @@ const TrackScale = () => {
     }, [setZoom, duration, timelineEl, mouseLeftRef]);
     const zoomIn = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => multiplyZoom(ZOOM_FACTOR), [multiplyZoom]);
     const zoomOut = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => multiplyZoom(1 / ZOOM_FACTOR), [multiplyZoom]);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        const onKeydown = ({ ctrlKey, shiftKey, altKey, code }) => {
+            const focusedNode = document.querySelectorAll(":focus:not(body)");
+            const active = (focusedNode.length <= 0);
+            if (active && !ctrlKey && !shiftKey && !altKey && code === "Minus")
+                return zoomOut();
+            if (active && !ctrlKey && !shiftKey && !altKey && code === "Equal")
+                return zoomIn();
+        };
+        document.addEventListener("keydown", onKeydown);
+        return () => document.removeEventListener("keydown", onKeydown);
+    }, [zoomIn, zoomOut]);
     const onClickTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         if (!timelineEl)
             return;
@@ -85535,6 +85512,16 @@ const TimelineEditor = ({ records, bpm, grid, offset, repeatStart, repeatEnd, pa
             }
         });
     }, [dragRef, cycle, grid, offset, records, durationM]);
+    const onMultiSelect = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, indexFrom, indexTo) => {
+        const startM = records[indexFrom][2];
+        const endM = records[indexTo][3];
+        const dummyStart = offset + startM * cycle / _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM;
+        const dummyDuration = (endM - startM) * cycle / _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM;
+        setDummyPosition(dummyRef.current, duration, [dummyStart, dummyDuration], true, false, "", true);
+        return allowEventWithDropEffect(event, "link", (event) => {
+            console.log("MULTI-SELECT", indexFrom, indexTo);
+        });
+    }, [dragRef, cycle, grid, offset, records, durationM]);
     const onRecordScale = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, { record, side }, cursorPosM) => {
         if (!records.includes(record))
             return;
@@ -85572,8 +85559,9 @@ const TimelineEditor = ({ records, bpm, grid, offset, repeatStart, repeatEnd, pa
         });
     }, [dragRef, cycle, grid, offset, records]);
     const onDragOver = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        var _a;
         if (!dragRef.current)
-            return;
+            return clearDummy(dummyRef.current);
         dragRef.current.dropEffect = event.dataTransfer.dropEffect = "none";
         const editorRect = editorRef.current.getBoundingClientRect();
         let record;
@@ -85584,6 +85572,7 @@ const TimelineEditor = ({ records, bpm, grid, offset, repeatStart, repeatEnd, pa
         const cursorPosM = (cursorPosTime - offset) / cycle * _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM;
         const recordMove = dragRef.current.recordMove;
         const effectLink = dragRef.current.effectLink;
+        const effect = dragRef.current.effect;
         if (recordMove) {
             record = recordMove.record;
             const eventPosTime = (event.clientX - editorRect.left - dragRef.current.offsetX) / zoom;
@@ -85591,17 +85580,30 @@ const TimelineEditor = ({ records, bpm, grid, offset, repeatStart, repeatEnd, pa
             recordBpm = recordMove.bpm;
             targetAsLink = false;
         }
-        else if (effectLink) {
+        else if (effectLink || effect) {
             const recordDuration = _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM;
-            record = [true, effectLink[2], 0, recordDuration];
+            if (effectLink) {
+                record = [true, effectLink[2], 0, recordDuration];
+                targetAsLink = true;
+            }
+            else {
+                if (effect && effect[1] === null && ((_a = effect[3]) !== null && _a !== void 0 ? _a : []).length === 0) {
+                    record = [true, String(effect[2]), 0, recordDuration];
+                }
+            }
             const shiftTime = cycle * recordDuration / _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM / 2;
             const eventPosTime = (event.clientX - editorRect.left) / zoom - shiftTime;
             recordStartM = (eventPosTime - offset) / cycle * _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM;
             recordBpm = bpm;
-            targetAsLink = true;
         }
         if (record) {
             const [collisionIndex, collisionRecord] = getCollisionRecord(record, records, cursorPosM);
+            if (event.altKey) {
+                const selfIndex = records.indexOf(record);
+                if (selfIndex === -1 || collisionIndex === -1)
+                    return clearDummy(dummyRef.current);
+                return onMultiSelect(event, Math.min(selfIndex, collisionIndex), Math.max(selfIndex, collisionIndex));
+            }
             if (collisionRecord) {
                 const recordsIsSame = collisionRecord[0] === record[0] && collisionRecord[1] === record[1];
                 if (!recordsIsSame)
