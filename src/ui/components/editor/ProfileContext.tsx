@@ -18,7 +18,7 @@ export interface SelectProfileProviderProps {
 export const SelectProvider = memo<SelectProfileProviderProps>(({track, children}) => {
 
     const [profileName, setProfileName] = useState<string|null>(null);
-    const profileMap = track.profiles;
+    const profileMap = track.profiles ?? {};
     const profile = profileMap[profileName] ?? null;
     const actualProfileName = profile ? profileName : null;
 

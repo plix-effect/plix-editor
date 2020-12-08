@@ -18,6 +18,12 @@ export interface DragTypes {
         bpm: number,
         offset: number
     },
+    recordsGroup: {
+        position: [startM: number, endM: number],
+        records: PlixTimeEffectRecordJsonData[],
+        bpm: number,
+        offset: number
+    },
     deleteAction: MultiActionType,
     dropEffect: null | "none" | "copy" | "link" | "move",
     offsetX: number,

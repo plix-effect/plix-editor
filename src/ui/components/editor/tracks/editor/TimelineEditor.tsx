@@ -102,7 +102,14 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
         const dummyDuration = (endM - startM) * cycle / TIMELINE_LCM;
         setDummyPosition(dummyRef.current, duration, [dummyStart, dummyDuration], true, false, "", true);
         return allowEventWithDropEffect(event, "link", (event) => {
-            console.log("MULTI-SELECT", indexFrom, indexTo);
+            const selectedRecords = [];
+            for (let i=indexFrom; i<=indexTo; i++) selectedRecords.push(records[i]);
+            const recordsGroup = {
+                position: [startM, endM],
+                records: selectedRecords,
+                bpm: bpm
+            }
+            console.log("MULTI-SELECT", recordsGroup);
         });
     }, [dragRef, cycle, grid, offset, records, durationM]);
 
