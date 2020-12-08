@@ -88,7 +88,7 @@ export const OpenAction = (track: PlixJsonData) => {
     } as const;
 }
 
-export type MultiActionType = (
+export type MultiActionSupport = (
     | ReturnType<typeof EditValueAction>
     | ReturnType<typeof PushValueAction>
     | ReturnType<typeof InsertValuesAction>
@@ -97,7 +97,10 @@ export type MultiActionType = (
     | ReturnType<typeof DeleteIndexAction>
     | ReturnType<typeof DeleteValueAction>
 );
-export const MultiAction = (actions: MultiActionType[]) => {
+export type MultiActionType = MultiActionSupport|MultiAction;
+
+interface MultiAction {type: "multi", actions: readonly MultiActionType[] }
+export const MultiAction = (actions: MultiActionType[]): MultiAction => {
     return {
         type: "multi",
         actions

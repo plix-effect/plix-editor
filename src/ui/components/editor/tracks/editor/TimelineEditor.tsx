@@ -1,4 +1,4 @@
-import React, {FC, useCallback, useContext, useRef} from "react";
+import React, {FC, useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
 import type {DragEvent} from "react";
 import {ScaleDisplayContext} from "../../ScaleDisplayContext";
 import "./TimelineEditor.scss";
@@ -11,6 +11,7 @@ import {EditValueAction, InsertIndexAction, MultiAction, PushValueAction} from "
 import {EditorPath} from "../../../../types/Editor";
 import {generateColorByText} from "../../../../utils/generateColorByText";
 import {TIMELINE_LCM} from "@plix-effect/core";
+import {TimelineEditorRecordGroup} from "./TimelineEditorRecordGroup";
 
 type PositionM = [startM: number, endM: number];
 
@@ -26,6 +27,8 @@ export interface TimelineEditorProps {
 
 export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, offset, repeatStart, repeatEnd, path}) => {
 
+
+
     // const cycle = 60000/bpm;
     const dragRef = useContext(DragContext);
     const dragCount = useRef(0);
@@ -34,6 +37,11 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
     const onDropActionRef = useRef<(event: DragEvent<HTMLDivElement>) => void>();
     const cycle = 60000 / bpm;
     const durationM = (repeatEnd ? repeatEnd : (duration - offset) / cycle) * TIMELINE_LCM;
+
+    const [recordsGroup, setRecordsGroup] = useState<DragTypes["recordsGroup"]|null>(null);
+    const clearRecordsGroup = useCallback(() => void setRecordsGroup(null), [setRecordsGroup]);
+
+    useEffect(() => setRecordsGroup(null), [records]); // clear selection on change
 
     const dummyRef = useRef<HTMLDivElement>();
     const editorRef = useRef<HTMLDivElement>();
@@ -104,12 +112,12 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
         return allowEventWithDropEffect(event, "link", (event) => {
             const selectedRecords = [];
             for (let i=indexFrom; i<=indexTo; i++) selectedRecords.push(records[i]);
-            const recordsGroup = {
+            setRecordsGroup({
                 position: [startM, endM],
                 records: selectedRecords,
-                bpm: bpm
-            }
-            console.log("MULTI-SELECT", recordsGroup);
+                bpm: bpm,
+                offset: offset,
+            });
         });
     }, [dragRef, cycle, grid, offset, records, durationM]);
 
@@ -242,12 +250,15 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
                 <div className="timeline-editor-dummy" ref={dummyRef}>
                     <div className="timeline-record-name --dummy-record"/>
                 </div>
-                <div className="timeline-editor-grid">
-                    <TimelineEditorGrid offset={offset} grid={grid ?? 1} bpm={bpm} repeatStart={repeatStart}  repeatEnd={repeatEnd} />
-                </div>
-                <div className="timeline-editor-records">
-                    <Records records={records} path={path} bpm={bpm} offset={offset}/>
-                </div>
+                <TimelineEditorRecordGroup recordsGroup={recordsGroup} records={records} path={path} offset={offset} bpm={bpm} grid={grid} setRecordsGroup={setRecordsGroup}>
+                    <div className="timeline-editor-grid">
+                        <TimelineEditorGrid offset={offset} grid={grid ?? 1} bpm={bpm} repeatStart={repeatStart}  repeatEnd={repeatEnd} />
+                    </div>
+
+                    <div className="timeline-editor-records">
+                        <Records records={records} path={path} bpm={bpm} offset={offset}/>
+                    </div>
+                </TimelineEditorRecordGroup>
             </div>
         </div>
     );

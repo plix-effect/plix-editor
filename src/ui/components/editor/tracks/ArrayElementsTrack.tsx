@@ -73,18 +73,29 @@ const ArrayElementTrack:FC<ArrayElementTrackProps> = ({type, value, path, parent
         else if (!allowLink) mode = dragData.deleteAction ? "move" : "copy";
 
         let insertValue;
+        let insertType: string;
         if (mode === "link" && allowLink) {
-            insertValue = dragData[type+"Link"]
+            insertValue = dragData[type+"Link"];
+            insertType = type;
         }
         if (insertValue === undefined) {
             const baseValue = dragData[type];
-            if (baseValue) insertValue = baseValue;
+            if (baseValue) {
+                insertValue = baseValue;
+                insertType = type;
+            }
         }
 
         const typedValue = dragData.typedValue;
         if (insertValue === undefined && !typedValue) return;
-        if (insertValue === undefined && typedValue.type === type) insertValue = typedValue.value;
-        if (insertValue === undefined && typedValue.type === "array:"+type) insertValue = typedValue.value;
+        if (insertValue === undefined && typedValue.type === type) {
+            insertValue = typedValue.value;
+            insertType = type;
+        }
+        if (insertValue === undefined && typedValue.type === "array:"+type) {
+            insertValue = typedValue.value;
+            insertType = "array:"+type;
+        }
         if (insertValue === undefined) return;
 
         if (!mode) return;
@@ -98,7 +109,7 @@ const ArrayElementTrack:FC<ArrayElementTrackProps> = ({type, value, path, parent
         return [`_drop-insert _drop-insert-${side}`, () => {
             let insertAction;
             let insertIndex = side === "top" ? index: index+1;
-            if (typedValue.type === type) insertAction = InsertValuesAction(parentPath, insertIndex, [insertValue]);
+            if (insertType === type) insertAction = InsertValuesAction(parentPath, insertIndex, [insertValue]);
             else insertAction = InsertValuesAction(parentPath, insertIndex, insertValue as any[])
             if (mode === "move" && dragData.deleteAction) {
                 dispatch(MultiAction([insertAction, dragData.deleteAction]))
