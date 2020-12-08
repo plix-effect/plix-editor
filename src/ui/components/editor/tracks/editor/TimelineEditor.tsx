@@ -247,14 +247,14 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
             onDrop={onDrop}
         >
             <div ref={editorRef} className="timeline-editor" style={{width: trackWidth}}>
-                <div className="timeline-editor-dummy" ref={dummyRef}>
-                    <div className="timeline-record-name --dummy-record"/>
-                </div>
+
                 <TimelineEditorRecordGroup recordsGroup={recordsGroup} records={records} path={path} offset={offset} bpm={bpm} grid={grid} setRecordsGroup={setRecordsGroup}>
+                    <div className="timeline-editor-dummy" ref={dummyRef}>
+                        <div className="timeline-record-name --dummy-record"/>
+                    </div>
                     <div className="timeline-editor-grid">
                         <TimelineEditorGrid offset={offset} grid={grid ?? 1} bpm={bpm} repeatStart={repeatStart}  repeatEnd={repeatEnd} />
                     </div>
-
                     <div className="timeline-editor-records">
                         <Records records={records} path={path} bpm={bpm} offset={offset}/>
                     </div>
