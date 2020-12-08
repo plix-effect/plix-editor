@@ -83261,21 +83261,29 @@ const ArrayElementTrack = ({ type, value, path, parentPath, canDelete, index, ca
         else if (!allowLink)
             mode = dragData.deleteAction ? "move" : "copy";
         let insertValue;
+        let insertType;
         if (mode === "link" && allowLink) {
             insertValue = dragData[type + "Link"];
+            insertType = type;
         }
         if (insertValue === undefined) {
             const baseValue = dragData[type];
-            if (baseValue)
+            if (baseValue) {
                 insertValue = baseValue;
+                insertType = type;
+            }
         }
         const typedValue = dragData.typedValue;
         if (insertValue === undefined && !typedValue)
             return;
-        if (insertValue === undefined && typedValue.type === type)
+        if (insertValue === undefined && typedValue.type === type) {
             insertValue = typedValue.value;
-        if (insertValue === undefined && typedValue.type === "array:" + type)
+            insertType = type;
+        }
+        if (insertValue === undefined && typedValue.type === "array:" + type) {
             insertValue = typedValue.value;
+            insertType = "array:" + type;
+        }
         if (insertValue === undefined)
             return;
         if (!mode)
@@ -83288,7 +83296,7 @@ const ArrayElementTrack = ({ type, value, path, parentPath, canDelete, index, ca
         return [`_drop-insert _drop-insert-${side}`, () => {
                 let insertAction;
                 let insertIndex = side === "top" ? index : index + 1;
-                if (typedValue.type === type)
+                if (insertType === type)
                     insertAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.InsertValuesAction)(parentPath, insertIndex, [insertValue]);
                 else
                     insertAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__.InsertValuesAction)(parentPath, insertIndex, insertValue);
@@ -85446,6 +85454,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
 /* harmony import */ var _utils_generateColorByText__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../../../utils/generateColorByText */ "./src/ui/utils/generateColorByText.ts");
 /* harmony import */ var _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @plix-effect/core */ "./node_modules/@plix-effect/core/dist/parser/index.js");
+/* harmony import */ var _TimelineEditorRecordGroup__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./TimelineEditorRecordGroup */ "./src/ui/components/editor/tracks/editor/TimelineEditorRecordGroup.tsx");
+
 
 
 
@@ -85464,6 +85474,9 @@ const TimelineEditor = ({ records, bpm, grid, offset, repeatStart, repeatEnd, pa
     const onDropActionRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const cycle = 60000 / bpm;
     const durationM = (repeatEnd ? repeatEnd : (duration - offset) / cycle) * _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM;
+    const [recordsGroup, setRecordsGroup] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
+    const clearRecordsGroup = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => void setRecordsGroup(null), [setRecordsGroup]);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => setRecordsGroup(null), [records]);
     const dummyRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const editorRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const createInsertRecordAction = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((record) => {
@@ -85522,12 +85535,12 @@ const TimelineEditor = ({ records, bpm, grid, offset, repeatStart, repeatEnd, pa
             const selectedRecords = [];
             for (let i = indexFrom; i <= indexTo; i++)
                 selectedRecords.push(records[i]);
-            const recordsGroup = {
+            setRecordsGroup({
                 position: [startM, endM],
                 records: selectedRecords,
-                bpm: bpm
-            };
-            console.log("MULTI-SELECT", recordsGroup);
+                bpm: bpm,
+                offset: offset,
+            });
         });
     }, [dragRef, cycle, grid, offset, records, durationM]);
     const onRecordScale = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, { record, side }, cursorPosM) => {
@@ -85636,10 +85649,11 @@ const TimelineEditor = ({ records, bpm, grid, offset, repeatStart, repeatEnd, pa
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { ref: editorRef, className: "timeline-editor", style: { width: trackWidth } },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-dummy", ref: dummyRef },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-record-name --dummy-record" })),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-grid" },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_TimelineEditorGrid__WEBPACK_IMPORTED_MODULE_3__.TimelineEditorGrid, { offset: offset, grid: grid !== null && grid !== void 0 ? grid : 1, bpm: bpm, repeatStart: repeatStart, repeatEnd: repeatEnd })),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-records" },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Records__WEBPACK_IMPORTED_MODULE_4__.Records, { records: records, path: path, bpm: bpm, offset: offset })))));
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TimelineEditorRecordGroup__WEBPACK_IMPORTED_MODULE_10__.TimelineEditorRecordGroup, { recordsGroup: recordsGroup, records: records, path: path, offset: offset, bpm: bpm, grid: grid, setRecordsGroup: setRecordsGroup },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-grid" },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_TimelineEditorGrid__WEBPACK_IMPORTED_MODULE_3__.TimelineEditorGrid, { offset: offset, grid: grid !== null && grid !== void 0 ? grid : 1, bpm: bpm, repeatStart: repeatStart, repeatEnd: repeatEnd })),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-records" },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Records__WEBPACK_IMPORTED_MODULE_4__.Records, { records: records, path: path, bpm: bpm, offset: offset }))))));
 };
 function getScalingResult(record, records, side, cursorPosM, maxDurationM, bindToGrid, grid) {
     cursorPosM = Math.round(cursorPosM);
@@ -85776,6 +85790,121 @@ function getFreeSpace(record, records, timeM, maxDurationM, effect) {
         return [0, rightEl[2]];
     return [0, maxDurationM];
 }
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/tracks/editor/TimelineEditorRecordGroup.tsx":
+/*!******************************************************************************!*
+  !*** ./src/ui/components/editor/tracks/editor/TimelineEditorRecordGroup.tsx ***!
+  \******************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "TimelineEditorRecordGroup": () => /* binding */ TimelineEditorRecordGroup
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
+/* harmony import */ var _TimelineEditor_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TimelineEditor.scss */ "./src/ui/components/editor/tracks/editor/TimelineEditor.scss");
+/* harmony import */ var _DragContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../DragContext */ "./src/ui/components/editor/DragContext.ts");
+/* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+/* harmony import */ var _plix_effect_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @plix-effect/core */ "./node_modules/@plix-effect/core/dist/parser/index.js");
+/* harmony import */ var _utils_KeyManager__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../../../utils/KeyManager */ "./src/ui/utils/KeyManager.ts");
+/* harmony import */ var _ConstructorContext__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../ConstructorContext */ "./src/ui/components/editor/ConstructorContext.ts");
+
+
+
+
+
+
+
+
+
+const TimelineEditorRecordGroup = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ recordsGroup, records, path, setRecordsGroup, children, offset, bpm, grid }) => {
+    const groupBgRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const groupFgRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const { duration } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_1__.ScaleDisplayContext);
+    const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_4__.TrackContext);
+    const { effectConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ConstructorContext__WEBPACK_IMPORTED_MODULE_8__.ConstructorContext);
+    const cycle = 60000 / bpm;
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        let startD = -1;
+        let durationD = 0;
+        if (recordsGroup) {
+            const [startM, endM] = recordsGroup.position;
+            startD = (offset + startM * cycle / _plix_effect_core__WEBPACK_IMPORTED_MODULE_6__.TIMELINE_LCM) / duration;
+            durationD = (endM - startM) * cycle / _plix_effect_core__WEBPACK_IMPORTED_MODULE_6__.TIMELINE_LCM / duration;
+        }
+        groupBgRef.current.style.left = `${startD * 100}%`;
+        groupBgRef.current.style.width = `${durationD * 100}%`;
+        groupFgRef.current.style.left = `${startD * 100}%`;
+        groupFgRef.current.style.width = `${durationD * 100}%`;
+    }, [recordsGroup, offset, cycle, duration]);
+    const deleteAction = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        if (!recordsGroup)
+            return null;
+        const deleteActions = recordsGroup.records.map(record => {
+            const key = (0,_utils_KeyManager__WEBPACK_IMPORTED_MODULE_7__.getArrayKey)(records, records.indexOf(record));
+            return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_5__.DeleteAction)([...path, { key }]);
+        });
+        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_5__.MultiAction)(deleteActions);
+    }, [recordsGroup, records, path]);
+    const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(({ ctrlKey, shiftKey, altKey }) => {
+        if (!ctrlKey && !shiftKey && !altKey)
+            return setRecordsGroup(null);
+        if (!ctrlKey && !shiftKey && altKey)
+            return deleteAction && dispatch(deleteAction);
+    }, [dispatch, deleteAction]);
+    const dragValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        if (!recordsGroup)
+            return null;
+        let effect;
+        const timelineConstructor = effectConstructorMap["Timeline"];
+        if (timelineConstructor) {
+            const meta = timelineConstructor['meta'];
+            const paramPreset = [recordsGroup.records, bpm, grid, offset];
+            const effectParams = meta.defaultValues.map((value, i) => {
+                if (i < paramPreset.length)
+                    return paramPreset[i];
+                return value;
+            });
+            effect = [true, "Timeline", effectParams, []];
+        }
+        return {
+            recordsGroup,
+            deleteAction,
+            effect: effect,
+        };
+    }, [recordsGroup, deleteAction]);
+    const dragRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_DragContext__WEBPACK_IMPORTED_MODULE_3__.DragContext);
+    const onDragStart = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        if (!dragValue)
+            return;
+        dragRef.current = Object.assign(Object.assign({}, dragValue), { offsetX: event.nativeEvent.offsetX, offsetY: event.nativeEvent.offsetY });
+        localStorage.setItem("plix_editor_drag", JSON.stringify(dragRef.current));
+        event.dataTransfer.setData("plix/localstorage", "");
+        groupFgRef.current.classList.add("_drag");
+        event.stopPropagation();
+        event.dataTransfer.setDragImage(new Image(), 0, 0);
+    }, [dragValue, groupFgRef]);
+    const onDrag = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        var _a;
+        const dropEffect = (_a = dragRef.current) === null || _a === void 0 ? void 0 : _a.dropEffect;
+        groupFgRef.current.classList.remove("_move", "_copy", "_link", "_none");
+        if (dropEffect)
+            groupFgRef.current.classList.add(`_${dropEffect}`);
+    }, [dragRef, groupFgRef]);
+    const onDragEnd = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        groupFgRef.current.classList.remove("_drag", "_move", "_copy", "_link", "_none");
+    }, [dragValue, groupFgRef]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-group-bg", ref: groupBgRef }),
+        children,
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-group-fg", draggable: true, onDragStart: onDragStart, onDrag: onDrag, onDragEnd: onDragEnd, ref: groupFgRef, onClick: onClick })));
+});
 
 
 /***/ }),

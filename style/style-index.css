@@ -372,8 +372,25 @@ button.btn.track-header-icon-button {
   .timeline-editor-dummy._unavailable {
     background-color: #c00; }
   .timeline-editor-dummy._foreground {
-    z-index: 1;
+    z-index: 3;
     background-color: #cc0; }
+
+.timeline-editor-group-bg {
+  position: absolute;
+  background-color: #cc8;
+  height: 100%;
+  border-radius: 4px; }
+
+.timeline-editor-group-fg {
+  position: absolute;
+  background-color: transparent;
+  border: 2px solid #440;
+  border-radius: 4px;
+  height: 100%;
+  z-index: 4;
+  cursor: grab; }
+  .timeline-editor-group-fg:hover {
+    background-color: rgba(255, 255, 255, 0.2); }
 
 .timeline-editor-grid-canvas {
   position: absolute;
