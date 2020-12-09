@@ -242,7 +242,7 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
 
         if (dragRecords) {
             // check collision with mouse position
-            const [collisionIndex, collisionRecord] = getCollisionRecord(dragRecords, records, cursorPosM);
+            const [collisionIndex, collisionRecord] = getCollisionRecord(event.ctrlKey ? [] : dragRecords, records, cursorPosM);
 
             const firstDragRecord = dragRecords[0];
             if (event.altKey && dragRecords.length === 1) { // multi-select
