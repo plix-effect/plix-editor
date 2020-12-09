@@ -1,14 +1,4 @@
-import React, {
-    ChangeEvent,
-    FC,
-    memo,
-    MouseEvent,
-    MouseEventHandler,
-    useCallback,
-    useContext,
-    useMemo,
-    useState
-} from "react";
+import React, {FC, memo, MouseEventHandler, useCallback, useMemo} from "react";
 import {Track} from "../../timeline/Track";
 import {EditorPath} from "../../../types/Editor";
 import {useExpander} from "../track-elements/Expander";
@@ -16,7 +6,7 @@ import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {ValueTrack} from "./ValueTrack";
 import {useSelectionControl, useSelectionPath} from "../SelectionContext";
-import {DEFAULT_PREVIEW_FIELD_CONFIG} from "../../preview/canvas/preview-field/PlixCanvasField";
+import {EditValueAction} from "../PlixEditorReducerActions";
 
 export interface GroupOptionsTrackProps {
     options: object,
@@ -47,6 +37,10 @@ export const GroupOptionsTrack: FC<GroupOptionsTrackProps> = memo(({options = {}
         event.preventDefault();
     }, [changeExpanded]);
 
+    const clearFieldConfigAction = useMemo(() => {
+        return EditValueAction(fieldConfigPath, undefined)
+    }, [fieldConfigPath]);
+
     return (
         <Track nested expanded={expanded}>
             <TreeBlock selected={selected} type="title" onClick={onClickTree} onDoubleClick={onDblClickTree}>
@@ -64,10 +58,10 @@ export const GroupOptionsTrack: FC<GroupOptionsTrackProps> = memo(({options = {}
                 Track duration
             </ValueTrack>
 
-            <ValueTrack path={fieldConfigPath} value={options?.['fieldConfig'] ?? null} type="fieldConfig" title="field config if no profile selected">
+            <ValueTrack path={fieldConfigPath} value={options?.['fieldConfig'] ?? null} type="fieldConfig" title="field config if no profile selected" clearAction={clearFieldConfigAction}>
                 Default field config
                 &nbsp;
-                {`(${(options?.['fieldConfig'] ?? DEFAULT_PREVIEW_FIELD_CONFIG).elements.length}px)`}
+                {options?.['fieldConfig'] ? `(${options?.['fieldConfig'].elements.length}px)` : '(default)'}
             </ValueTrack>
         </Track>
     )
