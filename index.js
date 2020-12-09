@@ -84934,7 +84934,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
 /* harmony import */ var _ValueTrack__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ValueTrack */ "./src/ui/components/editor/tracks/ValueTrack.tsx");
 /* harmony import */ var _SelectionContext__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../SelectionContext */ "./src/ui/components/editor/SelectionContext.tsx");
-/* harmony import */ var _preview_canvas_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../preview/canvas/preview-field/PlixCanvasField */ "./src/ui/components/preview/canvas/preview-field/PlixCanvasField.ts");
+/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
 
 
 
@@ -84944,7 +84944,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const GroupOptionsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ options = {}, path }) => {
-    var _a, _b, _c;
+    var _a, _b;
     const [expanded, expander, changeExpanded] = (0,_track_elements_Expander__WEBPACK_IMPORTED_MODULE_2__.useExpander)(false);
     const durationPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, "duration"], [path]);
     const fieldConfigPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, "fieldConfig"], [path]);
@@ -84965,6 +84965,9 @@ const GroupOptionsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ options
             changeExpanded();
         event.preventDefault();
     }, [changeExpanded]);
+    const clearFieldConfigAction = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.EditValueAction)(fieldConfigPath, undefined);
+    }, [fieldConfigPath]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, { nested: true, expanded: expanded },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_3__.TreeBlock, { selected: selected, type: "title", onClick: onClickTree, onDoubleClick: onDblClickTree },
             expander,
@@ -84975,9 +84978,9 @@ const GroupOptionsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ options
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_4__.TimelineBlock, { type: "title", fixed: true },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" }, "track options")),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { path: durationPath, value: (_a = options === null || options === void 0 ? void 0 : options['duration']) !== null && _a !== void 0 ? _a : null, type: "number", title: "duration in milliseconds" }, "Track duration"),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { path: fieldConfigPath, value: (_b = options === null || options === void 0 ? void 0 : options['fieldConfig']) !== null && _b !== void 0 ? _b : null, type: "fieldConfig", title: "field config if no profile selected" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { path: fieldConfigPath, value: (_b = options === null || options === void 0 ? void 0 : options['fieldConfig']) !== null && _b !== void 0 ? _b : null, type: "fieldConfig", title: "field config if no profile selected", clearAction: clearFieldConfigAction },
             "Default field config \u00A0",
-            `(${((_c = options === null || options === void 0 ? void 0 : options['fieldConfig']) !== null && _c !== void 0 ? _c : _preview_canvas_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_7__.DEFAULT_PREVIEW_FIELD_CONFIG).elements.length}px)`)));
+            (options === null || options === void 0 ? void 0 : options['fieldConfig']) ? `(${options === null || options === void 0 ? void 0 : options['fieldConfig'].elements.length}px)` : '(default)')));
 });
 
 
@@ -85449,6 +85452,9 @@ const ProfileTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, baseV
     const clearFiltersAction = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.EditValueAction)(paths.filters, {});
     }, [paths]);
+    const clearFieldConfigAction = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.EditValueAction)(paths.fieldConfig, undefined);
+    }, [paths]);
     const rightIcons = (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
         (deleteAction) && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "far fa-trash-alt track-tree-icon track-tree-icon-action", onClick: onClickDelete, title: "delete" })),
         (clearAction) && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-times track-tree-icon track-tree-icon-action", onClick: onClickClear, title: "clear" }))));
@@ -85475,7 +85481,7 @@ const ProfileTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, baseV
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { onClick: clearCurrentProfile }, "[clear profile]"))) : (react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { onClick: setCurrentProfile }, "use this profile"))),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_GroupOverrideEffectsTrack__WEBPACK_IMPORTED_MODULE_8__.GroupOverrideEffectsTrack, { name: name, effectsMap: value.effects, baseEffectsMap: baseValue.effects, path: paths.effects, clearAction: clearEffectsAction }),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_GroupOverrideFiltersTrack__WEBPACK_IMPORTED_MODULE_9__.GroupOverrideFiltersTrack, { name: name, filtersMap: value.filters, baseFiltersMap: baseValue.filters, path: paths.filters, clearAction: clearFiltersAction }),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_11__.ValueTrack, { value: value['fieldConfig'], path: paths.fieldConfig, type: "fieldConfig", title: `field config for profile ${name}` },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_11__.ValueTrack, { value: value['fieldConfig'], path: paths.fieldConfig, type: "fieldConfig", title: `field config for profile ${name}`, clearAction: clearFieldConfigAction },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-spray-can" }),
             "\u00A0 field config \u00A0",
             value['fieldConfig'] ? `(${value['fieldConfig'].elements.length}px)` : "(default)")));
