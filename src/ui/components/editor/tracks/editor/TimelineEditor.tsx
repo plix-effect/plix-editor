@@ -7,11 +7,19 @@ import {TimelineEditorGrid} from "./timeline/TimelineEditorGrid";
 import {Records} from "./timeline/Records";
 import {DragContext, DragTypes} from "../../DragContext";
 import {TrackContext} from "../../TrackContext";
-import {EditValueAction, InsertIndexAction, MultiAction, PushValueAction} from "../../PlixEditorReducerActions";
+import {
+    EditValueAction,
+    InsertIndexAction,
+    InsertValuesAction,
+    MultiAction,
+    PushValueAction
+} from "../../PlixEditorReducerActions";
 import {EditorPath} from "../../../../types/Editor";
 import {generateColorByText} from "../../../../utils/generateColorByText";
 import {TIMELINE_LCM} from "@plix-effect/core";
-import {TimelineEditorRecordGroup} from "./TimelineEditorRecordGroup";
+import {TimelineEditorRecordGroup} from "./timeline/TimelineEditorRecordGroup";
+import {getArrayKey} from "../../../../utils/KeyManager";
+import useLatestCallback from "../../../../use/useLatestCallback";
 
 type PositionM = [startM: number, endM: number];
 
@@ -38,18 +46,25 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
     const cycle = 60000 / bpm;
     const durationM = (repeatEnd ? repeatEnd : (duration - offset) / cycle) * TIMELINE_LCM;
 
-    const [recordsGroup, setRecordsGroup] = useState<DragTypes["recordsGroup"]|null>(null);
-    const clearRecordsGroup = useCallback(() => void setRecordsGroup(null), [setRecordsGroup]);
+    const [recordsGroup, setRecordsGroup] = useState<PlixTimeEffectRecordJsonData[]|null>(null);
+    const [newCaptureGroup, setNewCaptureGroup] = useState<PlixTimeEffectRecordJsonData[]|null>(null);
 
-    useEffect(() => setRecordsGroup(null), [records]); // clear selection on change
+    useEffect(() => {
+        setRecordsGroup(newCaptureGroup);
+    }, [records]);
+
+    useEffect(() => {
+        if (newCaptureGroup) setRecordsGroup(newCaptureGroup);
+        setNewCaptureGroup(null);
+    }, [newCaptureGroup]);
 
     const dummyRef = useRef<HTMLDivElement>();
     const editorRef = useRef<HTMLDivElement>();
 
-    const createInsertRecordAction = useCallback((record: PlixTimeEffectRecordJsonData) => {
-        const index = records.findIndex(rec => rec[3] > record[3]);
-        if (index < 0) return PushValueAction(path, record);
-        return InsertIndexAction(path, index, record);
+    const createInsertRecordsAction = useCallback((insertRecords: PlixTimeEffectRecordJsonData[]) => {
+        const index = records.findIndex(rec => rec[3] > insertRecords[0][3]);
+        if (index < 0) return InsertValuesAction(path, records.length, insertRecords);
+        return InsertValuesAction(path, index, insertRecords);
     }, [records]);
 
     const onDragEnter = useCallback(() => {
@@ -76,26 +91,39 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
         event: DragEvent<HTMLDivElement>,
         cursorPosM: number,
         recordStartM: number,
-        record: PlixTimeEffectRecordJsonData,
+        movingRecords: PlixTimeEffectRecordJsonData[],
         recordDurationM: number,
         targetAsLink: boolean,
     ) => {
         let dropEffect: "move"|"copy"|"link" = dragRef.current.deleteAction && !event.ctrlKey ? "move" : "copy"
         if (targetAsLink) dropEffect = "link";
-        const [[startM, endM], canMove] = getMovingResult(record, cursorPosM, recordStartM, recordDurationM, !event.shiftKey, grid, records, durationM, dropEffect);
+
+        const [[startM, endM], canMove] = getMovingResult(movingRecords, cursorPosM, recordStartM, recordDurationM, !event.shiftKey, grid, records, durationM, dropEffect);
         const dummyStart = offset + startM * cycle / TIMELINE_LCM;
         const dummyDuration = (endM - startM) * cycle / TIMELINE_LCM;
-        setDummyPosition(dummyRef.current, duration, [dummyStart, dummyDuration], canMove, record[0], record[1]);
+        const dummyEnabled = movingRecords.length === 1 ? movingRecords[0][0] : true;
+        const dummyName = movingRecords.length === 1 ? movingRecords[0][1] : null;
+        setDummyPosition(dummyRef.current, duration, [dummyStart, dummyDuration], canMove, dummyEnabled, dummyName);
         if (!canMove) return;
         return allowEventWithDropEffect(event, dropEffect, (event) => {
             event.dataTransfer.dropEffect = dropEffect;
-            const newRecordValue: PlixTimeEffectRecordJsonData = [record[0], record[1], startM, endM];
-            const insertAction = createInsertRecordAction(newRecordValue);
+            const movingStartM = movingRecords[0][2];
+            const movingEndM = movingRecords[movingRecords.length - 1][3];
+            const scalingSizeM = movingEndM - movingStartM;
+            const sizeM = endM - startM;
+            const scalingGain = sizeM / scalingSizeM;
+            const newRecords: PlixTimeEffectRecordJsonData[] = movingRecords.map(record => {
+                const recStartM = startM + (record[2]-movingStartM) * scalingGain;
+                const recEndM = startM + (record[3]-movingStartM) * scalingGain;
+                return [record[0], record[1], recStartM|0, recEndM|0];
+            });
+            const insertAction = createInsertRecordsAction(newRecords);
             if (dropEffect === "move" && dragRef.current.deleteAction) {
                 dispatch(MultiAction([insertAction, dragRef.current.deleteAction]))
             } else { // action === "copy" || action === "link"
                 dispatch(insertAction);
             }
+            if (newRecords.length > 1) setNewCaptureGroup(newRecords);
         });
     }, [dragRef, cycle, grid, offset, records, durationM]);
 
@@ -112,35 +140,42 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
         return allowEventWithDropEffect(event, "link", (event) => {
             const selectedRecords = [];
             for (let i=indexFrom; i<=indexTo; i++) selectedRecords.push(records[i]);
-            setRecordsGroup({
-                position: [startM, endM],
-                records: selectedRecords,
-                bpm: bpm,
-                offset: offset,
-            });
+            setRecordsGroup(selectedRecords);
         });
     }, [dragRef, cycle, grid, offset, records, durationM]);
 
-
-
     const onRecordScale = useCallback((
         event: DragEvent<HTMLDivElement>,
-        {record, side}: DragTypes['recordScale'],
+        {records: scalingRecords, side}: DragTypes['recordsScale'],
         cursorPosM: number,
     ) => {
-        if (!records.includes(record)) return;
-
-        const [[startM, endM], canMove] = getScalingResult(record, records, side, cursorPosM, durationM, !event.shiftKey, grid);
+        if (!scalingRecords.every(record => records.includes(record))) return;
+        const [[startM, endM], canMove] = getScalingResult(scalingRecords, records, side, cursorPosM, durationM, !event.shiftKey, grid);
         const dummyStart = offset + startM * cycle / TIMELINE_LCM;
         const dummyDuration = (endM - startM) * cycle / TIMELINE_LCM;
-        setDummyPosition(dummyRef.current, duration, [dummyStart, dummyDuration], canMove, record[0], record[1]);
+        const dummyEnabled = scalingRecords.length === 1 ? scalingRecords[0][0] : true;
+        const dummyName = scalingRecords.length === 1 ? scalingRecords[0][1] : null;
+        setDummyPosition(dummyRef.current, duration, [dummyStart, dummyDuration], canMove, dummyEnabled, dummyName);
         if (!canMove) return;
         return allowEventWithDropEffect(event, "move", (event) => {
             event.dataTransfer.dropEffect = "move";
-            const newRecordValue: PlixTimeEffectRecordJsonData = [record[0], record[1], startM, endM];
-            const index = records.indexOf(record);
-            const editAction = EditValueAction([...path, index], newRecordValue);
-            dispatch(editAction);
+            const scalingStartM = scalingRecords[0][2];
+            const scalingEndM = scalingRecords[scalingRecords.length - 1][3];
+            const scalingSizeM = scalingEndM - scalingStartM;
+            const sizeM = endM - startM;
+            const scalingGain = sizeM / scalingSizeM;
+            const newRecords: PlixTimeEffectRecordJsonData[] = scalingRecords.map(record => {
+                const recStartM = startM + (record[2]-scalingStartM) * scalingGain;
+                const recEndM = startM + (record[3]-scalingStartM) * scalingGain;
+                return [record[0], record[1], recStartM|0, recEndM|0];
+            });
+            const editActions = newRecords.map((newRecord, i) => {
+                const record = scalingRecords[i];
+                const key = getArrayKey(records, records.indexOf(record))
+                return EditValueAction([...path, {key}], newRecord);
+            });
+            dispatch(editActions.length === 1 ? editActions[0] : MultiAction(editActions));
+            if (newRecords.length > 1) setNewCaptureGroup(newRecords);
         });
     }, [dragRef, cycle, grid, offset, records, durationM]);
 
@@ -174,29 +209,29 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
         dragRef.current.dropEffect = event.dataTransfer.dropEffect = "none";
         const editorRect = editorRef.current.getBoundingClientRect();
 
-        let record: PlixTimeEffectRecordJsonData;
+        let dragRecords: PlixTimeEffectRecordJsonData[];
         let recordStartM: number;
         let recordBpm: number;
         let targetAsLink: boolean;
         const cursorPosTime = (event.clientX - editorRect.left) / zoom;
         const cursorPosM = (cursorPosTime - offset) / cycle * TIMELINE_LCM;
-        const recordMove = dragRef.current.recordMove;
+        const recordsMove = dragRef.current.recordsMove;
         const effectLink = dragRef.current.effectLink;
         const effect = dragRef.current.effect;
-        if (recordMove) {
-            record = recordMove.record;
+        if (recordsMove) {
+            dragRecords = recordsMove.records;
             const eventPosTime = (event.clientX - editorRect.left - dragRef.current.offsetX) / zoom;
             recordStartM = (eventPosTime - offset) / cycle * TIMELINE_LCM;
-            recordBpm = recordMove.bpm;
+            recordBpm = recordsMove.bpm;
             targetAsLink = false;
         } else if (effectLink || effect) {
             const recordDuration = TIMELINE_LCM; // todo: calculate best record duration
             if (effectLink) {
-                record = [true, effectLink[2], 0, recordDuration];
+                dragRecords = [[true, effectLink[2], 0, recordDuration]];
                 targetAsLink = true;
             } else {
                 if (effect && effect[1] === null && (effect[3] ?? []).length === 0) {
-                    record = [true, String(effect[2]), 0, recordDuration];
+                    dragRecords = [[true, String(effect[2]), 0, recordDuration]];
                 }
             }
             const shiftTime = cycle * recordDuration / TIMELINE_LCM / 2; // drag center of element
@@ -205,32 +240,35 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
             recordBpm = bpm;
         }
 
-        if (record) {
+        if (dragRecords) {
             // check collision with mouse position
-            const [collisionIndex, collisionRecord] = getCollisionRecord(record, records, cursorPosM);
+            const [collisionIndex, collisionRecord] = getCollisionRecord(dragRecords, records, cursorPosM);
 
-            if (event.altKey) { // multi-select
-                const selfIndex = records.indexOf(record);
+            const firstDragRecord = dragRecords[0];
+            if (event.altKey && dragRecords.length === 1) { // multi-select
+                const selfIndex = records.indexOf(firstDragRecord);
                 if (selfIndex === -1 || collisionIndex === -1) return clearDummy(dummyRef.current);
                 return onMultiSelect(event, Math.min(selfIndex, collisionIndex), Math.max(selfIndex, collisionIndex));
             }
 
             if (collisionRecord) {
-                const recordsIsSame = collisionRecord[0] === record[0] && collisionRecord[1] === record[1]
-                if (!recordsIsSame) return onRecordReplace(event, record, collisionIndex, collisionRecord, targetAsLink);
+                if (dragRecords.length > 1) return;
+                const recordsIsSame = collisionRecord[0] === firstDragRecord[0] && collisionRecord[1] === firstDragRecord[1]
+                if (!recordsIsSame) return onRecordReplace(event, firstDragRecord, collisionIndex, collisionRecord, targetAsLink);
             }
 
             // move record to new position
-            const [,,startM, endM] = record;
+            const startM = dragRecords[0][2]
+            const endM = dragRecords[dragRecords.length-1][3]
             const recordDurationM = (endM - startM) * (bpm / recordBpm);
-            return onRecordMove(event, cursorPosM, recordStartM, record, recordDurationM, targetAsLink);
+            return onRecordMove(event, cursorPosM, recordStartM, dragRecords, recordDurationM, targetAsLink);
         }
-        const recordScale = dragRef.current.recordScale;
-        if (recordScale) {
-            return onRecordScale(event, recordScale, cursorPosM);
+        const recordsScale = dragRef.current.recordsScale;
+        if (recordsScale) {
+            return onRecordScale(event, recordsScale, cursorPosM);
         }
 
-    }, [zoom, duration, cycle, grid, offset, records, createInsertRecordAction, onRecordMove, onRecordScale, onRecordReplace]);
+    }, [zoom, duration, cycle, grid, offset, records, createInsertRecordsAction, onRecordMove, onRecordScale, onRecordReplace]);
 
     const onDrop = useCallback((event: DragEvent<HTMLDivElement>) => {
         dragCount.current = 0;
@@ -248,7 +286,7 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
         >
             <div ref={editorRef} className="timeline-editor" style={{width: trackWidth}}>
 
-                <TimelineEditorRecordGroup recordsGroup={recordsGroup} records={records} path={path} offset={offset} bpm={bpm} grid={grid} setRecordsGroup={setRecordsGroup}>
+                <TimelineEditorRecordGroup recordsGroup={recordsGroup} records={records} path={path} offset={offset} bpm={bpm} grid={grid} repeatStart={repeatStart} repeatEnd={repeatEnd} setRecordsGroup={setRecordsGroup}>
                     <div className="timeline-editor-dummy" ref={dummyRef}>
                         <div className="timeline-record-name --dummy-record"/>
                     </div>
@@ -256,7 +294,7 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
                         <TimelineEditorGrid offset={offset} grid={grid ?? 1} bpm={bpm} repeatStart={repeatStart}  repeatEnd={repeatEnd} />
                     </div>
                     <div className="timeline-editor-records">
-                        <Records records={records} path={path} bpm={bpm} offset={offset}/>
+                        <Records records={records} path={path} bpm={bpm} offset={offset} capturedRecords={recordsGroup}/>
                     </div>
                 </TimelineEditorRecordGroup>
             </div>
@@ -265,7 +303,7 @@ export const TimelineEditor: FC<TimelineEditorProps> = ({records, bpm, grid, off
 }
 
 function getScalingResult(
-    record: PlixTimeEffectRecordJsonData,
+    scalingRecords: PlixTimeEffectRecordJsonData[],
     records: PlixTimeEffectRecordJsonData[],
     side: "left"|"right",
     cursorPosM: number,
@@ -274,24 +312,26 @@ function getScalingResult(
     grid: number|null,
 ): [position: [startBeat: number, endBeat: number], available: boolean]{
     cursorPosM = Math.round(cursorPosM);
-    const moveFromM = (side === "left") ? record[2] : record[3]
-    const freeSpaceM = getFreeSpace(record, records, moveFromM, maxDurationM, "move");
-    if (side === "right") freeSpaceM[0] = record[2];
-    else freeSpaceM[1] = record[3];
+    const scalingStartM = scalingRecords[0][2];
+    const scalingEndM = scalingRecords[scalingRecords.length-1][3];
+    const moveFromM = (side === "left") ? scalingStartM : scalingEndM
+    const freeSpaceM = getFreeSpace(scalingRecords, records, moveFromM, maxDurationM, "move");
+    if (side === "right") freeSpaceM[0] = scalingStartM;
+    else freeSpaceM[1] = scalingEndM;
 
     let targetPosM = cursorPosM;
     if (bindToGrid) targetPosM = getGridPosition(cursorPosM, grid, freeSpaceM);
 
-    const newRecordPosM: PositionM = [record[2], record[3]];
+    const newRecordPosM: PositionM = [scalingStartM, scalingEndM];
     if (side === "right") newRecordPosM[1] = Math.min(targetPosM, freeSpaceM[1]);
     if (side === "left") newRecordPosM[0] = Math.max(targetPosM, freeSpaceM[0]);
 
-    const canMove = canMoveRecord(record, records, newRecordPosM[0], newRecordPosM[1], "move")
+    const canMove = canMoveRecord(scalingRecords, records, newRecordPosM[0], newRecordPosM[1], "move")
     return [newRecordPosM, canMove];
 }
 
 function getMovingResult(
-    record: PlixTimeEffectRecordJsonData,
+    movingRecords: PlixTimeEffectRecordJsonData[],
     cursorPosM: number,
     recordStartM: number,
     recordDurationM: number,
@@ -303,7 +343,7 @@ function getMovingResult(
 ): [position: PositionM, available: boolean]{
     recordStartM = Math.round(recordStartM);
     recordDurationM = Math.round(recordDurationM);
-    const freeSpaceM = getFreeSpace(record, records, cursorPosM, maxDurationM, dropEffect);
+    const freeSpaceM = getFreeSpace(movingRecords, records, cursorPosM, maxDurationM, dropEffect);
     const freeSpaceDurationM = freeSpaceM[1] - freeSpaceM[0];
 
     // shrink mode
@@ -317,14 +357,14 @@ function getMovingResult(
         limitedPositionM = [freeSpaceM[1] - recordDurationM, freeSpaceM[1]];
     }
     if (limitedPositionM) {
-        const canMove = canMoveRecord(record, records, limitedPositionM[0], limitedPositionM[1], dropEffect);
+        const canMove = canMoveRecord(movingRecords, records, limitedPositionM[0], limitedPositionM[1], dropEffect);
         return [limitedPositionM, canMove];
     }
 
     // free move mode
     if (!bindToGrid) {
         const recordEndM = recordStartM + recordDurationM;
-        const canMove = canMoveRecord(record, records, recordStartM, recordEndM, dropEffect);
+        const canMove = canMoveRecord(movingRecords, records, recordStartM, recordEndM, dropEffect);
         return [[recordStartM, recordEndM], canMove];
     }
     // snap to grid
@@ -342,7 +382,7 @@ function getMovingResult(
     if (gridPositionM[0] <= freeSpaceM[0]) gridPositionM = [freeSpaceM[0], freeSpaceM[0]+recordDurationM];
     else if (gridPositionM[1] >= freeSpaceM[1]) gridPositionM = [freeSpaceM[1] - recordDurationM, freeSpaceM[1]];
 
-    const canMove = canMoveRecord(record, records, gridPositionM[0], gridPositionM[1], dropEffect);
+    const canMove = canMoveRecord(movingRecords, records, gridPositionM[0], gridPositionM[1], dropEffect);
     return [gridPositionM, canMove];
 }
 
@@ -382,7 +422,7 @@ function setDummyPosition(
     dummyRecord.style.display = available ? "" : "none";
     if (available) {
         dummyRecord.textContent = name;
-        const bgColor = generateColorByText(name, enabled ? 1 : 0.2, 0.3, enabled ? 1 : 0.5);
+        const bgColor = name == null ? "" : generateColorByText(name, enabled ? 1 : 0.2, 0.3, enabled ? 1 : 0.5);
         dummyRecord.classList.toggle("_disabled", !enabled);
         dummyRecord.style.backgroundColor = bgColor;
     }
@@ -390,14 +430,14 @@ function setDummyPosition(
 }
 
 function canMoveRecord(
-    record: PlixTimeEffectRecordJsonData,
+    ignoreRecords: PlixTimeEffectRecordJsonData[],
     records: PlixTimeEffectRecordJsonData[],
     startM: number,
     endM: number,
     effect: "move"|"copy"|"link"|"none",
 ) {
     for (const rec of records) {
-        if (effect === "move" && rec === record) continue;
+        if (effect === "move" && ignoreRecords.includes(rec)) continue;
         const [,,recStartM, recEndM] = rec;
         if (endM <= recStartM) continue;
         if (startM >= recEndM) continue;
@@ -407,13 +447,13 @@ function canMoveRecord(
 }
 
 function getCollisionRecord(
-    record: PlixTimeEffectRecordJsonData,
+    ignoreRecords: PlixTimeEffectRecordJsonData[],
     records: PlixTimeEffectRecordJsonData[],
     timeM: number,
 ): [number, PlixTimeEffectRecordJsonData|null] {
     for (let i = 0; i < records.length; i++){
         let rec = records[i];
-        if (rec === record) continue;
+        if (ignoreRecords.includes(rec)) continue;
         const [,,recStartM, recEndM] = rec;
         if (timeM >= recEndM) continue;
         if (timeM <= recStartM) return [-1, null];
@@ -423,7 +463,7 @@ function getCollisionRecord(
 }
 
 function getFreeSpace(
-    record: PlixTimeEffectRecordJsonData,
+    ignoreRecords: PlixTimeEffectRecordJsonData[],
     records: PlixTimeEffectRecordJsonData[],
     timeM: number,
     maxDurationM: number,
@@ -433,7 +473,7 @@ function getFreeSpace(
     let rightEl: PlixTimeEffectRecordJsonData;
     for (let i = 0; i < records.length; i++){
         let rec = records[i];
-        if (effect === "move" && rec === record) continue;
+        if (effect === "move" && ignoreRecords.includes(rec)) continue;
         const [,,recStartM, recEndM] = rec;
         if (recStartM >= timeM) {
             rightEl = rec;

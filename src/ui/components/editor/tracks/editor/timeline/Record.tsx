@@ -15,9 +15,10 @@ export interface RecordProps {
     record: PlixTimeEffectRecordJsonData,
     path: EditorPath,
     bpm: number,
-    offset: number
+    offset: number,
+    captured: boolean,
 }
-export const Record: FC<RecordProps> = memo(({path, bpm, offset, record, record: [enabled, link, startM, endM]}) => {
+export const Record: FC<RecordProps> = memo(({path, bpm, offset, record, record: [enabled, link, startM, endM], captured}) => {
     const {duration} = useContext(ScaleDisplayContext) ?? {duration: 1};
     const dragRef = useContext(DragContext);
     const {dispatch} = useContext(TrackContext) || {};
@@ -38,8 +39,8 @@ export const Record: FC<RecordProps> = memo(({path, bpm, offset, record, record:
             effect: [true, null, link, []],
             typedValue: {type: "effect", value: [true, null, link, []]},
             effectLink: [true, null, link, []],
-            recordMove: {
-                record,
+            recordsMove: {
+                records: [record],
                 bpm,
                 offset
             },
@@ -74,7 +75,7 @@ export const Record: FC<RecordProps> = memo(({path, bpm, offset, record, record:
 
     const onDragStartLeft = useCallback((event: DragEvent<HTMLDivElement>) => {
         dragRef.current = {
-            recordScale: {record: record, side: "left"},
+            recordsScale: {records: [record], side: "left"},
             offsetX: event.nativeEvent.offsetX,
             offsetY: event.nativeEvent.offsetY,
         };
@@ -85,7 +86,7 @@ export const Record: FC<RecordProps> = memo(({path, bpm, offset, record, record:
 
     const onDragStartRight = useCallback((event: DragEvent<HTMLDivElement>) => {
         dragRef.current = {
-            recordScale: {record: record, side: "right"},
+            recordsScale: {records: [record], side: "right"},
             offsetX: event.nativeEvent.offsetX,
             offsetY: event.nativeEvent.offsetY,
         };
@@ -103,7 +104,7 @@ export const Record: FC<RecordProps> = memo(({path, bpm, offset, record, record:
         const durD = recordDuration / duration;
         return (
             <div
-                className={cn("timeline-record", {"_selected": selected})}
+                className={cn("timeline-record", {"_selected": selected, "_captured": captured})}
                 style={{
                     left: `${startD * 100}%`,
                     width: `${durD * 100}%`,
@@ -135,5 +136,5 @@ export const Record: FC<RecordProps> = memo(({path, bpm, offset, record, record:
             </div>
         );
 
-    }, [duration, start, link, recordDuration, enabled, onDragStartRight, onDragStartLeft, selected]);
+    }, [duration, start, link, recordDuration, enabled, onDragStartRight, onDragStartLeft, selected, captured]);
 });

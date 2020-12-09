@@ -16,9 +16,9 @@ export const Expander: FC<ExpanderProps> = ({show = true, expanded, changeExpand
     return (
         <span onDragEnter={changeExpanded} className={cn("track-expander", show && (expanded ? "_expanded" : "_collapsed") )} onClick={onClick}>
             {expanded ? (
-                <i className="far fa-minus-square"/>
+                <i className="fas fa-chevron-down"/>
             ) : (
-                <i className="far fa-plus-square"/>
+                <i className="fas fa-chevron-right"/>
             )}
         </span>
     );

@@ -8,18 +8,12 @@ export interface DragTypes {
     effectLink: PlixEffectAliasJsonData,
     filter: PlixFilterJsonData,
     filterLink: PlixFilterAliasJsonData,
-    recordScale: {
-        record: PlixTimeEffectRecordJsonData,
+    recordsScale: {
+        records: PlixTimeEffectRecordJsonData[],
         side: "left"|"right"
     },
     typedValue: { type: string, value: any }
-    recordMove: {
-        record: PlixTimeEffectRecordJsonData,
-        bpm: number,
-        offset: number
-    },
-    recordsGroup: {
-        position: [startM: number, endM: number],
+    recordsMove: {
         records: PlixTimeEffectRecordJsonData[],
         bpm: number,
         offset: number
