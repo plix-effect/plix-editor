@@ -86155,7 +86155,7 @@ const TimelineEditor = ({ records, bpm, grid, offset, repeatStart, repeatEnd, pa
             recordBpm = bpm;
         }
         if (dragRecords) {
-            const [collisionIndex, collisionRecord] = getCollisionRecord(dragRecords, records, cursorPosM);
+            const [collisionIndex, collisionRecord] = getCollisionRecord(event.ctrlKey ? [] : dragRecords, records, cursorPosM);
             const firstDragRecord = dragRecords[0];
             if (event.altKey && dragRecords.length === 1) {
                 const selfIndex = records.indexOf(firstDragRecord);
