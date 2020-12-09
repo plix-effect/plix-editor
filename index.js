@@ -86294,7 +86294,7 @@ function canMoveRecord(ignoreRecords, records, startM, endM, effect) {
             continue;
         return false;
     }
-    return true;
+    return startM < endM;
 }
 function getCollisionRecord(ignoreRecords, records, timeM) {
     for (let i = 0; i < records.length; i++) {
