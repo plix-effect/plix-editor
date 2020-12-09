@@ -19535,6 +19535,19 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/ui/components/editor/tracks/editor/preview-field/pen-settings/PenSettingsView.scss":
+/*!************************************************************************************************!*
+  !*** ./src/ui/components/editor/tracks/editor/preview-field/pen-settings/PenSettingsView.scss ***!
+  \************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./src/ui/components/editor/tracks/editor/timeline/Record.scss":
 /*!*********************************************************************!*
   !*** ./src/ui/components/editor/tracks/editor/timeline/Record.scss ***!
@@ -87082,12 +87095,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const InlineNumberEditor = ({ value, onChange, step = "any" }) => {
+const InlineNumberEditor = ({ value, onChange, step = "any", min }) => {
     const onChangeAsNumber = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
         const numberValue = value !== undefined ? Number(value) : undefined;
         return onChange(numberValue);
     }, [onChange]);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_InlineInputEditor__WEBPACK_IMPORTED_MODULE_2__.InlineInputEditor, { value: value, onChange: onChangeAsNumber, inputParams: { type: "number", step: step } }));
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_InlineInputEditor__WEBPACK_IMPORTED_MODULE_2__.InlineInputEditor, { value: value, onChange: onChangeAsNumber, inputParams: { type: "number", step: step, min: min } }));
 };
 
 
@@ -87116,6 +87129,7 @@ const colourStyles = {
     option: (styles, { data, isDisabled, isFocused, isSelected }) => {
         return Object.assign(Object.assign({}, styles), { backgroundColor: isSelected ? "#4fba06" : "#FFFFFF", color: isSelected ? "#FFFFFF" : "#000", cursor: isDisabled ? 'not-allowed' : 'pointer' });
     },
+    menuPortal: base => (Object.assign(Object.assign({}, base), { zIndex: 1050 }))
 };
 const InlineSelectEditor = ({ value, onChange, options, emptyText = "Not selected", allowEmpty = true }) => {
     const formRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
@@ -87143,9 +87157,47 @@ const InlineSelectEditor = ({ value, onChange, options, emptyText = "Not selecte
         setEditMode(false);
     };
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", { ref: formRef, className: "inline-select-editor" }, editMode ?
-        (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_select__WEBPACK_IMPORTED_MODULE_3__.default, { defaultValue: value, options: options, className: "form-control", value: value, autosize: true, isClearable: allowEmpty, menuPlacement: "auto", autoFocus: true, onChange: onSetValue, menuPortalTarget: document.querySelector('body'), defaultMenuIsOpen: true, theme: (theme) => (Object.assign(Object.assign({}, theme), { colors: Object.assign(Object.assign({}, theme.colors), { text: 'orangered', primary25: 'hotpink', primary: 'black' }) })), styles: colourStyles }))
+        (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_select__WEBPACK_IMPORTED_MODULE_3__.default, { defaultValue: value, options: options, className: "form-control react-select", value: value, autosize: true, isClearable: allowEmpty, menuPlacement: "auto", autoFocus: true, onChange: onSetValue, menuPortalTarget: document.querySelector('body'), defaultMenuIsOpen: true, theme: (theme) => (Object.assign(Object.assign({}, theme), { colors: Object.assign(Object.assign({}, theme.colors), { text: 'orangered', primary25: 'hotpink', primary: 'black' }) })), styles: colourStyles }))
         :
             (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "inline-editor-span", title: "Click to edit", onClick: toggleEditMode }, (value && value.label) || emptyText))));
+};
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/tracks/editor/inline/InlineSimpleSelectEditor.tsx":
+/*!************************************************************************************!*
+  !*** ./src/ui/components/editor/tracks/editor/inline/InlineSimpleSelectEditor.tsx ***!
+  \************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "InlineSimpleSelectEditor": () => /* binding */ InlineSimpleSelectEditor
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _InlineSelectEditor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./InlineSelectEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineSelectEditor.tsx");
+
+
+const valueToOptionValue = (val, displayFn) => {
+    return {
+        type: "value",
+        value: val,
+        label: displayFn(val)
+    };
+};
+const InlineSimpleSelectEditor = ({ value, onChange, valueList, display = (v) => v.toString() }) => {
+    const handleChange = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((option) => {
+        onChange(option.value);
+    }, [onChange]);
+    const currentValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return valueToOptionValue(value, display);
+    }, [value, display]);
+    const nodes = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return valueList.map((v) => valueToOptionValue(v, display));
+    }, [valueList, display]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_InlineSelectEditor__WEBPACK_IMPORTED_MODULE_1__.InlineSelectEditor, { value: currentValue, options: nodes, onChange: handleChange, allowEmpty: false }));
 };
 
 
@@ -87165,10 +87217,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _preview_canvas_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../../preview/canvas/preview-field/PlixCanvasField */ "./src/ui/components/preview/canvas/preview-field/PlixCanvasField.ts");
 /* harmony import */ var _CanvasFieldEditor_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./CanvasFieldEditor.scss */ "./src/ui/components/editor/tracks/editor/preview-field/CanvasFieldEditor.scss");
-/* harmony import */ var react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react-bootstrap/cjs/Form */ "./node_modules/react-bootstrap/cjs/Form.js");
-/* harmony import */ var react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react-bootstrap/cjs/Form */ "./node_modules/react-bootstrap/cjs/Form.js");
+/* harmony import */ var react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_6__);
 /* harmony import */ var _control_checkbox_Checkbox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../control/checkbox/Checkbox */ "./src/ui/components/control/checkbox/Checkbox.tsx");
 /* harmony import */ var _FieldElementEditor__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./FieldElementEditor */ "./src/ui/components/editor/tracks/editor/preview-field/FieldElementEditor.ts");
+/* harmony import */ var _pen_settings_PenSettingsView__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./pen-settings/PenSettingsView */ "./src/ui/components/editor/tracks/editor/preview-field/pen-settings/PenSettingsView.tsx");
+
 
 
 
@@ -87178,6 +87232,7 @@ __webpack_require__.r(__webpack_exports__);
 const CanvasFieldEditor = ({ value, onChange }) => {
     const [canvas, setCanvas] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
     const [drawModeEnabled, setDrawModeEnabled] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
+    const [drawingElement, setDrawingElement] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
     const [field, elementEditor] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         if (!canvas)
             return [null, null];
@@ -87206,8 +87261,8 @@ const CanvasFieldEditor = ({ value, onChange }) => {
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         if (!elementEditor)
             return;
-        elementEditor.setDrawingElement(drawModeEnabled ? { type: "pixel", props: { shape: "circle", size: 15 } } : null);
-    }, [elementEditor, drawModeEnabled]);
+        elementEditor.setDrawingElement(drawModeEnabled ? drawingElement : null);
+    }, [elementEditor, drawingElement, drawModeEnabled]);
     const onChangeWidth = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((e) => {
         const clone = Object.assign(Object.assign({}, value), { width: Number(e.target.value) });
         onChange(clone);
@@ -87216,15 +87271,18 @@ const CanvasFieldEditor = ({ value, onChange }) => {
         const clone = Object.assign(Object.assign({}, value), { height: Number(e.target.value) });
         onChange(clone);
     }, [value]);
-    const onChangeDrawMode = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((e) => {
-        setDrawModeEnabled(e.currentTarget.checked);
-    }, [setDrawModeEnabled]);
+    const onClickRemoveLastElement = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        const elements = [...value.elements];
+        elements.splice(elements.length - 1, 1);
+        const clone = Object.assign(Object.assign({}, value), { elements: elements });
+        onChange(clone);
+    }, [value]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "canvas-field-editor" },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-cvs-container" },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas })),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-controls" },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-controls-group" },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null, "Size:"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null, "Canvas size"),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-option" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "cfe-option-name" }, "Width: "),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { value: value.width, type: "number", step: "any", className: "form-control cfe-option-value", onChange: onChangeWidth })),
@@ -87232,9 +87290,14 @@ const CanvasFieldEditor = ({ value, onChange }) => {
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "cfe-option-name" }, "Height: "),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { value: value.height, type: "number", step: "any", className: "form-control cfe-option-value", onChange: onChangeHeight }))),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-controls-group" },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null, "Elements:"),
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement((react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_5___default()), null,
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_control_checkbox_Checkbox__WEBPACK_IMPORTED_MODULE_3__.Checkbox, { onChange: setDrawModeEnabled, value: drawModeEnabled }, "Draw mode"))))));
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null, "Drawing"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement((react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_6___default()), null,
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_control_checkbox_Checkbox__WEBPACK_IMPORTED_MODULE_3__.Checkbox, { onChange: setDrawModeEnabled, value: drawModeEnabled }, "Drawing enabled")),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-danger", onClick: onClickRemoveLastElement }, "Remove last element"))),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-controls-group" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null, "Pen"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_pen_settings_PenSettingsView__WEBPACK_IMPORTED_MODULE_5__.PenSettingsView, { onChange: setDrawingElement })))));
 };
 
 
@@ -87390,13 +87453,125 @@ const PreviewFieldEditorModal = ({ isOpen, close, value }) => {
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         setFieldConfig(Object.assign({}, value));
     }, [value]);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_modal_BSModal__WEBPACK_IMPORTED_MODULE_1__.BSModal, { isOpen: isOpen, close: close, size: "xl" },
+    const onClose = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((v) => {
+        if (!v) {
+            setFieldConfig(Object.assign({}, value));
+            close(null);
+        }
+        else {
+            close(v);
+        }
+    }, [setFieldConfig, value, close]);
+    const buttonsView = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return (closeFn) => {
+            const saveClose = () => {
+                closeFn(fieldConfig);
+            };
+            const cancelClose = () => {
+                closeFn(undefined);
+            };
+            return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "btn-group" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-sm btn-success", onClick: saveClose }, "OK"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-sm btn-danger", onClick: cancelClose }, "Cancel")));
+        };
+    }, [fieldConfig]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_modal_BSModal__WEBPACK_IMPORTED_MODULE_1__.BSModal, { isOpen: isOpen, close: onClose, size: "xl" },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, "PreviewField configuration"),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_CanvasFieldEditor__WEBPACK_IMPORTED_MODULE_3__.CanvasFieldEditor, { value: fieldConfig, onChange: setFieldConfig })),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_modal_BSModalPart__WEBPACK_IMPORTED_MODULE_2__.BSModalPart, null, closeFn => (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "btn-group" },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-sm btn-success", onClick: closeFn }, "OK"),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-sm btn-danger", onClick: closeFn }, "Cancel"))))));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_modal_BSModalPart__WEBPACK_IMPORTED_MODULE_2__.BSModalPart, null, buttonsView)));
+};
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/tracks/editor/preview-field/pen-settings/PenSettingsPixel.tsx":
+/*!************************************************************************************************!*
+  !*** ./src/ui/components/editor/tracks/editor/preview-field/pen-settings/PenSettingsPixel.tsx ***!
+  \************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "PenSettingsPixel": () => /* binding */ PenSettingsPixel
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _inline_InlineSimpleSelectEditor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../inline/InlineSimpleSelectEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineSimpleSelectEditor.tsx");
+/* harmony import */ var _inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../inline/InlineNumberEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineNumberEditor.tsx");
+
+
+
+const PenSettingsPixel = ({ value, onChange }) => {
+    const onChangeShape = (shape) => {
+        const clone = Object.assign({}, value);
+        clone.shape = shape;
+        onChange(clone);
+    };
+    const onChangeSize = (size) => {
+        const clone = Object.assign({}, value);
+        clone.size = size;
+        onChange(clone);
+    };
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "pen-settings-option" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "pen-settings-option-name" }, "Shape:"),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "pen-settings-option-value" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_inline_InlineSimpleSelectEditor__WEBPACK_IMPORTED_MODULE_1__.InlineSimpleSelectEditor, { value: value.shape, valueList: ["circle", "square"], onChange: onChangeShape }))),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "pen-settings-option" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "pen-settings-option-name" }, "Size:"),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "pen-settings-option-value" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_2__.InlineNumberEditor, { min: 10, onChange: onChangeSize, value: value.size })))));
+};
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/tracks/editor/preview-field/pen-settings/PenSettingsView.tsx":
+/*!***********************************************************************************************!*
+  !*** ./src/ui/components/editor/tracks/editor/preview-field/pen-settings/PenSettingsView.tsx ***!
+  \***********************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "PenSettingsView": () => /* binding */ PenSettingsView
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _PenSettingsView_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PenSettingsView.scss */ "./src/ui/components/editor/tracks/editor/preview-field/pen-settings/PenSettingsView.scss");
+/* harmony import */ var _inline_InlineSimpleSelectEditor__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../inline/InlineSimpleSelectEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineSimpleSelectEditor.tsx");
+/* harmony import */ var _PenSettingsPixel__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./PenSettingsPixel */ "./src/ui/components/editor/tracks/editor/preview-field/pen-settings/PenSettingsPixel.tsx");
+
+
+
+
+const DEFAULT_PIXEL_PROPS = { size: 25, shape: "circle" };
+const PenSettingsView = ({ onChange }) => {
+    const [type, setType] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("pixel");
+    const [circleProps, setCircleProps] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(DEFAULT_PIXEL_PROPS);
+    const setCirclePropsAndNotify = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((props) => {
+        const drawingEl = { type: type, props: props };
+        setCircleProps(props);
+        onChange(drawingEl);
+    }, [onChange, setCircleProps, type]);
+    const optsView = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        if (type === "line") {
+            return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, "Coming soon: true"));
+        }
+        else {
+            return react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PenSettingsPixel__WEBPACK_IMPORTED_MODULE_3__.PenSettingsPixel, { value: circleProps, onChange: setCirclePropsAndNotify });
+        }
+    }, [type, circleProps, setCirclePropsAndNotify]);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        onChange({ type: "pixel", props: circleProps });
+    }, []);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "pen-settings" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "pen-settings-option" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "pen-settings-option-name" }, "Type:"),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "pen-settings-option-value" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_inline_InlineSimpleSelectEditor__WEBPACK_IMPORTED_MODULE_2__.InlineSimpleSelectEditor, { onChange: setType, value: type, valueList: ["pixel", "line"] }))),
+        optsView));
 };
 
 
@@ -87978,7 +88153,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const BSModal = ({ size = undefined, isOpen, instanceId, close: onClose, children, allowClose = true, centered = true }) => {
+const BSModal = ({ size = undefined, isOpen, instanceId, close, children, allowClose = true, centered = true }) => {
     const lastIsOpenRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(false);
     const instanceIdRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(instanceId || String(Math.random() * 1000000));
     const [title, body, actions] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
@@ -87987,29 +88162,29 @@ const BSModal = ({ size = undefined, isOpen, instanceId, close: onClose, childre
             throw new Error("At least 2 elements must be provided as child to BSModal");
         return [childs[0], childs[1], childs[2] || null];
     }, [children]);
-    const close = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
-        if (!_ModalManager__WEBPACK_IMPORTED_MODULE_3__.modalManager.isModalOpened(instanceIdRef.current))
-            return;
-        onClose(value);
-    }, [instanceIdRef.current, onClose]);
-    const closeByControls = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
+    const doClose = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
         if (!_ModalManager__WEBPACK_IMPORTED_MODULE_3__.modalManager.isModalOpened(instanceIdRef.current))
             return;
         close(value);
+    }, [instanceIdRef.current, close]);
+    const closeByControls = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
+        if (!_ModalManager__WEBPACK_IMPORTED_MODULE_3__.modalManager.isModalOpened(instanceIdRef.current))
+            return;
+        doClose(value);
         _ModalManager__WEBPACK_IMPORTED_MODULE_3__.modalManager.onClosedModalByButton(instanceIdRef.current);
-    }, [close]);
+    }, [doClose]);
     const closeByManager = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((reason) => {
         if (reason === _ModalManager__WEBPACK_IMPORTED_MODULE_3__.ModalManagerCloseReason.BACK_BUTTON) {
             if (allowClose) {
-                close(undefined);
+                doClose(undefined);
             }
             return allowClose;
         }
         else {
-            close(undefined);
+            doClose(undefined);
             return true;
         }
-    }, [close, allowClose]);
+    }, [doClose, allowClose]);
     const onClickClose = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
         if (!allowClose)
             return;
@@ -88018,8 +88193,8 @@ const BSModal = ({ size = undefined, isOpen, instanceId, close: onClose, childre
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         if (isOpen && !lastIsOpenRef.current) {
             _ModalManager__WEBPACK_IMPORTED_MODULE_3__.modalManager.onOpenModal({ id: instanceIdRef.current, close: closeByManager });
-            lastIsOpenRef.current = true;
         }
+        lastIsOpenRef.current = isOpen;
     }, [isOpen]);
     const contextValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         return {
@@ -88138,6 +88313,8 @@ window.addEventListener("popstate", onHistoryBack);
 const modalManager = {
     onOpenModal, onClosedModalByButton, onTransition, isModalOpened, closeTopModal
 };
+window['modalManager'] = modalManager;
+window['modalInfoList'] = modalInfoList;
 
 
 /***/ }),

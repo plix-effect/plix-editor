@@ -666,8 +666,10 @@ body .btn-primary:focus {
 .cfe-controls-group {
   display: flex;
   flex-direction: column; }
+  .cfe-controls-group > label {
+    font-weight: bold; }
   .cfe-controls-group:not(:first-child) {
-    margin-left: 20px; }
+    margin-left: 60px; }
 
 .cfe-option {
   display: flex;
@@ -692,6 +694,23 @@ body .btn-primary:focus {
   align-items: center; }
   .checkbox label {
     user-select: none; }
+
+.pen-settings {
+  display: flex;
+  flex-direction: column; }
+  .pen-settings .pen-settings-option {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: center;
+    height: 38px; }
+    .pen-settings .pen-settings-option .pen-settings-option-name {
+      display: inline-block;
+      width: 150px; }
+    .pen-settings .pen-settings-option .pen-settings-option-value {
+      display: inline-block;
+      margin-left: 10px;
+      width: calc(100% - 151px - 10px); }
 
 .split-lr {
   display: flex;
