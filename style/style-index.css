@@ -377,20 +377,25 @@ button.btn.track-header-icon-button {
 
 .timeline-editor-group-bg {
   position: absolute;
-  background-color: #cc8;
+  background-color: #444;
   height: 100%;
   border-radius: 4px; }
 
 .timeline-editor-group-fg {
   position: absolute;
   background-color: transparent;
-  border: 2px solid #440;
+  border: 2px solid #fff;
   border-radius: 4px;
   height: 100%;
   z-index: 4;
   cursor: grab; }
   .timeline-editor-group-fg:hover {
     background-color: rgba(255, 255, 255, 0.2); }
+  .timeline-editor-group-fg._drag {
+    background-color: transparent;
+    border: 2px dashed #fff; }
+    .timeline-editor-group-fg._drag._move {
+      background-color: #222; }
 
 .timeline-editor-grid-canvas {
   position: absolute;

@@ -86134,9 +86134,9 @@ const TimelineEditor = ({ records, bpm, grid, offset, repeatStart, repeatEnd, pa
     }, [dragCount, dummyRef, onDropActionRef]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-drag-content", onDragEnter: onDragEnter, onDragLeave: onDragLeave, onDragOver: onDragOver, onDrop: onDrop },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { ref: editorRef, className: "timeline-editor", style: { width: trackWidth } },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-dummy", ref: dummyRef },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-record-name --dummy-record" })),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TimelineEditorRecordGroup__WEBPACK_IMPORTED_MODULE_10__.TimelineEditorRecordGroup, { recordsGroup: recordsGroup, records: records, path: path, offset: offset, bpm: bpm, grid: grid, setRecordsGroup: setRecordsGroup },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-dummy", ref: dummyRef },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-record-name --dummy-record" })),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-grid" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_TimelineEditorGrid__WEBPACK_IMPORTED_MODULE_3__.TimelineEditorGrid, { offset: offset, grid: grid !== null && grid !== void 0 ? grid : 1, bpm: bpm, repeatStart: repeatStart, repeatEnd: repeatEnd })),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-records" },
