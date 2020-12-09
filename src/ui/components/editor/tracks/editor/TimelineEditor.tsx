@@ -443,7 +443,7 @@ function canMoveRecord(
         if (startM >= recEndM) continue;
         return false;
     }
-    return true;
+    return startM < endM;
 }
 
 function getCollisionRecord(
