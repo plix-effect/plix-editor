@@ -88609,7 +88609,7 @@ const CanvasDynPreview = ({ fieldConfig }) => {
     }, [playbackStatus, repeatEnabled, setPlaybackRate]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "canvas-preview-container" },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cvs-container" },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas })),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas, width: 1, height: 1 })),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "controls" },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "btn-group-toggle btn-group" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-md btn-primary", onClick: onClickPlayBtn, title: playbackStatus === "play" ? "Pause" : "Stop" }, playbackStatus === "play" ?
