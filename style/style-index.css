@@ -47,6 +47,10 @@ body .btn-primary:focus {
   user-select: none;
   /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */ }
 
+.input-file-label input[type=file] {
+  display: none;
+  pointer-events: auto; }
+
 .plix-editor {
   display: flex;
   height: 100vh; }
@@ -65,14 +69,14 @@ body .btn-primary:focus {
 .track-header-filename {
   white-space: pre; }
 
-button.btn.track-header-icon-button {
+.btn.track-header-icon-button {
   display: inline-flex;
   flex-direction: row;
   justify-content: center;
   align-items: center; }
-  button.btn.track-header-icon-button > i {
+  .btn.track-header-icon-button > i {
     font-size: 21px; }
-  button.btn.track-header-icon-button > .badge {
+  .btn.track-header-icon-button > .badge {
     margin-left: 5px; }
 
 .track-timeline-time-col {

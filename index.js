@@ -82165,6 +82165,10 @@ const PlixEditor = () => {
         }
         else {
             transaction.objectStore("audio").put(file, "audio");
+            const buffer = yield file.arrayBuffer();
+            const track = (0,_utils_Mp3Meta__WEBPACK_IMPORTED_MODULE_16__.readMp3Json)(buffer);
+            if (track)
+                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.OpenAction)(track));
         }
     }), [setAudioFile]);
     const onDragOver = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
@@ -82194,13 +82198,8 @@ const PlixEditor = () => {
         const items = Array.from(event.dataTransfer.items);
         let audioItem = items.find(item => item.kind === "file" && item.type === "audio/mpeg");
         if (audioItem) {
-            const audioFile = audioItem.getAsFile();
             event.preventDefault();
-            void storeAudioFile(audioFile);
-            const buffer = yield audioFile.arrayBuffer();
-            const track = (0,_utils_Mp3Meta__WEBPACK_IMPORTED_MODULE_16__.readMp3Json)(buffer);
-            if (track)
-                dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_10__.OpenAction)(track));
+            yield storeAudioFile(audioItem.getAsFile());
             return;
         }
         let jsonItem = items.find(item => item.kind === "file" && item.type === "application/json");
@@ -83323,6 +83322,20 @@ const TrackEditor = () => {
     const deleteFile = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
         setAudioFile(null);
     }, [setAudioFile]);
+    const onSelectFile = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log(event.target.files);
+        const files = Array.from(event.target.files);
+        let audioItem = files.find(item => item.type === "audio/mpeg");
+        let jsonItem = files.find(item => item.type === "application/json");
+        if (jsonItem) {
+            const text = yield jsonItem.text();
+            const track = JSON.parse(text);
+            dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.OpenAction)(track));
+        }
+        if (audioItem)
+            setAudioFile(audioItem);
+        event.target.value = "";
+    }), []);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_10__.ScaleDisplayContext.Provider, { value: scaleDisplayContextValue },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_divider_SplitTimeline__WEBPACK_IMPORTED_MODULE_6__.SplitTimeline, { minLeft: 100, minRight: 200, storageKey: "timeline", ref: setTimelineEl },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header track-header-tree" },
@@ -83332,10 +83345,14 @@ const TrackEditor = () => {
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: redo, disabled: redoCounts <= 0, title: "Redo" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-redo" }),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "badge badge-secondary" }, redoCounts)),
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: save, title: "Save" },
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-save" })),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", { className: "input-file-label" },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { type: "file", onChange: onSelectFile }),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "btn btn-primary btn-sm track-header-icon-button", title: "Open" },
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-folder-open" }))),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: deleteFile, title: "Delete audio" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "far fa-trash-alt" })),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-primary btn-sm track-header-icon-button", onClick: save, title: "Save" },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-save" })),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header-filename" }, audioFile !== null ? (audioFile.name) : ("no audio file"))),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "track-header track-header-timeline" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TrackScale__WEBPACK_IMPORTED_MODULE_8__.TrackScale, null)),
