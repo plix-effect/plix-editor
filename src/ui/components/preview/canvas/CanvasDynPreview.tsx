@@ -228,7 +228,7 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = ({fieldConfig}) => {
     return (
         <div className={"canvas-preview-container"}>
             <div className={"cvs-container"}>
-                <canvas ref={setCanvas}/>
+                <canvas ref={setCanvas} width={1} height={1}/>
             </div>
             <div className={"controls"}>
                 <div className={"btn-group-toggle btn-group"}>
