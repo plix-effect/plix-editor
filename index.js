@@ -83517,7 +83517,7 @@ const Expander = ({ show = true, expanded, changeExpanded }) => {
         event.stopPropagation();
         changeExpanded();
     }, [changeExpanded]);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { onDragEnter: changeExpanded, className: classnames__WEBPACK_IMPORTED_MODULE_1___default()("track-expander", show && (expanded ? "_expanded" : "_collapsed")), onClick: onClick }, expanded ? (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "far fa-minus-square" })) : (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "far fa-plus-square" }))));
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { onDragEnter: changeExpanded, className: classnames__WEBPACK_IMPORTED_MODULE_1___default()("track-expander", show && (expanded ? "_expanded" : "_collapsed")), onClick: onClick }, expanded ? (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-chevron-down" })) : (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-chevron-right" }))));
 };
 const useExpander = (baseExpanded = false, show = true) => {
     const [expanded, setExpanded] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(baseExpanded);
@@ -85958,7 +85958,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
 /* harmony import */ var _utils_generateColorByText__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../../../utils/generateColorByText */ "./src/ui/utils/generateColorByText.ts");
 /* harmony import */ var _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @plix-effect/core */ "./node_modules/@plix-effect/core/dist/parser/index.js");
-/* harmony import */ var _TimelineEditorRecordGroup__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./TimelineEditorRecordGroup */ "./src/ui/components/editor/tracks/editor/TimelineEditorRecordGroup.tsx");
+/* harmony import */ var _timeline_TimelineEditorRecordGroup__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./timeline/TimelineEditorRecordGroup */ "./src/ui/components/editor/tracks/editor/timeline/TimelineEditorRecordGroup.tsx");
+/* harmony import */ var _utils_KeyManager__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../../../utils/KeyManager */ "./src/ui/utils/KeyManager.ts");
+
 
 
 
@@ -85979,15 +85981,22 @@ const TimelineEditor = ({ records, bpm, grid, offset, repeatStart, repeatEnd, pa
     const cycle = 60000 / bpm;
     const durationM = (repeatEnd ? repeatEnd : (duration - offset) / cycle) * _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM;
     const [recordsGroup, setRecordsGroup] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
-    const clearRecordsGroup = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => void setRecordsGroup(null), [setRecordsGroup]);
-    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => setRecordsGroup(null), [records]);
+    const [newCaptureGroup, setNewCaptureGroup] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        setRecordsGroup(newCaptureGroup);
+    }, [records]);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        if (newCaptureGroup)
+            setRecordsGroup(newCaptureGroup);
+        setNewCaptureGroup(null);
+    }, [newCaptureGroup]);
     const dummyRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const editorRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
-    const createInsertRecordAction = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((record) => {
-        const index = records.findIndex(rec => rec[3] > record[3]);
+    const createInsertRecordsAction = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((insertRecords) => {
+        const index = records.findIndex(rec => rec[3] > insertRecords[0][3]);
         if (index < 0)
-            return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.PushValueAction)(path, record);
-        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.InsertIndexAction)(path, index, record);
+            return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.InsertValuesAction)(path, records.length, insertRecords);
+        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.InsertValuesAction)(path, index, insertRecords);
     }, [records]);
     const onDragEnter = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
         dragCount.current++;
@@ -86007,26 +86016,39 @@ const TimelineEditor = ({ records, bpm, grid, offset, repeatStart, repeatEnd, pa
         onDropActionRef.current = handler;
         event.preventDefault();
     }, []);
-    const onRecordMove = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, cursorPosM, recordStartM, record, recordDurationM, targetAsLink) => {
+    const onRecordMove = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, cursorPosM, recordStartM, movingRecords, recordDurationM, targetAsLink) => {
         let dropEffect = dragRef.current.deleteAction && !event.ctrlKey ? "move" : "copy";
         if (targetAsLink)
             dropEffect = "link";
-        const [[startM, endM], canMove] = getMovingResult(record, cursorPosM, recordStartM, recordDurationM, !event.shiftKey, grid, records, durationM, dropEffect);
+        const [[startM, endM], canMove] = getMovingResult(movingRecords, cursorPosM, recordStartM, recordDurationM, !event.shiftKey, grid, records, durationM, dropEffect);
         const dummyStart = offset + startM * cycle / _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM;
         const dummyDuration = (endM - startM) * cycle / _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM;
-        setDummyPosition(dummyRef.current, duration, [dummyStart, dummyDuration], canMove, record[0], record[1]);
+        const dummyEnabled = movingRecords.length === 1 ? movingRecords[0][0] : true;
+        const dummyName = movingRecords.length === 1 ? movingRecords[0][1] : null;
+        setDummyPosition(dummyRef.current, duration, [dummyStart, dummyDuration], canMove, dummyEnabled, dummyName);
         if (!canMove)
             return;
         return allowEventWithDropEffect(event, dropEffect, (event) => {
             event.dataTransfer.dropEffect = dropEffect;
-            const newRecordValue = [record[0], record[1], startM, endM];
-            const insertAction = createInsertRecordAction(newRecordValue);
+            const movingStartM = movingRecords[0][2];
+            const movingEndM = movingRecords[movingRecords.length - 1][3];
+            const scalingSizeM = movingEndM - movingStartM;
+            const sizeM = endM - startM;
+            const scalingGain = sizeM / scalingSizeM;
+            const newRecords = movingRecords.map(record => {
+                const recStartM = startM + (record[2] - movingStartM) * scalingGain;
+                const recEndM = startM + (record[3] - movingStartM) * scalingGain;
+                return [record[0], record[1], recStartM | 0, recEndM | 0];
+            });
+            const insertAction = createInsertRecordsAction(newRecords);
             if (dropEffect === "move" && dragRef.current.deleteAction) {
                 dispatch((0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.MultiAction)([insertAction, dragRef.current.deleteAction]));
             }
             else {
                 dispatch(insertAction);
             }
+            if (newRecords.length > 1)
+                setNewCaptureGroup(newRecords);
         });
     }, [dragRef, cycle, grid, offset, records, durationM]);
     const onMultiSelect = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, indexFrom, indexTo) => {
@@ -86039,29 +86061,40 @@ const TimelineEditor = ({ records, bpm, grid, offset, repeatStart, repeatEnd, pa
             const selectedRecords = [];
             for (let i = indexFrom; i <= indexTo; i++)
                 selectedRecords.push(records[i]);
-            setRecordsGroup({
-                position: [startM, endM],
-                records: selectedRecords,
-                bpm: bpm,
-                offset: offset,
-            });
+            setRecordsGroup(selectedRecords);
         });
     }, [dragRef, cycle, grid, offset, records, durationM]);
-    const onRecordScale = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, { record, side }, cursorPosM) => {
-        if (!records.includes(record))
+    const onRecordScale = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, { records: scalingRecords, side }, cursorPosM) => {
+        if (!scalingRecords.every(record => records.includes(record)))
             return;
-        const [[startM, endM], canMove] = getScalingResult(record, records, side, cursorPosM, durationM, !event.shiftKey, grid);
+        const [[startM, endM], canMove] = getScalingResult(scalingRecords, records, side, cursorPosM, durationM, !event.shiftKey, grid);
         const dummyStart = offset + startM * cycle / _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM;
         const dummyDuration = (endM - startM) * cycle / _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM;
-        setDummyPosition(dummyRef.current, duration, [dummyStart, dummyDuration], canMove, record[0], record[1]);
+        const dummyEnabled = scalingRecords.length === 1 ? scalingRecords[0][0] : true;
+        const dummyName = scalingRecords.length === 1 ? scalingRecords[0][1] : null;
+        setDummyPosition(dummyRef.current, duration, [dummyStart, dummyDuration], canMove, dummyEnabled, dummyName);
         if (!canMove)
             return;
         return allowEventWithDropEffect(event, "move", (event) => {
             event.dataTransfer.dropEffect = "move";
-            const newRecordValue = [record[0], record[1], startM, endM];
-            const index = records.indexOf(record);
-            const editAction = (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.EditValueAction)([...path, index], newRecordValue);
-            dispatch(editAction);
+            const scalingStartM = scalingRecords[0][2];
+            const scalingEndM = scalingRecords[scalingRecords.length - 1][3];
+            const scalingSizeM = scalingEndM - scalingStartM;
+            const sizeM = endM - startM;
+            const scalingGain = sizeM / scalingSizeM;
+            const newRecords = scalingRecords.map(record => {
+                const recStartM = startM + (record[2] - scalingStartM) * scalingGain;
+                const recEndM = startM + (record[3] - scalingStartM) * scalingGain;
+                return [record[0], record[1], recStartM | 0, recEndM | 0];
+            });
+            const editActions = newRecords.map((newRecord, i) => {
+                const record = scalingRecords[i];
+                const key = (0,_utils_KeyManager__WEBPACK_IMPORTED_MODULE_11__.getArrayKey)(records, records.indexOf(record));
+                return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.EditValueAction)([...path, { key }], newRecord);
+            });
+            dispatch(editActions.length === 1 ? editActions[0] : (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_7__.MultiAction)(editActions));
+            if (newRecords.length > 1)
+                setNewCaptureGroup(newRecords);
         });
     }, [dragRef, cycle, grid, offset, records, durationM]);
     const onRecordReplace = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event, record, collisionIndex, collisionRecord, targetAsLink) => {
@@ -86089,31 +86122,31 @@ const TimelineEditor = ({ records, bpm, grid, offset, repeatStart, repeatEnd, pa
             return clearDummy(dummyRef.current);
         dragRef.current.dropEffect = event.dataTransfer.dropEffect = "none";
         const editorRect = editorRef.current.getBoundingClientRect();
-        let record;
+        let dragRecords;
         let recordStartM;
         let recordBpm;
         let targetAsLink;
         const cursorPosTime = (event.clientX - editorRect.left) / zoom;
         const cursorPosM = (cursorPosTime - offset) / cycle * _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM;
-        const recordMove = dragRef.current.recordMove;
+        const recordsMove = dragRef.current.recordsMove;
         const effectLink = dragRef.current.effectLink;
         const effect = dragRef.current.effect;
-        if (recordMove) {
-            record = recordMove.record;
+        if (recordsMove) {
+            dragRecords = recordsMove.records;
             const eventPosTime = (event.clientX - editorRect.left - dragRef.current.offsetX) / zoom;
             recordStartM = (eventPosTime - offset) / cycle * _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM;
-            recordBpm = recordMove.bpm;
+            recordBpm = recordsMove.bpm;
             targetAsLink = false;
         }
         else if (effectLink || effect) {
             const recordDuration = _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM;
             if (effectLink) {
-                record = [true, effectLink[2], 0, recordDuration];
+                dragRecords = [[true, effectLink[2], 0, recordDuration]];
                 targetAsLink = true;
             }
             else {
                 if (effect && effect[1] === null && ((_a = effect[3]) !== null && _a !== void 0 ? _a : []).length === 0) {
-                    record = [true, String(effect[2]), 0, recordDuration];
+                    dragRecords = [[true, String(effect[2]), 0, recordDuration]];
                 }
             }
             const shiftTime = cycle * recordDuration / _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM / 2;
@@ -86121,28 +86154,32 @@ const TimelineEditor = ({ records, bpm, grid, offset, repeatStart, repeatEnd, pa
             recordStartM = (eventPosTime - offset) / cycle * _plix_effect_core__WEBPACK_IMPORTED_MODULE_9__.TIMELINE_LCM;
             recordBpm = bpm;
         }
-        if (record) {
-            const [collisionIndex, collisionRecord] = getCollisionRecord(record, records, cursorPosM);
-            if (event.altKey) {
-                const selfIndex = records.indexOf(record);
+        if (dragRecords) {
+            const [collisionIndex, collisionRecord] = getCollisionRecord(dragRecords, records, cursorPosM);
+            const firstDragRecord = dragRecords[0];
+            if (event.altKey && dragRecords.length === 1) {
+                const selfIndex = records.indexOf(firstDragRecord);
                 if (selfIndex === -1 || collisionIndex === -1)
                     return clearDummy(dummyRef.current);
                 return onMultiSelect(event, Math.min(selfIndex, collisionIndex), Math.max(selfIndex, collisionIndex));
             }
             if (collisionRecord) {
-                const recordsIsSame = collisionRecord[0] === record[0] && collisionRecord[1] === record[1];
+                if (dragRecords.length > 1)
+                    return;
+                const recordsIsSame = collisionRecord[0] === firstDragRecord[0] && collisionRecord[1] === firstDragRecord[1];
                 if (!recordsIsSame)
-                    return onRecordReplace(event, record, collisionIndex, collisionRecord, targetAsLink);
+                    return onRecordReplace(event, firstDragRecord, collisionIndex, collisionRecord, targetAsLink);
             }
-            const [, , startM, endM] = record;
+            const startM = dragRecords[0][2];
+            const endM = dragRecords[dragRecords.length - 1][3];
             const recordDurationM = (endM - startM) * (bpm / recordBpm);
-            return onRecordMove(event, cursorPosM, recordStartM, record, recordDurationM, targetAsLink);
+            return onRecordMove(event, cursorPosM, recordStartM, dragRecords, recordDurationM, targetAsLink);
         }
-        const recordScale = dragRef.current.recordScale;
-        if (recordScale) {
-            return onRecordScale(event, recordScale, cursorPosM);
+        const recordsScale = dragRef.current.recordsScale;
+        if (recordsScale) {
+            return onRecordScale(event, recordsScale, cursorPosM);
         }
-    }, [zoom, duration, cycle, grid, offset, records, createInsertRecordAction, onRecordMove, onRecordScale, onRecordReplace]);
+    }, [zoom, duration, cycle, grid, offset, records, createInsertRecordsAction, onRecordMove, onRecordScale, onRecordReplace]);
     const onDrop = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         var _a;
         dragCount.current = 0;
@@ -86151,37 +86188,39 @@ const TimelineEditor = ({ records, bpm, grid, offset, repeatStart, repeatEnd, pa
     }, [dragCount, dummyRef, onDropActionRef]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-drag-content", onDragEnter: onDragEnter, onDragLeave: onDragLeave, onDragOver: onDragOver, onDrop: onDrop },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { ref: editorRef, className: "timeline-editor", style: { width: trackWidth } },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TimelineEditorRecordGroup__WEBPACK_IMPORTED_MODULE_10__.TimelineEditorRecordGroup, { recordsGroup: recordsGroup, records: records, path: path, offset: offset, bpm: bpm, grid: grid, setRecordsGroup: setRecordsGroup },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_TimelineEditorRecordGroup__WEBPACK_IMPORTED_MODULE_10__.TimelineEditorRecordGroup, { recordsGroup: recordsGroup, records: records, path: path, offset: offset, bpm: bpm, grid: grid, repeatStart: repeatStart, repeatEnd: repeatEnd, setRecordsGroup: setRecordsGroup },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-dummy", ref: dummyRef },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-record-name --dummy-record" })),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-grid" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_TimelineEditorGrid__WEBPACK_IMPORTED_MODULE_3__.TimelineEditorGrid, { offset: offset, grid: grid !== null && grid !== void 0 ? grid : 1, bpm: bpm, repeatStart: repeatStart, repeatEnd: repeatEnd })),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-records" },
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Records__WEBPACK_IMPORTED_MODULE_4__.Records, { records: records, path: path, bpm: bpm, offset: offset }))))));
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Records__WEBPACK_IMPORTED_MODULE_4__.Records, { records: records, path: path, bpm: bpm, offset: offset, capturedRecords: recordsGroup }))))));
 };
-function getScalingResult(record, records, side, cursorPosM, maxDurationM, bindToGrid, grid) {
+function getScalingResult(scalingRecords, records, side, cursorPosM, maxDurationM, bindToGrid, grid) {
     cursorPosM = Math.round(cursorPosM);
-    const moveFromM = (side === "left") ? record[2] : record[3];
-    const freeSpaceM = getFreeSpace(record, records, moveFromM, maxDurationM, "move");
+    const scalingStartM = scalingRecords[0][2];
+    const scalingEndM = scalingRecords[scalingRecords.length - 1][3];
+    const moveFromM = (side === "left") ? scalingStartM : scalingEndM;
+    const freeSpaceM = getFreeSpace(scalingRecords, records, moveFromM, maxDurationM, "move");
     if (side === "right")
-        freeSpaceM[0] = record[2];
+        freeSpaceM[0] = scalingStartM;
     else
-        freeSpaceM[1] = record[3];
+        freeSpaceM[1] = scalingEndM;
     let targetPosM = cursorPosM;
     if (bindToGrid)
         targetPosM = getGridPosition(cursorPosM, grid, freeSpaceM);
-    const newRecordPosM = [record[2], record[3]];
+    const newRecordPosM = [scalingStartM, scalingEndM];
     if (side === "right")
         newRecordPosM[1] = Math.min(targetPosM, freeSpaceM[1]);
     if (side === "left")
         newRecordPosM[0] = Math.max(targetPosM, freeSpaceM[0]);
-    const canMove = canMoveRecord(record, records, newRecordPosM[0], newRecordPosM[1], "move");
+    const canMove = canMoveRecord(scalingRecords, records, newRecordPosM[0], newRecordPosM[1], "move");
     return [newRecordPosM, canMove];
 }
-function getMovingResult(record, cursorPosM, recordStartM, recordDurationM, bindToGrid, grid, records, maxDurationM, dropEffect) {
+function getMovingResult(movingRecords, cursorPosM, recordStartM, recordDurationM, bindToGrid, grid, records, maxDurationM, dropEffect) {
     recordStartM = Math.round(recordStartM);
     recordDurationM = Math.round(recordDurationM);
-    const freeSpaceM = getFreeSpace(record, records, cursorPosM, maxDurationM, dropEffect);
+    const freeSpaceM = getFreeSpace(movingRecords, records, cursorPosM, maxDurationM, dropEffect);
     const freeSpaceDurationM = freeSpaceM[1] - freeSpaceM[0];
     if (freeSpaceDurationM <= recordDurationM)
         return [freeSpaceM, true];
@@ -86193,12 +86232,12 @@ function getMovingResult(record, cursorPosM, recordStartM, recordDurationM, bind
         limitedPositionM = [freeSpaceM[1] - recordDurationM, freeSpaceM[1]];
     }
     if (limitedPositionM) {
-        const canMove = canMoveRecord(record, records, limitedPositionM[0], limitedPositionM[1], dropEffect);
+        const canMove = canMoveRecord(movingRecords, records, limitedPositionM[0], limitedPositionM[1], dropEffect);
         return [limitedPositionM, canMove];
     }
     if (!bindToGrid) {
         const recordEndM = recordStartM + recordDurationM;
-        const canMove = canMoveRecord(record, records, recordStartM, recordEndM, dropEffect);
+        const canMove = canMoveRecord(movingRecords, records, recordStartM, recordEndM, dropEffect);
         return [[recordStartM, recordEndM], canMove];
     }
     const leftGridPosM = getGridPosition(recordStartM, grid, freeSpaceM);
@@ -86214,7 +86253,7 @@ function getMovingResult(record, cursorPosM, recordStartM, recordDurationM, bind
         gridPositionM = [freeSpaceM[0], freeSpaceM[0] + recordDurationM];
     else if (gridPositionM[1] >= freeSpaceM[1])
         gridPositionM = [freeSpaceM[1] - recordDurationM, freeSpaceM[1]];
-    const canMove = canMoveRecord(record, records, gridPositionM[0], gridPositionM[1], dropEffect);
+    const canMove = canMoveRecord(movingRecords, records, gridPositionM[0], gridPositionM[1], dropEffect);
     return [gridPositionM, canMove];
 }
 function getGridPosition(positionM, grid, freeSpace) {
@@ -86239,14 +86278,14 @@ function setDummyPosition(dummy, duration, [posStart, posDuration], available, e
     dummyRecord.style.display = available ? "" : "none";
     if (available) {
         dummyRecord.textContent = name;
-        const bgColor = (0,_utils_generateColorByText__WEBPACK_IMPORTED_MODULE_8__.generateColorByText)(name, enabled ? 1 : 0.2, 0.3, enabled ? 1 : 0.5);
+        const bgColor = name == null ? "" : (0,_utils_generateColorByText__WEBPACK_IMPORTED_MODULE_8__.generateColorByText)(name, enabled ? 1 : 0.2, 0.3, enabled ? 1 : 0.5);
         dummyRecord.classList.toggle("_disabled", !enabled);
         dummyRecord.style.backgroundColor = bgColor;
     }
 }
-function canMoveRecord(record, records, startM, endM, effect) {
+function canMoveRecord(ignoreRecords, records, startM, endM, effect) {
     for (const rec of records) {
-        if (effect === "move" && rec === record)
+        if (effect === "move" && ignoreRecords.includes(rec))
             continue;
         const [, , recStartM, recEndM] = rec;
         if (endM <= recStartM)
@@ -86257,10 +86296,10 @@ function canMoveRecord(record, records, startM, endM, effect) {
     }
     return true;
 }
-function getCollisionRecord(record, records, timeM) {
+function getCollisionRecord(ignoreRecords, records, timeM) {
     for (let i = 0; i < records.length; i++) {
         let rec = records[i];
-        if (rec === record)
+        if (ignoreRecords.includes(rec))
             continue;
         const [, , recStartM, recEndM] = rec;
         if (timeM >= recEndM)
@@ -86271,12 +86310,12 @@ function getCollisionRecord(record, records, timeM) {
     }
     return [-1, null];
 }
-function getFreeSpace(record, records, timeM, maxDurationM, effect) {
+function getFreeSpace(ignoreRecords, records, timeM, maxDurationM, effect) {
     let leftEl;
     let rightEl;
     for (let i = 0; i < records.length; i++) {
         let rec = records[i];
-        if (effect === "move" && rec === record)
+        if (effect === "move" && ignoreRecords.includes(rec))
             continue;
         const [, , recStartM, recEndM] = rec;
         if (recStartM >= timeM) {
@@ -86294,121 +86333,6 @@ function getFreeSpace(record, records, timeM, maxDurationM, effect) {
         return [0, rightEl[2]];
     return [0, maxDurationM];
 }
-
-
-/***/ }),
-
-/***/ "./src/ui/components/editor/tracks/editor/TimelineEditorRecordGroup.tsx":
-/*!******************************************************************************!*
-  !*** ./src/ui/components/editor/tracks/editor/TimelineEditorRecordGroup.tsx ***!
-  \******************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "TimelineEditorRecordGroup": () => /* binding */ TimelineEditorRecordGroup
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
-/* harmony import */ var _TimelineEditor_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TimelineEditor.scss */ "./src/ui/components/editor/tracks/editor/TimelineEditor.scss");
-/* harmony import */ var _DragContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../DragContext */ "./src/ui/components/editor/DragContext.ts");
-/* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
-/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
-/* harmony import */ var _plix_effect_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @plix-effect/core */ "./node_modules/@plix-effect/core/dist/parser/index.js");
-/* harmony import */ var _utils_KeyManager__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../../../utils/KeyManager */ "./src/ui/utils/KeyManager.ts");
-/* harmony import */ var _ConstructorContext__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../ConstructorContext */ "./src/ui/components/editor/ConstructorContext.ts");
-
-
-
-
-
-
-
-
-
-const TimelineEditorRecordGroup = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ recordsGroup, records, path, setRecordsGroup, children, offset, bpm, grid }) => {
-    const groupBgRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
-    const groupFgRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
-    const { duration } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_1__.ScaleDisplayContext);
-    const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_4__.TrackContext);
-    const { effectConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ConstructorContext__WEBPACK_IMPORTED_MODULE_8__.ConstructorContext);
-    const cycle = 60000 / bpm;
-    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
-        let startD = -1;
-        let durationD = 0;
-        if (recordsGroup) {
-            const [startM, endM] = recordsGroup.position;
-            startD = (offset + startM * cycle / _plix_effect_core__WEBPACK_IMPORTED_MODULE_6__.TIMELINE_LCM) / duration;
-            durationD = (endM - startM) * cycle / _plix_effect_core__WEBPACK_IMPORTED_MODULE_6__.TIMELINE_LCM / duration;
-        }
-        groupBgRef.current.style.left = `${startD * 100}%`;
-        groupBgRef.current.style.width = `${durationD * 100}%`;
-        groupFgRef.current.style.left = `${startD * 100}%`;
-        groupFgRef.current.style.width = `${durationD * 100}%`;
-    }, [recordsGroup, offset, cycle, duration]);
-    const deleteAction = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
-        if (!recordsGroup)
-            return null;
-        const deleteActions = recordsGroup.records.map(record => {
-            const key = (0,_utils_KeyManager__WEBPACK_IMPORTED_MODULE_7__.getArrayKey)(records, records.indexOf(record));
-            return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_5__.DeleteAction)([...path, { key }]);
-        });
-        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_5__.MultiAction)(deleteActions);
-    }, [recordsGroup, records, path]);
-    const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(({ ctrlKey, shiftKey, altKey }) => {
-        if (!ctrlKey && !shiftKey && !altKey)
-            return setRecordsGroup(null);
-        if (!ctrlKey && !shiftKey && altKey)
-            return deleteAction && dispatch(deleteAction);
-    }, [dispatch, deleteAction]);
-    const dragValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
-        if (!recordsGroup)
-            return null;
-        let effect;
-        const timelineConstructor = effectConstructorMap["Timeline"];
-        if (timelineConstructor) {
-            const meta = timelineConstructor['meta'];
-            const paramPreset = [recordsGroup.records, bpm, grid, offset];
-            const effectParams = meta.defaultValues.map((value, i) => {
-                if (i < paramPreset.length)
-                    return paramPreset[i];
-                return value;
-            });
-            effect = [true, "Timeline", effectParams, []];
-        }
-        return {
-            recordsGroup,
-            deleteAction,
-            effect: effect,
-        };
-    }, [recordsGroup, deleteAction]);
-    const dragRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_DragContext__WEBPACK_IMPORTED_MODULE_3__.DragContext);
-    const onDragStart = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
-        if (!dragValue)
-            return;
-        dragRef.current = Object.assign(Object.assign({}, dragValue), { offsetX: event.nativeEvent.offsetX, offsetY: event.nativeEvent.offsetY });
-        localStorage.setItem("plix_editor_drag", JSON.stringify(dragRef.current));
-        event.dataTransfer.setData("plix/localstorage", "");
-        groupFgRef.current.classList.add("_drag");
-        event.stopPropagation();
-        event.dataTransfer.setDragImage(new Image(), 0, 0);
-    }, [dragValue, groupFgRef]);
-    const onDrag = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
-        var _a;
-        const dropEffect = (_a = dragRef.current) === null || _a === void 0 ? void 0 : _a.dropEffect;
-        groupFgRef.current.classList.remove("_move", "_copy", "_link", "_none");
-        if (dropEffect)
-            groupFgRef.current.classList.add(`_${dropEffect}`);
-    }, [dragRef, groupFgRef]);
-    const onDragEnd = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
-        groupFgRef.current.classList.remove("_drag", "_move", "_copy", "_link", "_none");
-    }, [dragValue, groupFgRef]);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-group-bg", ref: groupBgRef }),
-        children,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-group-fg", draggable: true, onDragStart: onDragStart, onDrag: onDrag, onDragEnd: onDragEnd, ref: groupFgRef, onClick: onClick })));
-});
 
 
 /***/ }),
@@ -87510,7 +87434,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const Record = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ path, bpm, offset, record, record: [enabled, link, startM, endM] }) => {
+const Record = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ path, bpm, offset, record, record: [enabled, link, startM, endM], captured }) => {
     var _a;
     const { duration } = (_a = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_1__.ScaleDisplayContext)) !== null && _a !== void 0 ? _a : { duration: 1 };
     const dragRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_DragContext__WEBPACK_IMPORTED_MODULE_3__.DragContext);
@@ -87529,8 +87453,8 @@ const Record = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ path, bpm, offset,
             effect: [true, null, link, []],
             typedValue: { type: "effect", value: [true, null, link, []] },
             effectLink: [true, null, link, []],
-            recordMove: {
-                record,
+            recordsMove: {
+                records: [record],
                 bpm,
                 offset
             },
@@ -87566,7 +87490,7 @@ const Record = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ path, bpm, offset,
     }, [path, record, select, toggleSelect]);
     const onDragStartLeft = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         dragRef.current = {
-            recordScale: { record: record, side: "left" },
+            recordsScale: { records: [record], side: "left" },
             offsetX: event.nativeEvent.offsetX,
             offsetY: event.nativeEvent.offsetY,
         };
@@ -87576,7 +87500,7 @@ const Record = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ path, bpm, offset,
     }, [record]);
     const onDragStartRight = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         dragRef.current = {
-            recordScale: { record: record, side: "right" },
+            recordsScale: { records: [record], side: "right" },
             offsetX: event.nativeEvent.offsetX,
             offsetY: event.nativeEvent.offsetY,
         };
@@ -87590,14 +87514,14 @@ const Record = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ path, bpm, offset,
     return (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         const startD = start / duration;
         const durD = recordDuration / duration;
-        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: classnames__WEBPACK_IMPORTED_MODULE_7___default()("timeline-record", { "_selected": selected }), style: {
+        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: classnames__WEBPACK_IMPORTED_MODULE_7___default()("timeline-record", { "_selected": selected, "_captured": captured }), style: {
                 left: `${startD * 100}%`,
                 width: `${durD * 100}%`,
             }, ref: recordRef, onClick: onClick },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { onDragStart: onDragStartName, onDrag: onDragName, onDragEnd: onDragEndAll, className: classnames__WEBPACK_IMPORTED_MODULE_7___default()("timeline-record-name", { "_disabled": !enabled }), draggable: true, style: { backgroundColor: (0,_utils_generateColorByText__WEBPACK_IMPORTED_MODULE_5__.generateColorByText)(link, enabled ? 1 : 0.2, 0.3, enabled ? 1 : 0.5) } }, link),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-record-scaling _left", draggable: true, onDragStart: onDragStartLeft, onDragEnd: onDragEndAll }),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-record-scaling _right", draggable: true, onDragStart: onDragStartRight, onDragEnd: onDragEndAll })));
-    }, [duration, start, link, recordDuration, enabled, onDragStartRight, onDragStartLeft, selected]);
+    }, [duration, start, link, recordDuration, enabled, onDragStartRight, onDragStartLeft, selected, captured]);
 });
 
 
@@ -87622,14 +87546,15 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const Records = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ records, path, bpm, offset }) => {
+const Records = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ records, path, bpm, offset, capturedRecords }) => {
     return (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, records.map((record, i) => {
             const key = (0,_utils_KeyManager__WEBPACK_IMPORTED_MODULE_3__.getArrayKey)(records, i);
             const valPath = [...path, { key: String(key) }];
-            return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_Record__WEBPACK_IMPORTED_MODULE_2__.Record, { record: record, key: key, path: valPath, bpm: bpm, offset: offset }));
+            const captured = capturedRecords != null && capturedRecords.includes(record);
+            return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_Record__WEBPACK_IMPORTED_MODULE_2__.Record, { record: record, key: key, path: valPath, bpm: bpm, offset: offset, captured: captured }));
         })));
-    }, [records, path, bpm, offset]);
+    }, [records, path, bpm, offset, capturedRecords]);
 });
 
 
@@ -87770,6 +87695,153 @@ function hatchRect(ctx, x1, y1, dx, dy, delta, color) {
     }
     ctx.restore();
 }
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/tracks/editor/timeline/TimelineEditorRecordGroup.tsx":
+/*!***************************************************************************************!*
+  !*** ./src/ui/components/editor/tracks/editor/timeline/TimelineEditorRecordGroup.tsx ***!
+  \***************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "TimelineEditorRecordGroup": () => /* binding */ TimelineEditorRecordGroup
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../ScaleDisplayContext */ "./src/ui/components/editor/ScaleDisplayContext.ts");
+/* harmony import */ var _TimelineEditor_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../TimelineEditor.scss */ "./src/ui/components/editor/tracks/editor/TimelineEditor.scss");
+/* harmony import */ var _DragContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../DragContext */ "./src/ui/components/editor/DragContext.ts");
+/* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+/* harmony import */ var _plix_effect_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @plix-effect/core */ "./node_modules/@plix-effect/core/dist/parser/index.js");
+/* harmony import */ var _utils_KeyManager__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../../../../utils/KeyManager */ "./src/ui/utils/KeyManager.ts");
+/* harmony import */ var _ConstructorContext__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../../ConstructorContext */ "./src/ui/components/editor/ConstructorContext.ts");
+
+
+
+
+
+
+
+
+
+const TimelineEditorRecordGroup = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ recordsGroup, records, path, setRecordsGroup, children, offset, bpm, grid, repeatStart, repeatEnd }) => {
+    const wrapperRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const groupBgRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const { duration } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_1__.ScaleDisplayContext);
+    const { dispatch } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_4__.TrackContext);
+    const { effectConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ConstructorContext__WEBPACK_IMPORTED_MODULE_8__.ConstructorContext);
+    const cycle = 60000 / bpm;
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        let startD = -1;
+        let durationD = 0;
+        if (recordsGroup && recordsGroup.length > 0) {
+            const startM = recordsGroup[0][2];
+            const endM = recordsGroup[recordsGroup.length - 1][3];
+            startD = (offset + startM * cycle / _plix_effect_core__WEBPACK_IMPORTED_MODULE_6__.TIMELINE_LCM) / duration;
+            durationD = (endM - startM) * cycle / _plix_effect_core__WEBPACK_IMPORTED_MODULE_6__.TIMELINE_LCM / duration;
+        }
+        groupBgRef.current.style.left = `${startD * 100}%`;
+        groupBgRef.current.style.width = `${durationD * 100}%`;
+    }, [recordsGroup, offset, cycle, duration]);
+    const deleteAction = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        if (!recordsGroup)
+            return null;
+        const deleteActions = recordsGroup.map(record => {
+            const key = (0,_utils_KeyManager__WEBPACK_IMPORTED_MODULE_7__.getArrayKey)(records, records.indexOf(record));
+            return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_5__.DeleteAction)([...path, { key }]);
+        });
+        return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_5__.MultiAction)(deleteActions);
+    }, [recordsGroup, records, path]);
+    const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(({ ctrlKey, shiftKey, altKey }) => {
+        if (!ctrlKey && !shiftKey && !altKey)
+            return setRecordsGroup(null);
+        if (!ctrlKey && !shiftKey && altKey)
+            return deleteAction && dispatch(deleteAction);
+    }, [dispatch, deleteAction]);
+    const dragValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        if (!recordsGroup)
+            return null;
+        let effect;
+        const timelineConstructor = effectConstructorMap["Timeline"];
+        if (timelineConstructor) {
+            const meta = timelineConstructor['meta'];
+            const paramPreset = [recordsGroup, bpm, grid, offset, repeatStart, repeatEnd];
+            const effectParams = meta.defaultValues.map((value, i) => {
+                if (i < paramPreset.length)
+                    return paramPreset[i];
+                return value;
+            });
+            effect = [true, "Timeline", effectParams, []];
+        }
+        return {
+            recordsMove: {
+                records: recordsGroup,
+                offset: offset,
+                bpm: bpm
+            },
+            deleteAction,
+            effect: effect,
+        };
+    }, [recordsGroup, deleteAction]);
+    const dragRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_DragContext__WEBPACK_IMPORTED_MODULE_3__.DragContext);
+    const onDragStart = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        if (!dragValue)
+            return;
+        dragRef.current = Object.assign(Object.assign({}, dragValue), { offsetX: event.nativeEvent.offsetX, offsetY: event.nativeEvent.offsetY });
+        localStorage.setItem("plix_editor_drag", JSON.stringify(dragRef.current));
+        event.dataTransfer.setData("plix/localstorage", "");
+        groupBgRef.current.classList.add("_drag");
+        wrapperRef.current.classList.add("_drag");
+        event.stopPropagation();
+        event.dataTransfer.setDragImage(new Image(), 0, 0);
+    }, [dragValue, groupBgRef, wrapperRef]);
+    const onDrag = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        var _a;
+        const dropEffect = (_a = dragRef.current) === null || _a === void 0 ? void 0 : _a.dropEffect;
+        groupBgRef.current.classList.remove("_move", "_copy", "_link", "_none");
+        wrapperRef.current.classList.remove("_move", "_copy", "_link", "_none");
+        if (dropEffect) {
+            wrapperRef.current.classList.add(`_${dropEffect}`);
+            groupBgRef.current.classList.add(`_${dropEffect}`);
+        }
+    }, [dragRef, groupBgRef, wrapperRef]);
+    const onDragStartLeft = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        dragRef.current = {
+            recordsScale: { records: recordsGroup, side: "left" },
+            offsetX: event.nativeEvent.offsetX,
+            offsetY: event.nativeEvent.offsetY,
+        };
+        event.dataTransfer.setDragImage(new Image(), 0, 0);
+        event.dataTransfer.effectAllowed = 'move';
+        groupBgRef.current.classList.add("_drag", "_move");
+        wrapperRef.current.classList.add("_drag", "_move");
+    }, [recordsGroup]);
+    const onDragStartRight = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        dragRef.current = {
+            recordsScale: { records: recordsGroup, side: "right" },
+            offsetX: event.nativeEvent.offsetX,
+            offsetY: event.nativeEvent.offsetY,
+        };
+        event.dataTransfer.setDragImage(new Image(), 0, 0);
+        event.dataTransfer.effectAllowed = 'move';
+        groupBgRef.current.classList.add("_drag", "_move");
+        wrapperRef.current.classList.add("_drag", "_move");
+    }, [recordsGroup]);
+    const onDragEndAll = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        groupBgRef.current.classList.remove("_drag", "_move", "_copy", "_link", "_none");
+        wrapperRef.current.classList.remove("_drag", "_move", "_copy", "_link", "_none");
+    }, [recordsGroup]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-group-fg", ref: groupBgRef, onClick: onClick },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-group-fg-content", draggable: true, onDragStart: onDragStart, onDrag: onDrag, onDragEnd: onDragEndAll }),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-record-scaling _left", draggable: true, onDragStart: onDragStartLeft, onDragEnd: onDragEndAll }),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-record-scaling _right", draggable: true, onDragStart: onDragStartRight, onDragEnd: onDragEndAll })),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "timeline-editor-grouping", ref: wrapperRef }, children)));
+});
 
 
 /***/ }),

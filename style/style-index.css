@@ -392,14 +392,20 @@ body .btn-primary:focus {
   border-radius: 4px;
   height: 100%;
   z-index: 4;
-  cursor: grab; }
+  overflow: hidden; }
+  .timeline-editor-group-fg .timeline-editor-group-fg-content {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    cursor: grab; }
   .timeline-editor-group-fg:hover {
     background-color: rgba(255, 255, 255, 0.2); }
   .timeline-editor-group-fg._drag {
     background-color: transparent;
     border: 2px dashed #fff; }
-    .timeline-editor-group-fg._drag._move {
-      background-color: #222; }
+
+.timeline-editor-grouping._drag._move ._captured {
+  display: none; }
 
 .timeline-editor-grid-canvas {
   position: absolute;
