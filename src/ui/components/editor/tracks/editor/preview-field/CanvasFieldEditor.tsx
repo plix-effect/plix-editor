@@ -19,6 +19,7 @@ import Form from "react-bootstrap/cjs/Form";
 import {Checkbox} from "../../../../control/checkbox/Checkbox";
 import {FieldElementEditor} from "./FieldElementEditor";
 import {FieldElement} from "../../../../preview/canvas/preview-field/PreviewFieldElement";
+import {PenSettingsView} from "./pen-settings/PenSettingsView";
 
 interface CanvasFieldEditorProps {
     value: PreviewFieldConfig
@@ -27,6 +28,7 @@ interface CanvasFieldEditorProps {
 export const CanvasFieldEditor: FC<CanvasFieldEditorProps> = ({value, onChange}) => {
     const [canvas, setCanvas] = useState<HTMLCanvasElement>();
     const [drawModeEnabled, setDrawModeEnabled] = useState(false);
+    const [drawingElement, setDrawingElement] = useState(null);
 
     const [field, elementEditor] = useMemo(() => {
         if (!canvas) return [null,null];
@@ -55,10 +57,11 @@ export const CanvasFieldEditor: FC<CanvasFieldEditorProps> = ({value, onChange})
         field.resetDraw();
     }, [value, field])
 
+
     useEffect(() => {
         if (!elementEditor) return;
-        elementEditor.setDrawingElement(drawModeEnabled ? {type: "pixel", props: {shape: "circle", size: 15}}: null)
-    }, [elementEditor,drawModeEnabled])
+        elementEditor.setDrawingElement(drawModeEnabled ? drawingElement : null)
+    }, [elementEditor,drawingElement,drawModeEnabled])
 
     const onChangeWidth = useCallback((e: ChangeEvent<HTMLInputElement>) => {
         const clone = {...value, width: Number(e.target.value)}
@@ -69,9 +72,12 @@ export const CanvasFieldEditor: FC<CanvasFieldEditorProps> = ({value, onChange})
         onChange(clone);
     },[value])
 
-    const onChangeDrawMode = useCallback((e: FormEvent<HTMLInputElement>) => {
-        setDrawModeEnabled(e.currentTarget.checked)
-    }, [setDrawModeEnabled])
+    const onClickRemoveLastElement = useCallback(() => {
+        const elements = [...value.elements];
+        elements.splice(elements.length-1,1);
+        const clone: PreviewFieldConfig = {...value, elements: elements};
+        onChange(clone);
+    }, [value])
 
     return (
         <div className={"canvas-field-editor"}>
@@ -80,7 +86,7 @@ export const CanvasFieldEditor: FC<CanvasFieldEditorProps> = ({value, onChange})
             </div>
             <div className={"cfe-controls"}>
                 <div className={"cfe-controls-group"}>
-                    <label>Size:</label>
+                    <label>Canvas size</label>
                     <div className={"cfe-option"}>
                         <span className={"cfe-option-name"}>Width: </span>
                         <input value={value.width} type={"number"} step={"any"} className={"form-control cfe-option-value"} onChange={onChangeWidth}/>
@@ -91,11 +97,19 @@ export const CanvasFieldEditor: FC<CanvasFieldEditorProps> = ({value, onChange})
                     </div>
                 </div>
                 <div className={"cfe-controls-group"}>
-                    <label>Elements:</label>
+                    <label>Drawing</label>
                     <Form>
-                        <Checkbox onChange={setDrawModeEnabled} value={drawModeEnabled}>Draw mode</Checkbox>
+                        <Checkbox onChange={setDrawModeEnabled} value={drawModeEnabled}>Drawing enabled</Checkbox>
                     </Form>
+                    <div>
+                        <button className={"btn btn-danger"} onClick={onClickRemoveLastElement}>Remove last element</button>
+                    </div>
                 </div>
+                <div className={"cfe-controls-group"}>
+                    <label>Pen</label>
+                    <PenSettingsView onChange={setDrawingElement}/>
+                </div>
+
             </div>
         </div>
     )

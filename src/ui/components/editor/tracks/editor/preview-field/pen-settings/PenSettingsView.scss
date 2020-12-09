@@ -1,0 +1,24 @@
+
+.pen-settings {
+  display: flex;
+  flex-direction: column;
+
+  .pen-settings-option {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: center;
+    height: 38px;
+
+    .pen-settings-option-name {
+      display: inline-block;
+      width: 150px;
+    }
+
+    .pen-settings-option-value {
+      display: inline-block;
+      margin-left: 10px;
+      width: calc(100% - 151px - 10px);
+    }
+  }
+}

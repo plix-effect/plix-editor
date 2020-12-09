@@ -2,12 +2,21 @@ import {PlixColor} from "@plix-effect/core/color";
 
 export type FieldElementPosition = [number, number];
 
+export type FieldElementPropertiesTypesValueType =  {
+    type: | "json" | "text" | "number" | "color" | "select"
+    opts?: any;
+}
+export type FieldElementPropertiesTypes = {
+    [key: string]: FieldElementPropertiesTypesValueType
+}
+
+
+
 type AbstractFieldElement<T = string, P = any, G = any> = {
     type: T,
     props: P,
     geometry: G
 }
-
 
 export type FieldElementPixelProperties = {
     color?: PlixColor,

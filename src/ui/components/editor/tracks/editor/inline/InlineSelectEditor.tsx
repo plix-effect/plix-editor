@@ -26,6 +26,7 @@ const colourStyles = {
             cursor: isDisabled ? 'not-allowed' : 'pointer',
         };
     },
+    menuPortal: base => ({ ...base, zIndex: 1050 })
 };
 
 export interface InlineSelectEditorProps {
@@ -73,7 +74,7 @@ export const InlineSelectEditor: FC<InlineSelectEditorProps> = ({value, onChange
                         <Select
                             defaultValue={value}
                             options={options}
-                            className={"form-control"}
+                            className={"form-control react-select"}
                             value={value}
                             autosize={true}
                             isClearable={allowEmpty}

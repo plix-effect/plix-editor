@@ -19,8 +19,11 @@
 .cfe-controls-group {
   display: flex;
   flex-direction: column;
+  &>label {
+    font-weight: bold;
+  }
   &:not(:first-child) {
-    margin-left: 20px;
+    margin-left: 60px;
   }
 }
 

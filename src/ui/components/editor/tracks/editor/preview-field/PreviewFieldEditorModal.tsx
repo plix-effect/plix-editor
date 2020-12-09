@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useState} from "react";
+import React, {FC, useCallback, useEffect, useMemo, useState} from "react";
 import {BSModal} from "../../../../modal/BSModal";
 import {BSModalPart} from "../../../../modal/BSModalPart";
 import {PreviewFieldConfig} from "../../../../preview/canvas/preview-field/PlixCanvasField";
@@ -15,20 +15,43 @@ export const PreviewFieldEditorModal: FC<PreviewFieldEditorModalProps> = ({isOpe
         setFieldConfig({...value});
     }, [value])
 
+    const onClose = useCallback((v?: PreviewFieldConfig) => {
+        if (!v) {
+            setFieldConfig({...value})
+            close(null);
+        } else {
+            close(v);
+        }
+    }, [setFieldConfig, value, close])
+
+
+    const buttonsView = useMemo(() => {
+        return (closeFn) => {
+            const saveClose = () => {
+                closeFn(fieldConfig);
+            }
+            const cancelClose = () => {
+                closeFn(undefined);
+            }
+
+            return (
+                <div className={"btn-group"}>
+                    <button className={"btn btn-sm btn-success"} onClick={saveClose}>OK</button>
+                    <button className={"btn btn-sm btn-danger"} onClick={cancelClose}>Cancel</button>
+                </div>
+            )
+        }
+    }, [fieldConfig])
+
 
     return (
-        <BSModal isOpen={isOpen} close={close} size={"xl"}>
+        <BSModal isOpen={isOpen} close={onClose} size={"xl"}>
             <p>PreviewField configuration</p>
             <div>
                 <CanvasFieldEditor value={fieldConfig} onChange={setFieldConfig}/>
             </div>
             <BSModalPart>
-                {closeFn => (
-                    <div className={"btn-group"}>
-                        <button className={"btn btn-sm btn-success"} onClick={closeFn}>OK</button>
-                        <button className={"btn btn-sm btn-danger"} onClick={closeFn}>Cancel</button>
-                    </div>
-                )}
+                {buttonsView}
             </BSModalPart>
         </BSModal>
     )

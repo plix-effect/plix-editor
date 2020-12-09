@@ -55,3 +55,6 @@ window.addEventListener("popstate", onHistoryBack)
 export const modalManager = {
     onOpenModal, onClosedModalByButton, onTransition, isModalOpened, closeTopModal
 }
+
+window['modalManager'] = modalManager;
+window['modalInfoList'] = modalInfoList;

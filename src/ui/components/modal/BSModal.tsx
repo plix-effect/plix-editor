@@ -21,7 +21,7 @@ export interface BSModalProps extends IReactModalPromiseProps{
     centered?: boolean
 }
 
-export const BSModal: FC<BSModalProps> = ({size = undefined, isOpen,instanceId, close: onClose, children, allowClose = true, centered = true}) => {
+export const BSModal: FC<BSModalProps> = ({size = undefined, isOpen,instanceId, close, children, allowClose = true, centered = true}) => {
     const lastIsOpenRef = useRef(false);
     const instanceIdRef  = useRef(instanceId || String(Math.random()*1000000))
 
@@ -31,29 +31,29 @@ export const BSModal: FC<BSModalProps> = ({size = undefined, isOpen,instanceId, 
         return [childs[0], childs[1], childs[2] || null];
     }, [children])
 
-    const close = useCallback((value? :any) => {
+    const doClose = useCallback((value? :any) => {
         if (!modalManager.isModalOpened(instanceIdRef.current)) return;
-        onClose(value);
-    }, [instanceIdRef.current, onClose])
+        close(value);
+    }, [instanceIdRef.current, close])
 
     const closeByControls = useCallback((value?: any) => {
         if (!modalManager.isModalOpened(instanceIdRef.current))  return;
-        close(value)
+        doClose(value)
         modalManager.onClosedModalByButton(instanceIdRef.current);
-    }, [close]);
+    }, [doClose]);
 
 
     const closeByManager = useCallback((reason: ModalManagerCloseReason) => {
         if (reason === ModalManagerCloseReason.BACK_BUTTON) {
             if (allowClose) {
-                close(undefined);
+                doClose(undefined);
             }
             return allowClose;
         } else {
-            close(undefined);
+            doClose(undefined);
             return true;
         }
-    }, [close, allowClose])
+    }, [doClose, allowClose])
 
     const onClickClose = useCallback(() => {
         if (!allowClose) return;
@@ -63,8 +63,8 @@ export const BSModal: FC<BSModalProps> = ({size = undefined, isOpen,instanceId, 
     useEffect(() => {
         if (isOpen && !lastIsOpenRef.current) {
             modalManager.onOpenModal({id: instanceIdRef.current, close: closeByManager})
-            lastIsOpenRef.current = true;
         }
+        lastIsOpenRef.current = isOpen
     }, [isOpen])
 
 
