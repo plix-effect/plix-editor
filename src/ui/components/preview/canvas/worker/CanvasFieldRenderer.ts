@@ -21,9 +21,10 @@ export class CanvasFieldRenderer {
         this.duration = value;
     }
 
-    renderTime(time: number) {
+    renderTime(time: number|null) {
         this.field.resetDraw();
         if (!this.parsedData) return;
+        if (time == null) return;
         const count = this.field.elementsCount;
         const line = this.parsedData.effect(time, this.duration);
         for (let i = 0; i < count; i++) {

@@ -116,6 +116,7 @@ const handleRenderMsg = (msg: CvsDynPreviewInMsgRenderData) => {
 
 const handleChangeFieldMsg = (msg: CvsDynPreviewInMsgChangeField) => {
     field.setConfig(msg.config);
+    if (renderer) renderer.renderTime(lastPauseTime ?? null);
 }
 
 // On message

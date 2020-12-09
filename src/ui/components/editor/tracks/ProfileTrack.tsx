@@ -23,6 +23,8 @@ import {GroupOverrideEffectsTrack} from "./GroupOverrideEffectsTrack";
 import {GroupOverrideFiltersTrack} from "./GroupOverrideFiltersTrack";
 import {PreviewFieldEditor} from "./editor/preview-field/PreviewFieldEditor";
 import {useProfileName} from "../ProfileContext";
+import {ValueTrack} from "./ValueTrack";
+import {DEFAULT_PREVIEW_FIELD_CONFIG} from "../../preview/canvas/preview-field/PlixCanvasField";
 
 export interface ProfileTrackProps {
     value: PlixProfile,
@@ -95,6 +97,7 @@ export const ProfileTrack: FC<ProfileTrackProps> = memo(({value, baseValue, name
     const paths = useMemo(() => ({
         effects: [...path, "effects"],
         filters: [...path, "filters"],
+        fieldConfig: [...path, "fieldConfig"],
     }), [path]);
 
     const clearEffectsAction = useMemo(() => {
@@ -147,14 +150,13 @@ export const ProfileTrack: FC<ProfileTrackProps> = memo(({value, baseValue, name
             <GroupOverrideEffectsTrack name={name} effectsMap={value.effects} baseEffectsMap={baseValue.effects} path={paths.effects} clearAction={clearEffectsAction} />
             <GroupOverrideFiltersTrack name={name} filtersMap={value.filters} baseFiltersMap={baseValue.filters} path={paths.filters} clearAction={clearFiltersAction} />
 
-            <Track>
-                <TreeBlock>
-                    fieldConfig
-                </TreeBlock>
-                <TimelineBlock fixed>
-                    <PreviewFieldEditor/>
-                </TimelineBlock>
-            </Track>
+            <ValueTrack value={value['fieldConfig']} path={paths.fieldConfig} type="fieldConfig" title={`field config for profile ${name}`} >
+                <i className="fas fa-spray-can"/>
+                &nbsp;
+                field config
+                &nbsp;
+                {value['fieldConfig'] ? `(${value['fieldConfig'].elements.length}px)` : "(default)"}
+            </ValueTrack>
         </Track>
     );
 });

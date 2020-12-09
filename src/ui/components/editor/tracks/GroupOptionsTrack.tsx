@@ -16,6 +16,7 @@ import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {ValueTrack} from "./ValueTrack";
 import {useSelectionControl, useSelectionPath} from "../SelectionContext";
+import {DEFAULT_PREVIEW_FIELD_CONFIG} from "../../preview/canvas/preview-field/PlixCanvasField";
 
 export interface GroupOptionsTrackProps {
     options: object,
@@ -26,7 +27,7 @@ export const GroupOptionsTrack: FC<GroupOptionsTrackProps> = memo(({options = {}
     const [expanded, expander, changeExpanded] = useExpander(false);
 
     const durationPath = useMemo(() => [...path, "duration"] ,[path]);
-    const countPath = useMemo(() => [...path, "count"] ,[path]);
+    const fieldConfigPath = useMemo(() => [...path, "fieldConfig"] ,[path]);
 
     const {toggleSelect, isSelectedPath, select} = useSelectionControl();
     const selectionPath = useSelectionPath();
@@ -59,12 +60,14 @@ export const GroupOptionsTrack: FC<GroupOptionsTrackProps> = memo(({options = {}
                 <span className="track-description _desc">track options</span>
             </TimelineBlock>
 
-            <ValueTrack path={durationPath} value={options?.['duration'] ?? null} type="number" description="duration in milliseconds">
+            <ValueTrack path={durationPath} value={options?.['duration'] ?? null} type="number" title="duration in milliseconds">
                 Track duration
             </ValueTrack>
 
-            <ValueTrack path={countPath} value={options?.['count'] ?? null} type="number" description="number of pixels">
-                Pixels
+            <ValueTrack path={fieldConfigPath} value={options?.['fieldConfig'] ?? null} type="fieldConfig" title="field config if no profile selected">
+                Default field config
+                &nbsp;
+                {`(${(options?.['fieldConfig'] ?? DEFAULT_PREVIEW_FIELD_CONFIG).elements.length}px)`}
             </ValueTrack>
         </Track>
     )

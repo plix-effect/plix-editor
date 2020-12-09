@@ -11,12 +11,14 @@ import {InlineBlenderEditor} from "./editor/inline/InlineBlenderEditor";
 import {InlineJsonEditor} from "./editor/inline/InlineJsonEditor";
 import {InlineColorEditor} from "./editor/inline/InlineColorEditor";
 import {InlineGridEditor} from "./editor/inline/InlineGridEditor";
+import {PreviewFieldEditor} from "./editor/preview-field/PreviewFieldEditor";
 
 const defaultInlineEditors: {[key: string]: ComponentType<{value:any, onChange:(value:any) => void}>} = {
     color: InlineColorEditor,
     number: InlineNumberEditor,
     blend: InlineBlenderEditor,
     grid: InlineGridEditor,
+    fieldConfig: PreviewFieldEditor,
 }
 
 export interface ValueTrackProps {

@@ -214,12 +214,12 @@ export const staticSelectTypes = {
     },
     trackOptions: {
         duration: "number",
-        count: "number", // todo: delete
+        fieldConfig: "fieldConfig",
     },
     profile: {
         effects: "map:effect",
         filters: "map:filter",
-        previewFieldConfig: "fieldConfig"
+        fieldConfig: "fieldConfig"
     },
 }
 

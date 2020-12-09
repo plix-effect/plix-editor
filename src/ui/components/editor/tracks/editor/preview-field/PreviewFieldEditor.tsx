@@ -8,12 +8,12 @@ interface PreviewFieldEditorProps {
 }
 
 
-export const PreviewFieldEditor: FC = () => {
+export const PreviewFieldEditor: FC<PreviewFieldEditorProps> = ({onChange, value}) => {
 
     const [open, setOpen] = useState(false);
     const onClose = useCallback((value: PreviewFieldConfig|null) => {
         setOpen(false);
-        // ToDo onChange value
+        onChange(value);
     }, [setOpen])
     const openModal = useCallback(() => {
         setOpen(true);
@@ -22,7 +22,7 @@ export const PreviewFieldEditor: FC = () => {
     return (
         <React.Fragment>
             <button className={"btn btn-sm btn-light"} onClick={openModal}>Edit / View PreviewField</button>
-            <PreviewFieldEditorModal close={onClose} isOpen={open} value={DEFAULT_PREVIEW_FIELD_CONFIG}/>
+            <PreviewFieldEditorModal close={onClose} isOpen={open} value={value ?? DEFAULT_PREVIEW_FIELD_CONFIG}/>
         </React.Fragment>
     )
 }
