@@ -1,26 +1,7 @@
 import {HSLAColor, PlixColor, RGBAColor} from "@plix-effect/core/types";
 import {hslaToRgba} from "@plix-effect/core/color";
+import {FieldElement, FieldElementLine, FieldElementPixel} from "./PreviewFieldElement";
 
-export type FieldElementPosition = [number, number];
-
-export type FieldElementPixel = {
-    type: "pixel",
-    color?: PlixColor,
-    position: FieldElementPosition,
-    shape: "circle"|"square",
-    size: number
-}
-
-export type FieldElementLine = {
-    type: "line",
-    position: FieldElementPosition
-    // ToDo
-}
-
-export type FieldElement =
-    | FieldElementPixel
-    | FieldElementLine
-;
 
 export interface PreviewFieldConfig {
     width: number,
@@ -50,7 +31,7 @@ export const DEFAULT_PREVIEW_FIELD_CONFIG: PreviewFieldConfig = {
     height: 100,
     elements: Array.from({length: 20}).map((_, i) => {
         const size = 25;
-        return {type: "pixel", shape: i<10 ? "circle" : "square", size: size, position: [40 + i * (size + 10), 40]}
+        return {type: "pixel", props: {shape: i<10 ? "circle" : "square", size: size,}, geometry: [40 + i * (size + 10), 40]}
     })
 }
 
@@ -71,14 +52,24 @@ export class PlixCanvasField<T extends CanvasGeneric> {
         this.canvas.width = cfg.width;
     }
 
+    getConfig() {
+        return this.cfg;
+    }
+
     get elementsCount() {
         return this.cfg.elements.length;
     }
 
-    public draw(index: number, color?: RGBAColor) {
+
+
+    public drawElementFromConfig(index: number, color?: RGBAColor, outlineColor = contourColor): void {
         const element = this.cfg.elements[index];
-        if (element.type === "line") this.drawLine(element, color);
-        else if (element.type === "pixel") this.drawPixel(element, color);
+        this.drawElement(element, color, outlineColor);
+    }
+
+    public drawElement(element: FieldElement, color?: RGBAColor, outlineColor = contourColor): void {
+        if (element.type === "line") this.drawLine(element, color, outlineColor);
+        else if (element.type === "pixel") this.drawPixel(element, color, outlineColor);
     }
 
     public resetDraw() {
@@ -86,18 +77,18 @@ export class PlixCanvasField<T extends CanvasGeneric> {
         this.ctx.fillRect(0,0, this.canvas.width, this.canvas.height);
         const elements = this.cfg.elements;
         for (let i = 0; i < elements.length; i++) {
-            this.draw(i, null);
+            this.drawElementFromConfig(i, null);
         }
     }
 
-    private drawLine (lineInfo: FieldElementLine, color?: RGBAColor) {
+    public drawLine (lineInfo: FieldElementLine, color?: RGBAColor, outlineColor = contourColor) {
         console.warn("drawLine not implemented")
     }
 
-    private drawPixel(pixelInfo: FieldElementPixel, color?: RGBAColor) {
-        const [x,y] = pixelInfo.position;
+    public drawPixel(pixelInfo: FieldElementPixel, color?: RGBAColor, outlineColor = contourColor) {
+        const [x,y] = pixelInfo.geometry;
         const ctx = this.ctx;
-        const size = pixelInfo.size;
+        const size = pixelInfo.props.size;
 
         function getSizeGain() {
             const {r,g,b,a} = color;
@@ -107,7 +98,7 @@ export class PlixCanvasField<T extends CanvasGeneric> {
         }
 
         function drawSquare() {
-            ctx.strokeStyle = contourColor;
+            ctx.strokeStyle = outlineColor;
             const halfSize = size/2;
             ctx.setLineDash([halfSize/2, halfSize/2]);
             ctx.strokeRect(x-halfSize-1, y-halfSize-1, size+2, size+2)
@@ -125,7 +116,7 @@ export class PlixCanvasField<T extends CanvasGeneric> {
             const radius = Math.floor(size/2)
             ctx.setLineDash([radius/2, radius/2]);
             ctx.arc(x, y, radius+1, 0, TWO_PI);
-            ctx.strokeStyle = contourColor;
+            ctx.strokeStyle = outlineColor;
             ctx.stroke();
             if (!color) return;
             const {r,g,b,a} = color;
@@ -137,10 +128,30 @@ export class PlixCanvasField<T extends CanvasGeneric> {
             ctx.fill();
         }
 
-        if (pixelInfo.shape === "circle") {
+        if (pixelInfo.props.shape === "circle") {
             drawCircle();
         } else {
             drawSquare();
         }
+    }
+
+    public getElementAtPos(x: number, y: number): [FieldElement, number] {
+        const index = this.cfg.elements.findIndex((value, i) => {
+            if (value.type === "pixel") {
+                const size = value.props.size;
+                const halfSize = size/2;
+                const [eX, eY] = value.geometry;
+                const dx = eX -x;
+                const dy = eY -y;
+                if (value.props.shape === "circle") {
+                    return Math.sqrt(dx*dx + dy*dy) <= halfSize;
+                } else {
+                    return Math.abs(dx) <= halfSize && Math.abs(dy) <= halfSize
+                }
+            }
+            return false;
+        });
+        if (index == -1) return [null, -1];
+        return [this.cfg.elements[index], index];
     }
 }

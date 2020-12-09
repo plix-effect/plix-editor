@@ -1,11 +1,12 @@
 import React, {FC, useCallback, useState} from "react";
-import {DEFAULT_PREVIEW_FIELD_CONFIG, PreviewFieldConfig} from "../../../../preview/canvas/worker/PlixCanvasField";
+import {DEFAULT_PREVIEW_FIELD_CONFIG, PreviewFieldConfig} from "../../../../preview/canvas/preview-field/PlixCanvasField";
 import {PreviewFieldEditorModal} from "./PreviewFieldEditorModal";
 
 interface PreviewFieldEditorProps {
     onChange: (PreviewFieldConfig) => void;
     value: PreviewFieldConfig|null
 }
+
 
 export const PreviewFieldEditor: FC = () => {
 

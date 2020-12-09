@@ -3,7 +3,7 @@ import {ChangeEventHandler, FC, useCallback, useContext, useEffect, useMemo, use
 import {PlixEffectJsonData, PlixJsonData} from "@plix-effect/core/dist/types/parser";
 import {isArraysEqual} from "../../../utils/isArraysEqual";
 import {usePlaybackControl, usePlaybackData, usePlaybackStatus} from "../../editor/PlaybackContext";
-import type {PreviewFieldConfig} from "./worker/PlixCanvasField";
+import type {PreviewFieldConfig} from "./preview-field/PlixCanvasField";
 import type {
     CvsDynPreviewInMsgChangeField,
     CvsDynPreviewInMsgChangePlayback,

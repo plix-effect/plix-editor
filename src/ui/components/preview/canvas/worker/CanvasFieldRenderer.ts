@@ -1,4 +1,4 @@
-import {PlixCanvasField} from "./PlixCanvasField";
+import {PlixCanvasField} from "../preview-field/PlixCanvasField";
 import {BLACK, toRgba} from "@plix-effect/core/color";
 import parseRender from "@plix-effect/core/dist/parser";
 
@@ -29,7 +29,7 @@ export class CanvasFieldRenderer {
         for (let i = 0; i < count; i++) {
             const mod = line(i, count);
             const color = mod(BLACK);
-            this.field.draw(i, toRgba(color));
+            this.field.drawElementFromConfig(i, toRgba(color));
         }
     }
 

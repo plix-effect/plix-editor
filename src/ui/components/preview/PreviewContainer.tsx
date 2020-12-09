@@ -2,7 +2,7 @@ import * as React from "react"
 import {FC} from "react";
 import {BSTabsWithContent} from "../control/tabs/BSTabsWithContent";
 import {CanvasDynPreview} from "./canvas/CanvasDynPreview";
-import {DEFAULT_PREVIEW_FIELD_CONFIG, PreviewFieldConfig} from "./canvas/worker/PlixCanvasField";
+import {DEFAULT_PREVIEW_FIELD_CONFIG, PreviewFieldConfig} from "./canvas/preview-field/PlixCanvasField";
 
 
 export const PreviewContainer: FC = () => {

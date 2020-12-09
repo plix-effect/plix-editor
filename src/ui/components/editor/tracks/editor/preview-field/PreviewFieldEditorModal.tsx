@@ -1,7 +1,7 @@
 import React, {FC, useEffect, useState} from "react";
 import {BSModal} from "../../../../modal/BSModal";
 import {BSModalPart} from "../../../../modal/BSModalPart";
-import {DEFAULT_PREVIEW_FIELD_CONFIG, PreviewFieldConfig} from "../../../../preview/canvas/worker/PlixCanvasField";
+import {PreviewFieldConfig} from "../../../../preview/canvas/preview-field/PlixCanvasField";
 import {CanvasFieldEditor} from "./CanvasFieldEditor";
 
 interface PreviewFieldEditorModalProps {
