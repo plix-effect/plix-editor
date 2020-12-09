@@ -204,6 +204,8 @@ const handleRenderMsg = (msg) => {
 };
 const handleChangeFieldMsg = (msg) => {
     field.setConfig(msg.config);
+    if (renderer)
+        renderer.renderTime(lastPauseTime !== null && lastPauseTime !== void 0 ? lastPauseTime : null);
 };
 onmessage = (event) => {
     const data = event.data;
@@ -254,6 +256,8 @@ class CanvasFieldRenderer {
     renderTime(time) {
         this.field.resetDraw();
         if (!this.parsedData)
+            return;
+        if (time == null)
             return;
         const count = this.field.elementsCount;
         const line = this.parsedData.effect(time, this.duration);

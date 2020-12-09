@@ -83126,12 +83126,12 @@ const staticSelectTypes = {
     },
     trackOptions: {
         duration: "number",
-        count: "number",
+        fieldConfig: "fieldConfig",
     },
     profile: {
         effects: "map:effect",
         filters: "map:filter",
-        previewFieldConfig: "fieldConfig"
+        fieldConfig: "fieldConfig"
     },
 };
 function selectItem(type, item, effectConstructorMap, filterConstructorMap, [pathEl, ...path]) {
@@ -84934,6 +84934,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../track-elements/TimelineBlock */ "./src/ui/components/editor/track-elements/TimelineBlock.tsx");
 /* harmony import */ var _ValueTrack__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ValueTrack */ "./src/ui/components/editor/tracks/ValueTrack.tsx");
 /* harmony import */ var _SelectionContext__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../SelectionContext */ "./src/ui/components/editor/SelectionContext.tsx");
+/* harmony import */ var _preview_canvas_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../preview/canvas/preview-field/PlixCanvasField */ "./src/ui/components/preview/canvas/preview-field/PlixCanvasField.ts");
+
 
 
 
@@ -84942,10 +84944,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const GroupOptionsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ options = {}, path }) => {
-    var _a, _b;
+    var _a, _b, _c;
     const [expanded, expander, changeExpanded] = (0,_track_elements_Expander__WEBPACK_IMPORTED_MODULE_2__.useExpander)(false);
     const durationPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, "duration"], [path]);
-    const countPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, "count"], [path]);
+    const fieldConfigPath = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [...path, "fieldConfig"], [path]);
     const { toggleSelect, isSelectedPath, select } = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_6__.useSelectionControl)();
     const selectionPath = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_6__.useSelectionPath)();
     const selected = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
@@ -84972,8 +84974,10 @@ const GroupOptionsTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ options
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description", onClick: changeExpanded }, "Options")),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_4__.TimelineBlock, { type: "title", fixed: true },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "track-description _desc" }, "track options")),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { path: durationPath, value: (_a = options === null || options === void 0 ? void 0 : options['duration']) !== null && _a !== void 0 ? _a : null, type: "number", description: "duration in milliseconds" }, "Track duration"),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { path: countPath, value: (_b = options === null || options === void 0 ? void 0 : options['count']) !== null && _b !== void 0 ? _b : null, type: "number", description: "number of pixels" }, "Pixels")));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { path: durationPath, value: (_a = options === null || options === void 0 ? void 0 : options['duration']) !== null && _a !== void 0 ? _a : null, type: "number", title: "duration in milliseconds" }, "Track duration"),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_5__.ValueTrack, { path: fieldConfigPath, value: (_b = options === null || options === void 0 ? void 0 : options['fieldConfig']) !== null && _b !== void 0 ? _b : null, type: "fieldConfig", title: "field config if no profile selected" },
+            "Default field config \u00A0",
+            `(${((_c = options === null || options === void 0 ? void 0 : options['fieldConfig']) !== null && _c !== void 0 ? _c : _preview_canvas_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_7__.DEFAULT_PREVIEW_FIELD_CONFIG).elements.length}px)`)));
 });
 
 
@@ -85360,8 +85364,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _SelectionContext__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../SelectionContext */ "./src/ui/components/editor/SelectionContext.tsx");
 /* harmony import */ var _GroupOverrideEffectsTrack__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./GroupOverrideEffectsTrack */ "./src/ui/components/editor/tracks/GroupOverrideEffectsTrack.tsx");
 /* harmony import */ var _GroupOverrideFiltersTrack__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./GroupOverrideFiltersTrack */ "./src/ui/components/editor/tracks/GroupOverrideFiltersTrack.tsx");
-/* harmony import */ var _editor_preview_field_PreviewFieldEditor__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./editor/preview-field/PreviewFieldEditor */ "./src/ui/components/editor/tracks/editor/preview-field/PreviewFieldEditor.tsx");
-/* harmony import */ var _ProfileContext__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../ProfileContext */ "./src/ui/components/editor/ProfileContext.tsx");
+/* harmony import */ var _ProfileContext__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../ProfileContext */ "./src/ui/components/editor/ProfileContext.tsx");
+/* harmony import */ var _ValueTrack__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ValueTrack */ "./src/ui/components/editor/tracks/ValueTrack.tsx");
 
 
 
@@ -85437,6 +85441,7 @@ const ProfileTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, baseV
     const paths = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
         effects: [...path, "effects"],
         filters: [...path, "filters"],
+        fieldConfig: [...path, "fieldConfig"],
     }), [path]);
     const clearEffectsAction = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         return (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_6__.EditValueAction)(paths.effects, {});
@@ -85447,7 +85452,7 @@ const ProfileTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, baseV
     const rightIcons = (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
         (deleteAction) && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "far fa-trash-alt track-tree-icon track-tree-icon-action", onClick: onClickDelete, title: "delete" })),
         (clearAction) && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-times track-tree-icon track-tree-icon-action", onClick: onClickClear, title: "clear" }))));
-    const [profileName, setProfile] = (0,_ProfileContext__WEBPACK_IMPORTED_MODULE_11__.useProfileName)();
+    const [profileName, setProfile] = (0,_ProfileContext__WEBPACK_IMPORTED_MODULE_10__.useProfileName)();
     const setCurrentProfile = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
         setProfile(name);
     }, [setProfile, name]);
@@ -85470,10 +85475,10 @@ const ProfileTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ value, baseV
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { onClick: clearCurrentProfile }, "[clear profile]"))) : (react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { onClick: setCurrentProfile }, "use this profile"))),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_GroupOverrideEffectsTrack__WEBPACK_IMPORTED_MODULE_8__.GroupOverrideEffectsTrack, { name: name, effectsMap: value.effects, baseEffectsMap: baseValue.effects, path: paths.effects, clearAction: clearEffectsAction }),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_GroupOverrideFiltersTrack__WEBPACK_IMPORTED_MODULE_9__.GroupOverrideFiltersTrack, { name: name, filtersMap: value.filters, baseFiltersMap: baseValue.filters, path: paths.filters, clearAction: clearFiltersAction }),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_timeline_Track__WEBPACK_IMPORTED_MODULE_1__.Track, null,
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TreeBlock__WEBPACK_IMPORTED_MODULE_2__.TreeBlock, null, "fieldConfig"),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_track_elements_TimelineBlock__WEBPACK_IMPORTED_MODULE_3__.TimelineBlock, { fixed: true },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_preview_field_PreviewFieldEditor__WEBPACK_IMPORTED_MODULE_10__.PreviewFieldEditor, null)))));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ValueTrack__WEBPACK_IMPORTED_MODULE_11__.ValueTrack, { value: value['fieldConfig'], path: paths.fieldConfig, type: "fieldConfig", title: `field config for profile ${name}` },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-spray-can" }),
+            "\u00A0 field config \u00A0",
+            value['fieldConfig'] ? `(${value['fieldConfig'].elements.length}px)` : "(default)")));
 });
 
 
@@ -85628,6 +85633,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _editor_inline_InlineJsonEditor__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./editor/inline/InlineJsonEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineJsonEditor.tsx");
 /* harmony import */ var _editor_inline_InlineColorEditor__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./editor/inline/InlineColorEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineColorEditor.tsx");
 /* harmony import */ var _editor_inline_InlineGridEditor__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./editor/inline/InlineGridEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineGridEditor.tsx");
+/* harmony import */ var _editor_preview_field_PreviewFieldEditor__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./editor/preview-field/PreviewFieldEditor */ "./src/ui/components/editor/tracks/editor/preview-field/PreviewFieldEditor.tsx");
+
 
 
 
@@ -85643,6 +85650,7 @@ const defaultInlineEditors = {
     number: _editor_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_5__.InlineNumberEditor,
     blend: _editor_inline_InlineBlenderEditor__WEBPACK_IMPORTED_MODULE_6__.InlineBlenderEditor,
     grid: _editor_inline_InlineGridEditor__WEBPACK_IMPORTED_MODULE_9__.InlineGridEditor,
+    fieldConfig: _editor_preview_field_PreviewFieldEditor__WEBPACK_IMPORTED_MODULE_10__.PreviewFieldEditor,
 };
 const ValueTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ type, title, value, description, children, path, deleteAction, clearAction, onDragOverItem }) => {
     if (type.startsWith("array:")) {
@@ -87413,17 +87421,18 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const PreviewFieldEditor = () => {
+const PreviewFieldEditor = ({ onChange, value }) => {
     const [open, setOpen] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
     const onClose = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
         setOpen(false);
+        onChange(value);
     }, [setOpen]);
     const openModal = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
         setOpen(true);
     }, [setOpen]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-sm btn-light", onClick: openModal }, "Edit / View PreviewField"),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PreviewFieldEditorModal__WEBPACK_IMPORTED_MODULE_2__.PreviewFieldEditorModal, { close: onClose, isOpen: open, value: _preview_canvas_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_1__.DEFAULT_PREVIEW_FIELD_CONFIG })));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PreviewFieldEditorModal__WEBPACK_IMPORTED_MODULE_2__.PreviewFieldEditorModal, { close: onClose, isOpen: open, value: value !== null && value !== void 0 ? value : _preview_canvas_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_1__.DEFAULT_PREVIEW_FIELD_CONFIG })));
 };
 
 
@@ -88334,15 +88343,26 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _control_tabs_BSTabsWithContent__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../control/tabs/BSTabsWithContent */ "./src/ui/components/control/tabs/BSTabsWithContent.tsx");
 /* harmony import */ var _canvas_CanvasDynPreview__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./canvas/CanvasDynPreview */ "./src/ui/components/preview/canvas/CanvasDynPreview.tsx");
 /* harmony import */ var _canvas_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./canvas/preview-field/PlixCanvasField */ "./src/ui/components/preview/canvas/preview-field/PlixCanvasField.ts");
+/* harmony import */ var _editor_ProfileContext__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../editor/ProfileContext */ "./src/ui/components/editor/ProfileContext.tsx");
+/* harmony import */ var _editor_TrackContext__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../editor/TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+
+
+
 
 
 
 
 const PreviewContainer = () => {
+    const profile = (0,_editor_ProfileContext__WEBPACK_IMPORTED_MODULE_4__.useProfile)();
+    const { track } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_editor_TrackContext__WEBPACK_IMPORTED_MODULE_5__.TrackContext);
+    const fieldConfig = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        var _a, _b, _c;
+        return (_c = (_a = profile === null || profile === void 0 ? void 0 : profile['fieldConfig']) !== null && _a !== void 0 ? _a : (_b = track === null || track === void 0 ? void 0 : track['editor']) === null || _b === void 0 ? void 0 : _b['fieldConfig']) !== null && _c !== void 0 ? _c : _canvas_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_3__.DEFAULT_PREVIEW_FIELD_CONFIG;
+    }, [profile, track]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: { flexGrow: 1 } },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_control_tabs_BSTabsWithContent__WEBPACK_IMPORTED_MODULE_1__.BSTabsWithContent, { tabs: ["Dynamic", "Static", "Timed"], type: "pills", justify: true, localStorageKey: "preview-tabs" },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_canvas_CanvasDynPreview__WEBPACK_IMPORTED_MODULE_2__.CanvasDynPreview, { fieldConfig: _canvas_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_3__.DEFAULT_PREVIEW_FIELD_CONFIG })),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_canvas_CanvasDynPreview__WEBPACK_IMPORTED_MODULE_2__.CanvasDynPreview, { fieldConfig: fieldConfig })),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, "STATIC"),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, "NEEVR GOAN GIVE YUO UP"))));
 };

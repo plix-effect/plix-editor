@@ -550,6 +550,81 @@ body .btn-primary:focus {
     bottom: -5px;
     pointer-events: none; }
 
+.bsmodal-cover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); }
+
+.bsmodal .modal-content {
+  background-color: #333; }
+
+.bsmodal .modal-content .modal-header .close {
+  color: white; }
+
+.cfe-cvs-container {
+  max-width: 100%;
+  border: 1px #444 solid;
+  display: inline-block;
+  overflow: auto; }
+
+.cfe-controls {
+  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  flex-direction: row; }
+
+.cfe-controls-group {
+  display: flex;
+  flex-direction: column; }
+  .cfe-controls-group > label {
+    font-weight: bold; }
+  .cfe-controls-group:not(:first-child) {
+    margin-left: 60px; }
+
+.cfe-option {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+  width: 200px; }
+  .cfe-option .cfe-option-name {
+    display: inline-block;
+    width: 35%; }
+  .cfe-option .cfe-option-value {
+    display: inline-block;
+    margin-left: 10px;
+    width: 64%; }
+  .cfe-option input[type="number"].cfe-option-value {
+    width: 120px; }
+
+.checkbox {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center; }
+  .checkbox label {
+    user-select: none; }
+
+.pen-settings {
+  display: flex;
+  flex-direction: column; }
+  .pen-settings .pen-settings-option {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: center;
+    height: 38px; }
+    .pen-settings .pen-settings-option .pen-settings-option-name {
+      display: inline-block;
+      width: 150px; }
+    .pen-settings .pen-settings-option .pen-settings-option-value {
+      display: inline-block;
+      margin-left: 10px;
+      width: calc(100% - 151px - 10px); }
+
 .effect-group-alias {
   box-sizing: border-box;
   background-color: #888;
@@ -636,81 +711,6 @@ body .btn-primary:focus {
   width: max-content;
   left: 0;
   z-index: 3; }
-
-.bsmodal-cover {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); }
-
-.bsmodal .modal-content {
-  background-color: #333; }
-
-.bsmodal .modal-content .modal-header .close {
-  color: white; }
-
-.cfe-cvs-container {
-  max-width: 100%;
-  border: 1px #444 solid;
-  display: inline-block;
-  overflow: auto; }
-
-.cfe-controls {
-  margin-top: 10px;
-  width: 100%;
-  display: flex;
-  flex-direction: row; }
-
-.cfe-controls-group {
-  display: flex;
-  flex-direction: column; }
-  .cfe-controls-group > label {
-    font-weight: bold; }
-  .cfe-controls-group:not(:first-child) {
-    margin-left: 60px; }
-
-.cfe-option {
-  display: flex;
-  flex-direction: row;
-  justify-content: left;
-  align-items: center;
-  width: 200px; }
-  .cfe-option .cfe-option-name {
-    display: inline-block;
-    width: 35%; }
-  .cfe-option .cfe-option-value {
-    display: inline-block;
-    margin-left: 10px;
-    width: 64%; }
-  .cfe-option input[type="number"].cfe-option-value {
-    width: 120px; }
-
-.checkbox {
-  display: flex;
-  flex-direction: row;
-  justify-content: left;
-  align-items: center; }
-  .checkbox label {
-    user-select: none; }
-
-.pen-settings {
-  display: flex;
-  flex-direction: column; }
-  .pen-settings .pen-settings-option {
-    display: flex;
-    flex-direction: row;
-    justify-content: left;
-    align-items: center;
-    height: 38px; }
-    .pen-settings .pen-settings-option .pen-settings-option-name {
-      display: inline-block;
-      width: 150px; }
-    .pen-settings .pen-settings-option .pen-settings-option-value {
-      display: inline-block;
-      margin-left: 10px;
-      width: calc(100% - 151px - 10px); }
 
 .split-lr {
   display: flex;
