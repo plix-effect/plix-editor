@@ -1,4 +1,5 @@
 import React, {
+    ChangeEventHandler,
     FC,
     useCallback,
     useContext,
@@ -13,7 +14,7 @@ import {EffectTrack} from "./tracks/EffectTrack";
 import {GroupEffectsTrack} from "./tracks/GroupEffectsTrack";
 import {GroupFiltersTrack} from "./tracks/GroupFiltersTrack";
 import {SplitTimeline} from "../divider/SplitTimeline";
-import {RedoAction, UndoAction} from "./PlixEditorReducerActions";
+import {OpenAction, RedoAction, UndoAction} from "./PlixEditorReducerActions";
 import {TrackScale} from "./TrackScale";
 import {Track} from "../timeline/Track";
 import {ScaleDisplayContext, ScaleDisplayContextProps} from "./ScaleDisplayContext";
@@ -100,6 +101,20 @@ export const TrackEditor: FC = () => {
         setAudioFile(null);
     }, [setAudioFile]);
 
+    const onSelectFile: ChangeEventHandler<HTMLInputElement> = useCallback(async (event) => {
+        console.log(event.target.files);
+        const files = Array.from(event.target.files);
+        let audioItem = files.find(item => item.type === "audio/mpeg");
+        let jsonItem = files.find(item => item.type === "application/json");
+        if (jsonItem) {
+            const text = await jsonItem.text();
+            const track = JSON.parse(text);
+            dispatch(OpenAction(track));
+        }
+        if (audioItem) setAudioFile(audioItem);
+        event.target.value = "";
+    }, []);
+
     return (
         <ScaleDisplayContext.Provider value={scaleDisplayContextValue}>
             <SplitTimeline minLeft={100} minRight={200} storageKey="timeline" ref={setTimelineEl}>
@@ -112,11 +127,17 @@ export const TrackEditor: FC = () => {
                         <i className="fa fa-redo"/>
                         <span className="badge badge-secondary">{redoCounts}</span>
                     </button>
-                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={save} title={"Save"}>
-                        <i className="fa fa-save"/>
-                    </button>
+                    <label className="input-file-label">
+                        <input type="file" onChange={onSelectFile}/>
+                        <span className={"btn btn-primary btn-sm track-header-icon-button"} title={"Open"}>
+                            <i className="fas fa-folder-open"/>
+                        </span>
+                    </label>
                     <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={deleteFile} title={"Delete audio"}>
                         <i className="far fa-trash-alt"/>
+                    </button>
+                    <button className={"btn btn-primary btn-sm track-header-icon-button"} onClick={save} title={"Save"}>
+                        <i className="fas fa-save"/>
                     </button>
                     <div className="track-header-filename">
                         {audioFile !== null ? (

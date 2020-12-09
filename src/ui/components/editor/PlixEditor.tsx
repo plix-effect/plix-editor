@@ -99,7 +99,10 @@ export const PlixEditor: FC = () => {
         if (!file) {
             transaction.objectStore("audio").clear();
         } else {
-            transaction.objectStore("audio").put(file, "audio")
+            transaction.objectStore("audio").put(file, "audio");
+            const buffer = await file.arrayBuffer();
+            const track = readMp3Json(buffer);
+            if (track) dispatch(OpenAction(track as PlixJsonData));
         }
     }, [setAudioFile]);
 
@@ -129,12 +132,8 @@ export const PlixEditor: FC = () => {
         const items = Array.from(event.dataTransfer.items);
         let audioItem = items.find(item => item.kind === "file" && item.type === "audio/mpeg");
         if (audioItem) {
-            const audioFile = audioItem.getAsFile();
             event.preventDefault();
-            void storeAudioFile(audioFile); // save to db;
-            const buffer = await audioFile.arrayBuffer();
-            const track = readMp3Json(buffer);
-            if (track) dispatch(OpenAction(track as PlixJsonData));
+            await storeAudioFile(audioItem.getAsFile());
             return;
         }
         let jsonItem = items.find(item => item.kind === "file" && item.type === "application/json");
