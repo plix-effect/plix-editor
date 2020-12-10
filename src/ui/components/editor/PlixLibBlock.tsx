@@ -1,37 +1,56 @@
-import React, {FC} from "react";
+import React, {FC, useCallback, useState} from "react";
 import "./PlixEditor.scss";
-import {BSTabsWithContent} from "../control/tabs/BSTabsWithContent";
 import "./PlixLibBlock.scss";
 
-const tabs = ["Filters", "Effects"];
 export const PlixLibBlock: FC = () => {
+
+    const [type, setType] = useState("all");
+
+    const onChangeRadio = useCallback((event) => {
+        setType(event.target.value);
+    }, [setType]);
 
     return (
         <div className="plix-lib-block">
-            <BSTabsWithContent tabs={tabs} type={"pills"} justify={true} localStorageKey={"lib-tabs"}>
-                <div className="plix-lib-container">
-                    FIL<br/>
-                    FIL<br/>
-                    FIL<br/>
-                    FIL<br/>
-                    FIL<br/>
-                    FIL<br/>
-                    FIL<br/>
-                    FIL<br/>
-                    FIL<br/>
-                    FIL<br/>
-                    FIL<br/>
-                    FIL<br/>
-                    FIL<br/>
-                    FIL<br/>
-                    FIL<br/>
-                    FIL<br/>
-                    FIL<br/>
+            <div className="plix-lib-search">
+                <input type="search" placeholder="search"/>
+                <div className="plix-lib-search-radio" onChange={onChangeRadio}>
+                    <label>
+                        <input checked={type==="effects"} type="radio" name="type" value="effects"/>
+                        effects
+                    </label>
+                    <label>
+                        <input checked={type==="filters"} type="radio" name="type" value="filters"/>
+                        filters
+                    </label>
+                    <label>
+                        <input checked={type==="profiles"} type="radio" name="type" value="profiles"/>
+                        profiles
+                    </label>
+                    <label>
+                        <input checked={type==="all"} type="radio" name="type" value="all"/>
+                        all
+                    </label>
                 </div>
-                <div className="plix-lib-container">
-                    EFF
-                </div>
-            </BSTabsWithContent>
+
+            </div>
+            <div className="plix-lib-result">
+                result1<br/>
+                result1<br/>
+                result1<br/>
+                result1<br/>
+                result1<br/>
+                result1<br/>
+                result1<br/>
+                result1<br/>
+                result1<br/>
+                result1<br/>
+                result1<br/>
+                result1<br/>
+                result1<br/>
+                result1<br/>
+                result1<br/>
+            </div>
         </div>
     )
 }

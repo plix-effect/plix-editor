@@ -59,12 +59,13 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = ({fieldConfig}) => {
             else return [selectedItem, 0, trackDuration];
         } else if (selectedType === "record") {
             const copySelectedItem = selectedItem.slice(0);
-            copySelectedItem[0] = true;
+            copySelectedItem[0] = true; // enable selected track
             const parentSelection = getParentSelection(track, path, effectConstructorMap, filterConstructorMap, 3);
             const timeline = parentSelection.item.slice(0);
-            timeline[0] = true;
+            timeline[0] = true; // enable timeline
+            timeline[3] = []; // remove timeline filters
             const parentOptions = timeline[2].slice(0);
-            parentOptions[0] = [copySelectedItem];
+            parentOptions[0] = [copySelectedItem]; // set only one track
             const bpm = parentOptions[1];
             const offset = parentOptions[3];
             const start = offset + 60000/bpm / TIMELINE_LCM * selectedItem[2];
