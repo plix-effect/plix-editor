@@ -82824,52 +82824,62 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _PlixEditor_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PlixEditor.scss */ "./src/ui/components/editor/PlixEditor.scss");
-/* harmony import */ var _control_tabs_BSTabsWithContent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../control/tabs/BSTabsWithContent */ "./src/ui/components/control/tabs/BSTabsWithContent.tsx");
-/* harmony import */ var _PlixLibBlock_scss__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./PlixLibBlock.scss */ "./src/ui/components/editor/PlixLibBlock.scss");
+/* harmony import */ var _PlixLibBlock_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PlixLibBlock.scss */ "./src/ui/components/editor/PlixLibBlock.scss");
 
 
 
-
-const tabs = ["Filters", "Effects"];
 const PlixLibBlock = () => {
+    const [type, setType] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("all");
+    const onChangeRadio = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        setType(event.target.value);
+    }, [setType]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-block" },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_control_tabs_BSTabsWithContent__WEBPACK_IMPORTED_MODULE_2__.BSTabsWithContent, { tabs: tabs, type: "pills", justify: true, localStorageKey: "lib-tabs" },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-container" },
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-                "FIL",
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null)),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-container" }, "EFF"))));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-search" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { type: "search", placeholder: "search" }),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-search-radio", onChange: onChangeRadio },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null,
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { checked: type === "effects", type: "radio", name: "type", value: "effects" }),
+                    "effects"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null,
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { checked: type === "filters", type: "radio", name: "type", value: "filters" }),
+                    "filters"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null,
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { checked: type === "profiles", type: "radio", name: "type", value: "profiles" }),
+                    "profiles"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null,
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { checked: type === "all", type: "radio", name: "type", value: "all" }),
+                    "all"))),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-result" },
+            "result1",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+            "result1",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+            "result1",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+            "result1",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+            "result1",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+            "result1",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+            "result1",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+            "result1",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+            "result1",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+            "result1",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+            "result1",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+            "result1",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+            "result1",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+            "result1",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
+            "result1",
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null))));
 };
 
 
@@ -88449,6 +88459,7 @@ const CanvasDynPreview = ({ fieldConfig }) => {
             const parentSelection = (0,_editor_SelectionContext__WEBPACK_IMPORTED_MODULE_3__.getParentSelection)(track, path, effectConstructorMap, filterConstructorMap, 3);
             const timeline = parentSelection.item.slice(0);
             timeline[0] = true;
+            timeline[3] = [];
             const parentOptions = timeline[2].slice(0);
             parentOptions[0] = [copySelectedItem];
             const bpm = parentOptions[1];
