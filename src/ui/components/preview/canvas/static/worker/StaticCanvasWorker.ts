@@ -11,6 +11,8 @@ declare const self: Worker;
 let canvas: OffscreenCanvas;
 let canvasCtx: OffscreenCanvasRenderingContext2D;
 let parsedData: ReturnType<typeof parseRender>;
+let pixelCount: number|null = null;
+let duration: number = 0;
 
 
 const renderCanvas = () => {
@@ -18,26 +20,28 @@ const renderCanvas = () => {
     const width = canvas.width;
     const height = canvas.height;
 
-    const duration = height;
-    const count = width;
 
-    const colorMap = new Uint8ClampedArray(width*height*4);
+    // const colorMap = new Uint8ClampedArray(width*height*4);
+    console.log("RENDERING",width,height, duration)
     for (let h=0; h<height; h++){
+        const colorMap = new Uint8ClampedArray(width*4);
         const line = effect(h/height*duration, duration);
         for (let w=0; w<width; w++){
-            const mod = line(w/width*count, count);
+            const mod = line(w/width*pixelCount, pixelCount);
             const color = mod(TRANSPARENT_BLACK);
             const {r,g,b,a} = toRgba(color);
-            const index = ((h*width) + w) * 4;
+            if (h==0) console.log(r,g,b,a,TRANSPARENT_BLACK)
+            const index = w * 4;
             colorMap[index] = r;
             colorMap[index+1] = g;
             colorMap[index+2] = b;
             colorMap[index+3] = (a*255)|0;
         }
+        const imageData = canvasCtx.createImageData(width, 1);
+        imageData.data.set(colorMap);
+        canvasCtx.putImageData(imageData, 0, h);
     }
-    const imageData = canvasCtx.createImageData(width, height);
-    imageData.data.set(colorMap);
-    canvasCtx.putImageData(imageData, 0, 0);
+
 }
 
 onmessage = (event) => {
@@ -47,7 +51,7 @@ onmessage = (event) => {
         canvasCtx = canvas.getContext("2d");
     } else if (msg.type === "effect") {
         const {render, track} = msg;
-
+        duration = msg.duration;
         parsedData = parseRender(render, track.effects, track.filters, effectConstructorMap, filterConstructorMap );
         const effectKeys = Object.keys(parsedData.effectsMap).sort();
         const filterKeys = Object.keys(parsedData.filtersMap).sort();
@@ -57,6 +61,7 @@ onmessage = (event) => {
     } else if (msg.type === "size") {
         canvas.width = msg.width
         canvas.height = msg.height;
+        pixelCount = msg.pixelCount
         renderCanvas();
     }
 }
@@ -76,12 +81,14 @@ export interface StaticPreviewWorkerInputMessageEffect {
     type: "effect"
     render: PlixEffectJsonData,
     track: PlixJsonData,
+    duration: number,
     profileName: string|null,
 }
 export interface StaticPreviewWorkerInputMessageSizes {
     type: "size",
     width: number,
     height: number,
+    pixelCount: number|null
 }
 
 export type StaticPreviewWorkerOutputMessage = [string[], string[]]

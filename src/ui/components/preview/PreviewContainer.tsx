@@ -10,18 +10,11 @@ import {CanvasStaticPreview} from "./canvas/static/CanvasStaticPreview";
 
 export const PreviewContainer: FC = () => {
 
-    const profile = useProfile();
-    const {track} = useContext(TrackContext);
-
-    const fieldConfig = useMemo(() => {
-        return profile?.['fieldConfig'] ?? track?.['editor']?.['fieldConfig'] ?? DEFAULT_PREVIEW_FIELD_CONFIG;
-    }, [profile, track]);
-
     return (
-        <div style={{flexGrow: 1}}>
+        <div style={{flexGrow: 1, display: "flex", flexDirection: "column"}}>
             <BSTabsWithContent tabs={["Dynamic", "Static", "Timed"]} type={"pills"} justify={true} localStorageKey={"preview-tabs"}>
                 <div>
-                    <CanvasDynPreview fieldConfig={fieldConfig}/>
+                    <CanvasDynPreview/>
                 </div>
                 <div style={{display: "flex", flexGrow: 1}}>
                     <CanvasStaticPreview/>

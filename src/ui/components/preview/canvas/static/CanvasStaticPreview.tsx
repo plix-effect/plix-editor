@@ -11,7 +11,9 @@ import {
 import {useProfile, useProfileName} from "../../../editor/ProfileContext";
 import {isArraysEqual} from "../../../../utils/isArraysEqual";
 import { withResizeDetector } from 'react-resize-detector';
-import {CvsDynPreviewInMsgChangeField} from "../dynamic/worker/CanvasDynamicPreviewWorker";
+import {CvsDynPreviewInMsgChangeField, CvsDynPreviewOutMsg} from "../dynamic/worker/CanvasDynamicPreviewWorker";
+import {DEFAULT_PREVIEW_FIELD_CONFIG, PreviewFieldConfig} from "../dynamic/preview-field/PlixCanvasField";
+import "./CanvasStaticPreview.scss"
 
 const createStaticPreviewCanvasWorker = () => new Worker(new URL("./worker/StaticCanvasWorker.ts", import.meta.url));
 
@@ -40,14 +42,18 @@ const CanvasStaticPreviewCp: FC<{width: number, height: number}> = ({width, heig
     const profileRef = useRef(profile);
     profileRef.current = profile;
 
-    const render = useMemo(() => {
+    const fieldConfig: PreviewFieldConfig = useMemo(() => {
+        return profile?.['fieldConfig'] ?? track?.['editor']?.['fieldConfig'] ?? DEFAULT_PREVIEW_FIELD_CONFIG;
+    }, [profile, track]);
+
+    const [render] = useMemo(() => {
         if (selectedType === "effect") {
             if (selectedItem) {
                 const copySelectedItem = selectedItem.slice(0);
                 copySelectedItem[0] = true;
-                return copySelectedItem
+                return [copySelectedItem]
             }
-            else return selectedItem;
+            else return [selectedItem];
         } else if (selectedType === "record") {
             const copySelectedItem = selectedItem.slice(0);
             copySelectedItem[0] = true; // enable selected track
@@ -58,10 +64,10 @@ const CanvasStaticPreviewCp: FC<{width: number, height: number}> = ({width, heig
             const parentOptions = timeline[2].slice(0);
             parentOptions[0] = [copySelectedItem]; // set only one track
             timeline[2] = parentOptions;
-            return timeline
+            return [timeline]
         }
-        return track.render;
-    }, [selectedItem, selectedType, track]);
+        return [track.render];
+    }, [selectedItem, selectedType, fieldConfig, track]);
 
     useEffect(() => {
         if (!canvas) return;
@@ -75,6 +81,7 @@ const CanvasStaticPreviewCp: FC<{width: number, height: number}> = ({width, heig
         worker.addEventListener("message", (event) => {
             const data: StaticPreviewWorkerOutputMessage = event.data;
             const [usedEffectNames, usedFilterNames] = data;
+            console.log("OUTPUT",data)
             lastUsedEffectNames.current = usedEffectNames;
             lastUsedFilterNames.current = usedFilterNames;
             lastUsedEffects.current = usedEffectNames.map(name => {
@@ -131,7 +138,8 @@ const CanvasStaticPreviewCp: FC<{width: number, height: number}> = ({width, heig
         lastUsedEffectNames.current = null;
         lastUsedFilterNames.current = null;
 
-        const message: StaticPreviewWorkerInputMessageEffect = {type: "effect", render, track, profileName};
+        console.log("POST",track['editor'].duration);
+        const message: StaticPreviewWorkerInputMessageEffect = {type: "effect", render, track, profileName, duration: track['editor'].duration};
 
         worker.postMessage(message, []);
     }, [worker, render, track.filters, track.effects, profile, profileName, width, height]);
@@ -142,17 +150,21 @@ const CanvasStaticPreviewCp: FC<{width: number, height: number}> = ({width, heig
         const msg: StaticPreviewWorkerInputMessageSizes = {
             type: "size",
             width: width ?? 1,
-            height: height ?? 1
+            height: height ?? 1,
+            pixelCount: fieldConfig.elements.length
         }
+        console.log("WIDTH MSG", msg.width, msg.height)
         worker.postMessage(msg, [])
 
-    }, [worker, width, height])
+    }, [worker, width, height, fieldConfig])
 
     return (
-        <div style={{display: "flex", flexGrow: 1}}>
-            <canvas ref={setCanvas}/>
+        <div style={{display: "flex", flexGrow: 1, position: "relative"}}>
+            <span className={"canvas-static-preview-bg"}>
+                <canvas ref={setCanvas} style={{position: "absolute"}}/>
+            </span>
         </div>
     )
 }
 
-export const CanvasStaticPreview = withResizeDetector(CanvasStaticPreviewCp)
+export const CanvasStaticPreview = withResizeDetector(CanvasStaticPreviewCp, {refreshMode: "throttle" })

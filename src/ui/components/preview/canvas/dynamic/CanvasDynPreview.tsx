@@ -20,13 +20,13 @@ import {CheckboxButton} from "../../../control/checkbox/CheckboxButton";
 import {PlaybackRateSelector} from "./../PlaybackRateSelector";
 import {useLocalStorage} from "../../../../use/useStorage";
 import {useProfile, useProfileName} from "../../../editor/ProfileContext";
+import {DEFAULT_PREVIEW_FIELD_CONFIG} from "./preview-field/PlixCanvasField";
 
 const createDynPreviewCanvasWorker = () => new Worker(new URL("./worker/CanvasDynamicPreviewWorker.ts", import.meta.url));
 
 export interface CanvasDynPreviewProps {
-    fieldConfig: PreviewFieldConfig
 }
-export const CanvasDynPreview:FC<CanvasDynPreviewProps> = ({fieldConfig}) => {
+export const CanvasDynPreview:FC<CanvasDynPreviewProps> = () => {
     const [canvas, setCanvas] = useState<HTMLCanvasElement>();
     const [worker, setWorker] = useState<Worker>();
     const [repeatEnabled, setRepeatEnabled] = useLocalStorage("preview-repeat",false);
@@ -48,6 +48,15 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = ({fieldConfig}) => {
     const {track} = useContext(TrackContext);
     const {effectConstructorMap, filterConstructorMap} = useContext(ConstructorContext);
     const trackDuration = track?.['editor']?.['duration'] ?? 60*1000;
+
+    const profile = useProfile();
+    const [profileName] = useProfileName();
+    const profileRef = useRef(profile);
+    profileRef.current = profile;
+
+    const fieldConfig = useMemo(() => {
+        return profile?.['fieldConfig'] ?? track?.['editor']?.['fieldConfig'] ?? DEFAULT_PREVIEW_FIELD_CONFIG;
+    }, [profile, track]);
 
     const [render, start, duration] = useMemo(() => {
         if (selectedType === "effect") {
@@ -76,10 +85,6 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = ({fieldConfig}) => {
         return [track.render, 0, trackDuration];
     }, [selectedItem, selectedType, track]);
 
-    const profile = useProfile();
-    const [profileName] = useProfileName();
-    const profileRef = useRef(profile);
-    profileRef.current = profile;
 
     useEffect(() => {
         if (!canvas) return;
