@@ -22,7 +22,6 @@ const renderCanvas = () => {
 
 
     // const colorMap = new Uint8ClampedArray(width*height*4);
-    console.log("RENDERING",width,height, duration)
     for (let h=0; h<height; h++){
         const colorMap = new Uint8ClampedArray(width*4);
         const line = effect(h/height*duration, duration);
@@ -30,7 +29,6 @@ const renderCanvas = () => {
             const mod = line(w/width*pixelCount, pixelCount);
             const color = mod(TRANSPARENT_BLACK);
             const {r,g,b,a} = toRgba(color);
-            if (h==0) console.log(r,g,b,a,TRANSPARENT_BLACK)
             const index = w * 4;
             colorMap[index] = r;
             colorMap[index+1] = g;

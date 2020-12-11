@@ -81,7 +81,6 @@ const CanvasStaticPreviewCp: FC<{width: number, height: number}> = ({width, heig
         worker.addEventListener("message", (event) => {
             const data: StaticPreviewWorkerOutputMessage = event.data;
             const [usedEffectNames, usedFilterNames] = data;
-            console.log("OUTPUT",data)
             lastUsedEffectNames.current = usedEffectNames;
             lastUsedFilterNames.current = usedFilterNames;
             lastUsedEffects.current = usedEffectNames.map(name => {
@@ -138,7 +137,6 @@ const CanvasStaticPreviewCp: FC<{width: number, height: number}> = ({width, heig
         lastUsedEffectNames.current = null;
         lastUsedFilterNames.current = null;
 
-        console.log("POST",track['editor'].duration);
         const message: StaticPreviewWorkerInputMessageEffect = {type: "effect", render, track, profileName, duration: track['editor'].duration};
 
         worker.postMessage(message, []);
@@ -153,7 +151,6 @@ const CanvasStaticPreviewCp: FC<{width: number, height: number}> = ({width, heig
             height: height ?? 1,
             pixelCount: fieldConfig.elements.length
         }
-        console.log("WIDTH MSG", msg.width, msg.height)
         worker.postMessage(msg, [])
 
     }, [worker, width, height, fieldConfig])

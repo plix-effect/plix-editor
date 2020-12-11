@@ -102,7 +102,6 @@ export const TrackEditor: FC = () => {
     }, [setAudioFile]);
 
     const onSelectFile: ChangeEventHandler<HTMLInputElement> = useCallback(async (event) => {
-        console.log(event.target.files);
         const files = Array.from(event.target.files);
         let audioItem = files.find(item => item.type === "audio/mpeg");
         let jsonItem = files.find(item => item.type === "application/json");
