@@ -1,10 +1,11 @@
 import * as React from "react"
 import {FC, useContext, useMemo} from "react";
 import {BSTabsWithContent} from "../control/tabs/BSTabsWithContent";
-import {CanvasDynPreview} from "./canvas/CanvasDynPreview";
-import {DEFAULT_PREVIEW_FIELD_CONFIG, PreviewFieldConfig} from "./canvas/preview-field/PlixCanvasField";
+import {CanvasDynPreview} from "./canvas/dynamic/CanvasDynPreview";
+import {DEFAULT_PREVIEW_FIELD_CONFIG, PreviewFieldConfig} from "./canvas/dynamic/preview-field/PlixCanvasField";
 import {useProfile} from "../editor/ProfileContext";
 import {TrackContext} from "../editor/TrackContext";
+import {CanvasStaticPreview} from "./canvas/static/CanvasStaticPreview";
 
 
 export const PreviewContainer: FC = () => {
@@ -22,8 +23,8 @@ export const PreviewContainer: FC = () => {
                 <div>
                     <CanvasDynPreview fieldConfig={fieldConfig}/>
                 </div>
-                <div>
-                    STATIC
+                <div style={{display: "flex", flexGrow: 1}}>
+                    <CanvasStaticPreview/>
                 </div>
                 <div>
                     NEEVR GOAN GIVE YUO UP

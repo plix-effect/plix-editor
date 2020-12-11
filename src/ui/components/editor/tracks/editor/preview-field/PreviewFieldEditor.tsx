@@ -1,5 +1,5 @@
 import React, {FC, useCallback, useState} from "react";
-import {DEFAULT_PREVIEW_FIELD_CONFIG, PreviewFieldConfig} from "../../../../preview/canvas/preview-field/PlixCanvasField";
+import {DEFAULT_PREVIEW_FIELD_CONFIG, PreviewFieldConfig} from "../../../../preview/canvas/dynamic/preview-field/PlixCanvasField";
 import {PreviewFieldEditorModal} from "./PreviewFieldEditorModal";
 
 interface PreviewFieldEditorProps {

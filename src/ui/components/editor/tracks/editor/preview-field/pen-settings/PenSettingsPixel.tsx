@@ -2,7 +2,7 @@ import React, {FC, useState} from "react";
 import {
     FieldElementPixel,
     FieldElementPixelProperties
-} from "../../../../../preview/canvas/preview-field/PreviewFieldElement";
+} from "../../../../../preview/canvas/dynamic/preview-field/PreviewFieldElement";
 import {InlineSimpleSelectEditor} from "../../inline/InlineSimpleSelectEditor";
 import {InlineColorEditor} from "../../inline/InlineColorEditor";
 import {PlixColor} from "@plix-effect/core/color";

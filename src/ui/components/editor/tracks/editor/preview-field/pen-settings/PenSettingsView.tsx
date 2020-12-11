@@ -2,7 +2,7 @@ import React, {FC, useCallback, useEffect, useMemo, useState} from "react";
 import {
     FieldElement,
     FieldElementPixelProperties
-} from "../../../../../preview/canvas/preview-field/PreviewFieldElement";
+} from "../../../../../preview/canvas/dynamic/preview-field/PreviewFieldElement";
 import "./PenSettingsView.scss"
 import {InlineSimpleSelectEditor} from "../../inline/InlineSimpleSelectEditor";
 import {PenSettingsPixel} from "./PenSettingsPixel";

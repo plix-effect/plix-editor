@@ -1,5 +1,5 @@
-import {PlixCanvasField, RegularCanvasGeneric} from "../../../../preview/canvas/preview-field/PlixCanvasField";
-import {FieldElement} from "../../../../preview/canvas/preview-field/PreviewFieldElement";
+import {PlixCanvasField, RegularCanvasGeneric} from "../../../../preview/canvas/dynamic/preview-field/PlixCanvasField";
+import {FieldElement} from "../../../../preview/canvas/dynamic/preview-field/PreviewFieldElement";
 import {ITypedEventEmitter, TypedEventEmitter} from "../../../../../utils/TypedEventEmitter";
 import {shade} from "@plix-effect/core/color";
 

@@ -1,6 +1,6 @@
 import type {PlixEffectJsonData} from "@plix-effect/core/dist/types/parser";
 import type {PlixJsonData} from "@plix-effect/core/types/parser";
-import type {PlaybackStatus} from "../../../editor/PlaybackContext";
+import type {PlaybackStatus} from "../../../../editor/PlaybackContext";
 import * as effectConstructorMap from "@plix-effect/core/effects";
 import * as filterConstructorMap from "@plix-effect/core/filters";
 import parseRender from "@plix-effect/core/dist/parser";

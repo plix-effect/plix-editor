@@ -1,8 +1,8 @@
 import * as React from "react";
 import {ChangeEventHandler, FC, useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
 import {PlixEffectJsonData, PlixJsonData} from "@plix-effect/core/dist/types/parser";
-import {isArraysEqual} from "../../../utils/isArraysEqual";
-import {usePlaybackControl, usePlaybackData, usePlaybackStatus} from "../../editor/PlaybackContext";
+import {isArraysEqual} from "../../../../utils/isArraysEqual";
+import {usePlaybackControl, usePlaybackData, usePlaybackStatus} from "../../../editor/PlaybackContext";
 import type {PreviewFieldConfig} from "./preview-field/PlixCanvasField";
 import type {
     CvsDynPreviewInMsgChangeField,
@@ -11,15 +11,15 @@ import type {
     CvsDynPreviewInMsgRenderData, CvsDynPreviewInMsgSyncPerformance,
     CvsDynPreviewOutMsg
 } from "./worker/CanvasDynamicPreviewWorker";
-import {getParentSelection, useSelectionItem, useSelectionPath} from "../../editor/SelectionContext";
-import {TrackContext} from "../../editor/TrackContext";
-import {ConstructorContext} from "../../editor/ConstructorContext";
+import {getParentSelection, useSelectionItem, useSelectionPath} from "../../../editor/SelectionContext";
+import {TrackContext} from "../../../editor/TrackContext";
+import {ConstructorContext} from "../../../editor/ConstructorContext";
 import {TIMELINE_LCM} from "@plix-effect/core/dist/effects/Timeline";
-import "./CanvasPreview.scss"
-import {CheckboxButton} from "../../control/checkbox/CheckboxButton";
-import {PlaybackRateSelector} from "./PlaybackRateSelector";
-import {useLocalStorage} from "../../../use/useStorage";
-import {useProfile, useProfileName} from "../../editor/ProfileContext";
+import "../CanvasPreview.scss"
+import {CheckboxButton} from "../../../control/checkbox/CheckboxButton";
+import {PlaybackRateSelector} from "./../PlaybackRateSelector";
+import {useLocalStorage} from "../../../../use/useStorage";
+import {useProfile, useProfileName} from "../../../editor/ProfileContext";
 
 const createDynPreviewCanvasWorker = () => new Worker(new URL("./worker/CanvasDynamicPreviewWorker.ts", import.meta.url));
 

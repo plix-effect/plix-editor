@@ -1,4 +1,4 @@
-import {PlaybackStatus} from "../../../editor/PlaybackContext";
+import {PlaybackStatus} from "../../../../editor/PlaybackContext";
 import {PlixEffectJsonData} from "@plix-effect/core/dist/types/parser";
 import {PlixJsonData, PlixProfile} from "@plix-effect/core/types/parser";
 import {PreviewFieldConfig, PlixCanvasField, OffscreenCanvasGeneric} from "../preview-field/PlixCanvasField";

@@ -13,12 +13,12 @@ import {
     PlixCanvasField,
     PreviewFieldConfig,
     RegularCanvasGeneric
-} from "../../../../preview/canvas/preview-field/PlixCanvasField";
+} from "../../../../preview/canvas/dynamic/preview-field/PlixCanvasField";
 import "./CanvasFieldEditor.scss"
 import Form from "react-bootstrap/cjs/Form";
 import {Checkbox} from "../../../../control/checkbox/Checkbox";
 import {FieldElementEditor} from "./FieldElementEditor";
-import {FieldElement} from "../../../../preview/canvas/preview-field/PreviewFieldElement";
+import {FieldElement} from "../../../../preview/canvas/dynamic/preview-field/PreviewFieldElement";
 import {PenSettingsView} from "./pen-settings/PenSettingsView";
 
 interface CanvasFieldEditorProps {
