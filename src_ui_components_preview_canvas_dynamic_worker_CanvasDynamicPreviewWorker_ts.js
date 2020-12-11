@@ -2,10 +2,10 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/ui/components/preview/canvas/preview-field/PlixCanvasField.ts":
-/*!***************************************************************************!*
-  !*** ./src/ui/components/preview/canvas/preview-field/PlixCanvasField.ts ***!
-  \***************************************************************************/
+/***/ "./src/ui/components/preview/canvas/dynamic/preview-field/PlixCanvasField.ts":
+/*!***********************************************************************************!*\
+  !*** ./src/ui/components/preview/canvas/dynamic/preview-field/PlixCanvasField.ts ***!
+  \***********************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -134,18 +134,18 @@ class PlixCanvasField {
 
 /***/ }),
 
-/***/ "./src/ui/components/preview/canvas/worker/CanvasDynamicPreviewWorker.ts":
-/*!*******************************************************************************!*
-  !*** ./src/ui/components/preview/canvas/worker/CanvasDynamicPreviewWorker.ts ***!
-  \*******************************************************************************/
+/***/ "./src/ui/components/preview/canvas/dynamic/worker/CanvasDynamicPreviewWorker.ts":
+/*!***************************************************************************************!*\
+  !*** ./src/ui/components/preview/canvas/dynamic/worker/CanvasDynamicPreviewWorker.ts ***!
+  \***************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../preview-field/PlixCanvasField */ "./src/ui/components/preview/canvas/preview-field/PlixCanvasField.ts");
+/* harmony import */ var _preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../preview-field/PlixCanvasField */ "./src/ui/components/preview/canvas/dynamic/preview-field/PlixCanvasField.ts");
 /* harmony import */ var _plix_effect_core_dist_parser__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @plix-effect/core/dist/parser */ "./node_modules/@plix-effect/core/dist/parser/index.js");
 /* harmony import */ var _plix_effect_core_effects__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @plix-effect/core/effects */ "./node_modules/@plix-effect/core/dist/effects/index.js");
 /* harmony import */ var _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @plix-effect/core/filters */ "./node_modules/@plix-effect/core/dist/filters/index.js");
-/* harmony import */ var _CanvasFieldRenderer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./CanvasFieldRenderer */ "./src/ui/components/preview/canvas/worker/CanvasFieldRenderer.ts");
+/* harmony import */ var _CanvasFieldRenderer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./CanvasFieldRenderer */ "./src/ui/components/preview/canvas/dynamic/worker/CanvasFieldRenderer.ts");
 
 
 
@@ -229,10 +229,10 @@ onmessage = (event) => {
 
 /***/ }),
 
-/***/ "./src/ui/components/preview/canvas/worker/CanvasFieldRenderer.ts":
-/*!************************************************************************!*
-  !*** ./src/ui/components/preview/canvas/worker/CanvasFieldRenderer.ts ***!
-  \************************************************************************/
+/***/ "./src/ui/components/preview/canvas/dynamic/worker/CanvasFieldRenderer.ts":
+/*!********************************************************************************!*\
+  !*** ./src/ui/components/preview/canvas/dynamic/worker/CanvasFieldRenderer.ts ***!
+  \********************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -319,7 +319,7 @@ class CanvasFieldRenderer {
 /******/ 	// the startup function
 /******/ 	__webpack_require__.x = () => {
 /******/ 		// Load entry module
-/******/ 		__webpack_require__("./src/ui/components/preview/canvas/worker/CanvasDynamicPreviewWorker.ts");
+/******/ 		__webpack_require__("./src/ui/components/preview/canvas/dynamic/worker/CanvasDynamicPreviewWorker.ts");
 /******/ 		// This entry module used 'exports' so it can't be inlined
 /******/ 	};
 /******/ 	
@@ -442,7 +442,7 @@ class CanvasFieldRenderer {
 /******/ 		// object to store loaded chunks
 /******/ 		// "1" means "already loaded"
 /******/ 		var installedChunks = {
-/******/ 			"src_ui_components_preview_canvas_worker_CanvasDynamicPreviewWorker_ts": 1
+/******/ 			"src_ui_components_preview_canvas_dynamic_worker_CanvasDynamicPreviewWorker_ts": 1
 /******/ 		};
 /******/ 		
 /******/ 		// importScripts chunk loading
@@ -479,4 +479,4 @@ class CanvasFieldRenderer {
 /******/ 	return __webpack_require__.x();
 /******/ })()
 ;
-//# sourceMappingURL=src_ui_components_preview_canvas_worker_CanvasDynamicPreviewWorker_ts.js.map
+//# sourceMappingURL=src_ui_components_preview_canvas_dynamic_worker_CanvasDynamicPreviewWorker_ts.js.map
