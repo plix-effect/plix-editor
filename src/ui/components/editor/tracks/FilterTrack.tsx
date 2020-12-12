@@ -9,17 +9,12 @@ import React, {
     useMemo,
 } from "react";
 import {Track} from "../../timeline/Track";
-import {
-    PlixFilterJsonData,
-    PlixFilterAliasJsonData,
-    PlixFilterConfigurableJsonData, PlixEffectJsonData,
-} from "@plix-effect/core/types/parser";
+import {PlixFilterConfigurableJsonData, PlixFilterJsonData} from "@plix-effect/core/types/parser";
 import {EditorPath} from "../../../types/Editor";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 
 import {TrackContext} from "../TrackContext";
 import {ParseMeta} from "../../../types/ParseMeta";
-import {ValueTrack} from "./ValueTrack";
 import {useExpander} from "../track-elements/Expander";
 import {EditValueAction, MultiAction, MultiActionType} from "../PlixEditorReducerActions";
 import "./tracks.scss";
@@ -30,6 +25,8 @@ import {isObjectEqualOrContains} from "../../../utils/isObjectContains";
 import {ConstructorContext} from "../ConstructorContext";
 import {FilterParamsTrack} from "./FilterParamsTrack";
 import {RenameTrack} from "./RenameTrack";
+import {useFilterClass} from "../../../use/useFilterClass";
+import {ContainerFilterTrack} from "./ContainerFilterTrack";
 
 export interface FilterTrackProps {
     baseExpanded?: boolean,
@@ -56,6 +53,8 @@ export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, overrideVa
             deleteAction: deleteAction
         }
     }, [filter, alias, deleteAction, overrideValue]);
+
+    const filterClass = useFilterClass(filter);
 
     const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | [string, DragEventHandler] => {
         const originDragHandler = onDragOverItem?.(event, dragData);
@@ -143,6 +142,17 @@ export const FilterTrack: FC<FilterTrackProps> = memo(({baseExpanded, overrideVa
             overrideValue={overrideValue}
         >{children}</OverrideFilterTrack>
     );
+
+    if (filterClass === "container") return (
+        <ContainerFilterTrack
+            filter={filter as PlixFilterConfigurableJsonData}
+            path={path}
+            onChange={onChangeFilter}
+            expanded={expanded}
+            alias={alias}
+            leftBlock={leftBlock}
+        />
+    )
 
     return (
         <Track nested expanded={expanded}>
