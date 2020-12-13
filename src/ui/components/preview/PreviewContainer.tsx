@@ -1,25 +1,23 @@
 import * as React from "react"
-import {FC, useContext, useMemo} from "react";
+import {FC} from "react";
 import {BSTabsWithContent} from "../control/tabs/BSTabsWithContent";
 import {CanvasDynPreview} from "./canvas/dynamic/CanvasDynPreview";
-import {DEFAULT_PREVIEW_FIELD_CONFIG, PreviewFieldConfig} from "./canvas/dynamic/preview-field/PlixCanvasField";
-import {useProfile} from "../editor/ProfileContext";
-import {TrackContext} from "../editor/TrackContext";
 import {CanvasStaticPreview} from "./canvas/static/CanvasStaticPreview";
+import "./PreviewContainer.scss"
 
 
 export const PreviewContainer: FC = () => {
 
     return (
-        <div style={{flexGrow: 1, display: "flex", flexDirection: "column"}}>
+        <div className={"preview-container"}>
             <BSTabsWithContent tabs={["Dynamic", "Static", "Timed"]} type={"pills"} justify={true} localStorageKey={"preview-tabs"}>
-                <div>
+                <div className={"_tab"}>
                     <CanvasDynPreview/>
                 </div>
-                <div style={{display: "flex", flexGrow: 1}}>
+                <div className={"_tab"}>
                     <CanvasStaticPreview/>
                 </div>
-                <div>
+                <div className={"_tab"}>
                     NEEVR GOAN GIVE YUO UP
                 </div>
             </BSTabsWithContent>

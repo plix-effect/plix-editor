@@ -17,7 +17,6 @@ export const TimelineEditorTime: FC<TimelineEditorTimeProps> = memo(({}) => {
     const [canvasEl, setCanvasEl] = useState<HTMLCanvasElement>();
 
     const dur = minCycleSize / zoom;
-    console.log("DUR", dur);
     const timeStep = timeSteps.find(step => step >= dur);
     const gridTimeStep = gridSteps[timeSteps.indexOf(timeStep)];
 

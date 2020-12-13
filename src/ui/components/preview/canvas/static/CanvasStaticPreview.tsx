@@ -1,5 +1,5 @@
 import React, {FC, useContext, useEffect, useMemo, useRef, useState} from "react";
-import {PlixEffectJsonData} from "@plix-effect/core/dist/types/parser";
+import {PlixEffectAliasJsonData, PlixEffectJsonData} from "@plix-effect/core/dist/types/parser";
 import {getParentSelection, useSelectionItem, useSelectionPath} from "../../../editor/SelectionContext";
 import {TrackContext} from "../../../editor/TrackContext";
 import {ConstructorContext} from "../../../editor/ConstructorContext";
@@ -14,6 +14,7 @@ import { withResizeDetector } from 'react-resize-detector';
 import {CvsDynPreviewInMsgChangeField, CvsDynPreviewOutMsg} from "../dynamic/worker/CanvasDynamicPreviewWorker";
 import {DEFAULT_PREVIEW_FIELD_CONFIG, PreviewFieldConfig} from "../dynamic/preview-field/PlixCanvasField";
 import "./CanvasStaticPreview.scss"
+import {TIMELINE_LCM} from "@plix-effect/core/dist/effects/Timeline";
 
 const createStaticPreviewCanvasWorker = () => new Worker(new URL("./worker/StaticCanvasWorker.ts", import.meta.url));
 
@@ -42,32 +43,33 @@ const CanvasStaticPreviewCp: FC<{width: number, height: number}> = ({width, heig
     const profileRef = useRef(profile);
     profileRef.current = profile;
 
+    const trackDuration = track['editor'].duration;
+
     const fieldConfig: PreviewFieldConfig = useMemo(() => {
         return profile?.['fieldConfig'] ?? track?.['editor']?.['fieldConfig'] ?? DEFAULT_PREVIEW_FIELD_CONFIG;
     }, [profile, track]);
 
-    const [render] = useMemo(() => {
+    const [render, start, duration] = useMemo(() => {
         if (selectedType === "effect") {
             if (selectedItem) {
                 const copySelectedItem = selectedItem.slice(0);
                 copySelectedItem[0] = true;
-                return [copySelectedItem]
+                return [copySelectedItem, 0, trackDuration]
             }
-            else return [selectedItem];
+            else return [selectedItem, 0, trackDuration];
         } else if (selectedType === "record") {
-            const copySelectedItem = selectedItem.slice(0);
-            copySelectedItem[0] = true; // enable selected track
             const parentSelection = getParentSelection(track, path, effectConstructorMap, filterConstructorMap, 3);
-            const timeline = parentSelection.item.slice(0);
-            timeline[0] = true; // enable timeline
-            timeline[3] = []; // remove timeline filters
-            const parentOptions = timeline[2].slice(0);
-            parentOptions[0] = [copySelectedItem]; // set only one track
-            timeline[2] = parentOptions;
-            return [timeline]
+            const timeline = parentSelection.item;
+            const parentOptions = timeline[2];
+            const bpm = parentOptions[1];
+            const offset = parentOptions[3];
+            const start = offset + 60000/bpm / TIMELINE_LCM * selectedItem[2];
+            const duration = (selectedItem[3]-selectedItem[2]) *  60000/bpm/TIMELINE_LCM
+            const effect: PlixEffectAliasJsonData = [true, null, selectedItem[1], []]
+            return [effect, start, duration]
         }
-        return [track.render];
-    }, [selectedItem, selectedType, fieldConfig, track]);
+        return [track.render, 0, trackDuration];
+    }, [selectedItem, selectedType, fieldConfig, track, trackDuration]);
 
     useEffect(() => {
         if (!canvas) return;
@@ -81,7 +83,6 @@ const CanvasStaticPreviewCp: FC<{width: number, height: number}> = ({width, heig
         worker.addEventListener("message", (event) => {
             const data: StaticPreviewWorkerOutputMessage = event.data;
             const [usedEffectNames, usedFilterNames] = data;
-            console.log("OUTPUT",data)
             lastUsedEffectNames.current = usedEffectNames;
             lastUsedFilterNames.current = usedFilterNames;
             lastUsedEffects.current = usedEffectNames.map(name => {
@@ -106,7 +107,7 @@ const CanvasStaticPreviewCp: FC<{width: number, height: number}> = ({width, heig
         if (!worker) return;
 
         function isRerenderRequired(): boolean{
-            if (!isArraysEqual(lastUsedSize.current, [width, height])) {
+            if (!isArraysEqual(lastUsedSize.current, [width, height, duration, start])) {
                 return true;
             }
             if (lastUsedEffectRef.current !== render) {
@@ -133,16 +134,15 @@ const CanvasStaticPreviewCp: FC<{width: number, height: number}> = ({width, heig
         }
         if (!isRerenderRequired()) return;
 
-        lastUsedSize.current = [width, height];
+        lastUsedSize.current = [width, height, duration, start];
         lastUsedEffectRef.current = render;
         lastUsedEffectNames.current = null;
         lastUsedFilterNames.current = null;
 
-        console.log("POST",track['editor'].duration);
-        const message: StaticPreviewWorkerInputMessageEffect = {type: "effect", render, track, profileName, duration: track['editor'].duration};
+        const message: StaticPreviewWorkerInputMessageEffect = {type: "effect", render, track, profileName, duration, start};
 
         worker.postMessage(message, []);
-    }, [worker, render, track.filters, track.effects, profile, profileName, width, height]);
+    }, [worker, render, track.filters, track.effects, profile, profileName, width, height, duration]);
 
     useEffect(() => {
         if (!worker) return;
@@ -153,15 +153,14 @@ const CanvasStaticPreviewCp: FC<{width: number, height: number}> = ({width, heig
             height: height ?? 1,
             pixelCount: fieldConfig.elements.length
         }
-        console.log("WIDTH MSG", msg.width, msg.height)
         worker.postMessage(msg, [])
 
     }, [worker, width, height, fieldConfig])
 
     return (
-        <div style={{display: "flex", flexGrow: 1, position: "relative"}}>
-            <span className={"canvas-static-preview-bg"}>
-                <canvas ref={setCanvas} style={{position: "absolute"}}/>
+        <div className={"canvas-static-preview _container"}>
+            <span className={"_bg"}>
+                <canvas ref={setCanvas} className={"_canvas"}/>
             </span>
         </div>
     )

@@ -1,5 +1,6 @@
 import React, {createContext, FC, useContext, useEffect, useMemo, useRef, useState} from "react";
 import useLatestCallback from "../../use/useLatestCallback";
+import {useLocalStorage} from "../../use/useStorage";
 
 
 interface PlaybackDataContextProps {
@@ -21,6 +22,12 @@ interface PlaybackControlContextProps {
     stop: () => void
 }
 const PlaybackControlContext = createContext<PlaybackControlContextProps|null>(null);
+
+interface AudioVolumeContextProps {
+    setVolume: (number) => void,
+    volume: number;
+}
+const AudioVolumeContext = createContext<AudioVolumeContextProps|null>(null);
 
 export interface CreatePlaybackProps {
     duration: number;
@@ -117,11 +124,20 @@ export const CreatePlayback: FC<CreatePlaybackProps> = ({children, duration}) =>
         repeat: playData.repeat,
     }), [playData.playFromStamp, playData.repeatEnd, playData.repeatStart, playData.pauseTime, playData.repeat, playData.rate]);
 
+    const [vol, setVol] = useLocalStorage("audio-volume", 1);
+
+    const audioVolumeValue = useMemo<AudioVolumeContextProps>(() => ({
+        setVolume: setVol,
+        volume: vol,
+    }), [vol, setVol])
+
     return (
         <PlaybackControlContext.Provider value={playbackControlValue}>
             <PlaybackDataContext.Provider value={playbackStatusValue}>
                 <PlaybackStatusContext.Provider value={playData.status}>
-                    {children}
+                    <AudioVolumeContext.Provider value={audioVolumeValue}>
+                        {children}
+                    </AudioVolumeContext.Provider>
                 </PlaybackStatusContext.Provider>
             </PlaybackDataContext.Provider>
         </PlaybackControlContext.Provider>
@@ -138,4 +154,8 @@ export function usePlaybackData(): PlaybackDataContextProps{
 
 export function usePlaybackControl(): PlaybackControlContextProps{
     return useContext(PlaybackControlContext);
+}
+
+export function useAudioVolume(): AudioVolumeContextProps{
+    return useContext(AudioVolumeContext);
 }
