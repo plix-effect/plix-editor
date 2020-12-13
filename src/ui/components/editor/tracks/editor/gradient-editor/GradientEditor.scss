@@ -2,9 +2,13 @@ $grady-outline: 2px #525252 dashed;;
 
 .grady-editor-container {
 
+  height: 30px;
+  width: 200px;
+
   .grady-editor-trigger {
-    width: 200px;
-    height: 30px;
+    position: absolute;
+    width: 100%;
+    height: 100%;
     outline: $grady-outline;
     cursor: pointer;
   }

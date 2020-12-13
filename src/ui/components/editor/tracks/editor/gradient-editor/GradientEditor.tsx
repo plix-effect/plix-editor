@@ -29,7 +29,9 @@ export const GradientEditor: FC<GradientEditorProps> = ({value, onChange}) => {
     }, [value])
     return (
         <div className={"grady-editor-container"}>
-            <div className={"grady-editor-trigger"} style={{background: htmlGradient}} title={"Click to edit"} onClick={openModal}/>
+            <span className={"transanim-background"}>
+                <div className={"grady-editor-trigger"} style={{background: htmlGradient}} title={"Click to edit"} onClick={openModal}/>
+            </span>
             <GradientEditorModal value={value} close={onClose} isOpen={open}/>
         </div>
     );

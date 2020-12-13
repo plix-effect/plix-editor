@@ -53,6 +53,16 @@ export const GradientEditorModal: FC<GradientEditorModalProps> = ({isOpen, close
         return gradientToHtmlString(gradientData);
     }, [gradientData])
 
+    const onClickClose = (v) => {
+        console.log("ON CLICK CLOSE");
+        if (v) {
+            close(v);
+        } else {
+            setGradientData(value);
+            close(value);
+        }
+    }
+
     const buttonsView = useMemo(() => {
         return (closeFn) => {
             const saveClose = () => {
@@ -60,7 +70,6 @@ export const GradientEditorModal: FC<GradientEditorModalProps> = ({isOpen, close
             }
             const cancelClose = () => {
                 closeFn(value);
-                setGradientData(value);
             }
 
             return (
@@ -186,7 +195,7 @@ export const GradientEditorModal: FC<GradientEditorModalProps> = ({isOpen, close
     }, [gradientData])
 
     return (
-        <BSModal isOpen={isOpen} close={close} size={"lg"}>
+        <BSModal isOpen={isOpen} close={onClickClose} size={"lg"}>
             <span>Gradient editor</span>
             <div className={"grady-content"}>
                 <div className={"preview-container"} onDoubleClick={onClickPreview} ref={previewContainerRef}>
