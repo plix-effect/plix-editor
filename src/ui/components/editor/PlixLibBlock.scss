@@ -8,17 +8,27 @@
 
 .plix-lib-search {
     flex-grow: 0;
-    display: block;
+    display: flex;
     flex-shrink: 0;
     padding: 3px;
-    input {
-        width: 100%;
+    max-width: 100%;
+    & > input {
+        flex-grow: 1;
+        flex-shrink: 1;
+        width: 50px;
+        &:not(:focus) {
+            background-color: inherit;
+            color: inherit;
+        }
+    }
+    & > select {
         &:not(:focus) {
             background-color: inherit;
             color: inherit;
         }
     }
 }
+
 .plix-lib-result {
     padding: 3px;
     flex-grow: 1;
