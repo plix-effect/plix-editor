@@ -856,14 +856,20 @@ body .btn-primary:focus {
 
 .plix-lib-search {
   flex-grow: 0;
-  display: block;
+  display: flex;
   flex-shrink: 0;
-  padding: 3px; }
-  .plix-lib-search input {
-    width: 100%; }
-    .plix-lib-search input:not(:focus) {
+  padding: 3px;
+  max-width: 100%; }
+  .plix-lib-search > input {
+    flex-grow: 1;
+    flex-shrink: 1;
+    width: 50px; }
+    .plix-lib-search > input:not(:focus) {
       background-color: inherit;
       color: inherit; }
+  .plix-lib-search > select:not(:focus) {
+    background-color: inherit;
+    color: inherit; }
 
 .plix-lib-result {
   padding: 3px;

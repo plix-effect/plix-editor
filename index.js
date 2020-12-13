@@ -84851,63 +84851,142 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "PlixLibBlock": () => /* binding */ PlixLibBlock
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _PlixEditor_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PlixEditor.scss */ "./src/ui/components/editor/PlixEditor.scss");
-/* harmony import */ var _PlixLibBlock_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PlixLibBlock.scss */ "./src/ui/components/editor/PlixLibBlock.scss");
+/* harmony import */ var _PlixLibBlock_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PlixLibBlock.scss */ "./src/ui/components/editor/PlixLibBlock.scss");
+/* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TrackContext */ "./src/ui/components/editor/TrackContext.ts");
 
 
 
 const PlixLibBlock = () => {
+    const { track } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
+    const searchRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const [type, setType] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("all");
-    const onChangeRadio = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+    const [text, setText] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("");
+    const searchWithType = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((type) => {
+        console.log("searchWithType", type);
+        searchRef.current.focus();
+        searchRef.current.select();
+        if (type)
+            setType(type);
+    }, []);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        const onKeyDown = (event) => {
+            console.log("EE", event);
+            const { code, ctrlKey, shiftKey, altKey } = event;
+            if (code === "KeyF" && ctrlKey && !shiftKey && !altKey) {
+                event.preventDefault();
+                return searchWithType("all");
+            }
+            if (code === "KeyF" && ctrlKey && shiftKey && !altKey) {
+                event.preventDefault();
+                return searchWithType("filters");
+            }
+            if (code === "KeyE" && ctrlKey && shiftKey && !altKey) {
+                event.preventDefault();
+                return searchWithType("effects");
+            }
+            if (code === "KeyP" && ctrlKey && shiftKey && !altKey) {
+                event.preventDefault();
+                return searchWithType("profiles");
+            }
+        };
+        const captureEvent = { capture: true };
+        window.addEventListener("keydown", onKeyDown, captureEvent);
+        return () => window.removeEventListener("keydown", onKeyDown, captureEvent);
+    }, []);
+    const onChangeOption = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
         setType(event.target.value);
+        searchRef.current.focus();
+        searchRef.current.select();
     }, [setType]);
+    const onChangeText = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        setText(event.target.value);
+    }, [setType]);
+    const searchResults = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        if (!text)
+            return [];
+        const lText = text.toLowerCase();
+        const results = [];
+        if (type === "all" || type === "effects")
+            for (const name of Object.keys(track.effects)) {
+                const lName = name.toLowerCase();
+                let accuracy = 0;
+                if (lName === lText)
+                    accuracy = 100;
+                if (lName.startsWith(lText))
+                    accuracy = 10;
+                if (lName.indexOf(lText) > 0)
+                    accuracy = 1;
+                if (accuracy === 0)
+                    continue;
+                results.push({ type: "effect", accuracy, name: name, value: track.effects[name] });
+            }
+        if (type === "all" || type === "filters")
+            for (const name of Object.keys(track.filters)) {
+                const lName = name.toLowerCase();
+                let accuracy = 0;
+                if (lName === lText)
+                    accuracy = 100;
+                if (lName.startsWith(lText))
+                    accuracy = 10;
+                if (lName.indexOf(lText) > 0)
+                    accuracy = 1;
+                if (accuracy === 0)
+                    continue;
+                results.push({ type: "filter", accuracy, name: name, value: track.filters[name] });
+            }
+        if (type === "all" || type === "profiles")
+            for (const name of Object.keys(track.profiles)) {
+                const lName = name.toLowerCase();
+                let accuracy = 0;
+                if (lName === lText)
+                    accuracy = 100;
+                if (lName.startsWith(lText))
+                    accuracy = 10;
+                if (lName.indexOf(lText) > 0)
+                    accuracy = 1;
+                if (accuracy === 0)
+                    continue;
+                results.push({ type: "profile", accuracy, name: name, value: track.profiles[name] });
+            }
+        results.sort((r1, r2) => {
+            if (r1.accuracy > r2.accuracy)
+                return -1;
+            if (r1.accuracy < r2.accuracy)
+                return 1;
+            if (r1.name > r2.name)
+                return 1;
+            if (r1.name < r2.name)
+                return -1;
+            return 0;
+        });
+        return results;
+    }, [type, text, track]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-block" },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-search" },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { type: "search", placeholder: "search" }),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-search-radio", onChange: onChangeRadio },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null,
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { checked: type === "effects", type: "radio", name: "type", value: "effects" }),
-                    "effects"),
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null,
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { checked: type === "filters", type: "radio", name: "type", value: "filters" }),
-                    "filters"),
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null,
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { checked: type === "profiles", type: "radio", name: "type", value: "profiles" }),
-                    "profiles"),
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null,
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { checked: type === "all", type: "radio", name: "type", value: "all" }),
-                    "all"))),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-result" },
-            "result1",
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-            "result1",
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-            "result1",
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-            "result1",
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-            "result1",
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-            "result1",
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-            "result1",
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-            "result1",
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-            "result1",
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-            "result1",
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-            "result1",
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-            "result1",
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-            "result1",
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-            "result1",
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null),
-            "result1",
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null))));
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { type: "search", ref: searchRef, placeholder: "search", value: text, onChange: onChangeText }),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("select", { onChange: onChangeOption, value: type },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("option", { value: "all", title: "Ctrl+F" }, "all"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("option", { value: "effects", title: "Ctrl+Shift+E" }, "effects"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("option", { value: "filters", title: "Ctrl+Shift+F" }, "filters"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("option", { value: "profiles", title: "Ctrl+Shift+P" }, "profiles"))),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-result" }, searchResults.map((result) => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlixLibResult, { value: result, key: result.type + result.name }))))));
+};
+const PlixLibResult = ({ value }) => {
+    switch (value.type) {
+        case "effect": return react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlixLibResultEffect, { value: value });
+        case "filter": return react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlixLibResultFilter, { value: value });
+        case "profile": return react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlixLibResultProfile, { value: value });
+    }
+    return null;
+};
+const PlixLibResultEffect = ({ value }) => {
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, value.name));
+};
+const PlixLibResultFilter = ({ value }) => {
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, value.name));
+};
+const PlixLibResultProfile = ({ value }) => {
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, value.name));
 };
 
 
