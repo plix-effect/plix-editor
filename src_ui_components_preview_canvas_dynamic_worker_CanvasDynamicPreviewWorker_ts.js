@@ -25,6 +25,7 @@ const DEFAULT_PREVIEW_FIELD_CONFIG = {
 };
 class PlixCanvasField {
     constructor(canvas) {
+        this.contourColor = contourColor;
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
     }
@@ -32,6 +33,7 @@ class PlixCanvasField {
         this.cfg = cfg;
         this.canvas.height = cfg.height;
         this.canvas.width = cfg.width;
+        this.resetDraw();
     }
     getConfig() {
         return this.cfg;
@@ -39,11 +41,14 @@ class PlixCanvasField {
     get elementsCount() {
         return this.cfg.elements.length;
     }
-    drawElementFromConfig(index, color, outlineColor = contourColor) {
+    setContourColor(clr) {
+        this.contourColor = clr;
+    }
+    drawElementFromConfig(index, color, outlineColor = this.contourColor) {
         const element = this.cfg.elements[index];
         this.drawElement(element, color, outlineColor);
     }
-    drawElement(element, color, outlineColor = contourColor) {
+    drawElement(element, color, outlineColor = this.contourColor) {
         if (element.type === "line")
             this.drawLine(element, color, outlineColor);
         else if (element.type === "pixel")
@@ -57,10 +62,10 @@ class PlixCanvasField {
             this.drawElementFromConfig(i, null);
         }
     }
-    drawLine(lineInfo, color, outlineColor = contourColor) {
+    drawLine(lineInfo, color, outlineColor = this.contourColor) {
         console.warn("drawLine not implemented");
     }
-    drawPixel(pixelInfo, color, outlineColor = contourColor) {
+    drawPixel(pixelInfo, color, outlineColor = this.contourColor) {
         const [x, y] = pixelInfo.geometry;
         const ctx = this.ctx;
         const size = pixelInfo.props.size;

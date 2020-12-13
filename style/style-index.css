@@ -1,3 +1,28 @@
+.transanim-background {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  height: 100%; }
+  .transanim-background::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 0;
+    background-color: #000000;
+    background-image: linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%);
+    background-size: 10px 10px;
+    animation: .7s linear 0s infinite canvas-static-preview-bg-move;
+    animation-play-state: paused; }
+  .transanim-background:hover::before {
+    animation-play-state: running; }
+
+@keyframes canvas-static-preview-bg-move {
+  from {
+    background-position: 0 0, 0 5px, 5px -5px, -5px 0px; }
+  to {
+    background-position: -15px -5px, -15px 0px, -10px -10px, -20px -5px; } }
+
 html, html > body {
   padding: 0;
   margin: 0;
@@ -50,6 +75,9 @@ body .btn-primary:focus {
 .input-file-label input[type=file] {
   display: none;
   pointer-events: auto; }
+
+.popup-content {
+  z-index: 1050 !important; }
 
 .plix-editor {
   display: flex;
@@ -528,6 +556,7 @@ body .btn-primary:focus {
   border-radius: 40%; }
 
 .inline-color-editor .ice-color-container {
+  cursor: pointer;
   border-radius: 40%;
   background-image: linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%);
   background-color: white;
@@ -583,13 +612,16 @@ body .btn-primary:focus {
     font-weight: bold; }
   .cfe-controls-group:not(:first-child) {
     margin-left: 60px; }
+  .cfe-controls-group .cfe-option-label:not(:first-child) {
+    margin-top: 10px; }
 
 .cfe-option {
   display: flex;
   flex-direction: row;
   justify-content: left;
   align-items: center;
-  width: 200px; }
+  width: 200px;
+  height: 38px; }
   .cfe-option .cfe-option-name {
     display: inline-block;
     width: 35%; }
@@ -624,6 +656,61 @@ body .btn-primary:focus {
       display: inline-block;
       margin-left: 10px;
       width: calc(100% - 151px - 10px); }
+
+.grady-editor-container {
+  height: 30px;
+  width: 200px; }
+  .grady-editor-container .grady-editor-trigger {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    outline: 2px #525252 dashed;
+    cursor: pointer; }
+
+.grady-content {
+  display: flex;
+  flex-direction: column; }
+  .grady-content .preview-container {
+    position: relative;
+    flex-grow: 1;
+    margin: 5px;
+    height: 40px;
+    outline: 2px #525252 dashed;
+    cursor: pointer; }
+    .grady-content .preview-container-bg {
+      position: absolute; }
+    .grady-content .preview-container .preview {
+      position: absolute;
+      width: 100%;
+      height: 100%; }
+    .grady-content .preview-container .markers-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      pointer-events: none; }
+      .grady-content .preview-container .markers-container .grady-marker {
+        position: absolute;
+        height: 146%;
+        top: -9px;
+        width: 8px;
+        border: 2px solid black;
+        border-radius: 5px;
+        cursor: move;
+        pointer-events: all; }
+  .grady-content .list-markers-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: center;
+    height: 38px; }
+    .grady-content .list-markers-item-value {
+      display: inline-block;
+      margin-left: 10px; }
+    .grady-content .list-markers-item-name-remove {
+      color: white;
+      margin-right: 5px; }
+      .grady-content .list-markers-item-name-remove:hover {
+        color: #88f; }
 
 .effect-group-alias {
   box-sizing: border-box;

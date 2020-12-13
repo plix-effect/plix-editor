@@ -20026,6 +20026,19 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/ui/components/editor/tracks/editor/gradient-editor/GradientEditor.scss":
+/*!************************************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/editor/gradient-editor/GradientEditor.scss ***!
+  \************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./src/ui/components/editor/tracks/editor/inline/InlineEditor.scss":
 /*!*************************************************************************!*\
   !*** ./src/ui/components/editor/tracks/editor/inline/InlineEditor.scss ***!
@@ -87806,6 +87819,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _editor_inline_InlineColorEditor__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./editor/inline/InlineColorEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineColorEditor.tsx");
 /* harmony import */ var _editor_inline_InlineGridEditor__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./editor/inline/InlineGridEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineGridEditor.tsx");
 /* harmony import */ var _editor_preview_field_PreviewFieldEditor__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./editor/preview-field/PreviewFieldEditor */ "./src/ui/components/editor/tracks/editor/preview-field/PreviewFieldEditor.tsx");
+/* harmony import */ var _editor_gradient_editor_GradientEditor__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./editor/gradient-editor/GradientEditor */ "./src/ui/components/editor/tracks/editor/gradient-editor/GradientEditor.tsx");
+
 
 
 
@@ -87822,6 +87837,7 @@ const defaultInlineEditors = {
     number: _editor_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_5__.InlineNumberEditor,
     blend: _editor_inline_InlineBlenderEditor__WEBPACK_IMPORTED_MODULE_6__.InlineBlenderEditor,
     grid: _editor_inline_InlineGridEditor__WEBPACK_IMPORTED_MODULE_9__.InlineGridEditor,
+    gradient: _editor_gradient_editor_GradientEditor__WEBPACK_IMPORTED_MODULE_11__.GradientEditor,
     fieldConfig: _editor_preview_field_PreviewFieldEditor__WEBPACK_IMPORTED_MODULE_10__.PreviewFieldEditor,
 };
 const ValueTrack = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ type, title, value, description, children, path, deleteAction, clearAction, onDragOverItem }) => {
@@ -88795,6 +88811,285 @@ const TreeBlockFilter = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ dragValue
 
 /***/ }),
 
+/***/ "./src/ui/components/editor/tracks/editor/gradient-editor/GradientEditor.tsx":
+/*!***********************************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/editor/gradient-editor/GradientEditor.tsx ***!
+  \***********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "GradientEditor": () => /* binding */ GradientEditor
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _inline_InlineEditor_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../inline/InlineEditor.scss */ "./src/ui/components/editor/tracks/editor/inline/InlineEditor.scss");
+/* harmony import */ var _GradientEditor_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./GradientEditor.scss */ "./src/ui/components/editor/tracks/editor/gradient-editor/GradientEditor.scss");
+/* harmony import */ var _GradientEditorModal__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./GradientEditorModal */ "./src/ui/components/editor/tracks/editor/gradient-editor/GradientEditorModal.tsx");
+/* harmony import */ var _gradient_editor_utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./gradient-editor-utils */ "./src/ui/components/editor/tracks/editor/gradient-editor/gradient-editor-utils.ts");
+
+
+
+
+
+const GradientEditor = ({ value, onChange }) => {
+    const [open, setOpen] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
+    const onClose = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
+        setOpen(false);
+        onChange(value);
+    }, [setOpen]);
+    const openModal = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        setOpen(true);
+    }, [setOpen]);
+    const htmlGradient = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return (0,_gradient_editor_utils__WEBPACK_IMPORTED_MODULE_4__.gradientToHtmlString)(value);
+    }, [value]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "grady-editor-container" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "transanim-background" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "grady-editor-trigger", style: { background: htmlGradient }, title: "Click to edit", onClick: openModal })),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_GradientEditorModal__WEBPACK_IMPORTED_MODULE_3__.GradientEditorModal, { value: value, close: onClose, isOpen: open })));
+};
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/tracks/editor/gradient-editor/GradientEditorModal.tsx":
+/*!****************************************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/editor/gradient-editor/GradientEditorModal.tsx ***!
+  \****************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "GradientEditorModal": () => /* binding */ GradientEditorModal
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _modal_BSModal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../../modal/BSModal */ "./src/ui/components/modal/BSModal.tsx");
+/* harmony import */ var _GradientEditor_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./GradientEditor.scss */ "./src/ui/components/editor/tracks/editor/gradient-editor/GradientEditor.scss");
+/* harmony import */ var _gradient_editor_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./gradient-editor-utils */ "./src/ui/components/editor/tracks/editor/gradient-editor/gradient-editor-utils.ts");
+/* harmony import */ var _plix_effect_core_dist_parser_parseColor__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @plix-effect/core/dist/parser/parseColor */ "./node_modules/@plix-effect/core/dist/parser/parseColor.js");
+/* harmony import */ var _inline_InlineColorEditor__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../inline/InlineColorEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineColorEditor.tsx");
+/* harmony import */ var _plix_effect_core_dist_gradient_LinearGradient__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @plix-effect/core/dist/gradient/LinearGradient */ "./node_modules/@plix-effect/core/dist/gradient/LinearGradient.js");
+/* harmony import */ var _plix_effect_core_dist_gradient_LinearGradient__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_plix_effect_core_dist_gradient_LinearGradient__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _plix_effect_core_color__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @plix-effect/core/color */ "./node_modules/@plix-effect/core/dist/Color.js");
+/* harmony import */ var _plix_effect_core_color__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _modal_BSModalPart__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../../../modal/BSModalPart */ "./src/ui/components/modal/BSModalPart.tsx");
+
+
+
+
+
+
+
+
+
+const emptyImage = new Image();
+const getLeftPositionStyle = (widthPart) => {
+    return `calc(${widthPart * 100}% - 7px)`;
+};
+const getUpdatedGradientData = (origin, index, updateData) => {
+    var _a, _b;
+    const gd = origin[index];
+    const element = [(_a = updateData[0]) !== null && _a !== void 0 ? _a : gd[0], (_b = updateData[1]) !== null && _b !== void 0 ? _b : gd[1]];
+    const fullData = origin.slice(0);
+    fullData[index] = element;
+    fullData.sort((a, b) => {
+        if (a[0] == b[0])
+            return 0;
+        if (a[0] > b[0])
+            return 1;
+        return -1;
+    });
+    return fullData;
+};
+const getGradientDataWithNewMarker = (origin, el) => {
+    const fullData = origin.slice(0);
+    fullData.push(el);
+    fullData.sort((a, b) => {
+        if (a[0] == b[0])
+            return 0;
+        if (a[0] > b[0])
+            return 1;
+        return -1;
+    });
+    return fullData;
+};
+const GradientEditorModal = ({ isOpen, close, value }) => {
+    const [gradientData, setGradientData] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(value !== null && value !== void 0 ? value : []);
+    const htmlGradient = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return (0,_gradient_editor_utils__WEBPACK_IMPORTED_MODULE_3__.gradientToHtmlString)(gradientData);
+    }, [gradientData]);
+    const onClickClose = (v) => {
+        console.log("ON CLICK CLOSE");
+        if (v) {
+            close(v);
+        }
+        else {
+            setGradientData(value);
+            close(value);
+        }
+    };
+    const buttonsView = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return (closeFn) => {
+            const saveClose = () => {
+                closeFn(gradientData);
+            };
+            const cancelClose = () => {
+                closeFn(value);
+            };
+            return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "btn-group" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-sm btn-success", onClick: saveClose }, "OK"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-sm btn-danger", onClick: cancelClose }, "Cancel")));
+        };
+    }, [gradientData, value]);
+    const dragContainerRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const previewContainerRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const previewRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const dragRefs = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const dragOffset = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(0);
+    const onDragStart = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        dragOffset.current = event.nativeEvent.offsetX;
+        event.dataTransfer.setDragImage(emptyImage, 0, 0);
+    }, []);
+    const onDrag = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((index, { clientX }) => {
+        if (clientX === 0)
+            return;
+        const containerBcr = dragContainerRef.current.getBoundingClientRect();
+        const dragValue = clientX - containerBcr.left - dragOffset.current;
+        applyDragValue(index, dragValue);
+    }, [gradientData]);
+    const onDragEnd = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((index, { clientX }) => {
+        if (clientX === 0)
+            return;
+        const containerBcr = dragContainerRef.current.getBoundingClientRect();
+        const dragValue = clientX - containerBcr.left - dragOffset.current;
+        let widthPart = dragValue / containerBcr.width;
+        if (widthPart < 0)
+            widthPart = 0;
+        else if (widthPart > 1)
+            widthPart = 1;
+        const updatedGradientData = getUpdatedGradientData(gradientData, index, [widthPart, undefined]);
+        setGradientData(updatedGradientData);
+    }, [gradientData]);
+    const applyDragValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((index, dragValue) => {
+        const { width: containerWidth } = dragContainerRef.current.getBoundingClientRect();
+        let widthPart = dragValue / containerWidth;
+        if (widthPart < 0)
+            widthPart = 0;
+        else if (widthPart > 1)
+            widthPart = 1;
+        const updatedGradientData = getUpdatedGradientData(gradientData, index, [widthPart, undefined]);
+        previewRef.current.style.background = (0,_gradient_editor_utils__WEBPACK_IMPORTED_MODULE_3__.gradientToHtmlString)(updatedGradientData);
+        dragRefs.current[index].style.left = getLeftPositionStyle(widthPart);
+        return true;
+    }, [gradientData]);
+    const markers = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        const refs = [];
+        const setDragRef = (i) => (node) => { refs[i] = node; };
+        dragRefs.current = refs;
+        return gradientData.map((gd, i) => {
+            const onDragCallback = onDrag.bind(null, i);
+            const onDragEndCallback = onDragEnd.bind(null, i);
+            const { r, g, b, a } = (0,_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_7__.toRgba)((0,_plix_effect_core_dist_parser_parseColor__WEBPACK_IMPORTED_MODULE_4__.default)(gd[1], null));
+            return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { key: i, ref: setDragRef(i), className: "grady-marker", style: { left: getLeftPositionStyle(gd[0]), backgroundColor: `rgba(${r},${g},${b},${a})` }, draggable: true, onDragStart: onDragStart, onDrag: onDragCallback, onDragEnd: onDragEndCallback }));
+        });
+    }, [gradientData, onDrag]);
+    const onChangeMarkerColor = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((i, color) => {
+        const newGradient = getUpdatedGradientData(gradientData, i, [undefined, color]);
+        setGradientData(newGradient);
+    }, [gradientData]);
+    const onClickPreview = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((e) => {
+        const rect = previewContainerRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        let widthPart = x / rect.width;
+        let color;
+        if (!gradientData || gradientData.length == 0) {
+            color = (0,_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_7__.toNumber)((0,_plix_effect_core_dist_parser_parseColor__WEBPACK_IMPORTED_MODULE_4__.default)({ r: 0, g: 0, b: 0, a: 1 }, null));
+        }
+        else {
+            const linearGradientData = gradientData.map(gd => ({ position: gd[0], color: (0,_plix_effect_core_dist_parser_parseColor__WEBPACK_IMPORTED_MODULE_4__.default)(gd[1], null) }));
+            const grad = (0,_plix_effect_core_dist_gradient_LinearGradient__WEBPACK_IMPORTED_MODULE_6__.LinearGradient)(linearGradientData);
+            color = (0,_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_7__.toNumber)(grad(widthPart));
+        }
+        const newGradient = getGradientDataWithNewMarker(gradientData, [widthPart, color]);
+        setGradientData(newGradient);
+    }, [gradientData]);
+    const onClickRemove = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((i) => {
+        const clone = gradientData.slice(0);
+        clone.splice(i, 1);
+        setGradientData(clone);
+    }, [gradientData]);
+    const markersListView = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return gradientData.map((gd, i) => {
+            const onChangeColor = onChangeMarkerColor.bind(null, i);
+            const remove = onClickRemove.bind(null, i);
+            return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "list-markers-item", key: i },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "list-markers-item-name" },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { onClick: remove, className: "list-markers-item-name-remove", title: "Remove" },
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-trash-alt" })),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null,
+                        "Marker \u2116",
+                        i + 1,
+                        " (",
+                        (gd[0] * 100).toFixed(1),
+                        "%):")),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "list-markers-item-value" },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_inline_InlineColorEditor__WEBPACK_IMPORTED_MODULE_5__.InlineColorEditor, { value: gd[1], onChange: onChangeColor }))));
+        });
+    }, [gradientData]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_modal_BSModal__WEBPACK_IMPORTED_MODULE_1__.BSModal, { isOpen: isOpen, close: onClickClose, size: "lg" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null, "Gradient editor"),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "grady-content" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "preview-container", onDoubleClick: onClickPreview, ref: previewContainerRef },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "transanim-background preview-container-bg" },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "preview", ref: previewRef, style: { background: htmlGradient } })),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "markers-container", ref: dragContainerRef }, markers)),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "list-markers" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null, "Markers"),
+                markersListView)),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_modal_BSModalPart__WEBPACK_IMPORTED_MODULE_8__.BSModalPart, null, buttonsView)));
+};
+
+
+/***/ }),
+
+/***/ "./src/ui/components/editor/tracks/editor/gradient-editor/gradient-editor-utils.ts":
+/*!*****************************************************************************************!*\
+  !*** ./src/ui/components/editor/tracks/editor/gradient-editor/gradient-editor-utils.ts ***!
+  \*****************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "gradientToHtmlString": () => /* binding */ gradientToHtmlString
+/* harmony export */ });
+/* harmony import */ var _plix_effect_core_color__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @plix-effect/core/color */ "./node_modules/@plix-effect/core/dist/Color.js");
+/* harmony import */ var _plix_effect_core_color__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _plix_effect_core_dist_parser_parseColor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @plix-effect/core/dist/parser/parseColor */ "./node_modules/@plix-effect/core/dist/parser/parseColor.js");
+
+
+const gradientToHtmlString = (gradientData) => {
+    if (!gradientData || gradientData.length == 0) {
+        return `rgba(${0},${0},${0},${0})`;
+    }
+    if (gradientData.length == 1) {
+        const v = gradientData[0];
+        const { r, g, b, a } = (0,_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_0__.toRgba)((0,_plix_effect_core_dist_parser_parseColor__WEBPACK_IMPORTED_MODULE_1__.default)(v[1], null));
+        return `rgba(${r},${g},${b},${a})`;
+    }
+    const clrs = gradientData.map((v) => {
+        const { r, g, b, a } = (0,_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_0__.toRgba)((0,_plix_effect_core_dist_parser_parseColor__WEBPACK_IMPORTED_MODULE_1__.default)(v[1], null));
+        const percent = v[0] * 100;
+        return `rgba(${r},${g},${b},${a}) ${percent}%`;
+    }).join(", ");
+    return `linear-gradient(90deg , ${clrs})`;
+};
+
+
+/***/ }),
+
 /***/ "./src/ui/components/editor/tracks/editor/inline/InlineBlenderEditor.tsx":
 /*!*******************************************************************************!*\
   !*** ./src/ui/components/editor/tracks/editor/inline/InlineBlenderEditor.tsx ***!
@@ -88862,21 +89157,30 @@ __webpack_require__.r(__webpack_exports__);
 const InlineColorEditor = ({ value, onChange }) => {
     const rgbaColor = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => (0,_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_4__.toRgba)((0,_plix_effect_core__WEBPACK_IMPORTED_MODULE_2__.parseColor)(value, null)), [value]);
     const styleColor = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => getStyleColor(rgbaColor), [rgbaColor]);
+    const [open, setOpen] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
+    const switchOpen = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        setOpen((v) => !v);
+        if (open) {
+            document.getElementById("popup-root").remove();
+        }
+    }, [setOpen, open]);
     const [colorPickerValue, setColorPickerValue] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(rgbaColor);
     const handleChange = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((changedColor) => {
         setColorPickerValue(changedColor.rgb);
     }, [onChange]);
     const submit = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        switchOpen();
         const newColor = toSaveColor(colorPickerValue);
         onChange(newColor);
     }, [colorPickerValue, onChange]);
     const trigger = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
-        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "ice-color-container", title: "Click to edit" },
+        return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "ice-color-container", title: "Click to edit", onClick: switchOpen },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "ice-color", style: { backgroundColor: styleColor } })));
     }, [rgbaColor]);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "inline-color-editor" },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(reactjs_popup__WEBPACK_IMPORTED_MODULE_5__.default, { trigger: trigger, position: "bottom center", onClose: submit },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_color__WEBPACK_IMPORTED_MODULE_3__.ChromePicker, { color: colorPickerValue, onChange: handleChange }))));
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "inline-color-editor" }, open ?
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(reactjs_popup__WEBPACK_IMPORTED_MODULE_5__.default, { trigger: trigger, position: "bottom center", onClose: submit, open: open, onOpen: switchOpen }, open ? react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_color__WEBPACK_IMPORTED_MODULE_3__.ChromePicker, { color: colorPickerValue, onChange: handleChange }) : null)
+        :
+            trigger));
 };
 function getStyleColor({ r, g, b, a }) {
     return `rgba(${r},${g},${b},${a})`;
@@ -89397,11 +89701,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _preview_canvas_dynamic_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../../preview/canvas/dynamic/preview-field/PlixCanvasField */ "./src/ui/components/preview/canvas/dynamic/preview-field/PlixCanvasField.ts");
 /* harmony import */ var _CanvasFieldEditor_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./CanvasFieldEditor.scss */ "./src/ui/components/editor/tracks/editor/preview-field/CanvasFieldEditor.scss");
-/* harmony import */ var react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react-bootstrap/cjs/Form */ "./node_modules/react-bootstrap/cjs/Form.js");
-/* harmony import */ var react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! react-bootstrap/cjs/Form */ "./node_modules/react-bootstrap/cjs/Form.js");
+/* harmony import */ var react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_7__);
 /* harmony import */ var _control_checkbox_Checkbox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../control/checkbox/Checkbox */ "./src/ui/components/control/checkbox/Checkbox.tsx");
 /* harmony import */ var _FieldElementEditor__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./FieldElementEditor */ "./src/ui/components/editor/tracks/editor/preview-field/FieldElementEditor.ts");
 /* harmony import */ var _pen_settings_PenSettingsView__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./pen-settings/PenSettingsView */ "./src/ui/components/editor/tracks/editor/preview-field/pen-settings/PenSettingsView.tsx");
+/* harmony import */ var _inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../inline/InlineNumberEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineNumberEditor.tsx");
+
 
 
 
@@ -89413,6 +89719,8 @@ const CanvasFieldEditor = ({ value, onChange }) => {
     const [canvas, setCanvas] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
     const [drawModeEnabled, setDrawModeEnabled] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
     const [drawingElement, setDrawingElement] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
+    const [gridX, setGridX] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0);
+    const [gridY, setGridY] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0);
     const [field, elementEditor] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         if (!canvas)
             return [null, null];
@@ -89436,19 +89744,23 @@ const CanvasFieldEditor = ({ value, onChange }) => {
         if (!field)
             return;
         field.setConfig(value);
-        field.resetDraw();
     }, [value, field]);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        if (!field)
+            return;
+        elementEditor.setGrid([gridX, gridY]);
+    }, [gridX, gridY]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         if (!elementEditor)
             return;
         elementEditor.setDrawingElement(drawModeEnabled ? drawingElement : null);
     }, [elementEditor, drawingElement, drawModeEnabled]);
-    const onChangeWidth = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((e) => {
-        const clone = Object.assign(Object.assign({}, value), { width: Number(e.target.value) });
+    const onChangeWidth = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(val => {
+        const clone = Object.assign(Object.assign({}, value), { width: val });
         onChange(clone);
     }, [value]);
-    const onChangeHeight = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((e) => {
-        const clone = Object.assign(Object.assign({}, value), { height: Number(e.target.value) });
+    const onChangeHeight = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(val => {
+        const clone = Object.assign(Object.assign({}, value), { height: val });
         onChange(clone);
     }, [value]);
     const onClickRemoveLastElement = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
@@ -89462,16 +89774,27 @@ const CanvasFieldEditor = ({ value, onChange }) => {
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas })),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-controls" },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-controls-group" },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null, "Canvas size"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", { className: "cfe-option-label" }, "Canvas size"),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-option" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "cfe-option-name" }, "Width: "),
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { value: value.width, type: "number", step: "any", className: "form-control cfe-option-value", onChange: onChangeWidth })),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-option-value" },
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_6__.InlineNumberEditor, { value: value.width, onChange: onChangeWidth, step: "any" }))),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-option" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "cfe-option-name" }, "Height: "),
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { value: value.height, type: "number", step: "any", className: "form-control cfe-option-value", onChange: onChangeHeight }))),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-option-value" },
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_6__.InlineNumberEditor, { value: value.height, onChange: onChangeHeight, step: "any" }))),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", { className: "cfe-option-label" }, "Grid"),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-option" },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "cfe-option-name" }, "X: "),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-option-value" },
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_6__.InlineNumberEditor, { value: gridX, onChange: setGridX, step: "any" }))),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-option" },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "cfe-option-name" }, "Y: "),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-option-value" },
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_6__.InlineNumberEditor, { value: gridY, onChange: setGridY, step: "any" })))),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-controls-group" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null, "Drawing"),
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement((react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_6___default()), null,
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement((react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_7___default()), null,
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_control_checkbox_Checkbox__WEBPACK_IMPORTED_MODULE_3__.Checkbox, { onChange: setDrawModeEnabled, value: drawModeEnabled }, "Drawing enabled")),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-danger", onClick: onClickRemoveLastElement }, "Remove last element"))),
@@ -89496,9 +89819,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _utils_TypedEventEmitter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../../utils/TypedEventEmitter */ "./src/ui/utils/TypedEventEmitter.ts");
 
+const ELEMENT_COLOR = "rgba(234,234,234,1)";
+const GRID_COLOR = "rgba(75,75,75,0.42)";
+const NEW_ITEM_COLOR = "rgb(73,255,0)";
+const HOVER_COLOR = "rgba(255,255,255,1)";
 class FieldElementEditor extends _utils_TypedEventEmitter__WEBPACK_IMPORTED_MODULE_0__.TypedEventEmitter {
     constructor(canvas, field) {
         super();
+        this.grid = null;
         this.getMousePos = (evt) => {
             const rect = this.canvas.getBoundingClientRect();
             return {
@@ -89516,7 +89844,12 @@ class FieldElementEditor extends _utils_TypedEventEmitter__WEBPACK_IMPORTED_MODU
             }
         };
         this.onDrawingPixel = (e) => {
-            const { x, y } = this.getMousePos(e);
+            let { x, y } = this.getMousePos(e);
+            if (this.gridEnabled) {
+                const [gx, gy] = this.grid;
+                x = x - x % gx + gx / 2;
+                y = y - y % gy + gy / 2;
+            }
             let lastDrawingElement = this.lastDrawingElement;
             if (lastDrawingElement == null || this.lastDrawingElement) {
                 this.lastDrawingElement = lastDrawingElement = Object.assign(Object.assign({}, this.drawingElement), { geometry: [x, y] });
@@ -89524,16 +89857,15 @@ class FieldElementEditor extends _utils_TypedEventEmitter__WEBPACK_IMPORTED_MODU
             else {
                 lastDrawingElement.geometry = [x, y];
             }
-            this.field.resetDraw();
-            this.field.drawElement(lastDrawingElement, undefined, "green");
+            this.resetDraw();
+            this.field.drawElement(lastDrawingElement, undefined, NEW_ITEM_COLOR);
         };
         this.onMoseMoveCommonMode = (e) => {
-            const conf = this.field.getConfig();
-            this.field.resetDraw();
+            this.resetDraw();
             const { x, y } = this.getMousePos(e);
             const [hoverElement, i] = this.field.getElementAtPos(x, y);
             if (hoverElement) {
-                this.field.drawElement(hoverElement, undefined, "white");
+                this.field.drawElement(hoverElement, undefined, HOVER_COLOR);
                 this.canvas.title = `Element: ${i}\nProps: ${JSON.stringify(hoverElement.props)}`;
             }
             else {
@@ -89544,14 +89876,63 @@ class FieldElementEditor extends _utils_TypedEventEmitter__WEBPACK_IMPORTED_MODU
         this.ctx = canvas.getContext("2d");
         this.field = field;
         this.setDrawingModeEnabled(false);
+        this.field.setContourColor(ELEMENT_COLOR);
     }
     setDrawingElement(element) {
         this.drawingElement = element;
         this.lastDrawingElement = null;
-        this.field.resetDraw();
+        this.resetDraw();
         const isDrawMode = element != null;
         this.setDrawingModeEnabled(isDrawMode);
         this.setCommonModeEnabled(!isDrawMode);
+    }
+    get gridEnabled() {
+        const grid = this.grid;
+        return grid && (grid[0] > 0 && grid[1] > 0);
+    }
+    setGrid(grid) {
+        this.grid = grid;
+        this.resetDraw();
+    }
+    resetDraw() {
+        this.field.resetDraw();
+        this.drawGrid();
+        this.drawIndexes();
+    }
+    drawGrid() {
+        if (!this.gridEnabled)
+            return;
+        const ctx = this.ctx;
+        const [gridX, gridY] = this.grid;
+        const countX = Math.floor(this.canvas.width / gridX);
+        const countY = Math.floor(this.canvas.width / gridY);
+        const startGridX = gridX / 2;
+        const startGridY = gridY / 2;
+        ctx.setLineDash([]);
+        ctx.strokeStyle = GRID_COLOR;
+        for (let xi = 0; xi < countX; xi++) {
+            for (let yi = 0; yi < countY; yi++) {
+                const x = startGridX + xi * gridX;
+                const y = startGridY + yi * gridY;
+                ctx.beginPath();
+                ctx.strokeRect(x, y, 1, 1);
+                ctx.stroke();
+            }
+        }
+    }
+    drawIndexes() {
+        const elements = this.field.getConfig().elements;
+        const ctx = this.ctx;
+        elements.forEach((e, i) => {
+            if (e.type !== "pixel")
+                return;
+            ctx.fillStyle = ELEMENT_COLOR;
+            ctx.font = "9px Robotto";
+            const quartSize = e.props.size / 4;
+            const x = e.geometry[0] - quartSize - 1;
+            const y = e.geometry[1] + quartSize;
+            ctx.fillText(String(i), x, y);
+        });
     }
     setDrawingModeEnabled(val) {
         if (val) {
@@ -89727,7 +90108,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const DEFAULT_PIXEL_PROPS = { size: 25, shape: "circle" };
+const DEFAULT_PIXEL_PROPS = { size: 12, shape: "circle" };
 const PenSettingsView = ({ onChange }) => {
     const [type, setType] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("pixel");
     const [circleProps, setCircleProps] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(DEFAULT_PIXEL_PROPS);
@@ -90867,6 +91248,7 @@ const DEFAULT_PREVIEW_FIELD_CONFIG = {
 };
 class PlixCanvasField {
     constructor(canvas) {
+        this.contourColor = contourColor;
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
     }
@@ -90874,6 +91256,7 @@ class PlixCanvasField {
         this.cfg = cfg;
         this.canvas.height = cfg.height;
         this.canvas.width = cfg.width;
+        this.resetDraw();
     }
     getConfig() {
         return this.cfg;
@@ -90881,11 +91264,14 @@ class PlixCanvasField {
     get elementsCount() {
         return this.cfg.elements.length;
     }
-    drawElementFromConfig(index, color, outlineColor = contourColor) {
+    setContourColor(clr) {
+        this.contourColor = clr;
+    }
+    drawElementFromConfig(index, color, outlineColor = this.contourColor) {
         const element = this.cfg.elements[index];
         this.drawElement(element, color, outlineColor);
     }
-    drawElement(element, color, outlineColor = contourColor) {
+    drawElement(element, color, outlineColor = this.contourColor) {
         if (element.type === "line")
             this.drawLine(element, color, outlineColor);
         else if (element.type === "pixel")
@@ -90899,10 +91285,10 @@ class PlixCanvasField {
             this.drawElementFromConfig(i, null);
         }
     }
-    drawLine(lineInfo, color, outlineColor = contourColor) {
+    drawLine(lineInfo, color, outlineColor = this.contourColor) {
         console.warn("drawLine not implemented");
     }
-    drawPixel(pixelInfo, color, outlineColor = contourColor) {
+    drawPixel(pixelInfo, color, outlineColor = this.contourColor) {
         const [x, y] = pixelInfo.geometry;
         const ctx = this.ctx;
         const size = pixelInfo.props.size;
