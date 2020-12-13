@@ -1,0 +1,74 @@
+$grady-outline: 2px #525252 dashed;;
+
+.grady-editor-container {
+
+  .grady-editor-trigger {
+    width: 200px;
+    height: 30px;
+    outline: $grady-outline;
+    cursor: pointer;
+  }
+}
+
+
+.grady-content {
+  display: flex;
+  flex-direction: column;
+  .preview-container {
+    position: relative;
+    flex-grow: 1;
+    margin: 5px;
+    height: 40px;
+    outline: $grady-outline;
+    cursor: pointer;
+    &-bg {
+      position: absolute;
+    }
+    .preview {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+    .markers-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+
+      .grady-marker {
+        position: absolute;
+        height: 146%;
+        top: -9px;
+        width: 8px;
+        border: 2px solid black;
+        border-radius: 5px;
+        cursor: move;
+        pointer-events: all;
+      }
+    }
+  }
+
+  .list-markers {
+    &-item {
+      display: flex;
+      flex-direction: row;
+      justify-content: left;
+      align-items: center;
+      height: 38px;
+      &-value {
+        display: inline-block;
+        margin-left: 10px;
+      }
+
+      &-name {
+        &-remove {
+          color: white;
+          margin-right: 5px;
+          &:hover {
+            color: #88f;
+          }
+        }
+      }
+    }
+  }
+}

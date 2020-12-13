@@ -1,3 +1,5 @@
+@import "canvas";
+
 html, html>body {
   padding: 0;
   margin: 0;
@@ -54,4 +56,8 @@ body .btn-primary:focus {
     display: none;
     pointer-events: auto;
   }
+}
+
+.popup-content {
+  z-index: 1050 !important;
 }

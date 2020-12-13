@@ -12,12 +12,14 @@ import {InlineJsonEditor} from "./editor/inline/InlineJsonEditor";
 import {InlineColorEditor} from "./editor/inline/InlineColorEditor";
 import {InlineGridEditor} from "./editor/inline/InlineGridEditor";
 import {PreviewFieldEditor} from "./editor/preview-field/PreviewFieldEditor";
+import {GradientEditor} from "./editor/gradient-editor/GradientEditor";
 
 const defaultInlineEditors: {[key: string]: ComponentType<{value:any, onChange:(value:any) => void}>} = {
     color: InlineColorEditor,
     number: InlineNumberEditor,
     blend: InlineBlenderEditor,
     grid: InlineGridEditor,
+    gradient: GradientEditor,
     fieldConfig: PreviewFieldEditor,
 }
 
