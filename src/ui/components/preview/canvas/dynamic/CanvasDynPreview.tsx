@@ -1,8 +1,18 @@
 import * as React from "react";
-import {ChangeEventHandler, FC, useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
+import {
+    ChangeEvent,
+    ChangeEventHandler,
+    FC,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useRef,
+    useState
+} from "react";
 import {PlixEffectJsonData, PlixJsonData} from "@plix-effect/core/dist/types/parser";
 import {isArraysEqual} from "../../../../utils/isArraysEqual";
-import {usePlaybackControl, usePlaybackData, usePlaybackStatus} from "../../../editor/PlaybackContext";
+import {useAudioVolume, usePlaybackControl, usePlaybackData, usePlaybackStatus} from "../../../editor/PlaybackContext";
 import type {PreviewFieldConfig} from "./preview-field/PlixCanvasField";
 import type {
     CvsDynPreviewInMsgChangeField,
@@ -15,7 +25,7 @@ import {getParentSelection, useSelectionItem, useSelectionPath} from "../../../e
 import {TrackContext} from "../../../editor/TrackContext";
 import {ConstructorContext} from "../../../editor/ConstructorContext";
 import {TIMELINE_LCM} from "@plix-effect/core/dist/effects/Timeline";
-import "../CanvasPreview.scss"
+import "./CanvasDynPreview.scss"
 import {CheckboxButton} from "../../../control/checkbox/CheckboxButton";
 import {PlaybackRateSelector} from "./../PlaybackRateSelector";
 import {useLocalStorage} from "../../../../use/useStorage";
@@ -53,6 +63,12 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = () => {
     const [profileName] = useProfileName();
     const profileRef = useRef(profile);
     profileRef.current = profile;
+
+    const {volume, setVolume} = useAudioVolume();
+    const percentageVolume = volume*100;
+    const setPercentageVolume = (e: ChangeEvent<HTMLInputElement>) => {
+        setVolume(Number(e.target.value)/100);
+    }
 
     const fieldConfig = useMemo(() => {
         return profile?.['fieldConfig'] ?? track?.['editor']?.['fieldConfig'] ?? DEFAULT_PREVIEW_FIELD_CONFIG;
@@ -237,22 +253,31 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = () => {
                 <canvas ref={setCanvas} width={1} height={1}/>
             </div>
             <div className={"controls"}>
-                <div className={"btn-group-toggle btn-group"}>
-                    <button className={"btn btn-md btn-primary"} onClick={onClickPlayBtn} title={playbackStatus === "play" ? "Pause" : "Stop"}>
-                        {
-                            playbackStatus === "play" ?
-                                (<i className="fas fa-pause"/>)
-                            :
-                                (<i className="fas fa-play"/>)
-                        }
-                    </button>
-                    <button className={"btn btn-md btn-primary"} onClick={onClickStop} title={"Stop"}>
-                        <i className="fas fa-stop"/>
-                    </button>
-                    <CheckboxButton value={repeatEnabled} onChange={onChangeRepeatCheckbox} title={"Repeat"} sizeClass={"btn-md"}>
-                        <i className="fas fa-sync-alt"/>
-                    </CheckboxButton>
+                <div className={"controls-row"}>
+                    <div className={"btn-group-toggle btn-group"}>
+                        <button className={"btn btn-md btn-primary"} onClick={onClickPlayBtn} title={playbackStatus === "play" ? "Pause" : "Stop"}>
+                            {
+                                playbackStatus === "play" ?
+                                    (<i className="fas fa-pause"/>)
+                                    :
+                                    (<i className="fas fa-play"/>)
+                            }
+                        </button>
+                        <button className={"btn btn-md btn-primary"} onClick={onClickStop} title={"Stop"}>
+                            <i className="fas fa-stop"/>
+                        </button>
+                        <CheckboxButton value={repeatEnabled} onChange={onChangeRepeatCheckbox} title={"Repeat"} sizeClass={"btn-md"}>
+                            <i className="fas fa-sync-alt"/>
+                        </CheckboxButton>
+                    </div>
+                    <form className={"volume-controls"}>
+                        <div className="form-group">
+                            <label htmlFor="formControlRange">Music volume</label>
+                            <input type="range" className="form-control-range" value={percentageVolume} onChange={setPercentageVolume} min={0} max={100} step={0.5} />
+                        </div>
+                    </form>
                 </div>
+
                 <div className={"rate-option"}>
                     <span>Playback rate: </span>
                     <div className={"rate-selector"}>

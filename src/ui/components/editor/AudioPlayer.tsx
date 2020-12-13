@@ -1,5 +1,5 @@
 import React, {FC, useContext, useEffect, useRef} from "react";
-import {usePlaybackControl, usePlaybackData, usePlaybackStatus} from "./PlaybackContext";
+import {useAudioVolume, usePlaybackControl, usePlaybackData, usePlaybackStatus} from "./PlaybackContext";
 import {AudioFileContext} from "./AudioFileContext";
 
 export const AudioPlayer: FC = () => {
@@ -8,6 +8,7 @@ export const AudioPlayer: FC = () => {
     const audioRef = useRef<HTMLAudioElement>();
     const {getPlayTime, stop} = usePlaybackControl();
     const {playFromStamp, rate} = usePlaybackData();
+    const {volume} = useAudioVolume();
     const status = usePlaybackStatus();
 
     useEffect(() => {
@@ -48,6 +49,10 @@ export const AudioPlayer: FC = () => {
             });
         }
     }, [status, playFromStamp, rate])
+
+    useEffect(() => {
+        audioRef.current.volume = volume;
+    }, [volume])
 
     return (
         <audio ref={audioRef} preload="auto" />

@@ -9,6 +9,16 @@
   .controls {
     margin-top: 10px;
 
+    .controls-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .volume-controls {
+      margin-left: 10px;
+    }
+
     .rate-option {
       height: 38px;
       display: flex;

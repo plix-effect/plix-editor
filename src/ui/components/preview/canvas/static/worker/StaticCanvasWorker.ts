@@ -13,6 +13,7 @@ let canvasCtx: OffscreenCanvasRenderingContext2D;
 let parsedData: ReturnType<typeof parseRender>;
 let pixelCount: number|null = null;
 let duration: number = 0;
+let start: number;
 
 
 const renderCanvas = () => {
@@ -24,7 +25,7 @@ const renderCanvas = () => {
     // const colorMap = new Uint8ClampedArray(width*height*4);
     for (let h=0; h<height; h++){
         const colorMap = new Uint8ClampedArray(width*4);
-        const line = effect(h/height*duration, duration);
+        const line = effect(h/height*duration, duration, start);
         for (let w=0; w<width; w++){
             const mod = line(w/width*pixelCount, pixelCount);
             const color = mod(TRANSPARENT_BLACK);
@@ -50,6 +51,7 @@ onmessage = (event) => {
     } else if (msg.type === "effect") {
         const {render, track} = msg;
         duration = msg.duration;
+        start = msg.start;
         parsedData = parseRender(render, track.effects, track.filters, effectConstructorMap, filterConstructorMap );
         const effectKeys = Object.keys(parsedData.effectsMap).sort();
         const filterKeys = Object.keys(parsedData.filtersMap).sort();
@@ -80,6 +82,7 @@ export interface StaticPreviewWorkerInputMessageEffect {
     render: PlixEffectJsonData,
     track: PlixJsonData,
     duration: number,
+    start: number,
     profileName: string|null,
 }
 export interface StaticPreviewWorkerInputMessageSizes {
