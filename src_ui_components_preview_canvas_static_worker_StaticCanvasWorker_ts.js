@@ -23,20 +23,18 @@ let canvasCtx;
 let parsedData;
 let pixelCount = null;
 let duration = 0;
+let start;
 const renderCanvas = () => {
     const effect = parsedData.effect;
     const width = canvas.width;
     const height = canvas.height;
-    console.log("RENDERING", width, height, duration);
     for (let h = 0; h < height; h++) {
         const colorMap = new Uint8ClampedArray(width * 4);
-        const line = effect(h / height * duration, duration);
+        const line = effect(h / height * duration, duration, start);
         for (let w = 0; w < width; w++) {
             const mod = line(w / width * pixelCount, pixelCount);
             const color = mod(_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_1__.TRANSPARENT_BLACK);
             const { r, g, b, a } = (0,_plix_effect_core_color__WEBPACK_IMPORTED_MODULE_1__.toRgba)(color);
-            if (h == 0)
-                console.log(r, g, b, a, _plix_effect_core_color__WEBPACK_IMPORTED_MODULE_1__.TRANSPARENT_BLACK);
             const index = w * 4;
             colorMap[index] = r;
             colorMap[index + 1] = g;
@@ -57,6 +55,7 @@ onmessage = (event) => {
     else if (msg.type === "effect") {
         const { render, track } = msg;
         duration = msg.duration;
+        start = msg.start;
         parsedData = (0,_plix_effect_core__WEBPACK_IMPORTED_MODULE_0__.default)(render, track.effects, track.filters, _plix_effect_core_effects__WEBPACK_IMPORTED_MODULE_2__, _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_3__);
         const effectKeys = Object.keys(parsedData.effectsMap).sort();
         const filterKeys = Object.keys(parsedData.filtersMap).sort();

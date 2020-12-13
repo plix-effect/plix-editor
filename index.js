@@ -20117,10 +20117,23 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./src/ui/components/preview/canvas/CanvasPreview.scss":
-/*!*************************************************************!*\
-  !*** ./src/ui/components/preview/canvas/CanvasPreview.scss ***!
-  \*************************************************************/
+/***/ "./src/ui/components/preview/PreviewContainer.scss":
+/*!*********************************************************!*\
+  !*** ./src/ui/components/preview/PreviewContainer.scss ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./src/ui/components/preview/canvas/dynamic/CanvasDynPreview.scss":
+/*!************************************************************************!*\
+  !*** ./src/ui/components/preview/canvas/dynamic/CanvasDynPreview.scss ***!
+  \************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -83855,6 +83868,7 @@ const AudioPlayer = () => {
     const audioRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const { getPlayTime, stop } = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_1__.usePlaybackControl)();
     const { playFromStamp, rate } = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_1__.usePlaybackData)();
+    const { volume } = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_1__.useAudioVolume)();
     const status = (0,_PlaybackContext__WEBPACK_IMPORTED_MODULE_1__.usePlaybackStatus)();
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         if (lastUrlRef.current) {
@@ -83893,6 +83907,9 @@ const AudioPlayer = () => {
                 });
         }
     }, [status, playFromStamp, rate]);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        audioRef.current.volume = volume;
+    }, [volume]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("audio", { ref: audioRef, preload: "auto" }));
 };
 
@@ -83947,15 +83964,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "CreatePlayback": () => /* binding */ CreatePlayback,
 /* harmony export */   "usePlaybackStatus": () => /* binding */ usePlaybackStatus,
 /* harmony export */   "usePlaybackData": () => /* binding */ usePlaybackData,
-/* harmony export */   "usePlaybackControl": () => /* binding */ usePlaybackControl
+/* harmony export */   "usePlaybackControl": () => /* binding */ usePlaybackControl,
+/* harmony export */   "useAudioVolume": () => /* binding */ useAudioVolume
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _use_useLatestCallback__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../use/useLatestCallback */ "./src/ui/use/useLatestCallback.ts");
+/* harmony import */ var _use_useStorage__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../use/useStorage */ "./src/ui/use/useStorage.ts");
+
 
 
 const PlaybackDataContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
 const PlaybackStatusContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)("stop");
 const PlaybackControlContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
+const AudioVolumeContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
 const CreatePlayback = ({ children, duration }) => {
     const [playData, setPlayData] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
         status: "stop",
@@ -84036,9 +84057,15 @@ const CreatePlayback = ({ children, duration }) => {
         pauseTime: playData.pauseTime,
         repeat: playData.repeat,
     }), [playData.playFromStamp, playData.repeatEnd, playData.repeatStart, playData.pauseTime, playData.repeat, playData.rate]);
+    const [vol, setVol] = (0,_use_useStorage__WEBPACK_IMPORTED_MODULE_2__.useLocalStorage)("audio-volume", 1);
+    const audioVolumeValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ({
+        setVolume: setVol,
+        volume: vol,
+    }), [vol, setVol]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackControlContext.Provider, { value: playbackControlValue },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackDataContext.Provider, { value: playbackStatusValue },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackStatusContext.Provider, { value: playData.status }, children))));
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaybackStatusContext.Provider, { value: playData.status },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(AudioVolumeContext.Provider, { value: audioVolumeValue }, children)))));
 };
 function usePlaybackStatus() {
     return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(PlaybackStatusContext);
@@ -84048,6 +84075,9 @@ function usePlaybackData() {
 }
 function usePlaybackControl() {
     return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(PlaybackControlContext);
+}
+function useAudioVolume() {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(AudioVolumeContext);
 }
 
 
@@ -85344,7 +85374,6 @@ const TrackEditor = () => {
         setAudioFile(null);
     }, [setAudioFile]);
     const onSelectFile = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(event.target.files);
         const files = Array.from(event.target.files);
         let audioItem = files.find(item => item.type === "audio/mpeg");
         let jsonItem = files.find(item => item.type === "application/json");
@@ -90122,7 +90151,6 @@ const TimelineEditorTime = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({}) => {
     const { zoom, timelineEl } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ScaleDisplayContext__WEBPACK_IMPORTED_MODULE_1__.ScaleDisplayContext);
     const [canvasEl, setCanvasEl] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
     const dur = minCycleSize / zoom;
-    console.log("DUR", dur);
     const timeStep = timeSteps.find(step => step >= dur);
     const gridTimeStep = gridSteps[timeSteps.indexOf(timeStep)];
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
@@ -90407,18 +90435,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _control_tabs_BSTabsWithContent__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../control/tabs/BSTabsWithContent */ "./src/ui/components/control/tabs/BSTabsWithContent.tsx");
 /* harmony import */ var _canvas_dynamic_CanvasDynPreview__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./canvas/dynamic/CanvasDynPreview */ "./src/ui/components/preview/canvas/dynamic/CanvasDynPreview.tsx");
 /* harmony import */ var _canvas_static_CanvasStaticPreview__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./canvas/static/CanvasStaticPreview */ "./src/ui/components/preview/canvas/static/CanvasStaticPreview.tsx");
+/* harmony import */ var _PreviewContainer_scss__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./PreviewContainer.scss */ "./src/ui/components/preview/PreviewContainer.scss");
+
 
 
 
 
 const PreviewContainer = () => {
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: { flexGrow: 1, display: "flex", flexDirection: "column" } },
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "preview-container" },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_control_tabs_BSTabsWithContent__WEBPACK_IMPORTED_MODULE_1__.BSTabsWithContent, { tabs: ["Dynamic", "Static", "Timed"], type: "pills", justify: true, localStorageKey: "preview-tabs" },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "_tab" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_canvas_dynamic_CanvasDynPreview__WEBPACK_IMPORTED_MODULE_2__.CanvasDynPreview, null)),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: { display: "flex", flexGrow: 1 } },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "_tab" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_canvas_static_CanvasStaticPreview__WEBPACK_IMPORTED_MODULE_3__.CanvasStaticPreview, null)),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, "NEEVR GOAN GIVE YUO UP"))));
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "_tab" }, "NEEVR GOAN GIVE YUO UP"))));
 };
 
 
@@ -90482,7 +90512,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _editor_TrackContext__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../editor/TrackContext */ "./src/ui/components/editor/TrackContext.ts");
 /* harmony import */ var _editor_ConstructorContext__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../editor/ConstructorContext */ "./src/ui/components/editor/ConstructorContext.ts");
 /* harmony import */ var _plix_effect_core_dist_effects_Timeline__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @plix-effect/core/dist/effects/Timeline */ "./node_modules/@plix-effect/core/dist/effects/Timeline.js");
-/* harmony import */ var _CanvasPreview_scss__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../CanvasPreview.scss */ "./src/ui/components/preview/canvas/CanvasPreview.scss");
+/* harmony import */ var _CanvasDynPreview_scss__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./CanvasDynPreview.scss */ "./src/ui/components/preview/canvas/dynamic/CanvasDynPreview.scss");
 /* harmony import */ var _control_checkbox_CheckboxButton__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../../control/checkbox/CheckboxButton */ "./src/ui/components/control/checkbox/CheckboxButton.tsx");
 /* harmony import */ var _PlaybackRateSelector__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./../PlaybackRateSelector */ "./src/ui/components/preview/canvas/PlaybackRateSelector.tsx");
 /* harmony import */ var _use_useStorage__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../../../use/useStorage */ "./src/ui/use/useStorage.ts");
@@ -90527,6 +90557,11 @@ const CanvasDynPreview = () => {
     const [profileName] = (0,_editor_ProfileContext__WEBPACK_IMPORTED_MODULE_11__.useProfileName)();
     const profileRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(profile);
     profileRef.current = profile;
+    const { volume, setVolume } = (0,_editor_PlaybackContext__WEBPACK_IMPORTED_MODULE_2__.useAudioVolume)();
+    const percentageVolume = volume * 100;
+    const setPercentageVolume = (e) => {
+        setVolume(Number(e.target.value) / 100);
+    };
     const fieldConfig = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         var _a, _b, _c;
         return (_c = (_a = profile === null || profile === void 0 ? void 0 : profile['fieldConfig']) !== null && _a !== void 0 ? _a : (_b = track === null || track === void 0 ? void 0 : track['editor']) === null || _b === void 0 ? void 0 : _b['fieldConfig']) !== null && _c !== void 0 ? _c : _preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_12__.DEFAULT_PREVIEW_FIELD_CONFIG;
@@ -90706,15 +90741,20 @@ const CanvasDynPreview = () => {
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cvs-container" },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas, width: 1, height: 1 })),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "controls" },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "btn-group-toggle btn-group" },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-md btn-primary", onClick: onClickPlayBtn, title: playbackStatus === "play" ? "Pause" : "Stop" }, playbackStatus === "play" ?
-                    (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-pause" }))
-                    :
-                        (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-play" }))),
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-md btn-primary", onClick: onClickStop, title: "Stop" },
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-stop" })),
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_control_checkbox_CheckboxButton__WEBPACK_IMPORTED_MODULE_8__.CheckboxButton, { value: repeatEnabled, onChange: onChangeRepeatCheckbox, title: "Repeat", sizeClass: "btn-md" },
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-sync-alt" }))),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "controls-row" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "btn-group-toggle btn-group" },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-md btn-primary", onClick: onClickPlayBtn, title: playbackStatus === "play" ? "Pause" : "Stop" }, playbackStatus === "play" ?
+                        (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-pause" }))
+                        :
+                            (react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-play" }))),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-md btn-primary", onClick: onClickStop, title: "Stop" },
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-stop" })),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_control_checkbox_CheckboxButton__WEBPACK_IMPORTED_MODULE_8__.CheckboxButton, { value: repeatEnabled, onChange: onChangeRepeatCheckbox, title: "Repeat", sizeClass: "btn-md" },
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-sync-alt" }))),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", { className: "volume-controls" },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "form-group" },
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", { htmlFor: "formControlRange" }, "Music volume"),
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { type: "range", className: "form-control-range", value: percentageVolume, onChange: setPercentageVolume, min: 0, max: 100, step: 0.5 })))),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "rate-option" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null, "Playback rate: "),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "rate-selector" },
@@ -90874,9 +90914,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _editor_ConstructorContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../editor/ConstructorContext */ "./src/ui/components/editor/ConstructorContext.ts");
 /* harmony import */ var _editor_ProfileContext__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../editor/ProfileContext */ "./src/ui/components/editor/ProfileContext.tsx");
 /* harmony import */ var _utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../../utils/isArraysEqual */ "./src/ui/utils/isArraysEqual.ts");
-/* harmony import */ var react_resize_detector__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! react-resize-detector */ "./node_modules/react-resize-detector/lib/esm/hoc/withResizeDetector.js");
+/* harmony import */ var react_resize_detector__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! react-resize-detector */ "./node_modules/react-resize-detector/lib/esm/hoc/withResizeDetector.js");
 /* harmony import */ var _dynamic_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../dynamic/preview-field/PlixCanvasField */ "./src/ui/components/preview/canvas/dynamic/preview-field/PlixCanvasField.ts");
 /* harmony import */ var _CanvasStaticPreview_scss__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./CanvasStaticPreview.scss */ "./src/ui/components/preview/canvas/static/CanvasStaticPreview.scss");
+/* harmony import */ var _plix_effect_core_dist_effects_Timeline__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @plix-effect/core/dist/effects/Timeline */ "./node_modules/@plix-effect/core/dist/effects/Timeline.js");
+
 
 
 
@@ -90906,34 +90948,34 @@ const CanvasStaticPreviewCp = ({ width, height }) => {
     const [profileName] = (0,_editor_ProfileContext__WEBPACK_IMPORTED_MODULE_4__.useProfileName)();
     const profileRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(profile);
     profileRef.current = profile;
+    const trackDuration = track['editor'].duration;
     const fieldConfig = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         var _a, _b, _c;
         return (_c = (_a = profile === null || profile === void 0 ? void 0 : profile['fieldConfig']) !== null && _a !== void 0 ? _a : (_b = track === null || track === void 0 ? void 0 : track['editor']) === null || _b === void 0 ? void 0 : _b['fieldConfig']) !== null && _c !== void 0 ? _c : _dynamic_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_6__.DEFAULT_PREVIEW_FIELD_CONFIG;
     }, [profile, track]);
-    const [render] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+    const [render, start, duration] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         if (selectedType === "effect") {
             if (selectedItem) {
                 const copySelectedItem = selectedItem.slice(0);
                 copySelectedItem[0] = true;
-                return [copySelectedItem];
+                return [copySelectedItem, 0, trackDuration];
             }
             else
-                return [selectedItem];
+                return [selectedItem, 0, trackDuration];
         }
         else if (selectedType === "record") {
-            const copySelectedItem = selectedItem.slice(0);
-            copySelectedItem[0] = true;
             const parentSelection = (0,_editor_SelectionContext__WEBPACK_IMPORTED_MODULE_1__.getParentSelection)(track, path, effectConstructorMap, filterConstructorMap, 3);
-            const timeline = parentSelection.item.slice(0);
-            timeline[0] = true;
-            timeline[3] = [];
-            const parentOptions = timeline[2].slice(0);
-            parentOptions[0] = [copySelectedItem];
-            timeline[2] = parentOptions;
-            return [timeline];
+            const timeline = parentSelection.item;
+            const parentOptions = timeline[2];
+            const bpm = parentOptions[1];
+            const offset = parentOptions[3];
+            const start = offset + 60000 / bpm / _plix_effect_core_dist_effects_Timeline__WEBPACK_IMPORTED_MODULE_8__.TIMELINE_LCM * selectedItem[2];
+            const duration = (selectedItem[3] - selectedItem[2]) * 60000 / bpm / _plix_effect_core_dist_effects_Timeline__WEBPACK_IMPORTED_MODULE_8__.TIMELINE_LCM;
+            const effect = [true, null, selectedItem[1], []];
+            return [effect, start, duration];
         }
-        return [track.render];
-    }, [selectedItem, selectedType, fieldConfig, track]);
+        return [track.render, 0, trackDuration];
+    }, [selectedItem, selectedType, fieldConfig, track, trackDuration]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         if (!canvas)
             return;
@@ -90946,7 +90988,6 @@ const CanvasStaticPreviewCp = ({ width, height }) => {
         worker.addEventListener("message", (event) => {
             const data = event.data;
             const [usedEffectNames, usedFilterNames] = data;
-            console.log("OUTPUT", data);
             lastUsedEffectNames.current = usedEffectNames;
             lastUsedFilterNames.current = usedFilterNames;
             lastUsedEffects.current = usedEffectNames.map(name => {
@@ -90973,7 +91014,7 @@ const CanvasStaticPreviewCp = ({ width, height }) => {
         if (!worker)
             return;
         function isRerenderRequired() {
-            if (!(0,_utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_5__.isArraysEqual)(lastUsedSize.current, [width, height])) {
+            if (!(0,_utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_5__.isArraysEqual)(lastUsedSize.current, [width, height, duration, start])) {
                 return true;
             }
             if (lastUsedEffectRef.current !== render) {
@@ -91003,14 +91044,13 @@ const CanvasStaticPreviewCp = ({ width, height }) => {
         }
         if (!isRerenderRequired())
             return;
-        lastUsedSize.current = [width, height];
+        lastUsedSize.current = [width, height, duration, start];
         lastUsedEffectRef.current = render;
         lastUsedEffectNames.current = null;
         lastUsedFilterNames.current = null;
-        console.log("POST", track['editor'].duration);
-        const message = { type: "effect", render, track, profileName, duration: track['editor'].duration };
+        const message = { type: "effect", render, track, profileName, duration, start };
         worker.postMessage(message, []);
-    }, [worker, render, track.filters, track.effects, profile, profileName, width, height]);
+    }, [worker, render, track.filters, track.effects, profile, profileName, width, height, duration]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         if (!worker)
             return;
@@ -91020,14 +91060,13 @@ const CanvasStaticPreviewCp = ({ width, height }) => {
             height: height !== null && height !== void 0 ? height : 1,
             pixelCount: fieldConfig.elements.length
         };
-        console.log("WIDTH MSG", msg.width, msg.height);
         worker.postMessage(msg, []);
     }, [worker, width, height, fieldConfig]);
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: { display: "flex", flexGrow: 1, position: "relative" } },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "canvas-static-preview-bg" },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas, style: { position: "absolute" } }))));
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "canvas-static-preview _container" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "_bg" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas, className: "_canvas" }))));
 };
-const CanvasStaticPreview = (0,react_resize_detector__WEBPACK_IMPORTED_MODULE_8__.default)(CanvasStaticPreviewCp, { refreshMode: "throttle" });
+const CanvasStaticPreview = (0,react_resize_detector__WEBPACK_IMPORTED_MODULE_9__.default)(CanvasStaticPreviewCp, { refreshMode: "throttle" });
 
 
 /***/ }),

@@ -790,6 +790,12 @@ body .btn-primary:focus {
     display: inline-block; }
   .canvas-preview-container .controls {
     margin-top: 10px; }
+    .canvas-preview-container .controls .controls-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center; }
+    .canvas-preview-container .controls .volume-controls {
+      margin-left: 10px; }
     .canvas-preview-container .controls .rate-option {
       height: 38px;
       display: flex;
@@ -800,12 +806,17 @@ body .btn-primary:focus {
       .canvas-preview-container .controls .rate-option .rate-selector {
         margin-left: 10px; }
 
-.canvas-static-preview-bg {
+.canvas-static-preview._container {
+  display: flex;
+  flex-grow: 1;
+  position: relative; }
+
+.canvas-static-preview ._bg {
   display: inline-block;
   position: relative;
   width: 100%;
   height: 100%; }
-  .canvas-static-preview-bg::before {
+  .canvas-static-preview ._bg::before {
     content: "";
     width: 100%;
     height: 100%;
@@ -816,14 +827,25 @@ body .btn-primary:focus {
     background-size: 10px 10px;
     animation: .7s linear 0s infinite canvas-static-preview-bg-move;
     animation-play-state: paused; }
-  .canvas-static-preview-bg:hover::before {
+  .canvas-static-preview ._bg:hover::before {
     animation-play-state: running; }
+
+.canvas-static-preview ._canvas {
+  position: absolute; }
 
 @keyframes canvas-static-preview-bg-move {
   from {
     background-position: 0 0, 0 5px, 5px -5px, -5px 0px; }
   to {
     background-position: -15px -5px, -15px 0px, -10px -10px, -20px -5px; } }
+
+.preview-container {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column; }
+  .preview-container ._tab {
+    display: flex;
+    flex-grow: 1; }
 
 .plix-lib-block {
   height: 100%;
