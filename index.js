@@ -89041,7 +89041,7 @@ const GradientEditorModal = ({ isOpen, close, value }) => {
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_modal_BSModal__WEBPACK_IMPORTED_MODULE_1__.BSModal, { isOpen: isOpen, close: onClickClose, size: "lg" },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null, "Gradient editor"),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "grady-content" },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "preview-container", onDoubleClick: onClickPreview, ref: previewContainerRef },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "preview-container", onDoubleClick: onClickPreview, ref: previewContainerRef, title: "Double click to add" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "transanim-background preview-container-bg" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "preview", ref: previewRef, style: { background: htmlGradient } })),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "markers-container", ref: dragContainerRef }, markers)),
