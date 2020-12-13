@@ -25,6 +25,9 @@
   &:not(:first-child) {
     margin-left: 60px;
   }
+  .cfe-option-label:not(:first-child) {
+    margin-top: 10px;
+  }
 }
 
 .cfe-option {
@@ -33,6 +36,7 @@
   justify-content: left;
   align-items: center;
   width: 200px;
+  height: 38px;
   .cfe-option-name {
     display: inline-block;
     width: 35%;
@@ -45,4 +49,5 @@
   input[type="number"].cfe-option-value {
     width: 120px;
   }
+
 }

@@ -8,7 +8,7 @@ import {InlineSimpleSelectEditor} from "../../inline/InlineSimpleSelectEditor";
 import {PenSettingsPixel} from "./PenSettingsPixel";
 import {DrawingFieldElement} from "../FieldElementEditor";
 
-const DEFAULT_PIXEL_PROPS: FieldElementPixelProperties = {size: 25, shape: "circle"};
+const DEFAULT_PIXEL_PROPS: FieldElementPixelProperties = {size: 12, shape: "circle"};
 
 interface PenSettingsViewProps {
     onChange: (e: DrawingFieldElement) => void;

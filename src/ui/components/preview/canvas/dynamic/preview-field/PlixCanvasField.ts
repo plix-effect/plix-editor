@@ -40,6 +40,7 @@ export class PlixCanvasField<T extends CanvasGeneric> {
     private cfg: PreviewFieldConfig
     private canvas: T['canvas'];
     private ctx: T['ctx'];
+    private contourColor: any = contourColor;
 
     constructor(canvas: T['canvas']) {
         this.canvas = canvas;
@@ -50,6 +51,7 @@ export class PlixCanvasField<T extends CanvasGeneric> {
         this.cfg = cfg;
         this.canvas.height = cfg.height;
         this.canvas.width = cfg.width;
+        this.resetDraw()
     }
 
     getConfig() {
@@ -60,14 +62,16 @@ export class PlixCanvasField<T extends CanvasGeneric> {
         return this.cfg.elements.length;
     }
 
+    public setContourColor(clr: any) {
+        this.contourColor = clr;
+    }
 
-
-    public drawElementFromConfig(index: number, color?: RGBAColor, outlineColor = contourColor): void {
+    public drawElementFromConfig(index: number, color?: RGBAColor, outlineColor = this.contourColor): void {
         const element = this.cfg.elements[index];
         this.drawElement(element, color, outlineColor);
     }
 
-    public drawElement(element: FieldElement, color?: RGBAColor, outlineColor = contourColor): void {
+    public drawElement(element: FieldElement, color?: RGBAColor, outlineColor = this.contourColor): void {
         if (element.type === "line") this.drawLine(element, color, outlineColor);
         else if (element.type === "pixel") this.drawPixel(element, color, outlineColor);
     }
@@ -81,11 +85,11 @@ export class PlixCanvasField<T extends CanvasGeneric> {
         }
     }
 
-    public drawLine (lineInfo: FieldElementLine, color?: RGBAColor, outlineColor = contourColor) {
+    public drawLine (lineInfo: FieldElementLine, color?: RGBAColor, outlineColor = this.contourColor) {
         console.warn("drawLine not implemented")
     }
 
-    public drawPixel(pixelInfo: FieldElementPixel, color?: RGBAColor, outlineColor = contourColor) {
+    public drawPixel(pixelInfo: FieldElementPixel, color?: RGBAColor, outlineColor = this.contourColor) {
         const [x,y] = pixelInfo.geometry;
         const ctx = this.ctx;
         const size = pixelInfo.props.size;

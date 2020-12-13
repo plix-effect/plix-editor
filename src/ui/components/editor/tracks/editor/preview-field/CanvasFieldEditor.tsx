@@ -20,6 +20,7 @@ import {Checkbox} from "../../../../control/checkbox/Checkbox";
 import {FieldElementEditor} from "./FieldElementEditor";
 import {FieldElement} from "../../../../preview/canvas/dynamic/preview-field/PreviewFieldElement";
 import {PenSettingsView} from "./pen-settings/PenSettingsView";
+import {InlineNumberEditor} from "../inline/InlineNumberEditor";
 
 interface CanvasFieldEditorProps {
     value: PreviewFieldConfig
@@ -29,6 +30,8 @@ export const CanvasFieldEditor: FC<CanvasFieldEditorProps> = ({value, onChange})
     const [canvas, setCanvas] = useState<HTMLCanvasElement>();
     const [drawModeEnabled, setDrawModeEnabled] = useState(false);
     const [drawingElement, setDrawingElement] = useState(null);
+    const [gridX, setGridX] = useState(0);
+    const [gridY, setGridY] = useState(0);
 
     const [field, elementEditor] = useMemo(() => {
         if (!canvas) return [null,null];
@@ -50,12 +53,15 @@ export const CanvasFieldEditor: FC<CanvasFieldEditorProps> = ({value, onChange})
         }
     }, [value, onChange, elementEditor])
 
-
     useEffect(() => {
         if (!field) return;
         field.setConfig(value);
-        field.resetDraw();
     }, [value, field])
+
+    useEffect(() => {
+        if (!field) return;
+        elementEditor.setGrid([gridX, gridY]);
+    }, [gridX, gridY])
 
 
     useEffect(() => {
@@ -63,12 +69,12 @@ export const CanvasFieldEditor: FC<CanvasFieldEditorProps> = ({value, onChange})
         elementEditor.setDrawingElement(drawModeEnabled ? drawingElement : null)
     }, [elementEditor,drawingElement,drawModeEnabled])
 
-    const onChangeWidth = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-        const clone = {...value, width: Number(e.target.value)}
+    const onChangeWidth = useCallback(val => {
+        const clone = {...value, width: val}
         onChange(clone);
     },[value])
-    const onChangeHeight = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-        const clone = {...value, height: Number(e.target.value)}
+    const onChangeHeight = useCallback(val => {
+        const clone = {...value, height: val}
         onChange(clone);
     },[value])
 
@@ -86,14 +92,31 @@ export const CanvasFieldEditor: FC<CanvasFieldEditorProps> = ({value, onChange})
             </div>
             <div className={"cfe-controls"}>
                 <div className={"cfe-controls-group"}>
-                    <label>Canvas size</label>
+                    <label className={"cfe-option-label"}>Canvas size</label>
                     <div className={"cfe-option"}>
                         <span className={"cfe-option-name"}>Width: </span>
-                        <input value={value.width} type={"number"} step={"any"} className={"form-control cfe-option-value"} onChange={onChangeWidth}/>
+                        <div className={"cfe-option-value"}>
+                            <InlineNumberEditor value={value.width} onChange={onChangeWidth} step={"any"}/>
+                        </div>
                     </div>
                     <div className={"cfe-option"}>
                         <span className={"cfe-option-name"}>Height: </span>
-                        <input value={value.height} type={"number"} step={"any"} className={"form-control cfe-option-value"} onChange={onChangeHeight}/>
+                        <div className={"cfe-option-value"}>
+                            <InlineNumberEditor value={value.height} onChange={onChangeHeight} step={"any"}/>
+                        </div>
+                     </div>
+                    <label className={"cfe-option-label"}>Grid</label>
+                    <div className={"cfe-option"}>
+                        <span className={"cfe-option-name"}>X: </span>
+                        <div className={"cfe-option-value"}>
+                            <InlineNumberEditor value={gridX} onChange={setGridX} step={"any"}/>
+                        </div>
+                    </div>
+                    <div className={"cfe-option"}>
+                        <span className={"cfe-option-name"}>Y: </span>
+                        <div className={"cfe-option-value"}>
+                            <InlineNumberEditor value={gridY} onChange={setGridY} step={"any"}/>
+                        </div>
                     </div>
                 </div>
                 <div className={"cfe-controls-group"}>
