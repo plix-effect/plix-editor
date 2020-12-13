@@ -198,7 +198,7 @@ export const GradientEditorModal: FC<GradientEditorModalProps> = ({isOpen, close
         <BSModal isOpen={isOpen} close={onClickClose} size={"lg"}>
             <span>Gradient editor</span>
             <div className={"grady-content"}>
-                <div className={"preview-container"} onDoubleClick={onClickPreview} ref={previewContainerRef}>
+                <div className={"preview-container"} onDoubleClick={onClickPreview} ref={previewContainerRef} title={"Double click to add"}>
                     <span className={"transanim-background preview-container-bg"}>
                         <div className={"preview"} ref={previewRef} style={{background: htmlGradient}}/>
                     </span>
