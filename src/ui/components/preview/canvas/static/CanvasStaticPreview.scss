@@ -39,3 +39,14 @@
     background-position: -15px -5px, -15px 0px, -10px -10px, -20px -5px;
   }
 }
+
+.canvas-static-info {
+  position: absolute;
+  background-color: black;
+  &._info {
+    color: #884;
+  }
+  &._error {
+    color: #f44;
+  }
+}

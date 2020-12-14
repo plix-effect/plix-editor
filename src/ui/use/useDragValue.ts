@@ -1,9 +1,5 @@
-import {DragEventHandler, MutableRefObject, useCallback, useContext, useMemo, useRef} from "react";
-import {ParseMeta} from "../types/ParseMeta";
-import {ConstructorContext} from "../components/editor/ConstructorContext";
-import {PlixFilterJsonData} from "@plix-effect/core/types/parser";
+import {DragEventHandler, MutableRefObject, useCallback, useContext, useRef} from "react";
 import {DragContext, DragType} from "../components/editor/DragContext";
-import {MultiActionType} from "../components/editor/PlixEditorReducerActions";
 
 export function useDragValue(dragValue: DragType, ref?: MutableRefObject<any>) {
     const dragRef = useContext(DragContext);

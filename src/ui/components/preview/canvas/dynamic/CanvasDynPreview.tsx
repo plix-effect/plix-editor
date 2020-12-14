@@ -1,7 +1,6 @@
 import * as React from "react";
 import {
     ChangeEvent,
-    ChangeEventHandler,
     FC,
     useCallback,
     useContext,
@@ -10,10 +9,9 @@ import {
     useRef,
     useState
 } from "react";
-import {PlixEffectJsonData, PlixJsonData} from "@plix-effect/core/dist/types/parser";
+import {PlixEffectJsonData} from "@plix-effect/core/dist/types/parser";
 import {isArraysEqual} from "../../../../utils/isArraysEqual";
 import {useAudioVolume, usePlaybackControl, usePlaybackData, usePlaybackStatus} from "../../../editor/PlaybackContext";
-import type {PreviewFieldConfig} from "./preview-field/PlixCanvasField";
 import type {
     CvsDynPreviewInMsgChangeField,
     CvsDynPreviewInMsgChangePlayback,
@@ -24,10 +22,10 @@ import type {
 import {getParentSelection, useSelectionItem, useSelectionPath} from "../../../editor/SelectionContext";
 import {TrackContext} from "../../../editor/TrackContext";
 import {ConstructorContext} from "../../../editor/ConstructorContext";
-import {TIMELINE_LCM} from "@plix-effect/core/dist/effects/Timeline";
+import {TIMELINE_LCM} from "@plix-effect/core";
 import "./CanvasDynPreview.scss"
 import {CheckboxButton} from "../../../control/checkbox/CheckboxButton";
-import {PlaybackRateSelector} from "./../PlaybackRateSelector";
+import {PlaybackRateSelector} from "../PlaybackRateSelector";
 import {useLocalStorage} from "../../../../use/useStorage";
 import {useProfile, useProfileName} from "../../../editor/ProfileContext";
 import {DEFAULT_PREVIEW_FIELD_CONFIG} from "./preview-field/PlixCanvasField";

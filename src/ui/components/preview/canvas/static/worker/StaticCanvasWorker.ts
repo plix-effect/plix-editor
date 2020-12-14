@@ -21,8 +21,13 @@ const renderCanvas = () => {
     const width = canvas.width;
     const height = canvas.height;
 
+    const statusRenderMessage: StaticPreviewWorkerOutputMessageStatus = {
+        type: "status",
+        status: "render",
+        error: null,
+    }
+    self.postMessage(statusRenderMessage, []);
 
-    // const colorMap = new Uint8ClampedArray(width*height*4);
     for (let h=0; h<height; h++){
         const colorMap = new Uint8ClampedArray(width*4);
         const line = effect(h/height*duration, duration, start);
@@ -41,6 +46,13 @@ const renderCanvas = () => {
         canvasCtx.putImageData(imageData, 0, h);
     }
 
+    const statusDoneMessage: StaticPreviewWorkerOutputMessageStatus = {
+        type: "status",
+        status: "done",
+        error: null,
+    }
+    self.postMessage(statusDoneMessage, []);
+
 }
 
 onmessage = (event) => {
@@ -52,12 +64,28 @@ onmessage = (event) => {
         const {render, track} = msg;
         duration = msg.duration;
         start = msg.start;
-        parsedData = parseRender(render, track.effects, track.filters, effectConstructorMap, filterConstructorMap );
-        const effectKeys = Object.keys(parsedData.effectsMap).sort();
-        const filterKeys = Object.keys(parsedData.filtersMap).sort();
+        try {
+            const statusMessage: StaticPreviewWorkerOutputMessageStatus = {
+                type: "status",
+                status: "parse",
+                error: null,
+            }
+            self.postMessage(statusMessage, []);
+            parsedData = parseRender(render, track.effects, track.filters, effectConstructorMap, filterConstructorMap );
+            const effectKeys = Object.keys(parsedData.effectsMap).sort();
+            const filterKeys = Object.keys(parsedData.filtersMap).sort();
+            const depsMessage: StaticPreviewWorkerOutputMessageDeps = {type: "deps", data: [effectKeys, filterKeys]}
+            self.postMessage(depsMessage, []);
+            renderCanvas();
+        } catch (error) {
+            const statusMessage: StaticPreviewWorkerOutputMessageStatus = {
+                type: "status",
+                status: "error",
+                error: String(error),
+            }
+            self.postMessage(statusMessage, []);
+        }
 
-        self.postMessage([effectKeys, filterKeys], []);
-        renderCanvas();
     } else if (msg.type === "size") {
         canvas.width = msg.width
         canvas.height = msg.height;
@@ -92,4 +120,15 @@ export interface StaticPreviewWorkerInputMessageSizes {
     pixelCount: number|null
 }
 
-export type StaticPreviewWorkerOutputMessage = [string[], string[]]
+export interface StaticPreviewWorkerOutputMessageDeps {
+    type: "deps",
+    data: [string[], string[]]
+}
+
+export interface StaticPreviewWorkerOutputMessageStatus {
+    type: "status",
+    status: "none" | "parse" | "render" | "done" | "error"
+    error: string | null
+}
+
+export type StaticPreviewWorkerOutputMessage = StaticPreviewWorkerOutputMessageDeps | StaticPreviewWorkerOutputMessageStatus;

@@ -1,5 +1,4 @@
-import {HSLAColor, PlixColor, RGBAColor} from "@plix-effect/core/types";
-import {hslaToRgba} from "@plix-effect/core/color";
+import {RGBAColor} from "@plix-effect/core/types";
 import {FieldElement, FieldElementLine, FieldElementPixel} from "./PreviewFieldElement";
 
 

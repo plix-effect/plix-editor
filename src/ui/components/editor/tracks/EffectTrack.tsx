@@ -1,7 +1,6 @@
 import React, {DragEvent, DragEventHandler, FC, memo, ReactNode, useCallback, useContext, useMemo} from "react";
 import {Track} from "../../timeline/Track";
 import type {
-    PlixEffectAliasJsonData,
     PlixEffectConfigurableJsonData,
     PlixEffectJsonData
 } from "@plix-effect/core/types/parser";
@@ -9,7 +8,6 @@ import {EditorPath} from "../../../types/Editor";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {TrackContext} from "../TrackContext";
 import {ParseMeta} from "../../../types/ParseMeta";
-import {ValueTrack} from "./ValueTrack";
 
 import "./tracks.scss"
 import {useExpander} from "../track-elements/Expander";

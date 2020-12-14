@@ -67,3 +67,11 @@
   }
 
 }
+
+.inline-editor-effect-preview {
+  position: absolute;
+  display: inline-block;
+  top: 0;
+  z-index: 3;
+  margin-left: 15px;
+}

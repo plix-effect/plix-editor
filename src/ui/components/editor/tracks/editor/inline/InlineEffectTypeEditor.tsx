@@ -13,6 +13,8 @@ import {PlixEffectAliasJsonData, PlixEffectJsonData} from "@plix-effect/core/dis
 import {ParseMeta} from "../../../../../types/ParseMeta";
 import {TrackContext} from "../../../TrackContext";
 import {ConstructorContext} from "../../../ConstructorContext";
+import {CanvasStaticEffectPreview} from "../../../../preview/canvas/static/CanvasStaticEffectPreview";
+import "./InlineEditor.scss"
 
 interface EffectInlineSelectOptionValue extends InlineSelectOptionValue {
     effectType: null|"ALIAS"|"CONSTRUCTOR"
@@ -47,7 +49,8 @@ export const InlineEffectTypeEditor: FC<InlineEffectTypeEditorProps> = ({effect,
     }, []);
 
     const {effectConstructorMap} = useContext(ConstructorContext);
-    const {track: { effects: effectAliasMap }} = useContext(TrackContext);
+    const {track, track: { effects: effectAliasMap }} = useContext(TrackContext);
+    const duration = track?.['editor']?.['duration'] ?? 60*1000;
 
     const effectConstructorsData = useMemo(() => {
         return Object.keys(effectConstructorMap).sort(/*a-z*/).map((id) => {
@@ -101,6 +104,11 @@ export const InlineEffectTypeEditor: FC<InlineEffectTypeEditorProps> = ({effect,
     }, [aliasData, effectConstructorsData]);
 
     const currentValue = useMemo<EffectInlineSelectOptionValue>(() => {
+        const preview = (
+            <div className="inline-editor-effect-preview">
+                <CanvasStaticEffectPreview width={100} height={38} duration={duration} render={effect} startTime={0}/>
+            </div>
+        )
         if (effect == null) {
             return NO_EFFECT_OPTION
         } else {
@@ -108,14 +116,14 @@ export const InlineEffectTypeEditor: FC<InlineEffectTypeEditorProps> = ({effect,
                 const alias = effect as PlixEffectAliasJsonData;
                 return {
                     value: "A"+alias[2],
-                    label: <span><i className="fa fa-link"/> {alias[2]}</span>,
+                    label: <span><i className="fa fa-link"/> {alias[2]} {preview}</span>,
                     effectType: "ALIAS",
                     type: "value"
                 }
             } else if (effect[1] !== null) {
                 return {
                     value: "C"+effect[1],
-                    label: effect[1],
+                    label: <span>{effect[1]} {preview}</span>,
                     effectType: "CONSTRUCTOR",
                     type: "value"
                 }
