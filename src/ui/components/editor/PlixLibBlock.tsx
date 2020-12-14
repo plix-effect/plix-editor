@@ -1,9 +1,15 @@
-import React, {FC, useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
+import React, {FC, MouseEventHandler, useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
 import "./PlixLibBlock.scss";
 import {TrackContext} from "./TrackContext";
 import {PlixFilterJsonData, PlixProfile} from "@plix-effect/core/types/parser";
 import {PlixEffectJsonData} from "@plix-effect/core/dist/types/parser";
-import useLatestCallback from "../../use/useLatestCallback";
+import {generateColorByText} from "../../utils/generateColorByText";
+import {useDragValue} from "../../use/useDragValue";
+import {DragType} from "./DragContext";
+import {DeleteAction, EditValueAction, PushValueAction} from "./PlixEditorReducerActions";
+import {useSelectionControl, useSelectionPath} from "./SelectionContext";
+import cn from "classnames";
+import {useProfileName} from "./ProfileContext";
 
 interface ResultMap {
     effect: PlixEffectJsonData
@@ -29,7 +35,6 @@ export const PlixLibBlock: FC = () => {
     const [text, setText] = useState("");
 
     const searchWithType = useCallback((type) => {
-        console.log("searchWithType", type);
         searchRef.current.focus();
         searchRef.current.select();
         if (type) setType(type);
@@ -37,7 +42,6 @@ export const PlixLibBlock: FC = () => {
 
     useEffect(() => {
         const onKeyDown = (event: DocumentEventMap["keydown"]) => {
-            console.log("EE", event);
             const {code, ctrlKey, shiftKey, altKey} = event;
             if (code === "KeyF" && ctrlKey && !shiftKey && !altKey) {
                 event.preventDefault();
@@ -72,7 +76,7 @@ export const PlixLibBlock: FC = () => {
     }, [setType]);
 
     const searchResults = useMemo<SearchResult[]>(() => {
-        if (!text) return [];
+        if (!text && type === "all") return [];
         const lText = text.toLowerCase();
         const results: SearchResult[] = [];
         if (type === "all" || type === "effects") for (const name of Object.keys(track.effects)) {
@@ -141,23 +145,144 @@ const PlixLibResult: FC<{value: SearchResult}> = ({value}) => {
     return null;
 }
 const PlixLibResultEffect: FC<{value: SearchResults['effect']}> = ({value}) => {
+    const bgColor = generateColorByText(value.name, 1, 0.3, 1);
+    const {track} = useContext(TrackContext);
+    const {toggleSelect, isSelectedPath, select} = useSelectionControl();
+    const selectionPath = useSelectionPath();
+    const path = useMemo(() => ["effects", value.name], [value]);
+    const selected = useMemo(() => {
+        return isSelectedPath(path);
+    }, [selectionPath]);
+    const dragValue = useMemo<DragType>(() => {
+        const effect = track.effects[value.name];
+        return {
+            effect: effect,
+            effectLink: [true, null, value.name, []],
+            typedValue: {type: "effect", value: effect},
+            deleteAction: DeleteAction(path)
+        };
+    }, [value]);
+    const {onDragStart, onDrag, onDragEnd, draggableRef} = useDragValue(dragValue);
+    const onClick: MouseEventHandler<HTMLDivElement> = useCallback(({ctrlKey, altKey, shiftKey}) => {
+        if (!ctrlKey && !altKey && !shiftKey) select(path); // Click
+        if (ctrlKey && !altKey && shiftKey) { // Ctrl+Shift
+            toggleSelect(path);
+        }
+    }, [select, toggleSelect, path]);
+
     return (
-        <div>
-            {value.name}
+        <div className="plix-lib-result-row">
+            <i className="fas fa-palette" title="effect"/>
+            <div
+                onClick={onClick}
+                className={cn("timeline-record-name", {"_selected": selected})}
+                style={{backgroundColor: bgColor, position: "static"}}
+                draggable
+                ref={draggableRef}
+                onDragStart={onDragStart}
+                onDrag={onDrag}
+                onDragEnd={onDragEnd}
+            >
+                {value.name}
+            </div>
         </div>
     );
 }
 const PlixLibResultFilter: FC<{value: SearchResults['filter']}> = ({value}) => {
+    const bgColor = generateColorByText(value.name, 1, 0.1, 1);
+    const {track} = useContext(TrackContext);
+    const {toggleSelect, isSelectedPath, select} = useSelectionControl();
+    const selectionPath = useSelectionPath();
+    const path = useMemo(() => ["filters", value.name], [value]);
+    const selected = useMemo(() => {
+        return isSelectedPath(path);
+    }, [selectionPath]);
+    const dragValue = useMemo<DragType>(() => {
+        const filter = track.filters[value.name];
+        return {
+            filter: filter,
+            filterLink: [true, null, value.name],
+            typedValue: {type: "filter", value: filter},
+            deleteAction: DeleteAction(path)
+        };
+    }, [value]);
+    const {onDragStart, onDrag, onDragEnd, draggableRef} = useDragValue(dragValue);
+    const onClick: MouseEventHandler<HTMLDivElement> = useCallback(({ctrlKey, altKey, shiftKey}) => {
+        if (!ctrlKey && !altKey && !shiftKey) select(path); // Click
+        if (ctrlKey && !altKey && shiftKey) { // Ctrl+Shift
+            toggleSelect(path);
+        }
+    }, [select, toggleSelect, path]);
+
     return (
-        <div>
-            {value.name}
+        <div className="plix-lib-result-row" >
+            <i className="fas fa-mask" title="filter"/>
+            <div
+                onClick={onClick}
+                className={cn("timeline-record-name", {"_selected": selected})}
+                style={{backgroundColor: bgColor, position: "static"}}
+                draggable
+                ref={draggableRef}
+                onDragStart={onDragStart}
+                onDrag={onDrag}
+                onDragEnd={onDragEnd}
+            >
+                {value.name}
+            </div>
         </div>
     );
 }
 const PlixLibResultProfile: FC<{value: SearchResults['profile']}> = ({value}) => {
+    const {track} = useContext(TrackContext);
+    const {toggleSelect, isSelectedPath, select} = useSelectionControl();
+    const selectionPath = useSelectionPath();
+    const [profileName, setProfile] = useProfileName();
+    const setCurrentProfile = useCallback(() => {
+        setProfile(value.name);
+    }, [setProfile, value.name]);
+    const clearCurrentProfile = useCallback(() => {
+        setProfile(null);
+    }, [setProfile]);
+    const path = useMemo(() => ["profiles", value.name], [value]);
+    const selected = useMemo(() => {
+        return isSelectedPath(path);
+    }, [selectionPath]);
+    const dragValue = useMemo<DragType>(() => {
+        const profile = track.profiles[value.name];
+        return {
+            typedValue: {type: "profile", value: profile},
+            deleteAction: DeleteAction(path)
+        };
+    }, [value]);
+    const {onDragStart, onDrag, onDragEnd, draggableRef} = useDragValue(dragValue);
+    const onClick: MouseEventHandler<HTMLDivElement> = useCallback(({ctrlKey, altKey, shiftKey}) => {
+        if (!ctrlKey && !altKey && !shiftKey) select(path); // Click
+        if (ctrlKey && !altKey && shiftKey) { // Ctrl+Shift
+            toggleSelect(path);
+        }
+    }, [select, toggleSelect, path]);
+
     return (
-        <div>
-            {value.name}
+        <div className="plix-lib-result-row">
+            <i className="fas fa-user" title="profile"/>
+            <div
+                onClick={onClick}
+                className={cn("timeline-record-name", {"_selected": selected})}
+                style={{position: "static"}}
+                draggable
+                ref={draggableRef}
+                onDragStart={onDragStart}
+                onDrag={onDrag}
+                onDragEnd={onDragEnd}
+            >
+                {value.name}
+            </div>
+            {profileName === value.name ? (
+                <button onClick={clearCurrentProfile}>clear</button>
+            ) : (
+                <button onClick={setCurrentProfile}>use</button>
+            )}
+
         </div>
     );
 }

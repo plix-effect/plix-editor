@@ -35,3 +35,25 @@
     flex-shrink: 1;
     overflow: auto;
 }
+.plix-lib-result-row {
+    position: relative;
+    margin: 7px 2px 0 2px;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    .timeline-record-name {
+        height: 28px;
+        margin-left: 5px;
+        &._selected {
+            outline: solid 2px #888844;
+            z-index: 1;
+        }
+        &._drag {
+            border: 2px dashed #fff;
+            &._move {
+                background-color: transparent !important;
+                color: transparent;
+            }
+        }
+    }
+}

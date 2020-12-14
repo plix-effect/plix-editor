@@ -16,6 +16,7 @@ import {DragContext, DragType} from "../DragContext";
 import {EditValueAction, MultiAction} from "../PlixEditorReducerActions";
 import {EditorPath} from "../../../types/Editor";
 import {PlixEditorAction} from "../PlixEditorReducer";
+import {useDragValue} from "../../../use/useDragValue";
 
 type TimelineBlockType = "default" | "description" | "timeline" | "title"
 export interface TreeBlockProps {
@@ -46,28 +47,7 @@ export const TreeBlock: FC<TreeBlockProps> = (
     const blockRef = useRef<HTMLDivElement>();
     const onDropActionRef = useRef<[string,DragEventHandler]>();
 
-    const onDragStart: DragEventHandler<HTMLDivElement> = useCallback((event) => {
-        dragRef.current = {
-            ...dragValue,
-            offsetX: event.nativeEvent.offsetX,
-            offsetY: event.nativeEvent.offsetY,
-        }
-        localStorage.setItem("plix_editor_drag", JSON.stringify(dragRef.current));
-        event.dataTransfer.setData("plix/localstorage", "");
-        blockRef.current.classList.add("_drag");
-        event.stopPropagation();
-        event.dataTransfer.setDragImage(new Image(), 0, 0);
-    }, [dragValue, blockRef]);
-
-    const onDrag = useCallback(() => {
-        const dropEffect = dragRef.current?.dropEffect
-        blockRef.current.classList.remove("_move", "_copy", "_link", "_none");
-        if (dropEffect) blockRef.current.classList.add(`_${dropEffect}`);
-    }, [dragRef, blockRef]);
-
-    const onDragEnd: DragEventHandler<HTMLDivElement> = useCallback((event) => {
-        blockRef.current.classList.remove("_drag","_move", "_copy", "_link", "_none");
-    }, [dragValue, blockRef]);
+    const {onDragStart, onDrag, onDragEnd} = useDragValue(dragValue, blockRef);
 
     const onDragEnter = useCallback(() => {
         dragCount.current++;
