@@ -84866,6 +84866,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _PlixLibBlock_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PlixLibBlock.scss */ "./src/ui/components/editor/PlixLibBlock.scss");
 /* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+/* harmony import */ var _utils_generateColorByText__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../utils/generateColorByText */ "./src/ui/utils/generateColorByText.ts");
+/* harmony import */ var _use_useDragValue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../use/useDragValue */ "./src/ui/use/useDragValue.ts");
+/* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+/* harmony import */ var _SelectionContext__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./SelectionContext */ "./src/ui/components/editor/SelectionContext.tsx");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _ProfileContext__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ProfileContext */ "./src/ui/components/editor/ProfileContext.tsx");
+
+
+
+
+
+
 
 
 
@@ -84875,7 +84888,6 @@ const PlixLibBlock = () => {
     const [type, setType] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("all");
     const [text, setText] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("");
     const searchWithType = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((type) => {
-        console.log("searchWithType", type);
         searchRef.current.focus();
         searchRef.current.select();
         if (type)
@@ -84883,7 +84895,6 @@ const PlixLibBlock = () => {
     }, []);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         const onKeyDown = (event) => {
-            console.log("EE", event);
             const { code, ctrlKey, shiftKey, altKey } = event;
             if (code === "KeyF" && ctrlKey && !shiftKey && !altKey) {
                 event.preventDefault();
@@ -84915,7 +84926,7 @@ const PlixLibBlock = () => {
         setText(event.target.value);
     }, [setType]);
     const searchResults = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
-        if (!text)
+        if (!text && type === "all")
             return [];
         const lText = text.toLowerCase();
         const results = [];
@@ -84993,13 +85004,99 @@ const PlixLibResult = ({ value }) => {
     return null;
 };
 const PlixLibResultEffect = ({ value }) => {
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, value.name));
+    const bgColor = (0,_utils_generateColorByText__WEBPACK_IMPORTED_MODULE_3__.generateColorByText)(value.name, 1, 0.3, 1);
+    const { track } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
+    const { toggleSelect, isSelectedPath, select } = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_6__.useSelectionControl)();
+    const selectionPath = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_6__.useSelectionPath)();
+    const path = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ["effects", value.name], [value]);
+    const selected = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return isSelectedPath(path);
+    }, [selectionPath]);
+    const dragValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        const effect = track.effects[value.name];
+        return {
+            effect: effect,
+            effectLink: [true, null, value.name, []],
+            typedValue: { type: "effect", value: effect },
+            deleteAction: (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_5__.DeleteAction)(path)
+        };
+    }, [value]);
+    const { onDragStart, onDrag, onDragEnd, draggableRef } = (0,_use_useDragValue__WEBPACK_IMPORTED_MODULE_4__.useDragValue)(dragValue);
+    const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(({ ctrlKey, altKey, shiftKey }) => {
+        if (!ctrlKey && !altKey && !shiftKey)
+            select(path);
+        if (ctrlKey && !altKey && shiftKey) {
+            toggleSelect(path);
+        }
+    }, [select, toggleSelect, path]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-result-row" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-palette", title: "effect" }),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { onClick: onClick, className: classnames__WEBPACK_IMPORTED_MODULE_7___default()("timeline-record-name", { "_selected": selected }), style: { backgroundColor: bgColor, position: "static" }, draggable: true, ref: draggableRef, onDragStart: onDragStart, onDrag: onDrag, onDragEnd: onDragEnd }, value.name)));
 };
 const PlixLibResultFilter = ({ value }) => {
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, value.name));
+    const bgColor = (0,_utils_generateColorByText__WEBPACK_IMPORTED_MODULE_3__.generateColorByText)(value.name, 1, 0.1, 1);
+    const { track } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
+    const { toggleSelect, isSelectedPath, select } = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_6__.useSelectionControl)();
+    const selectionPath = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_6__.useSelectionPath)();
+    const path = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ["filters", value.name], [value]);
+    const selected = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return isSelectedPath(path);
+    }, [selectionPath]);
+    const dragValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        const filter = track.filters[value.name];
+        return {
+            filter: filter,
+            filterLink: [true, null, value.name],
+            typedValue: { type: "filter", value: filter },
+            deleteAction: (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_5__.DeleteAction)(path)
+        };
+    }, [value]);
+    const { onDragStart, onDrag, onDragEnd, draggableRef } = (0,_use_useDragValue__WEBPACK_IMPORTED_MODULE_4__.useDragValue)(dragValue);
+    const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(({ ctrlKey, altKey, shiftKey }) => {
+        if (!ctrlKey && !altKey && !shiftKey)
+            select(path);
+        if (ctrlKey && !altKey && shiftKey) {
+            toggleSelect(path);
+        }
+    }, [select, toggleSelect, path]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-result-row" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-mask", title: "filter" }),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { onClick: onClick, className: classnames__WEBPACK_IMPORTED_MODULE_7___default()("timeline-record-name", { "_selected": selected }), style: { backgroundColor: bgColor, position: "static" }, draggable: true, ref: draggableRef, onDragStart: onDragStart, onDrag: onDrag, onDragEnd: onDragEnd }, value.name)));
 };
 const PlixLibResultProfile = ({ value }) => {
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, value.name));
+    const { track } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
+    const { toggleSelect, isSelectedPath, select } = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_6__.useSelectionControl)();
+    const selectionPath = (0,_SelectionContext__WEBPACK_IMPORTED_MODULE_6__.useSelectionPath)();
+    const [profileName, setProfile] = (0,_ProfileContext__WEBPACK_IMPORTED_MODULE_8__.useProfileName)();
+    const setCurrentProfile = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        setProfile(value.name);
+    }, [setProfile, value.name]);
+    const clearCurrentProfile = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        setProfile(null);
+    }, [setProfile]);
+    const path = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => ["profiles", value.name], [value]);
+    const selected = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        return isSelectedPath(path);
+    }, [selectionPath]);
+    const dragValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        const profile = track.profiles[value.name];
+        return {
+            typedValue: { type: "profile", value: profile },
+            deleteAction: (0,_PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_5__.DeleteAction)(path)
+        };
+    }, [value]);
+    const { onDragStart, onDrag, onDragEnd, draggableRef } = (0,_use_useDragValue__WEBPACK_IMPORTED_MODULE_4__.useDragValue)(dragValue);
+    const onClick = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(({ ctrlKey, altKey, shiftKey }) => {
+        if (!ctrlKey && !altKey && !shiftKey)
+            select(path);
+        if (ctrlKey && !altKey && shiftKey) {
+            toggleSelect(path);
+        }
+    }, [select, toggleSelect, path]);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "plix-lib-result-row" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-user", title: "profile" }),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { onClick: onClick, className: classnames__WEBPACK_IMPORTED_MODULE_7___default()("timeline-record-name", { "_selected": selected }), style: { position: "static" }, draggable: true, ref: draggableRef, onDragStart: onDragStart, onDrag: onDrag, onDragEnd: onDragEnd }, value.name),
+        profileName === value.name ? (react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { onClick: clearCurrentProfile }, "clear")) : (react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { onClick: setCurrentProfile }, "use"))));
 };
 
 
@@ -85721,6 +85818,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TreeBlock_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TreeBlock.scss */ "./src/ui/components/editor/track-elements/TreeBlock.scss");
 /* harmony import */ var _DragContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../DragContext */ "./src/ui/components/editor/DragContext.ts");
 /* harmony import */ var _PlixEditorReducerActions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../PlixEditorReducerActions */ "./src/ui/components/editor/PlixEditorReducerActions.ts");
+/* harmony import */ var _use_useDragValue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../use/useDragValue */ "./src/ui/use/useDragValue.ts");
+
 
 
 
@@ -85731,24 +85830,7 @@ const TreeBlock = ({ children, selected = false, title, type = "default", dragVa
     const dragCount = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(0);
     const blockRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const onDropActionRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
-    const onDragStart = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
-        dragRef.current = Object.assign(Object.assign({}, dragValue), { offsetX: event.nativeEvent.offsetX, offsetY: event.nativeEvent.offsetY });
-        localStorage.setItem("plix_editor_drag", JSON.stringify(dragRef.current));
-        event.dataTransfer.setData("plix/localstorage", "");
-        blockRef.current.classList.add("_drag");
-        event.stopPropagation();
-        event.dataTransfer.setDragImage(new Image(), 0, 0);
-    }, [dragValue, blockRef]);
-    const onDrag = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
-        var _a;
-        const dropEffect = (_a = dragRef.current) === null || _a === void 0 ? void 0 : _a.dropEffect;
-        blockRef.current.classList.remove("_move", "_copy", "_link", "_none");
-        if (dropEffect)
-            blockRef.current.classList.add(`_${dropEffect}`);
-    }, [dragRef, blockRef]);
-    const onDragEnd = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
-        blockRef.current.classList.remove("_drag", "_move", "_copy", "_link", "_none");
-    }, [dragValue, blockRef]);
+    const { onDragStart, onDrag, onDragEnd } = (0,_use_useDragValue__WEBPACK_IMPORTED_MODULE_5__.useDragValue)(dragValue, blockRef);
     const onDragEnter = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
         dragCount.current++;
     }, []);
@@ -91696,6 +91778,49 @@ const useClickOutside = (ref, callback, subscribed) => {
         };
     }, [subscribed]);
 };
+
+
+/***/ }),
+
+/***/ "./src/ui/use/useDragValue.ts":
+/*!************************************!*\
+  !*** ./src/ui/use/useDragValue.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "useDragValue": () => /* binding */ useDragValue
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _components_editor_DragContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../components/editor/DragContext */ "./src/ui/components/editor/DragContext.ts");
+
+
+function useDragValue(dragValue, ref) {
+    const dragRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_components_editor_DragContext__WEBPACK_IMPORTED_MODULE_1__.DragContext);
+    const localRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+    const draggableRef = ref !== null && ref !== void 0 ? ref : localRef;
+    const onDragStart = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        dragRef.current = Object.assign(Object.assign({}, dragValue), { offsetX: event.nativeEvent.offsetX, offsetY: event.nativeEvent.offsetY });
+        localStorage.setItem("plix_editor_drag", JSON.stringify(dragRef.current));
+        event.dataTransfer.setData("plix/localstorage", "");
+        draggableRef.current.classList.add("_drag");
+        event.stopPropagation();
+        event.dataTransfer.setDragImage(new Image(), 0, 0);
+    }, [dragValue, draggableRef]);
+    const onDrag = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(() => {
+        var _a;
+        const dropEffect = (_a = dragRef.current) === null || _a === void 0 ? void 0 : _a.dropEffect;
+        draggableRef.current.classList.remove("_move", "_copy", "_link", "_none");
+        if (dropEffect)
+            draggableRef.current.classList.add(`_${dropEffect}`);
+    }, [dragRef, draggableRef]);
+    const onDragEnd = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((event) => {
+        draggableRef.current.classList.remove("_drag", "_move", "_copy", "_link", "_none");
+    }, [dragValue, draggableRef]);
+    return { onDragStart, onDrag, onDragEnd, draggableRef };
+}
 
 
 /***/ }),
