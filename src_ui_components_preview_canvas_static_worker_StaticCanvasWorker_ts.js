@@ -28,6 +28,12 @@ const renderCanvas = () => {
     const effect = parsedData.effect;
     const width = canvas.width;
     const height = canvas.height;
+    const statusRenderMessage = {
+        type: "status",
+        status: "render",
+        error: null,
+    };
+    self.postMessage(statusRenderMessage, []);
     for (let h = 0; h < height; h++) {
         const colorMap = new Uint8ClampedArray(width * 4);
         const line = effect(h / height * duration, duration, start);
@@ -45,6 +51,12 @@ const renderCanvas = () => {
         imageData.data.set(colorMap);
         canvasCtx.putImageData(imageData, 0, h);
     }
+    const statusDoneMessage = {
+        type: "status",
+        status: "done",
+        error: null,
+    };
+    self.postMessage(statusDoneMessage, []);
 };
 onmessage = (event) => {
     const msg = event.data;
@@ -56,11 +68,28 @@ onmessage = (event) => {
         const { render, track } = msg;
         duration = msg.duration;
         start = msg.start;
-        parsedData = (0,_plix_effect_core__WEBPACK_IMPORTED_MODULE_0__.default)(render, track.effects, track.filters, _plix_effect_core_effects__WEBPACK_IMPORTED_MODULE_2__, _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_3__);
-        const effectKeys = Object.keys(parsedData.effectsMap).sort();
-        const filterKeys = Object.keys(parsedData.filtersMap).sort();
-        self.postMessage([effectKeys, filterKeys], []);
-        renderCanvas();
+        try {
+            const statusMessage = {
+                type: "status",
+                status: "parse",
+                error: null,
+            };
+            self.postMessage(statusMessage, []);
+            parsedData = (0,_plix_effect_core__WEBPACK_IMPORTED_MODULE_0__.default)(render, track.effects, track.filters, _plix_effect_core_effects__WEBPACK_IMPORTED_MODULE_2__, _plix_effect_core_filters__WEBPACK_IMPORTED_MODULE_3__);
+            const effectKeys = Object.keys(parsedData.effectsMap).sort();
+            const filterKeys = Object.keys(parsedData.filtersMap).sort();
+            const depsMessage = { type: "deps", data: [effectKeys, filterKeys] };
+            self.postMessage(depsMessage, []);
+            renderCanvas();
+        }
+        catch (error) {
+            const statusMessage = {
+                type: "status",
+                status: "error",
+                error: String(error),
+            };
+            self.postMessage(statusMessage, []);
+        }
     }
     else if (msg.type === "size") {
         canvas.width = msg.width;

@@ -3267,10 +3267,7 @@ exports.fromHsla = function (color) {
     return hslaToRgba(__assign(__assign({}, color), { a: 1 }));
 };
 exports.blendColors = function (x, y, blend) {
-    var xc = exports.toRgba(x);
-    var yc = exports.toRgba(y);
-    var z = blend(xc, yc); // r,g,b can be NaN. need to fix it
-    return exports.fromRgba({ r: z.r || 0, g: z.g || 0, b: z.b || 0, a: z.a });
+    return blend(x, y);
 };
 exports.applyOpacity = function (color, gain) {
     return exports.applyOpacityToHslaOrRgba(color, gain);
@@ -85113,12 +85110,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "SelectProvider": () => /* binding */ SelectProvider,
 /* harmony export */   "useProfile": () => /* binding */ useProfile,
-/* harmony export */   "useProfileName": () => /* binding */ useProfileName
+/* harmony export */   "useProfileName": () => /* binding */ useProfileName,
+/* harmony export */   "useFieldConfig": () => /* binding */ useFieldConfig
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _preview_canvas_dynamic_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../preview/canvas/dynamic/preview-field/PlixCanvasField */ "./src/ui/components/preview/canvas/dynamic/preview-field/PlixCanvasField.ts");
+
 
 const ProfileNameContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)([null, () => { }]);
 const ProfileContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
+const FieldConfigContext = (0,react__WEBPACK_IMPORTED_MODULE_0__.createContext)(null);
 const SelectProvider = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ track, children }) => {
     var _a, _b;
     const [profileName, setProfileName] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
@@ -85126,14 +85127,22 @@ const SelectProvider = (0,react__WEBPACK_IMPORTED_MODULE_0__.memo)(({ track, chi
     const profile = (_b = profileMap[profileName]) !== null && _b !== void 0 ? _b : null;
     const actualProfileName = profile ? profileName : null;
     const profileNameCtxValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => [actualProfileName, (v) => setProfileName(v)], [actualProfileName]);
+    const fieldConfig = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        var _a, _b, _c;
+        return (_c = (_a = profile === null || profile === void 0 ? void 0 : profile['fieldConfig']) !== null && _a !== void 0 ? _a : (_b = track === null || track === void 0 ? void 0 : track['editor']) === null || _b === void 0 ? void 0 : _b['fieldConfig']) !== null && _c !== void 0 ? _c : _preview_canvas_dynamic_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_1__.DEFAULT_PREVIEW_FIELD_CONFIG;
+    }, [profile, track]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(ProfileNameContext.Provider, { value: profileNameCtxValue },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(ProfileContext.Provider, { value: profile }, children)));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(ProfileContext.Provider, { value: profile },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(FieldConfigContext.Provider, { value: fieldConfig }, children))));
 });
 function useProfile() {
     return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(ProfileContext);
 }
 function useProfileName() {
     return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(ProfileNameContext);
+}
+function useFieldConfig() {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(FieldConfigContext);
 }
 
 
@@ -89289,6 +89298,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _InlineSelectEditor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./InlineSelectEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineSelectEditor.tsx");
 /* harmony import */ var _TrackContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../TrackContext */ "./src/ui/components/editor/TrackContext.ts");
 /* harmony import */ var _ConstructorContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../ConstructorContext */ "./src/ui/components/editor/ConstructorContext.ts");
+/* harmony import */ var _preview_canvas_static_CanvasStaticEffectPreview__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../../preview/canvas/static/CanvasStaticEffectPreview */ "./src/ui/components/preview/canvas/static/CanvasStaticEffectPreview.tsx");
+/* harmony import */ var _InlineEditor_scss__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./InlineEditor.scss */ "./src/ui/components/editor/tracks/editor/inline/InlineEditor.scss");
+
+
 
 
 
@@ -89300,6 +89313,7 @@ const NO_EFFECT_OPTION = ({
     effectType: null
 });
 const InlineEffectTypeEditor = ({ effect, onChange }) => {
+    var _a, _b;
     const handleChange = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((option) => {
         const type = option.effectType;
         const value = option.value.substr(1);
@@ -89311,7 +89325,8 @@ const InlineEffectTypeEditor = ({ effect, onChange }) => {
             return onChange("constructor", value);
     }, []);
     const { effectConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_ConstructorContext__WEBPACK_IMPORTED_MODULE_3__.ConstructorContext);
-    const { track: { effects: effectAliasMap } } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
+    const { track, track: { effects: effectAliasMap } } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
+    const duration = (_b = (_a = track === null || track === void 0 ? void 0 : track['editor']) === null || _a === void 0 ? void 0 : _a['duration']) !== null && _b !== void 0 ? _b : 60 * 1000;
     const effectConstructorsData = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
         return Object.keys(effectConstructorMap).sort().map((id) => {
             const effectConstructor = effectConstructorMap[id];
@@ -89360,6 +89375,8 @@ const InlineEffectTypeEditor = ({ effect, onChange }) => {
         return res;
     }, [aliasData, effectConstructorsData]);
     const currentValue = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        const preview = (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "inline-editor-effect-preview" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_preview_canvas_static_CanvasStaticEffectPreview__WEBPACK_IMPORTED_MODULE_4__.CanvasStaticEffectPreview, { width: 100, height: 38, duration: duration, render: effect, startTime: 0 })));
         if (effect == null) {
             return NO_EFFECT_OPTION;
         }
@@ -89371,7 +89388,9 @@ const InlineEffectTypeEditor = ({ effect, onChange }) => {
                     label: react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null,
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fa fa-link" }),
                         " ",
-                        alias[2]),
+                        alias[2],
+                        " ",
+                        preview),
                     effectType: "ALIAS",
                     type: "value"
                 };
@@ -89379,7 +89398,10 @@ const InlineEffectTypeEditor = ({ effect, onChange }) => {
             else if (effect[1] !== null) {
                 return {
                     value: "C" + effect[1],
-                    label: effect[1],
+                    label: react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null,
+                        effect[1],
+                        " ",
+                        preview),
                     effectType: "CONSTRUCTOR",
                     type: "value"
                 };
@@ -91053,10 +91075,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _editor_SelectionContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../editor/SelectionContext */ "./src/ui/components/editor/SelectionContext.tsx");
 /* harmony import */ var _editor_TrackContext__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../editor/TrackContext */ "./src/ui/components/editor/TrackContext.ts");
 /* harmony import */ var _editor_ConstructorContext__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../editor/ConstructorContext */ "./src/ui/components/editor/ConstructorContext.ts");
-/* harmony import */ var _plix_effect_core_dist_effects_Timeline__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @plix-effect/core/dist/effects/Timeline */ "./node_modules/@plix-effect/core/dist/effects/Timeline.js");
+/* harmony import */ var _plix_effect_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @plix-effect/core */ "./node_modules/@plix-effect/core/dist/parser/index.js");
 /* harmony import */ var _CanvasDynPreview_scss__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./CanvasDynPreview.scss */ "./src/ui/components/preview/canvas/dynamic/CanvasDynPreview.scss");
 /* harmony import */ var _control_checkbox_CheckboxButton__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../../control/checkbox/CheckboxButton */ "./src/ui/components/control/checkbox/CheckboxButton.tsx");
-/* harmony import */ var _PlaybackRateSelector__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./../PlaybackRateSelector */ "./src/ui/components/preview/canvas/PlaybackRateSelector.tsx");
+/* harmony import */ var _PlaybackRateSelector__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../PlaybackRateSelector */ "./src/ui/components/preview/canvas/PlaybackRateSelector.tsx");
 /* harmony import */ var _use_useStorage__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../../../use/useStorage */ "./src/ui/use/useStorage.ts");
 /* harmony import */ var _editor_ProfileContext__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../../editor/ProfileContext */ "./src/ui/components/editor/ProfileContext.tsx");
 /* harmony import */ var _preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./preview-field/PlixCanvasField */ "./src/ui/components/preview/canvas/dynamic/preview-field/PlixCanvasField.ts");
@@ -91129,8 +91151,8 @@ const CanvasDynPreview = () => {
             parentOptions[0] = [copySelectedItem];
             const bpm = parentOptions[1];
             const offset = parentOptions[3];
-            const start = offset + 60000 / bpm / _plix_effect_core_dist_effects_Timeline__WEBPACK_IMPORTED_MODULE_6__.TIMELINE_LCM * selectedItem[2];
-            const duration = (selectedItem[3] - selectedItem[2]) * 60000 / bpm / _plix_effect_core_dist_effects_Timeline__WEBPACK_IMPORTED_MODULE_6__.TIMELINE_LCM;
+            const start = offset + 60000 / bpm / _plix_effect_core__WEBPACK_IMPORTED_MODULE_6__.TIMELINE_LCM * selectedItem[2];
+            const duration = (selectedItem[3] - selectedItem[2]) * 60000 / bpm / _plix_effect_core__WEBPACK_IMPORTED_MODULE_6__.TIMELINE_LCM;
             timeline[2] = parentOptions;
             return [timeline, start, duration];
         }
@@ -91444,41 +91466,29 @@ class PlixCanvasField {
 
 /***/ }),
 
-/***/ "./src/ui/components/preview/canvas/static/CanvasStaticPreview.tsx":
-/*!*************************************************************************!*\
-  !*** ./src/ui/components/preview/canvas/static/CanvasStaticPreview.tsx ***!
-  \*************************************************************************/
+/***/ "./src/ui/components/preview/canvas/static/CanvasStaticEffectPreview.tsx":
+/*!*******************************************************************************!*\
+  !*** ./src/ui/components/preview/canvas/static/CanvasStaticEffectPreview.tsx ***!
+  \*******************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "CanvasStaticPreview": () => /* binding */ CanvasStaticPreview
+/* harmony export */   "CanvasStaticEffectPreview": () => /* binding */ CanvasStaticEffectPreview
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _editor_SelectionContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../editor/SelectionContext */ "./src/ui/components/editor/SelectionContext.tsx");
-/* harmony import */ var _editor_TrackContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../editor/TrackContext */ "./src/ui/components/editor/TrackContext.ts");
-/* harmony import */ var _editor_ConstructorContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../editor/ConstructorContext */ "./src/ui/components/editor/ConstructorContext.ts");
-/* harmony import */ var _editor_ProfileContext__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../editor/ProfileContext */ "./src/ui/components/editor/ProfileContext.tsx");
-/* harmony import */ var _utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../../utils/isArraysEqual */ "./src/ui/utils/isArraysEqual.ts");
-/* harmony import */ var react_resize_detector__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! react-resize-detector */ "./node_modules/react-resize-detector/lib/esm/hoc/withResizeDetector.js");
-/* harmony import */ var _dynamic_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../dynamic/preview-field/PlixCanvasField */ "./src/ui/components/preview/canvas/dynamic/preview-field/PlixCanvasField.ts");
-/* harmony import */ var _CanvasStaticPreview_scss__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./CanvasStaticPreview.scss */ "./src/ui/components/preview/canvas/static/CanvasStaticPreview.scss");
-/* harmony import */ var _plix_effect_core_dist_effects_Timeline__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @plix-effect/core/dist/effects/Timeline */ "./node_modules/@plix-effect/core/dist/effects/Timeline.js");
-
-
-
-
-
+/* harmony import */ var _editor_TrackContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../editor/TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+/* harmony import */ var _editor_ProfileContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../editor/ProfileContext */ "./src/ui/components/editor/ProfileContext.tsx");
+/* harmony import */ var _utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../utils/isArraysEqual */ "./src/ui/utils/isArraysEqual.ts");
+/* harmony import */ var _CanvasStaticPreview_scss__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./CanvasStaticPreview.scss */ "./src/ui/components/preview/canvas/static/CanvasStaticPreview.scss");
 
 
 
 
 
 const createStaticPreviewCanvasWorker = () => new Worker(new URL(/* worker import */ __webpack_require__.p + __webpack_require__.u("src_ui_components_preview_canvas_static_worker_StaticCanvasWorker_ts"), __webpack_require__.b));
-const CanvasStaticPreviewCp = ({ width, height }) => {
-    var _a;
-    const difRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+const CanvasStaticEffectPreview = ({ width, height, render, startTime, duration, onChangeStatus }) => {
     const [canvas, setCanvas] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
     const [worker, setWorker] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
     const lastUsedSize = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)([]);
@@ -91487,42 +91497,14 @@ const CanvasStaticPreviewCp = ({ width, height }) => {
     const lastUsedFilterNames = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const lastUsedEffects = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const lastUsedFilters = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
-    const path = (0,_editor_SelectionContext__WEBPACK_IMPORTED_MODULE_1__.useSelectionPath)();
-    const { selectedType, selectedItem } = (_a = (0,_editor_SelectionContext__WEBPACK_IMPORTED_MODULE_1__.useSelectionItem)()) !== null && _a !== void 0 ? _a : {};
-    const { track } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_editor_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
-    const { effectConstructorMap, filterConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_editor_ConstructorContext__WEBPACK_IMPORTED_MODULE_3__.ConstructorContext);
-    const profile = (0,_editor_ProfileContext__WEBPACK_IMPORTED_MODULE_4__.useProfile)();
-    const [profileName] = (0,_editor_ProfileContext__WEBPACK_IMPORTED_MODULE_4__.useProfileName)();
+    const { track } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_editor_TrackContext__WEBPACK_IMPORTED_MODULE_1__.TrackContext);
+    const profile = (0,_editor_ProfileContext__WEBPACK_IMPORTED_MODULE_2__.useProfile)();
+    const [profileName] = (0,_editor_ProfileContext__WEBPACK_IMPORTED_MODULE_2__.useProfileName)();
     const profileRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(profile);
     profileRef.current = profile;
-    const trackDuration = track['editor'].duration;
-    const fieldConfig = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
-        var _a, _b, _c;
-        return (_c = (_a = profile === null || profile === void 0 ? void 0 : profile['fieldConfig']) !== null && _a !== void 0 ? _a : (_b = track === null || track === void 0 ? void 0 : track['editor']) === null || _b === void 0 ? void 0 : _b['fieldConfig']) !== null && _c !== void 0 ? _c : _dynamic_preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_6__.DEFAULT_PREVIEW_FIELD_CONFIG;
-    }, [profile, track]);
-    const [render, start, duration] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
-        if (selectedType === "effect") {
-            if (selectedItem) {
-                const copySelectedItem = selectedItem.slice(0);
-                copySelectedItem[0] = true;
-                return [copySelectedItem, 0, trackDuration];
-            }
-            else
-                return [selectedItem, 0, trackDuration];
-        }
-        else if (selectedType === "record") {
-            const parentSelection = (0,_editor_SelectionContext__WEBPACK_IMPORTED_MODULE_1__.getParentSelection)(track, path, effectConstructorMap, filterConstructorMap, 3);
-            const timeline = parentSelection.item;
-            const parentOptions = timeline[2];
-            const bpm = parentOptions[1];
-            const offset = parentOptions[3];
-            const start = offset + 60000 / bpm / _plix_effect_core_dist_effects_Timeline__WEBPACK_IMPORTED_MODULE_8__.TIMELINE_LCM * selectedItem[2];
-            const duration = (selectedItem[3] - selectedItem[2]) * 60000 / bpm / _plix_effect_core_dist_effects_Timeline__WEBPACK_IMPORTED_MODULE_8__.TIMELINE_LCM;
-            const effect = [true, null, selectedItem[1], []];
-            return [effect, start, duration];
-        }
-        return [track.render, 0, trackDuration];
-    }, [selectedItem, selectedType, fieldConfig, track, trackDuration]);
+    const trackRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(track);
+    trackRef.current = track;
+    const fieldConfig = (0,_editor_ProfileContext__WEBPACK_IMPORTED_MODULE_2__.useFieldConfig)();
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         if (!canvas)
             return;
@@ -91533,24 +91515,29 @@ const CanvasStaticPreviewCp = ({ width, height }) => {
             canvas: canvas.transferControlToOffscreen()
         };
         worker.addEventListener("message", (event) => {
-            const data = event.data;
-            const [usedEffectNames, usedFilterNames] = data;
-            lastUsedEffectNames.current = usedEffectNames;
-            lastUsedFilterNames.current = usedFilterNames;
-            lastUsedEffects.current = usedEffectNames.map(name => {
-                var _a, _b;
-                const effect = (_b = (_a = profileRef.current) === null || _a === void 0 ? void 0 : _a.effects) === null || _b === void 0 ? void 0 : _b[name];
-                if (effect !== undefined)
-                    return effect;
-                return track.effects[name];
-            });
-            lastUsedFilters.current = usedFilterNames.map(name => {
-                var _a, _b;
-                const filter = (_b = (_a = profileRef.current) === null || _a === void 0 ? void 0 : _a.filters) === null || _b === void 0 ? void 0 : _b[name];
-                if (filter !== undefined)
-                    return filter;
-                return track.filters[name];
-            });
+            const message = event.data;
+            if (message.type === "deps") {
+                const [usedEffectNames, usedFilterNames] = message.data;
+                lastUsedEffectNames.current = usedEffectNames;
+                lastUsedFilterNames.current = usedFilterNames;
+                lastUsedEffects.current = usedEffectNames.map(name => {
+                    var _a, _b;
+                    const effect = (_b = (_a = profileRef.current) === null || _a === void 0 ? void 0 : _a.effects) === null || _b === void 0 ? void 0 : _b[name];
+                    if (effect !== undefined)
+                        return effect;
+                    return trackRef.current.effects[name];
+                });
+                lastUsedFilters.current = usedFilterNames.map(name => {
+                    var _a, _b;
+                    const filter = (_b = (_a = profileRef.current) === null || _a === void 0 ? void 0 : _a.filters) === null || _b === void 0 ? void 0 : _b[name];
+                    if (filter !== undefined)
+                        return filter;
+                    return trackRef.current.filters[name];
+                });
+            }
+            else if (message.type === "status") {
+                onChangeStatus === null || onChangeStatus === void 0 ? void 0 : onChangeStatus(message.status, message.error);
+            }
         });
         worker.postMessage(msg, [msg.canvas]);
         return () => {
@@ -91561,7 +91548,7 @@ const CanvasStaticPreviewCp = ({ width, height }) => {
         if (!worker)
             return;
         function isRerenderRequired() {
-            if (!(0,_utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_5__.isArraysEqual)(lastUsedSize.current, [width, height, duration, start])) {
+            if (!(0,_utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_3__.isArraysEqual)(lastUsedSize.current, [width, height, duration, startTime])) {
                 return true;
             }
             if (lastUsedEffectRef.current !== render) {
@@ -91577,7 +91564,7 @@ const CanvasStaticPreviewCp = ({ width, height }) => {
                     return effect;
                 return track.effects[name];
             });
-            if (!(0,_utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_5__.isArraysEqual)(lastUsedEffects.current, usedEffects)) {
+            if (!(0,_utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_3__.isArraysEqual)(lastUsedEffects.current, usedEffects)) {
                 return true;
             }
             const usedFilters = lastUsedFilterNames.current.map(name => {
@@ -91587,15 +91574,15 @@ const CanvasStaticPreviewCp = ({ width, height }) => {
                     return filter;
                 return track.filters[name];
             });
-            return !(0,_utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_5__.isArraysEqual)(lastUsedFilters.current, usedFilters);
+            return !(0,_utils_isArraysEqual__WEBPACK_IMPORTED_MODULE_3__.isArraysEqual)(lastUsedFilters.current, usedFilters);
         }
         if (!isRerenderRequired())
             return;
-        lastUsedSize.current = [width, height, duration, start];
+        lastUsedSize.current = [width, height, duration, startTime];
         lastUsedEffectRef.current = render;
         lastUsedEffectNames.current = null;
         lastUsedFilterNames.current = null;
-        const message = { type: "effect", render, track, profileName, duration, start };
+        const message = { type: "effect", render, track, profileName, duration, start: startTime };
         worker.postMessage(message, []);
     }, [worker, render, track.filters, track.effects, profile, profileName, width, height, duration]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
@@ -91613,7 +91600,87 @@ const CanvasStaticPreviewCp = ({ width, height }) => {
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "_bg" },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas, className: "_canvas" }))));
 };
-const CanvasStaticPreview = (0,react_resize_detector__WEBPACK_IMPORTED_MODULE_9__.default)(CanvasStaticPreviewCp, { refreshMode: "throttle" });
+
+
+/***/ }),
+
+/***/ "./src/ui/components/preview/canvas/static/CanvasStaticPreview.tsx":
+/*!*************************************************************************!*\
+  !*** ./src/ui/components/preview/canvas/static/CanvasStaticPreview.tsx ***!
+  \*************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "CanvasStaticPreview": () => /* binding */ CanvasStaticPreview
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _editor_SelectionContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../editor/SelectionContext */ "./src/ui/components/editor/SelectionContext.tsx");
+/* harmony import */ var _editor_TrackContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../editor/TrackContext */ "./src/ui/components/editor/TrackContext.ts");
+/* harmony import */ var _editor_ConstructorContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../editor/ConstructorContext */ "./src/ui/components/editor/ConstructorContext.ts");
+/* harmony import */ var react_resize_detector__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! react-resize-detector */ "./node_modules/react-resize-detector/lib/esm/hoc/withResizeDetector.js");
+/* harmony import */ var _CanvasStaticPreview_scss__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./CanvasStaticPreview.scss */ "./src/ui/components/preview/canvas/static/CanvasStaticPreview.scss");
+/* harmony import */ var _plix_effect_core__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @plix-effect/core */ "./node_modules/@plix-effect/core/dist/parser/index.js");
+/* harmony import */ var _CanvasStaticEffectPreview__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./CanvasStaticEffectPreview */ "./src/ui/components/preview/canvas/static/CanvasStaticEffectPreview.tsx");
+
+
+
+
+
+
+
+
+const CanvasStaticPreviewCp = ({ width, height }) => {
+    var _a;
+    const path = (0,_editor_SelectionContext__WEBPACK_IMPORTED_MODULE_1__.useSelectionPath)();
+    const { selectedType, selectedItem } = (_a = (0,_editor_SelectionContext__WEBPACK_IMPORTED_MODULE_1__.useSelectionItem)()) !== null && _a !== void 0 ? _a : {};
+    const { track } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_editor_TrackContext__WEBPACK_IMPORTED_MODULE_2__.TrackContext);
+    const { effectConstructorMap, filterConstructorMap } = (0,react__WEBPACK_IMPORTED_MODULE_0__.useContext)(_editor_ConstructorContext__WEBPACK_IMPORTED_MODULE_3__.ConstructorContext);
+    const [render, start, duration] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
+        const trackDuration = track['editor'].duration;
+        if (selectedType === "effect") {
+            if (selectedItem) {
+                const copySelectedItem = selectedItem.slice(0);
+                copySelectedItem[0] = true;
+                return [copySelectedItem, 0, trackDuration];
+            }
+            else
+                return [selectedItem, 0, trackDuration];
+        }
+        else if (selectedType === "record") {
+            const parentSelection = (0,_editor_SelectionContext__WEBPACK_IMPORTED_MODULE_1__.getParentSelection)(track, path, effectConstructorMap, filterConstructorMap, 3);
+            const timeline = parentSelection.item;
+            const parentOptions = timeline[2];
+            const bpm = parentOptions[1];
+            const offset = parentOptions[3];
+            const start = offset + 60000 / bpm / _plix_effect_core__WEBPACK_IMPORTED_MODULE_5__.TIMELINE_LCM * selectedItem[2];
+            const duration = (selectedItem[3] - selectedItem[2]) * 60000 / bpm / _plix_effect_core__WEBPACK_IMPORTED_MODULE_5__.TIMELINE_LCM;
+            const effect = [true, null, selectedItem[1], []];
+            return [effect, start, duration];
+        }
+        return [track.render, 0, trackDuration];
+    }, [selectedItem, selectedType, track]);
+    const [status, setStatus] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("none");
+    const [errorMessage, setErrorMessage] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
+    const changeStatusHandler = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((status, error) => {
+        setStatus(status);
+        setErrorMessage(error);
+    }, []);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_CanvasStaticEffectPreview__WEBPACK_IMPORTED_MODULE_6__.CanvasStaticEffectPreview, { width: width !== null && width !== void 0 ? width : 1, height: height !== null && height !== void 0 ? height : 1, duration: duration, render: render, startTime: start, onChangeStatus: changeStatusHandler }),
+        status === "parse" && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "canvas-static-info _info" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-hourglass-half" }),
+            " parsing")),
+        status === "render" && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "canvas-static-info _info" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-hourglass-half" }),
+            " rendering")),
+        status === "error" && (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "canvas-static-info _error" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-exclamation-circle" }),
+            " ",
+            errorMessage))));
+};
+const CanvasStaticPreview = (0,react_resize_detector__WEBPACK_IMPORTED_MODULE_7__.default)(CanvasStaticPreviewCp, { refreshMode: "throttle" });
 
 
 /***/ }),
