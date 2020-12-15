@@ -104,11 +104,6 @@ export const InlineEffectTypeEditor: FC<InlineEffectTypeEditorProps> = ({effect,
     }, [aliasData, effectConstructorsData]);
 
     const currentValue = useMemo<EffectInlineSelectOptionValue>(() => {
-        const preview = (
-            <div className="inline-editor-effect-preview">
-                <CanvasStaticEffectPreview width={100} height={38} duration={duration} render={effect} startTime={0}/>
-            </div>
-        )
         if (effect == null) {
             return NO_EFFECT_OPTION
         } else {
@@ -116,14 +111,14 @@ export const InlineEffectTypeEditor: FC<InlineEffectTypeEditorProps> = ({effect,
                 const alias = effect as PlixEffectAliasJsonData;
                 return {
                     value: "A"+alias[2],
-                    label: <span><i className="fa fa-link"/> {alias[2]} {preview}</span>,
+                    label: <span><i className="fa fa-link"/> {alias[2]}</span>,
                     effectType: "ALIAS",
                     type: "value"
                 }
             } else if (effect[1] !== null) {
                 return {
                     value: "C"+effect[1],
-                    label: <span>{effect[1]} {preview}</span>,
+                    label: effect[1],
                     effectType: "CONSTRUCTOR",
                     type: "value"
                 }

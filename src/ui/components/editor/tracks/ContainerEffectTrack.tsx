@@ -9,6 +9,7 @@ import {ArrayElementsTrack} from "./ArrayElementsTrack";
 import {InlineEffectTypeEditor} from "./editor/inline/InlineEffectTypeEditor";
 import {EffectParamsTrack} from "./EffectParamsTrack";
 import {RenameTrack} from "./RenameTrack";
+import {InlineEffectPreview} from "./editor/inline/InlineEffectPreview";
 
 export interface ContainerEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
@@ -28,6 +29,7 @@ export const ContainerEffectTrack = memo<ContainerEffectTrackProps>(({leftBlock,
             {leftBlock}
             <TimelineBlock fixed>
                 <InlineEffectTypeEditor onChange={onChange} effect={effect} />
+                <InlineEffectPreview effect={effect}/>
             </TimelineBlock>
 
             {alias != null && (<RenameTrack value={alias} type={"effect"}/>)}

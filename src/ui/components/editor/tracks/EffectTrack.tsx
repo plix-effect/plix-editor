@@ -28,6 +28,8 @@ import {useEffectClass} from "../../../use/useEffectClass";
 import {PlixFilterJsonData} from "@plix-effect/core/dist/types/parser";
 import {EffectParamsTrack} from "./EffectParamsTrack";
 import {RenameTrack} from "./RenameTrack";
+import {CanvasStaticEffectPreview} from "../../preview/canvas/static/CanvasStaticEffectPreview";
+import {InlineEffectPreview} from "./editor/inline/InlineEffectPreview";
 
 export interface EffectTrackProps {
     path: EditorPath,
@@ -58,6 +60,7 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, title, bas
 
     const {effectConstructorMap} = useContext(ConstructorContext);
     const effectClass = useEffectClass(effect);
+    const {track} = useContext(TrackContext); // todo оптимизировать, не дёргать track
 
     const onDragOverItemSelf = useCallback((event: DragEvent<HTMLElement>, dragData: DragType): void | [string, DragEventHandler] => {
         const originDragHandler = onDragOverItem?.(event, dragData);
@@ -221,6 +224,7 @@ export const EffectTrack: FC<EffectTrackProps> = memo(({effect, path, title, bas
                 <span className="track-description _desc">
                     <InlineEffectTypeEditor onChange={onChangeEffect} effect={effect} />
                 </span>
+                <InlineEffectPreview effect={effect}/>
             </TimelineBlock>
 
             {alias != null && (<RenameTrack value={alias} type={"effect"}/>)}

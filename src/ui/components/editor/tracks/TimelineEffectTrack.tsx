@@ -17,6 +17,7 @@ import {InlineEffectTypeEditor} from "./editor/inline/InlineEffectTypeEditor";
 import {useSelectionControl, useSelectionPath} from "../SelectionContext";
 import {EffectParamsTrack} from "./EffectParamsTrack";
 import {RenameTrack} from "./RenameTrack";
+import {InlineEffectPreview} from "./editor/inline/InlineEffectPreview";
 
 export interface TimelineEffectTrackProps {
     effect: PlixEffectConfigurableJsonData,
@@ -77,6 +78,7 @@ const TimelineEffectTypeTrack: FC<TimelineEffectTypeTrackProps> = ({effect, onCh
             </TreeBlock>
             <TimelineBlock fixed>
                 <InlineEffectTypeEditor onChange={onChange} effect={effect} />
+                <InlineEffectPreview effect={effect}/>
                 <TimelineBlinkPreview bpm={params[1]} offset={params[3]} />
             </TimelineBlock>
         </Track>
