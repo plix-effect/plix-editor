@@ -54,7 +54,6 @@ export const GradientEditorModal: FC<GradientEditorModalProps> = ({isOpen, close
     }, [gradientData])
 
     const onClickClose = (v) => {
-        console.log("ON CLICK CLOSE");
         if (v) {
             close(v);
         } else {

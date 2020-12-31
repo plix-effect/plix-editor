@@ -16,9 +16,11 @@ export const PreviewFieldEditorModal: FC<PreviewFieldEditorModalProps> = ({isOpe
     }, [value])
 
     const onClose = useCallback((v?: PreviewFieldConfig) => {
+        console.log("CLOSED WITH",v,value);
         if (!v) {
+            const v = {...value};
             setFieldConfig({...value})
-            close(null);
+            close(v);
         } else {
             close(v);
         }
