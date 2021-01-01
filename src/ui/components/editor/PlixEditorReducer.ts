@@ -462,6 +462,8 @@ function rename<T extends any>(
             subTypes = staticSelectTypes[type];
         } else if (type.startsWith("map:")) {
             subType = type.substring(4);
+        } else {
+            return value;
         }
         let hasChanges = false;
         const clone = Object.fromEntries(Object.entries(value).map(([key, nextValue]) => {
