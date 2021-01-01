@@ -86683,6 +86683,7 @@ const CanvasFieldEditor = ({ value, onChange }) => {
     const [canvas, setCanvas] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
     const [drawModeEnabled, setDrawModeEnabled] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
     const [drawingElement, setDrawingElement] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
+    const [displayIndexes, setDisplayIndexes] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
     const [gridX, setGridX] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0);
     const [gridY, setGridY] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0);
     const [field, elementEditor] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
@@ -86708,6 +86709,7 @@ const CanvasFieldEditor = ({ value, onChange }) => {
         if (!field)
             return;
         field.setConfig(value);
+        elementEditor.resetDraw();
     }, [value, field]);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         if (!field)
@@ -86733,6 +86735,12 @@ const CanvasFieldEditor = ({ value, onChange }) => {
         const clone = Object.assign(Object.assign({}, value), { elements: elements });
         onChange(clone);
     }, [value]);
+    const changeDisplayNumbers = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((v) => {
+        if (!elementEditor)
+            return;
+        setDisplayIndexes(v);
+        elementEditor.setDisplayIndexes(v);
+    }, [elementEditor, setDisplayIndexes]);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "canvas-field-editor" },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-cvs-container" },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { ref: setCanvas })),
@@ -86760,6 +86768,8 @@ const CanvasFieldEditor = ({ value, onChange }) => {
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", null, "Drawing"),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement((react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_7___default()), null,
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_control_checkbox_Checkbox__WEBPACK_IMPORTED_MODULE_3__.Checkbox, { onChange: setDrawModeEnabled, value: drawModeEnabled }, "Drawing enabled")),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement((react_bootstrap_cjs_Form__WEBPACK_IMPORTED_MODULE_7___default()), null,
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_control_checkbox_Checkbox__WEBPACK_IMPORTED_MODULE_3__.Checkbox, { onChange: changeDisplayNumbers, value: displayIndexes }, "Display indexes")),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-danger", onClick: onClickRemoveLastElement }, "Remove last element"))),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "cfe-controls-group" },
@@ -86791,6 +86801,7 @@ class FieldElementEditor extends _utils_TypedEventEmitter__WEBPACK_IMPORTED_MODU
     constructor(canvas, field) {
         super();
         this.grid = null;
+        this.displayIndexes = false;
         this.getMousePos = (evt) => {
             const rect = this.canvas.getBoundingClientRect();
             return {
@@ -86850,6 +86861,10 @@ class FieldElementEditor extends _utils_TypedEventEmitter__WEBPACK_IMPORTED_MODU
         this.setDrawingModeEnabled(isDrawMode);
         this.setCommonModeEnabled(!isDrawMode);
     }
+    setDisplayIndexes(val) {
+        this.displayIndexes = val;
+        this.resetDraw();
+    }
     get gridEnabled() {
         const grid = this.grid;
         return grid && (grid[0] > 0 && grid[1] > 0);
@@ -86861,7 +86876,8 @@ class FieldElementEditor extends _utils_TypedEventEmitter__WEBPACK_IMPORTED_MODU
     resetDraw() {
         this.field.resetDraw();
         this.drawGrid();
-        this.drawIndexes();
+        if (this.displayIndexes)
+            this.drawIndexes();
     }
     drawGrid() {
         if (!this.gridEnabled)
