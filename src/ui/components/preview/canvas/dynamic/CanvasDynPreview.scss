@@ -19,6 +19,22 @@
       margin-left: 10px;
     }
 
+    .rewind-controls {
+      margin-left: 10px;
+      margin-top: -30px;
+      .label-line {
+        height: 34px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        .rewind-input-container {
+          display: inline-block;
+          margin-left: 10px;
+          width: 60px;
+        }
+      }
+    }
+
     .rate-option {
       height: 38px;
       display: flex;

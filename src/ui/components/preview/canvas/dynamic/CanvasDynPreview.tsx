@@ -29,6 +29,7 @@ import {PlaybackRateSelector} from "../PlaybackRateSelector";
 import {useLocalStorage} from "../../../../use/useStorage";
 import {useProfile, useProfileName} from "../../../editor/ProfileContext";
 import {DEFAULT_PREVIEW_FIELD_CONFIG} from "./preview-field/PlixCanvasField";
+import {InlineNumberEditor} from "../../../editor/tracks/editor/inline/InlineNumberEditor";
 
 const createDynPreviewCanvasWorker = () => new Worker(new URL("./worker/CanvasDynamicPreviewWorker.ts", import.meta.url));
 
@@ -39,6 +40,7 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = () => {
     const [worker, setWorker] = useState<Worker>();
     const [repeatEnabled, setRepeatEnabled] = useLocalStorage("preview-repeat",false);
     const [playbackRate, setPlaybackRate] = useLocalStorage("preview-playback-rate", 1);
+    const [rewindSeconds, setRewindSeconds] = useLocalStorage("preview-rewind-seconds", 5);
 
     const lastUsedSize = useRef<any[]>([]);
     const lastUsedEffectRef = useRef<PlixEffectJsonData>();
@@ -225,6 +227,28 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = () => {
         stop()
     }
 
+    const onClickRewindBack = () => {
+        doRewind(-1);
+    }
+    const onClickRewindForward = () => {
+        doRewind(1);
+    }
+
+    const doRewind = (dir: (1 | -1)) => {
+        const dif = dir*rewindSeconds*1000;
+        const getRewTime = (origin: number) => {
+            const t = origin+dif;
+            if (t < 0) return 0;
+            if (t > duration) return duration;
+            return t;
+        }
+        if (playbackStatus === "play") {
+            play(getRewTime(getPlayTime()), rate, repeatEnabled, start, start+duration)
+        } else if (playbackStatus === "pause") {
+            pause(getRewTime(pauseTime));
+        }
+    }
+
     const onChangeRepeatCheckbox = useCallback((value) => {
         setRepeatEnabled(value);
         if (playbackStatus === "play") {
@@ -274,6 +298,22 @@ export const CanvasDynPreview:FC<CanvasDynPreviewProps> = () => {
                             <input type="range" className="form-control-range" value={percentageVolume} onChange={setPercentageVolume} min={0} max={100} step={0.5} />
                         </div>
                     </form>
+                    <div className={"rewind-controls"}>
+                        <div className={"label-line"}>
+                            <span>Rewind (seconds): </span>
+                            <div className={"rewind-input-container"}>
+                                <InlineNumberEditor value={rewindSeconds} onChange={setRewindSeconds}/>
+                            </div>
+                        </div>
+                        <div className={"btn-group"}>
+                            <button className={"btn btn-md btn-primary"} onClick={onClickRewindBack} title={"Rewind back"}>
+                                <i className="fas fa-backward"/>
+                            </button>
+                            <button className={"btn btn-md btn-primary"} onClick={onClickRewindForward} title={"Rewind forward"}>
+                                <i className="fas fa-backward" style={{transform: "rotate(180deg)"}}/>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div className={"rate-option"}>
