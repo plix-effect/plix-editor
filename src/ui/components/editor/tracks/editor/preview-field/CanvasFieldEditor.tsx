@@ -30,6 +30,7 @@ export const CanvasFieldEditor: FC<CanvasFieldEditorProps> = ({value, onChange})
     const [canvas, setCanvas] = useState<HTMLCanvasElement>();
     const [drawModeEnabled, setDrawModeEnabled] = useState(false);
     const [drawingElement, setDrawingElement] = useState(null);
+    const [displayIndexes, setDisplayIndexes] = useState(false);
     const [gridX, setGridX] = useState(0);
     const [gridY, setGridY] = useState(0);
 
@@ -56,6 +57,7 @@ export const CanvasFieldEditor: FC<CanvasFieldEditorProps> = ({value, onChange})
     useEffect(() => {
         if (!field) return;
         field.setConfig(value);
+        elementEditor.resetDraw();
     }, [value, field])
 
     useEffect(() => {
@@ -84,6 +86,12 @@ export const CanvasFieldEditor: FC<CanvasFieldEditorProps> = ({value, onChange})
         const clone: PreviewFieldConfig = {...value, elements: elements};
         onChange(clone);
     }, [value])
+
+    const changeDisplayNumbers = useCallback((v) => {
+        if (!elementEditor) return;
+        setDisplayIndexes(v);
+        elementEditor.setDisplayIndexes(v);
+    }, [elementEditor, setDisplayIndexes])
 
     return (
         <div className={"canvas-field-editor"}>
@@ -123,6 +131,9 @@ export const CanvasFieldEditor: FC<CanvasFieldEditorProps> = ({value, onChange})
                     <label>Drawing</label>
                     <Form>
                         <Checkbox onChange={setDrawModeEnabled} value={drawModeEnabled}>Drawing enabled</Checkbox>
+                    </Form>
+                    <Form>
+                        <Checkbox onChange={changeDisplayNumbers} value={displayIndexes}>Display indexes</Checkbox>
                     </Form>
                     <div>
                         <button className={"btn btn-danger"} onClick={onClickRemoveLastElement}>Remove last element</button>

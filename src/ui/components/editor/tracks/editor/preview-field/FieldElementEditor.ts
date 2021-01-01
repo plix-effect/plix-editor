@@ -21,6 +21,7 @@ export class FieldElementEditor extends TypedEventEmitter<FieldElementEditorEven
     private ctx: CanvasRenderingContext2D
     private drawingElement?: DrawingFieldElement;
     private grid: [number, number] | null = null
+    private displayIndexes: boolean = false;
 
 
     constructor(canvas: HTMLCanvasElement, field: PlixCanvasField<RegularCanvasGeneric>) {
@@ -41,6 +42,11 @@ export class FieldElementEditor extends TypedEventEmitter<FieldElementEditorEven
         this.setCommonModeEnabled(!isDrawMode)
     }
 
+    setDisplayIndexes(val: boolean) {
+        this.displayIndexes = val;
+        this.resetDraw();
+    }
+
     private get gridEnabled() {
         const grid = this.grid;
         return grid && (grid[0] > 0 && grid[1] > 0)
@@ -51,10 +57,10 @@ export class FieldElementEditor extends TypedEventEmitter<FieldElementEditorEven
         this.resetDraw();
     }
 
-    private resetDraw(){
+    public resetDraw(){
         this.field.resetDraw();
         this.drawGrid();
-        this.drawIndexes();
+        if (this.displayIndexes) this.drawIndexes();
     }
     
     private drawGrid() {
