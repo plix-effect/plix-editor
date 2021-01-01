@@ -87966,6 +87966,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _use_useStorage__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../../../use/useStorage */ "./src/ui/use/useStorage.ts");
 /* harmony import */ var _editor_ProfileContext__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../../editor/ProfileContext */ "./src/ui/components/editor/ProfileContext.tsx");
 /* harmony import */ var _preview_field_PlixCanvasField__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./preview-field/PlixCanvasField */ "./src/ui/components/preview/canvas/dynamic/preview-field/PlixCanvasField.ts");
+/* harmony import */ var _editor_tracks_editor_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../../../editor/tracks/editor/inline/InlineNumberEditor */ "./src/ui/components/editor/tracks/editor/inline/InlineNumberEditor.tsx");
+
 
 
 
@@ -87987,6 +87989,7 @@ const CanvasDynPreview = () => {
     const [worker, setWorker] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)();
     const [repeatEnabled, setRepeatEnabled] = (0,_use_useStorage__WEBPACK_IMPORTED_MODULE_10__.useLocalStorage)("preview-repeat", false);
     const [playbackRate, setPlaybackRate] = (0,_use_useStorage__WEBPACK_IMPORTED_MODULE_10__.useLocalStorage)("preview-playback-rate", 1);
+    const [rewindSeconds, setRewindSeconds] = (0,_use_useStorage__WEBPACK_IMPORTED_MODULE_10__.useLocalStorage)("preview-rewind-seconds", 5);
     const lastUsedSize = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)([]);
     const lastUsedEffectRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
     const lastUsedEffectNames = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
@@ -88168,6 +88171,29 @@ const CanvasDynPreview = () => {
     const onClickStop = () => {
         stop();
     };
+    const onClickRewindBack = () => {
+        doRewind(-1);
+    };
+    const onClickRewindForward = () => {
+        doRewind(1);
+    };
+    const doRewind = (dir) => {
+        const dif = dir * rewindSeconds * 1000;
+        const getRewTime = (origin) => {
+            const t = origin + dif;
+            if (t < 0)
+                return 0;
+            if (t > duration)
+                return duration;
+            return t;
+        };
+        if (playbackStatus === "play") {
+            play(getRewTime(getPlayTime()), rate, repeatEnabled, start, start + duration);
+        }
+        else if (playbackStatus === "pause") {
+            pause(getRewTime(pauseTime));
+        }
+    };
     const onChangeRepeatCheckbox = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)((value) => {
         setRepeatEnabled(value);
         if (playbackStatus === "play") {
@@ -88202,7 +88228,17 @@ const CanvasDynPreview = () => {
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", { className: "volume-controls" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "form-group" },
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", { htmlFor: "formControlRange" }, "Music volume"),
-                        react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { type: "range", className: "form-control-range", value: percentageVolume, onChange: setPercentageVolume, min: 0, max: 100, step: 0.5 })))),
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { type: "range", className: "form-control-range", value: percentageVolume, onChange: setPercentageVolume, min: 0, max: 100, step: 0.5 }))),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "rewind-controls" },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "label-line" },
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null, "Rewind (seconds): "),
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "rewind-input-container" },
+                            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_editor_tracks_editor_inline_InlineNumberEditor__WEBPACK_IMPORTED_MODULE_13__.InlineNumberEditor, { value: rewindSeconds, onChange: setRewindSeconds }))),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "btn-group" },
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-md btn-primary", onClick: onClickRewindBack, title: "Rewind back" },
+                            react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-backward" })),
+                        react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "btn btn-md btn-primary", onClick: onClickRewindForward, title: "Rewind forward" },
+                            react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", { className: "fas fa-backward", style: { transform: "rotate(180deg)" } }))))),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "rate-option" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null, "Playback rate: "),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "rate-selector" },
