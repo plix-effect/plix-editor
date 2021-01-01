@@ -1,0 +1,32 @@
+html .popup-content {
+  border-radius: 5px;
+  padding: 0;
+}
+
+html[data-theme='dark'] .popup-content {
+  background-color: #333333;
+  color: #fff;
+  border: 1px solid #9a9595;
+}
+
+html[data-theme='light'] .popup-content {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #d7d7d7;
+}
+
+html[data-theme='dark'] .popup-arrow > svg {
+  color: rgb(41, 45, 62);
+  stroke-width: 2px;
+  stroke: #9a9595;
+  stroke-dasharray: 30px;
+  stroke-dashoffset: -54px;
+}
+
+html[data-theme='light'] .popup-arrow > svg {
+  color: #fff;
+  stroke-width: 2px;
+  stroke: #d7d7d7;
+  stroke-dasharray: 30px;
+  stroke-dashoffset: -54px;
+}

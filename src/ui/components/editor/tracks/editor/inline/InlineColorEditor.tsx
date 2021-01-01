@@ -18,12 +18,6 @@ export const InlineColorEditor: FC<InlineColorEditorProps> = ({value, onChange})
 
     const switchOpen = useCallback(() => {
         setOpen((v) => !v);
-        if (open) {
-            // Костыль. Нужно избавиться от reactjs-popup
-            // Баг: создается 1 дивка для попапов, при закрытии не исчезает
-            // Модалки открытые позже чем первый открытый попап - перекрывают любые попапы
-            document.getElementById("popup-root").remove();
-        }
     }, [setOpen, open])
 
     const [colorPickerValue, setColorPickerValue] = useState(rgbaColor)

@@ -5,9 +5,10 @@ import "./BSModal.scss"
 import Button from "react-bootstrap/cjs/Button";
 import Modal from "react-bootstrap/cjs/Modal";
 import {modalManager, ModalManagerCloseReason} from "./ModalManager";
+import Popup from "reactjs-popup";
 
 
-export type ModalSize = | "sm" | "lg" | "xl";
+export type ModalSize = | "sm" | "lg" | "xl" | "auto";
 
 export interface IReactModalPromiseProps {
     isOpen: boolean;
@@ -21,7 +22,14 @@ export interface BSModalProps extends IReactModalPromiseProps{
     centered?: boolean
 }
 
-export const BSModal: FC<BSModalProps> = ({size = undefined, isOpen,instanceId, close, children, allowClose = true, centered = true}) => {
+const sizeWidthMap = {
+    "sm": "40%",
+    "lg": "60%",
+    "xl": "80%",
+    "auto": "auto"
+}
+
+export const BSModal: FC<BSModalProps> = ({size = "auto", isOpen,instanceId, close, children, allowClose = true, centered = true}) => {
     const lastIsOpenRef = useRef(false);
     const instanceIdRef  = useRef(instanceId || String(Math.random()*1000000))
 
@@ -75,25 +83,50 @@ export const BSModal: FC<BSModalProps> = ({size = undefined, isOpen,instanceId, 
         }
     }, [closeByControls]);
 
+    console.log("isOpen",isOpen);
+
     return (
         <CurrentModalContext.Provider value={contextValue}>
-            <Modal show={isOpen} centered={centered} onHide={onClickClose} backdrop={allowClose ? true : "static"} className={"bsmodal"} size={size}>
-                <Modal.Header closeButton={allowClose}>
-                    <Modal.Title>{title}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {body}
-                </Modal.Body>
-                {
-                    actions ?
-                        (
-                            <Modal.Footer>
-                                {actions}
-                            </Modal.Footer>
-                        )
-                        : null
-                }
-            </Modal>
+            <Popup
+                open={isOpen}
+                onClose={onClickClose}
+                closeOnDocumentClick
+                modal
+                nested
+                contentStyle={{
+                    width: sizeWidthMap[size]
+                }}
+            >
+                <div className={"bsmodal"}>
+                    <a className="close" onClick={onClickClose} style={{"color": "white"}}>
+                        &times;
+                    </a>
+                    <div className="header">{title}</div>
+                    <div className="content">
+                        {body}
+                    </div>
+                    <div className="actions">
+                        {actions}
+                    </div>
+                </div>
+            </Popup>
+            {/*<Modal show={isOpen} centered={centered} onHide={onClickClose} backdrop={allowClose ? true : "static"} className={"bsmodal"} size={size}>*/}
+            {/*    <Modal.Header closeButton={allowClose}>*/}
+            {/*        <Modal.Title>{title}</Modal.Title>*/}
+            {/*    </Modal.Header>*/}
+            {/*    <Modal.Body>*/}
+            {/*        {body}*/}
+            {/*    </Modal.Body>*/}
+            {/*    {*/}
+            {/*        actions ?*/}
+            {/*            (*/}
+            {/*                <Modal.Footer>*/}
+            {/*                    {actions}*/}
+            {/*                </Modal.Footer>*/}
+            {/*            )*/}
+            {/*            : null*/}
+            {/*    }*/}
+            {/*</Modal>*/}
         </CurrentModalContext.Provider>
     )
 

@@ -83,6 +83,10 @@ module.exports = (env) => {
                     {
                         from: "./node_modules/@fortawesome/fontawesome-free/css/all.min.css",
                         to: "./css/font-awesome.min.css"
+                    },
+                    {
+                        from: "./node_modules/reactjs-popup/dist/index.css",
+                        to: "./css/reactjs-popup.css"
                     }
                 ]
             }),
@@ -92,7 +96,7 @@ module.exports = (env) => {
                 base: "/",
             }),
             new HtmlWebpackTagsPlugin({
-                tags: ['css/bootstrap.min.css', 'css/font-awesome.min.css'], append: true
+                tags: ['css/bootstrap.min.css', 'css/font-awesome.min.css', 'css/reactjs-popup.css'], append: true
              })
         ]
     };
