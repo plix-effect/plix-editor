@@ -8,6 +8,7 @@ import {InlineColorEditor} from "../inline/InlineColorEditor";
 import {LinearGradient} from "@plix-effect/core/dist/gradient/LinearGradient";
 import {PlixColor, toNumber as plixColorToNumber, toRgba} from "@plix-effect/core/color";
 import {BSModalPart} from "../../../../modal/BSModalPart";
+import {InlineNumberEditor} from "../inline/InlineNumberEditor";
 
 
 const emptyImage = new Image();
@@ -150,6 +151,11 @@ export const GradientEditorModal: FC<GradientEditorModalProps> = ({isOpen, close
         setGradientData(newGradient);
     }, [gradientData])
 
+    const onChangeMarkerPosition = useCallback((i: number, pos: number) => {
+        const newGradient = getUpdatedGradientData(gradientData, i, [pos, undefined]);
+        setGradientData(newGradient);
+    }, [gradientData])
+
     const onClickPreview = useCallback((e: React.MouseEvent) => {
         const rect = previewContainerRef.current.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -176,6 +182,7 @@ export const GradientEditorModal: FC<GradientEditorModalProps> = ({isOpen, close
     const markersListView = useMemo(() => {
         return gradientData.map((gd, i) => {
             const onChangeColor = onChangeMarkerColor.bind(null, i);
+            const onChangePosition = onChangeMarkerPosition.bind(null, i);
             const remove = onClickRemove.bind(null,i);
             return (
                 <div className={"list-markers-item"} key={i}>
@@ -183,10 +190,13 @@ export const GradientEditorModal: FC<GradientEditorModalProps> = ({isOpen, close
                         <a onClick={remove} className={"list-markers-item-name-remove"} title={"Remove"}>
                             <i className="fas fa-trash-alt"/>
                         </a>
-                        <span>Marker №{i+1} ({(gd[0]*100).toFixed(1)}%):</span>
+                        <span>Marker #{(i < 9 ? "0" : "") + (i+1)}:</span>
                     </div>
                     <div className={"list-markers-item-value"}>
                         <InlineColorEditor value={gd[1]} onChange={onChangeColor}/>
+                    </div>
+                    <div className={"list-markers-item-value"}>
+                        <InlineNumberEditor value={gd[0]} onChange={onChangePosition}/>
                     </div>
                 </div>
             )
