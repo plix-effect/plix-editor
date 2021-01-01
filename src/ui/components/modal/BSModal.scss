@@ -14,4 +14,11 @@ $padding: 16px;
     padding: $padding;
     float: right;
   }
+  .close {
+    color: white;
+    padding: $padding;
+    &:hover {
+      color: #898989;
+    }
+  }
 }

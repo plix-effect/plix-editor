@@ -98,7 +98,7 @@ export const BSModal: FC<BSModalProps> = ({size = "auto", isOpen,instanceId, clo
                 }}
             >
                 <div className={"bsmodal"}>
-                    <a className="close" onClick={onClickClose} style={{"color": "white"}}>
+                    <a className="close" onClick={onClickClose}>
                         &times;
                     </a>
                     <div className="header">{title}</div>
