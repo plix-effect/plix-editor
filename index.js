@@ -3807,8 +3807,8 @@ Blend.meta = {
     name: "Blend",
     description: "Blend effect",
     paramNames: ["opacity", "mode"],
-    paramTypes: ["number", "blend"],
-    paramParse: [parseTypes_1.NUMBER, parseTypes_1.BLENDER],
+    paramTypes: ["timing", "blend"],
+    paramParse: [parseTypes_1.TIMING_FUNCTION, parseTypes_1.BLENDER],
     paramDescriptions: ["apply opacity to effect", "select blending mode"],
     defaultValues: [1, "normal"]
 };
@@ -3819,7 +3819,7 @@ function Blend(opacity, blender) {
             var colorMod = lineMod(index, length);
             return function (color) {
                 var effectColor = colorMod(Color_1.TRANSPARENT_BLACK);
-                var opaEffectColor = Color_1.applyOpacity(effectColor, opacity);
+                var opaEffectColor = Color_1.applyOpacity(effectColor, opacity(time / dur));
                 return Color_1.blendColors(color, opaEffectColor, blender);
             };
         };
@@ -3846,8 +3846,8 @@ BlendFilters.meta = {
     name: "BlendFilters",
     description: "Apply filters in parallel and blend results",
     paramNames: ["filters", "opacity", "mode"],
-    paramTypes: ["array:filter", "number", "blend"],
-    paramParse: [parseTypes_1.ARRAY_OF(parseTypes_1.FILTER), parseTypes_1.NUMBER, parseTypes_1.BLENDER],
+    paramTypes: ["array:filter", "timing", "blend"],
+    paramParse: [parseTypes_1.ARRAY_OF(parseTypes_1.FILTER), parseTypes_1.TIMING_FUNCTION, parseTypes_1.BLENDER],
     paramDescriptions: ["list of filters", "apply opacity to every result", "blending mode"],
     defaultValues: [[null], 1, "normal"]
 };
@@ -81524,6 +81524,9 @@ function rename(value, type, aliasType, nameFrom, nameTo, effectConstructorMap, 
         }
         else if (type.startsWith("map:")) {
             subType = type.substring(4);
+        }
+        else {
+            return value;
         }
         let hasChanges = false;
         const clone = Object.fromEntries(Object.entries(value).map(([key, nextValue]) => {
