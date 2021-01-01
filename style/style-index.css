@@ -23,6 +23,34 @@
   to {
     background-position: -15px -5px, -15px 0px, -10px -10px, -20px -5px; } }
 
+html .popup-content {
+  border-radius: 5px;
+  padding: 0; }
+
+html[data-theme='dark'] .popup-content {
+  background-color: #333333;
+  color: #fff;
+  border: 1px solid #9a9595; }
+
+html[data-theme='light'] .popup-content {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #d7d7d7; }
+
+html[data-theme='dark'] .popup-arrow > svg {
+  color: #292d3e;
+  stroke-width: 2px;
+  stroke: #9a9595;
+  stroke-dasharray: 30px;
+  stroke-dashoffset: -54px; }
+
+html[data-theme='light'] .popup-arrow > svg {
+  color: #fff;
+  stroke-width: 2px;
+  stroke: #d7d7d7;
+  stroke-dasharray: 30px;
+  stroke-dashoffset: -54px; }
+
 html, html > body {
   padding: 0;
   margin: 0;
@@ -588,19 +616,23 @@ body .btn-primary:focus {
     bottom: -5px;
     pointer-events: none; }
 
-.bsmodal-cover {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); }
+.bsmodal .header {
+  padding: 16px;
+  border-bottom: 1px solid #9a9595; }
 
-.bsmodal .modal-content {
-  background-color: #333; }
+.bsmodal .content {
+  padding: 16px;
+  border-bottom: 1px solid #9a9595; }
 
-.bsmodal .modal-content .modal-header .close {
-  color: white; }
+.bsmodal .actions {
+  padding: 16px;
+  float: right; }
+
+.bsmodal .close {
+  color: white;
+  padding: 16px; }
+  .bsmodal .close:hover {
+    color: #898989; }
 
 .cfe-cvs-container {
   max-width: 100%;
