@@ -23,6 +23,8 @@ import {DisplayFilter} from "./editor/DisplayFilter";
 import {DragType} from "../DragContext";
 import {useSelectionControl, useSelectionPath} from "../SelectionContext";
 import {ProfileTrack} from "./ProfileTrack";
+import {FolderElementsTrack} from "./FolderElementsTrack";
+import {abComparator} from "../../../utils/comparator";
 
 export interface GroupProfilesTrackProps {
     profilesMap: PlixProfileMap,
@@ -43,17 +45,16 @@ export const GroupProfilesTrack: FC<GroupProfilesTrackProps> = memo(({profilesMa
 
     const inputRef = useRef<HTMLInputElement>();
 
-    const profilesList = useMemo(() => {
-        return Object.keys(profilesMap).sort(/*a-z*/).map((name) => {
+    const items = useMemo(() => {
+        return Object.keys(profilesMap).sort(abComparator).map((name) => {
             return {
-                name: name,
-                path: [...path, name] as EditorPath,
+                fullName: name,
                 value: profilesMap[name],
             }
         })
     }, [profilesMap]);
 
-    const count = useMemo(() => profilesList.length, [profilesList])
+    const count = useMemo(() => items.length, [items])
 
     const [name, setName] = useState("");
     const onEditName = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -170,28 +171,9 @@ export const GroupProfilesTrack: FC<GroupProfilesTrackProps> = memo(({profilesMa
                 </>)}
 
             </TimelineBlock>
-            {profilesList.map(alias => (
-                <AliasProfileTrack name={alias.name} path={alias.path} key={alias.name} value={alias.value} baseValue={baseValue}/>
-            ))}
+            <FolderElementsTrack dir={""} path={path} type="profile" items={items} canDelete/>
         </Track>
     )
 });
 
-// todo: get default fieldConfig;
 const defaultProfile = {filters: {}, effects: {}, fieldConfig: null};
-
-interface AliasProfileTrackProps {
-    value: PlixProfile,
-    path: EditorPath,
-    baseValue: PlixProfile,
-    name: string,
-}
-const AliasProfileTrack: FC<AliasProfileTrackProps> = memo(({value, path, name, baseValue}) => {
-    const deleteAction = useMemo(() => DeleteAction(path), [path]);
-
-    return (
-        <ProfileTrack value={value} path={path} name={name} deleteAction={deleteAction} baseValue={baseValue}>
-            {name}
-        </ProfileTrack>
-    );
-})

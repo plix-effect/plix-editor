@@ -83,8 +83,6 @@ export const BSModal: FC<BSModalProps> = ({size = "auto", isOpen,instanceId, clo
         }
     }, [closeByControls]);
 
-    console.log("isOpen",isOpen);
-
     return (
         <CurrentModalContext.Provider value={contextValue}>
             <Popup

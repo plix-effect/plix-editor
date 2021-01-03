@@ -36,7 +36,7 @@ export interface ProfileTrackProps {
     clearAction?: MultiActionType,
 }
 export const ProfileTrack: FC<ProfileTrackProps> = memo(({value, baseValue, name, title, children, path, onDragOverItem, deleteAction, clearAction}) => {
-    const [expanded, expander, changeExpanded, setExpanded] = useExpander(false);
+    const [expanded, expander, changeExpanded] = useExpander(false);
     const {dispatch} = useContext(TrackContext);
 
     const {toggleSelect, isSelectedPath, select} = useSelectionControl();

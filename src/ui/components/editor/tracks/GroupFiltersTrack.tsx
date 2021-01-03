@@ -11,7 +11,6 @@ import React, {
 } from "react";
 import {Track} from "../../timeline/Track";
 import {PlixFiltersMapJsonData} from "@plix-effect/core/types/parser";
-import {FilterTrack} from "./FilterTrack";
 import {EditorPath} from "../../../types/Editor";
 import {useExpander} from "../track-elements/Expander";
 import {TreeBlock} from "../track-elements/TreeBlock";
@@ -22,6 +21,8 @@ import {PlixFilterJsonData} from "@plix-effect/core/dist/types/parser";
 import {DisplayFilter} from "./editor/DisplayFilter";
 import {DragType} from "../DragContext";
 import {useSelectionControl, useSelectionPath} from "../SelectionContext";
+import {FolderElementsTrack} from "./FolderElementsTrack";
+import {abComparator} from "../../../utils/comparator";
 
 export interface GroupFiltersTrackProps {
     filtersMap: PlixFiltersMapJsonData,
@@ -41,11 +42,10 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
         return isSelectedPath(path);
     }, [selectionPath]);
 
-    const aliasesList = useMemo(() => {
-        return Object.keys(filtersMap).sort(/*a-z*/).map((name, index) => {
+    const items = useMemo(() => {
+        return Object.keys(filtersMap).sort(abComparator).map((name) => {
             return {
-                name: name,
-                path: [...path, name] as EditorPath,
+                fullName: name,
                 value: filtersMap[name],
             }
         })
@@ -182,26 +182,9 @@ export const GroupFiltersTrack: FC<GroupFiltersTrackProps> = memo(({filtersMap, 
                 </>)}
 
             </TimelineBlock>
-            {aliasesList.map(alias => (
-                <AliasFilterTrack name={alias.name} path={alias.path} key={alias.name} value={alias.value}/>
-            ))}
+            <FolderElementsTrack dir={""} path={path} type="filter" items={items} canDelete/>
         </Track>
     )
 });
 
 const defaultFilter = null;
-
-interface AliasFilterTrackProps {
-    value: PlixFilterJsonData,
-    path: EditorPath,
-    name: string,
-}
-const AliasFilterTrack: FC<AliasFilterTrackProps> = memo(({value, path, name}) => {
-    const deleteAction = useMemo(() => DeleteAction(path), [path]);
-
-    return (
-        <FilterTrack filter={value} path={path} key={name} alias={name} deleteAction={deleteAction}>
-            {name}
-        </FilterTrack>
-    );
-})

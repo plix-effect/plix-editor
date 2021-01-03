@@ -11,17 +11,18 @@ import React, {
 } from "react";
 import {Track} from "../../timeline/Track";
 import { PlixEffectsMapJsonData, PlixEffectJsonData} from "@plix-effect/core/types/parser";
-import {EffectTrack} from "./EffectTrack";
 import {EditorPath} from "../../../types/Editor";
 import {useExpander} from "../track-elements/Expander";
 import {TreeBlock} from "../track-elements/TreeBlock";
 import {TimelineBlock} from "../track-elements/TimelineBlock";
 import {TrackContext} from "../TrackContext";
-import {DeleteAction, EditValueAction} from "../PlixEditorReducerActions";
+import {EditValueAction} from "../PlixEditorReducerActions";
 import "./GroupEffectsTrack.scss";
 import {DragType} from "../DragContext";
 import {DisplayEffect} from "./editor/DisplayEffect";
 import {useSelectionControl, useSelectionPath} from "../SelectionContext";
+import {abComparator} from "../../../utils/comparator";
+import {FolderElementsTrack} from "./FolderElementsTrack";
 
 export interface GroupEffectsTrackProps {
     effectsMap: PlixEffectsMapJsonData,
@@ -41,11 +42,10 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
         return isSelectedPath(path);
     }, [selectionPath]);
 
-    const aliasesList = useMemo(() => {
-        return Object.keys(effectsMap).sort(/*a-z*/).map((name, index) => {
+    const items = useMemo(() => {
+        return Object.keys(effectsMap).sort(abComparator).map((name) => {
             return {
-                name: name,
-                path: [...path, name] as EditorPath,
+                fullName: name,
                 value: effectsMap[name],
             }
         })
@@ -180,28 +180,10 @@ export const GroupEffectsTrack: FC<GroupEffectsTrackProps> = memo(({effectsMap, 
                         <button type="reset">cancel</button>
                     </form>
                 </>)}
-
             </TimelineBlock>
-            {aliasesList.map(({value, path, name}) => (
-                <AliasEffectTrack path={path} value={value} name={name} key={name} />
-            ))}
+            <FolderElementsTrack dir={""} path={path} type="effect" items={items} canDelete/>
         </Track>
     );
 });
-
-interface AliasEffectTrackProps {
-    value: PlixEffectJsonData,
-    path: EditorPath,
-    name: string,
-}
-const AliasEffectTrack: FC<AliasEffectTrackProps> = memo(({value, path, name}) => {
-    const deleteAction = useMemo(() => DeleteAction(path), [path]);
-
-    return (
-        <EffectTrack effect={value} path={path} key={name} alias={name} deleteAction={deleteAction}>
-            {name}
-        </EffectTrack>
-    );
-})
 
 const defaultEffect = null;

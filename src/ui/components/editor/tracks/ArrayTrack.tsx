@@ -142,17 +142,17 @@ export const ArrayTrack: FC<ArrayTrackProps> = memo(({value, title, type, childr
     const onClickDelete: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
         event.stopPropagation();
         if (deleteAction) dispatch(deleteAction);
-    }, [deleteAction, clearAction, dispatch]);
+    }, [deleteAction, dispatch]);
 
     const onClickAdd: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
         event.stopPropagation();
         if (valueToPush !== undefined) push();
-    }, [deleteAction, clearAction, dispatch]);
+    }, [push]);
 
     const onClickClear: MouseEventHandler<HTMLDivElement> = useCallback((event) => {
         event.stopPropagation();
         if (clearAction) dispatch(clearAction);
-    }, [deleteAction, clearAction, dispatch]);
+    }, [clearAction, dispatch]);
 
     const rightIcons = (<>
         {valueToPush !== undefined && (
